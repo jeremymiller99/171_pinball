@@ -7,7 +7,7 @@ public class ResetZone : MonoBehaviour
     {
         if (other.CompareTag("Ball"))
         {
-            SceneManager.LoadScene("Test");
+            SceneManager.LoadScene("Shader_Test");
                 
         }
     }

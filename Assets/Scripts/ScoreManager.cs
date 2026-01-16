@@ -22,6 +22,9 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private TMP_Text ballsRemainingText;
     [SerializeField] private TMP_Text coinsText;
 
+    [Header("Scoring Control")]
+    [SerializeField] private bool scoringLocked;
+
     private void Start()
     {
         // Keep existing defaults.
@@ -34,6 +37,7 @@ public class ScoreManager : MonoBehaviour
 
     public void AddPoints(float p)
     {
+        if (scoringLocked) return;
         points += p;
         if (pointsText != null)
             pointsText.text = points.ToString();
@@ -41,9 +45,15 @@ public class ScoreManager : MonoBehaviour
 
     public void AddMult(float m)
     {
+        if (scoringLocked) return;
         mult += m;
         if (multText != null)
             multText.text = mult.ToString();
+    }
+
+    public void SetScoringLocked(bool locked)
+    {
+        scoringLocked = locked;
     }
 
     /// <summary>

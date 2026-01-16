@@ -153,7 +153,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 74.9, y: -17.8}
+  m_AnchoredPosition: {x: 74.9, y: -22.3}
   m_SizeDelta: {x: 100, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &22796209
@@ -659,7 +659,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 55742559}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.000028849934}
+  m_LocalPosition: {x: 0, y: 0, z: -0.0000058013447}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -667,7 +667,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -74.39998, y: -18.900015}
+  m_AnchoredPosition: {x: -74.39998, y: -23.400026}
   m_SizeDelta: {x: 100, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &55742561
@@ -1881,6 +1881,7 @@ GameObject:
   m_Component:
   - component: {fileID: 349540275}
   - component: {fileID: 349540274}
+  - component: {fileID: 349540276}
   m_Layer: 0
   m_Name: ScoreManager
   m_TagString: Untagged
@@ -1910,6 +1911,7 @@ MonoBehaviour:
   goalText: {fileID: 782432820}
   ballsRemainingText: {fileID: 22796209}
   coinsText: {fileID: 55742561}
+  scoringLocked: 0
 --- !u!4 &349540275
 Transform:
   m_ObjectHideFlags: 0
@@ -1925,6 +1927,27 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &349540276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 349540273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d18df8fe34cd3994e96ca0d381a81bdc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScoreTallyAnimator
+  pointsText: {fileID: 1146335244}
+  multText: {fileID: 2011285161}
+  xText: {fileID: 968074746}
+  roundTotalText: {fileID: 2132941054}
+  moveToXDuration: 0.35
+  holdAtXDuration: 0.15
+  moveToRoundTotalDuration: 0.45
+  endHoldDuration: 0.05
+  lockScoreManagerDuringTally: 1
 --- !u!1 &350990194
 GameObject:
   m_ObjectHideFlags: 0
@@ -2711,6 +2734,9 @@ MonoBehaviour:
     cost: 1
   - displayName: Blue Ball
     ballPrefab: {fileID: 5723297401256486482, guid: 9714808a9a4fd2a44ae2383169fcc525, type: 3}
+    cost: 5
+  - displayName: Red Ball
+    ballPrefab: {fileID: 5723297401256486482, guid: 5c1b39ca37b837b4e946f6c9af173ffa, type: 3}
     cost: 5
 --- !u!222 &460876980
 CanvasRenderer:
@@ -4295,7 +4321,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 782432818}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.000009094001}
+  m_LocalPosition: {x: 0, y: 0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4303,7 +4329,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.00003434014, y: -30.90003}
+  m_AnchoredPosition: {x: 0, y: -24.5}
   m_SizeDelta: {x: 250, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &782432820
@@ -5302,7 +5328,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 50}
+  m_SizeDelta: {x: 300, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &968074746
 MonoBehaviour:
@@ -7095,6 +7121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameRulesManager
   scoreManager: {fileID: 349540274}
+  scoreTallyAnimator: {fileID: 349540276}
   goalByRound:
   - 500
   - 800
@@ -9169,7 +9196,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2132941052}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9177,7 +9204,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -6.5}
+  m_AnchoredPosition: {x: 0, y: 0.8}
   m_SizeDelta: {x: 250, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2132941054

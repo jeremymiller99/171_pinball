@@ -5,6 +5,7 @@ public class GameRulesManager : MonoBehaviour
 {
     [Header("Scoring")]
     [SerializeField] private ScoreManager scoreManager;
+    [SerializeField] private ScoreTallyAnimator scoreTallyAnimator;
     [SerializeField] private List<float> goalByRound = new List<float> { 500f, 800f, 1200f, 1700f, 2300f, 3000f, 4000f };
     [SerializeField] private float pointsPerCoin = 100f;
 
@@ -37,6 +38,7 @@ public class GameRulesManager : MonoBehaviour
     private bool runActive;
     private bool shopOpen;
     private GameObject activeBall;
+    private bool _drainProcessing;
 
     // Which prefabs will be used for the next round's hand (size == maxBalls).
     private readonly List<GameObject> _ballLoadout = new List<GameObject>();
@@ -121,15 +123,39 @@ public class GameRulesManager : MonoBehaviour
 
     public void OnBallDrained(GameObject ball)
     {
-        if (!runActive || shopOpen)
+        if (_drainProcessing)
         {
             DespawnBall(ball);
             return;
         }
 
+        StartCoroutine(OnBallDrainedRoutine(ball));
+    }
+
+    private System.Collections.IEnumerator OnBallDrainedRoutine(GameObject ball)
+    {
+        _drainProcessing = true;
+
+        if (!runActive || shopOpen)
+        {
+            DespawnBall(ball);
+            _drainProcessing = false;
+            yield break;
+        }
+
         DespawnBall(ball);
 
-        BankCurrentBallIntoRoundTotal();
+        // Play animated tally if configured; otherwise instant-bank.
+        if (scoreTallyAnimator != null && scoreManager != null)
+        {
+            yield return scoreTallyAnimator.PlayTally(scoreManager);
+            roundTotal = scoreManager.roundTotal;
+        }
+        else
+        {
+            BankCurrentBallIntoRoundTotal();
+        }
+
         ballsRemaining = Mathf.Max(0, ballsRemaining - 1);
         if (scoreManager != null)
         {
@@ -140,16 +166,19 @@ public class GameRulesManager : MonoBehaviour
         {
             AwardCoinsFromRoundTotal();
             OpenShop();
-            return;
+            _drainProcessing = false;
+            yield break;
         }
 
         if (ballsRemaining > 0)
         {
             SpawnBall();
-            return;
+            _drainProcessing = false;
+            yield break;
         }
 
         ShowRoundFailed();
+        _drainProcessing = false;
     }
 
     /// <summary>

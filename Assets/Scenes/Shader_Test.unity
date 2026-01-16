@@ -404,6 +404,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MultAdder
   scoreManager: {fileID: 349540274}
   multToAdd: 0.5
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!114 &37594358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -788,7 +789,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 201550269}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -797,8 +798,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -200, y: 100}
-  m_SizeDelta: {x: 300, y: 100}
+  m_AnchoredPosition: {x: -150, y: 80}
+  m_SizeDelta: {x: 250, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &201550271
 CanvasRenderer:
@@ -858,6 +859,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PointAdder
   scoreManager: {fileID: 349540274}
   pointsToAdd: 5
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!114 &248005130
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1129,6 +1131,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MultAdder
   scoreManager: {fileID: 349540274}
   multToAdd: 0.1
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!114 &275102298
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1691,6 +1694,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PointAdder
   scoreManager: {fileID: 349540274}
   pointsToAdd: 5
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!114 &397178733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2072,6 +2076,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PointAdder
   scoreManager: {fileID: 349540274}
   pointsToAdd: 5
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!114 &474810404
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2446,6 +2451,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MultAdder
   scoreManager: {fileID: 349540274}
   multToAdd: 0.1
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!114 &545431203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2510,6 +2516,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PointAdder
   scoreManager: {fileID: 349540274}
   pointsToAdd: 5
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!114 &597584818
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3017,7 +3024,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 300, y: 100}
+  m_SizeDelta: {x: 250, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &695887155
 MonoBehaviour:
@@ -3218,6 +3225,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PointAdder
   scoreManager: {fileID: 349540274}
   pointsToAdd: 5
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!114 &799851295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3532,9 +3540,9 @@ Transform:
   - {fileID: 545431198}
   - {fileID: 37594356}
   - {fileID: 275102296}
+  - {fileID: 1938440441}
   - {fileID: 946027157}
   - {fileID: 2145936060}
-  - {fileID: 1938440441}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -10, y: 0, z: 0}
 --- !u!1 &912259830
@@ -3585,10 +3593,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1080, y: 1920}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -3605,8 +3613,8 @@ Canvas:
   m_GameObject: {fileID: 912259830}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_RenderMode: 1
+  m_Camera: {fileID: 248943762}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -3786,6 +3794,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PointAdder
   scoreManager: {fileID: 349540274}
   pointsToAdd: 25
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!1 &959001285
 GameObject:
   m_ObjectHideFlags: 0
@@ -3932,7 +3941,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 100, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &968074746
 MonoBehaviour:
@@ -3981,8 +3990,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -4447,7 +4456,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -90, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 300, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1146335244
 MonoBehaviour:
@@ -4496,8 +4505,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -4598,6 +4607,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PointAdder
   scoreManager: {fileID: 349540274}
   pointsToAdd: 5
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!114 &1228442106
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4741,6 +4751,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PointAdder
   scoreManager: {fileID: 349540274}
   pointsToAdd: 5
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!114 &1233534047
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4884,6 +4895,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PointAdder
   scoreManager: {fileID: 349540274}
   pointsToAdd: 5
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!114 &1259238410
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5027,6 +5039,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PointAdder
   scoreManager: {fileID: 349540274}
   pointsToAdd: 5
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!114 &1373820370
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5155,7 +5168,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 300, y: 100}
+  m_SizeDelta: {x: 250, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1406139215
 MonoBehaviour:
@@ -5245,6 +5258,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PointAdder
   scoreManager: {fileID: 349540274}
   pointsToAdd: 5
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!114 &1417931062
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5977,6 +5991,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MultAdder
   scoreManager: {fileID: 349540274}
   multToAdd: 0.1
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!114 &1938440443
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6068,6 +6083,54 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1938440440}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1995152003
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1995152005}
+  - component: {fileID: 1995152004}
+  m_Layer: 0
+  m_Name: FloatingTextSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1995152004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1995152003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66017c0f63379d642a38f4617dea3ad2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FloatingTextSpawner
+  floatingTextPrefab: {fileID: 752817666557146735, guid: 1c0bafbb8b980834ba656ffaf964bd35, type: 3}
+  canvas: {fileID: 912259833}
+  targetCamera: {fileID: 248943762}
+  spawnOffset: {x: 100, y: 0}
+--- !u!4 &1995152005
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1995152003}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -59.29907, y: 0, z: 1251.723}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1997938091
 GameObject:
   m_ObjectHideFlags: 0
@@ -6118,6 +6181,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PointAdder
   scoreManager: {fileID: 349540274}
   pointsToAdd: 5
+  floatingTextSpawner: {fileID: 1995152004}
 --- !u!114 &1997938094
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6246,7 +6310,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 90, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 300, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2011285161
 MonoBehaviour:
@@ -6268,7 +6332,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 0
+  m_text: 1
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
   m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
@@ -6295,8 +6359,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -6574,7 +6638,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 200, y: -100}
+  m_AnchoredPosition: {x: 150, y: -80}
   m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2098620201
@@ -6727,3 +6791,4 @@ SceneRoots:
   - {fileID: 2059563614}
   - {fileID: 349540275}
   - {fileID: 912259834}
+  - {fileID: 1995152005}

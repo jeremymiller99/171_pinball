@@ -12,4 +12,12 @@ public class PointAdder : MonoBehaviour
             scoreManager.AddPoints(pointsToAdd);
         }
     }
+
+    void OnTriggerEnter(Collider col)
+    {
+        if (col.CompareTag("Ball"))
+        {
+            scoreManager.AddPoints(pointsToAdd);
+        }
+    }
 }

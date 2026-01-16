@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Bumper : MonoBehaviour
 {
+    [SerializeField] private CameraShake camShake;
     [SerializeField] private float bounceForce = 10f;
     private void OnCollisionEnter(Collision collision)
     {
@@ -10,6 +11,8 @@ public class Bumper : MonoBehaviour
 
             Vector3 forceDir = (collision.transform.position - transform.position).normalized;
             rb.AddForce(forceDir * bounceForce, ForceMode.Impulse);
+
+            camShake.Shake(0.2f, 0.1f);
         }
     }   
 }

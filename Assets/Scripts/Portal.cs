@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Portal : MonoBehaviour
 {
-    [Header("References")]
+    [SerializeField] private CameraShake camShake;
     public Transform portalExit;
 
     [Header("Settings")]
@@ -67,5 +67,7 @@ public class Portal : MonoBehaviour
         rb.angularVelocity = newWorldAngularVel;
 
         traveller.lastTeleportTime = Time.time;
+
+        camShake.Shake(0.2f, 0.1f);
     }
 }

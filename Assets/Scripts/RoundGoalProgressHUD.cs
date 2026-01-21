@@ -2,10 +2,11 @@ using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// Put this on a HUD/UI object (not the ball). It finds the active ball and displays its speed on a TMP label.
-/// This avoids "hand" balls overwriting the UI when multiple ball prefabs exist simultaneously.
+/// 3D meter that fills based on round-goal progress:
+/// progress01 = (ScoreManager.LiveRoundTotal / ScoreManager.Goal).
+/// Mirrors the "3D Meter" behavior from ActiveBallSpeedHUD (scale + anchor shift).
 /// </summary>
-public sealed class ActiveBallSpeedHUD : MonoBehaviour
+public sealed class RoundGoalProgressHUD : MonoBehaviour
 {
     private enum MeterAxis
     {
@@ -17,40 +18,26 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     private static readonly int ColorId = Shader.PropertyToID("_Color");
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
-    [Header("UI")]
-    [SerializeField] private TMP_Text speedText;
-    [SerializeField] private bool autoFindTextByName = true;
-    [SerializeField] private string speedTextObjectName = "BallSpeedText";
-
     [Header("Source")]
-    [SerializeField] private GameRulesManager gameRules;
-    [SerializeField] private BallSpawner ballSpawner;
+    [SerializeField] private ScoreManager scoreManager;
 
-    [Header("Behavior")]
-    [Tooltip("If true, shows 0 until the active ball is non-kinematic.")]
-    [SerializeField] private bool freezeWhileKinematic = true;
-    [SerializeField] private int decimals = 2;
-    [Tooltip("If true, appends ' m/s' to the numeric speed readout.")]
-    [SerializeField] private bool showUnits = false;
+    [Header("UI (optional)")]
+    [Tooltip("Optional TMP label that displays the current (live) round total as a number.")]
+    [SerializeField] private TMP_Text roundTotalText;
+    [Tooltip("Number of decimal places to show in the round total text.")]
+    [Min(0)]
+    [SerializeField] private int roundTotalDecimals = 0;
 
-    [Header("3D Meter (optional)")]
-    [Tooltip("Assign a 3D box/cube transform that should 'fill' as speed increases.")]
+    [Header("3D Meter")]
+    [Tooltip("Assign a 3D box/cube transform that should 'fill' as progress increases.")]
     [SerializeField] private Transform meterFill;
     [Tooltip("Local axis the meter extends along. Use Z if your box points forward.")]
     [SerializeField] private MeterAxis meterAxis = MeterAxis.Z;
     [Tooltip("If false, the meter will extend in the negative axis direction.")]
     [SerializeField] private bool meterPositiveDirection = true;
-    [Tooltip("How many local-units of meter length per 1 m/s of speed.")]
-    [Min(0f)]
-    [SerializeField] private float meterUnitsPerMps = 0.02f;
-    [Tooltip("Speed (m/s) that corresponds to a full meter. Example: 50 means 0..50 m/s maps to 0..100% fill.")]
-    [Min(0.0001f)]
-    [SerializeField] private float meterMaxSpeedMps = 50f;
     [Tooltip("Maximum length of the meter (local-units along the chosen axis).")]
     [Min(0f)]
     [SerializeField] private float meterMaxUnits = 1.0f;
-    [Tooltip("If true, kinematic balls won't move the meter (useful while the ball is 'held').")]
-    [SerializeField] private bool meterFreezeWhileKinematic = true;
     [Tooltip("0 = no smoothing. Higher values smooth more (exponential).")]
     [Min(0f)]
     [SerializeField] private float meterSmoothing = 12f;
@@ -68,12 +55,6 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField] private float meterColorMidPoint = 0.5f;
 
-    [Header("Debug")]
-    [SerializeField] private bool debugInText = true;
-
-    private Rigidbody _activeRb;
-    private GameObject _activeBall;
-
     // Meter baseline state (so we can anchor one end while scaling).
     private Vector3 _meterBaseLocalScale;
     private Vector3 _meterBaseLocalPos;
@@ -90,19 +71,70 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         InitMeterIfNeeded();
     }
 
+    private void OnEnable()
+    {
+        ResolveRefs();
+        if (scoreManager != null)
+            scoreManager.ScoreChanged += OnScoreChanged;
+
+        // Initialize meter to correct state immediately.
+        UpdateMeterFromScore();
+    }
+
+    private void OnDisable()
+    {
+        if (scoreManager != null)
+            scoreManager.ScoreChanged -= OnScoreChanged;
+    }
+
     private void ResolveRefs()
     {
-        if (!speedText && autoFindTextByName && !string.IsNullOrWhiteSpace(speedTextObjectName))
+        if (scoreManager == null)
+            scoreManager = FindFirstObjectByType<ScoreManager>();
+    }
+
+    private void OnScoreChanged()
+    {
+        UpdateMeterFromScore();
+    }
+
+    private void Update()
+    {
+        // Safety: if we weren't wired at enable-time (or ScoreManager got created later),
+        // keep trying to resolve refs.
+        if (scoreManager == null)
         {
-            var go = GameObject.Find(speedTextObjectName);
-            if (go) speedText = go.GetComponent<TMP_Text>();
+            ResolveRefs();
+            if (scoreManager != null)
+                scoreManager.ScoreChanged += OnScoreChanged;
         }
 
-        if (!ballSpawner)
-            ballSpawner = FindFirstObjectByType<BallSpawner>();
+        // If no events fire (e.g., custom scripts mutate fields directly),
+        // keep the meter reasonably up-to-date.
+        UpdateMeterFromScore();
+    }
 
-        if (!gameRules)
-            gameRules = FindFirstObjectByType<GameRulesManager>();
+    private void UpdateMeterFromScore()
+    {
+        if (!meterFill)
+            return;
+
+        if (!_meterInit)
+            InitMeterIfNeeded();
+
+        float goal = scoreManager != null ? scoreManager.Goal : 0f;
+        float live = scoreManager != null ? scoreManager.LiveRoundTotal : 0f;
+
+        if (roundTotalText)
+        {
+            int d = Mathf.Clamp(roundTotalDecimals, 0, 6);
+            roundTotalText.text = live.ToString("F" + d);
+        }
+
+        float t01 = (goal > 0f) ? Mathf.Clamp01(live / goal) : 0f;
+        float targetUnits = Mathf.Max(0f, meterMaxUnits) * t01;
+
+        UpdateMeterUnits(targetUnits);
     }
 
     private void InitMeterIfNeeded()
@@ -133,80 +165,10 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         }
     }
 
-    private void Update()
+    private void UpdateMeterUnits(float targetUnits)
     {
-        if (!speedText)
-        {
-            ResolveRefs();
-            if (!speedText) return;
-        }
-
-        if (meterFill && !_meterInit)
-            InitMeterIfNeeded();
-
-        GameObject ball = GetActiveBall();
-        if (ball != _activeBall)
-        {
-            _activeBall = ball;
-            _activeRb = _activeBall ? _activeBall.GetComponent<Rigidbody>() : null;
-        }
-
-        if (!_activeBall || !_activeRb)
-        {
-            speedText.text = debugInText ? "Speed: (no active ball)" : "0.00 m/s";
-            UpdateMeter(0f, kinematic: true);
-            return;
-        }
-
-        bool kinematic = _activeRb.isKinematic;
-        float speed = GetSpeedMps(_activeRb);
-        if (freezeWhileKinematic && kinematic)
-            speed = 0f;
-
-        UpdateMeter(speed, kinematic);
-
-        string fmt = "F" + Mathf.Clamp(decimals, 0, 6);
-        string units = showUnits ? " m/s" : "";
-
-        if (!debugInText)
-        {
-            speedText.text = $"{speed.ToString(fmt)}{units}";
-            return;
-        }
-
-        Vector3 v = GetVelocity(_activeRb);
-        speedText.text =
-            $"{speed.ToString(fmt)}{units}\n" +
-            $"ball={_activeBall.name}\n" +
-            $"kinematic={kinematic}, sleeping={_activeRb.IsSleeping()}\n" +
-            $"v=({v.x.ToString(fmt)},{v.y.ToString(fmt)},{v.z.ToString(fmt)})";
-    }
-
-    private void UpdateMeter(float speedMps, bool kinematic)
-    {
-        if (!meterFill)
-            return;
-
-        if (!_meterInit)
-            InitMeterIfNeeded();
-
         if (!_meterInit)
             return;
-
-        if (meterFreezeWhileKinematic && kinematic)
-            speedMps = 0f;
-
-        float targetUnits;
-        if (meterMaxSpeedMps > 0f)
-        {
-            float t01 = Mathf.Clamp01(speedMps / meterMaxSpeedMps);
-            targetUnits = Mathf.Max(0f, meterMaxUnits) * t01;
-        }
-        else
-        {
-            // Legacy fallback if someone sets meterMaxSpeedMps to 0 in the inspector.
-            targetUnits = Mathf.Clamp(speedMps * Mathf.Max(0f, meterUnitsPerMps), 0f, Mathf.Max(0f, meterMaxUnits));
-        }
 
         if (meterSmoothing <= 0f)
         {
@@ -282,31 +244,6 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
             float t = Mathf.Clamp01((fill01 - mid) / denom);
             return Color.Lerp(meterColorMid, meterColorFull, t);
         }
-    }
-
-    private GameObject GetActiveBall()
-    {
-        if (ballSpawner && ballSpawner.ActiveBall)
-            return ballSpawner.ActiveBall;
-
-        if (gameRules && gameRules.ActiveBall)
-            return gameRules.ActiveBall;
-
-        return null;
-    }
-
-    private static float GetSpeedMps(Rigidbody rb)
-    {
-        return GetVelocity(rb).magnitude;
-    }
-
-    private static Vector3 GetVelocity(Rigidbody rb)
-    {
-#if UNITY_6000_0_OR_NEWER
-        return rb ? rb.linearVelocity : Vector3.zero;
-#else
-        return rb ? rb.velocity : Vector3.zero;
-#endif
     }
 
     private static Vector3 GetLocalAxisDir(MeterAxis axis)

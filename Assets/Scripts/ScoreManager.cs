@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -25,14 +26,35 @@ public class ScoreManager : MonoBehaviour
     [Header("Scoring Control")]
     [SerializeField] private bool scoringLocked;
 
+    // Stored goal value for the current round (set via SetGoal).
+    private float _goal;
+
+    /// <summary>
+    /// Fired whenever score-related values change (points/mult/roundTotal/goal).
+    /// Useful for non-TMP UI like meters/bars that should update immediately.
+    /// </summary>
+    public event Action ScoreChanged;
+
+    /// <summary>
+    /// Current round goal (set by GameRulesManager via SetGoal).
+    /// </summary>
+    public float Goal => _goal;
+
+    /// <summary>
+    /// Live round progress total: banked round total plus current ball's (points * mult).
+    /// </summary>
+    public float LiveRoundTotal => roundTotal + (points * mult);
+
     private void Start()
     {
         // Keep existing defaults.
         points = 0f;
         mult = 1f;
         roundTotal = 0f;
+        _goal = 0f;
 
         RefreshScoreUI();
+        ScoreChanged?.Invoke();
     }
 
     public void AddPoints(float p)
@@ -41,6 +63,7 @@ public class ScoreManager : MonoBehaviour
         points += p;
         if (pointsText != null)
             pointsText.text = points.ToString();
+        ScoreChanged?.Invoke();
     }
 
     public void AddMult(float m)
@@ -49,6 +72,7 @@ public class ScoreManager : MonoBehaviour
         mult += m;
         if (multText != null)
             multText.text = mult.ToString();
+        ScoreChanged?.Invoke();
     }
 
     public void SetScoringLocked(bool locked)
@@ -70,6 +94,7 @@ public class ScoreManager : MonoBehaviour
         mult = 1f;
 
         RefreshScoreUI();
+        ScoreChanged?.Invoke();
         return banked;
     }
 
@@ -83,6 +108,7 @@ public class ScoreManager : MonoBehaviour
         mult = 1f;
 
         RefreshScoreUI();
+        ScoreChanged?.Invoke();
     }
 
     /// <summary>
@@ -90,8 +116,10 @@ public class ScoreManager : MonoBehaviour
     /// </summary>
     public void SetGoal(float goal)
     {
+        _goal = goal;
         if (goalText != null)
             goalText.text = goal.ToString();
+        ScoreChanged?.Invoke();
     }
 
     public void SetRoundIndex(int roundIndex)

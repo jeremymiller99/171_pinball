@@ -51,6 +51,7 @@ public class GameRulesManager : MonoBehaviour
     public float RoundTotal => roundTotal;
     public float CurrentGoal => GetGoalForRound(roundIndex);
     public int BallLoadoutCount => _ballLoadout.Count;
+    public GameObject ActiveBall => ballSpawner != null ? ballSpawner.ActiveBall : activeBall;
 
     /// <summary>
     /// Returns a snapshot copy of the current ball loadout (one prefab per hand slot).

@@ -8,6 +8,13 @@ public class PointAdder : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        //make sure scoremanager and floatingtextspawner exist
+        if (!scoreManager || !floatingTextSpawner)
+        {
+            scoreManager = GetComponentInParent<ScoreManager>();
+            floatingTextSpawner = GetComponentInParent<FloatingTextSpawner>();
+        }
+
         if (collision.collider.CompareTag("Ball"))
         {
             scoreManager.AddPoints(pointsToAdd);
@@ -18,6 +25,13 @@ public class PointAdder : MonoBehaviour
 
     void OnTriggerEnter(Collider col)
     {
+        //make sure scoremanager and floatingtextspawner exist
+        if (!scoreManager || !floatingTextSpawner)
+        {
+            scoreManager = GetComponentInParent<ScoreManager>();
+            floatingTextSpawner = GetComponentInParent<FloatingTextSpawner>();
+        }
+        
         if (col.CompareTag("Ball"))
         {
             scoreManager.AddPoints(pointsToAdd);
@@ -29,5 +43,5 @@ public class PointAdder : MonoBehaviour
     public void multiplyPointsToAdd(float mult)
     {
         pointsToAdd *= mult;
-    }
+    } 
 }

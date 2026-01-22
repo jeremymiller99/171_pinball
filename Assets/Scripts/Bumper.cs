@@ -3,9 +3,15 @@ using UnityEngine;
 public class Bumper : MonoBehaviour
 {
     [SerializeField] private CameraShake camShake;
-    [SerializeField] private float bounceForce = 10f;
+    [SerializeField] private float bounceForce = 10f; 
     private void OnCollisionEnter(Collision collision)
     {
+        //make sure camshake exists
+        if (!camShake)
+        {
+            camShake = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraShake>();
+        }
+        
         if (collision.collider.CompareTag("Ball")){
             Rigidbody rb = collision.rigidbody;
 

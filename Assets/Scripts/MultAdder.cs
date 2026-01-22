@@ -8,6 +8,13 @@ public class MultAdder : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        //make sure scoremanager and floatingtextspawner exist
+        if (!scoreManager || !floatingTextSpawner)
+        {
+            scoreManager = GetComponentInParent<ScoreManager>();
+            floatingTextSpawner = GetComponentInParent<FloatingTextSpawner>();
+        }
+
         if (collision.collider.CompareTag("Ball"))
         {
             scoreManager.AddMult(multToAdd);
@@ -18,6 +25,13 @@ public class MultAdder : MonoBehaviour
 
     void OnTriggerEnter(Collider col)
     {
+        //make sure scoremanager and floatingtextspawner exist
+        if (!scoreManager || !floatingTextSpawner)
+        {
+            scoreManager = GetComponentInParent<ScoreManager>();
+            floatingTextSpawner = GetComponentInParent<FloatingTextSpawner>();
+        }
+        
         if (col.CompareTag("Ball"))
         {
             scoreManager.AddMult(multToAdd);

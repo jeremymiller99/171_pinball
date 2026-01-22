@@ -4,9 +4,13 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuUI : MonoBehaviour
 {
-    public void PlayButton()
+    public void LoadGameScene()
     {
         SceneManager.LoadScene("Game");
     }
 
+    public void LoadMenuScene()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
 }

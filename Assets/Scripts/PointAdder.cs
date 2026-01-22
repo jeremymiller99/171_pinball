@@ -25,4 +25,9 @@ public class PointAdder : MonoBehaviour
             floatingTextSpawner?.SpawnText(col.transform.position, "+" + pointsToAdd);
         }
     }
+
+    public void multiplyPointsToAdd(float mult)
+    {
+        pointsToAdd *= mult;
+    }
 }

@@ -25,4 +25,9 @@ public class MultAdder : MonoBehaviour
             floatingTextSpawner?.SpawnText(col.transform.position, "x" + multToAdd);
         }
     }
+
+    public void multiplyMultToAdd(float mult)
+    {
+        multToAdd *= mult;
+    }
 }

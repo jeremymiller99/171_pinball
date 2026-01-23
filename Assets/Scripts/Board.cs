@@ -1,22 +1,19 @@
 using UnityEngine;
+using UnityEditor;
 
 public class Board : MonoBehaviour
 {
 
-    void Awake()
-    {
-        GameObject[] objs = GameObject.FindGameObjectsWithTag("Board");
+    public GameObject[] prefabs;
 
-        if (objs.Length > 1)
-        {
-            Destroy(this.gameObject);
-        }
-        DontDestroyOnLoad(gameObject);
-    }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        prefabs = GameObject.FindGameObjectWithTag("SegmentTracker").GetComponent<SegmentTracker>().prefabs;
+        foreach (GameObject prefab in prefabs) {
+            Instantiate(prefab);
+        }
+
     }
 
     // Update is called once per frame

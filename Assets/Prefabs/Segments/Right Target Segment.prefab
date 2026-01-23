@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0c7944a115bced46ac032bb027fc3c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  startingSpot: {x: 4.55, y: 0.54, z: -7.25}
+  startingSpot: {x: 4.55, y: -0.74, z: -7.25}
   type: 1
 --- !u!1 &3310381393155841543
 GameObject:

@@ -7,6 +7,9 @@ TagManager:
   - Ball
   - Segment
   - Board
+  - ScoreManager
+  - FloatingTextSpawner
+  - SegmentTracker
   layers:
   - Default
   - TransparentFX

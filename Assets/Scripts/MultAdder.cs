@@ -6,13 +6,15 @@ public class MultAdder : MonoBehaviour
     [SerializeField] private float multToAdd;
     [SerializeField] private FloatingTextSpawner floatingTextSpawner;
 
+
+    
     void OnCollisionEnter(Collision collision)
     {
         //make sure scoremanager and floatingtextspawner exist
         if (!scoreManager || !floatingTextSpawner)
         {
-            scoreManager = GetComponentInParent<ScoreManager>();
-            floatingTextSpawner = GetComponentInParent<FloatingTextSpawner>();
+            scoreManager = GameObject.FindGameObjectWithTag("ScoreManager").GetComponent<ScoreManager>();
+            floatingTextSpawner = GameObject.FindGameObjectWithTag("FloatingTextSpawner").GetComponent<FloatingTextSpawner>();
         }
 
         if (collision.collider.CompareTag("Ball"))
@@ -28,8 +30,8 @@ public class MultAdder : MonoBehaviour
         //make sure scoremanager and floatingtextspawner exist
         if (!scoreManager || !floatingTextSpawner)
         {
-            scoreManager = GetComponentInParent<ScoreManager>();
-            floatingTextSpawner = GetComponentInParent<FloatingTextSpawner>();
+            scoreManager = GameObject.FindGameObjectWithTag("ScoreManager").GetComponent<ScoreManager>();
+            floatingTextSpawner = GameObject.FindGameObjectWithTag("FloatingTextSpawner").GetComponent<FloatingTextSpawner>();
         }
         
         if (col.CompareTag("Ball"))

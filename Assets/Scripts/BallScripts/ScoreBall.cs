@@ -33,4 +33,23 @@ public class ScoreBall : MonoBehaviour
             adder.multiplyPointsToAdd(.5f);
         }
     }
+
+    void OnTriggerEnter(Collider collision)
+    {
+        PointAdder adder = collision.GetComponent<PointAdder>();
+        if (adder)
+        {
+            adder.multiplyPointsToAdd(2);
+        }
+    }
+
+    void OnTriggerExit(Collider collision)
+    {
+        PointAdder adder = collision.GetComponent<PointAdder>();
+        if (adder)
+        {
+            adder.multiplyPointsToAdd(.5f);
+        }
+    }
 }
+

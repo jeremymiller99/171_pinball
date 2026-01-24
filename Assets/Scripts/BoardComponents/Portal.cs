@@ -18,6 +18,31 @@ public class Portal : MonoBehaviour
     [Tooltip("Speed to use when overrideExitSpeed is true.")]
     public float exitSpeed = 10f;
 
+    private void Awake()
+    {
+        ResolveCameraShake();
+    }
+
+    private void ResolveCameraShake()
+    {
+        if (camShake != null && camShake.isActiveAndEnabled)
+        {
+            return;
+        }
+
+        camShake = CameraShake.Instance;
+        if (camShake != null && camShake.isActiveAndEnabled)
+        {
+            return;
+        }
+
+#if UNITY_2022_2_OR_NEWER
+        camShake = FindFirstObjectByType<CameraShake>();
+#else
+        camShake = FindObjectOfType<CameraShake>();
+#endif
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         Rigidbody rb = other.attachedRigidbody;
@@ -68,6 +93,10 @@ public class Portal : MonoBehaviour
 
         traveller.lastTeleportTime = Time.time;
 
-        camShake.Shake(0.2f, 0.1f);
+        if (camShake == null || !camShake.isActiveAndEnabled)
+        {
+            ResolveCameraShake();
+        }
+        camShake?.Shake(0.2f, 0.1f);
     }
 }

@@ -6,11 +6,38 @@ public class PointAdder : MonoBehaviour
     [SerializeField] private float pointsToAdd;
     [SerializeField] private FloatingTextSpawner floatingTextSpawner;
 
+    private void Awake()
+    {
+        EnsureRefs();
+    }
+
+    private void EnsureRefs()
+    {
+        if (scoreManager == null)
+        {
+#if UNITY_2022_2_OR_NEWER
+            scoreManager = FindFirstObjectByType<ScoreManager>();
+#else
+            scoreManager = FindObjectOfType<ScoreManager>();
+#endif
+        }
+
+        if (floatingTextSpawner == null)
+        {
+#if UNITY_2022_2_OR_NEWER
+            floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
+#else
+            floatingTextSpawner = FindObjectOfType<FloatingTextSpawner>();
+#endif
+        }
+    }
+
     void OnCollisionEnter(Collision collision)
     {
         if (collision.collider.CompareTag("Ball"))
         {
-            scoreManager.AddPoints(pointsToAdd);
+            if (scoreManager == null) EnsureRefs();
+            scoreManager?.AddPoints(pointsToAdd);
             // Spawn text at the ball's position
             floatingTextSpawner?.SpawnText(collision.collider.transform.position, "+" + pointsToAdd);
         }
@@ -20,7 +47,8 @@ public class PointAdder : MonoBehaviour
     {
         if (col.CompareTag("Ball"))
         {
-            scoreManager.AddPoints(pointsToAdd);
+            if (scoreManager == null) EnsureRefs();
+            scoreManager?.AddPoints(pointsToAdd);
             // Spawn text at the ball's position
             floatingTextSpawner?.SpawnText(col.transform.position, "+" + pointsToAdd);
         }

@@ -73,10 +73,20 @@ public class GameRulesManager : MonoBehaviour
 
     private void Start()
     {
-        if (autoStartOnPlay)
+        // In the additive-board architecture, the spawnPoint will usually be injected by BoardLoader.
+        // Only auto-start if we already have a spawn point configured.
+        if (autoStartOnPlay && spawnPoint != null)
         {
             StartRun();
         }
+    }
+
+    /// <summary>
+    /// Called by BoardLoader when a board scene is loaded.
+    /// </summary>
+    public void SetSpawnPoint(Transform newSpawnPoint)
+    {
+        spawnPoint = newSpawnPoint;
     }
 
     public void StartRun()
@@ -192,11 +202,24 @@ public class GameRulesManager : MonoBehaviour
             return;
         }
 
+        CloseShopAndAdvanceIndexOnly();
+        StartRound();
+    }
+
+    /// <summary>
+    /// Close the shop UI and advance the round index, but do not start the next round.
+    /// Used by RunFlowController so it can load/unload boards before starting the next round.
+    /// </summary>
+    public void CloseShopAndAdvanceIndexOnly()
+    {
+        if (!runActive)
+        {
+            return;
+        }
+
         SetShopOpen(false);
         shopOpen = false;
-
         roundIndex = Mathf.Max(0, roundIndex + 1);
-        StartRound();
     }
 
     /// <summary>

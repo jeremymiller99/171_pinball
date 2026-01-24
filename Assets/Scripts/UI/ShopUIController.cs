@@ -22,6 +22,7 @@ public sealed class ShopUIController : MonoBehaviour
 
     [Header("Refs")]
     [SerializeField] private GameRulesManager rulesManager;
+    [SerializeField] private RunFlowController runFlowController;
     [Tooltip("Optional: root object for the shop canvas. If omitted, this component's GameObject will be toggled.")]
     [SerializeField] private GameObject shopCanvasRoot;
 
@@ -56,6 +57,15 @@ public sealed class ShopUIController : MonoBehaviour
             rulesManager = FindFirstObjectByType<GameRulesManager>();
 #else
             rulesManager = FindObjectOfType<GameRulesManager>();
+#endif
+        }
+
+        if (runFlowController == null)
+        {
+#if UNITY_2022_2_OR_NEWER
+            runFlowController = FindFirstObjectByType<RunFlowController>();
+#else
+            runFlowController = FindObjectOfType<RunFlowController>();
 #endif
         }
 
@@ -97,18 +107,24 @@ public sealed class ShopUIController : MonoBehaviour
         ClearReplaceSlots();
         ClearOffers();
 
-        // Let the rules manager drive the round transition.
+        // Let the RunFlowController drive the transition (it may swap boards before starting the next round).
+        if (runFlowController != null)
+        {
+            runFlowController.ContinueAfterShop();
+            return;
+        }
+
+        // Fallback: old behavior.
         if (rulesManager != null)
         {
             rulesManager.OnShopClosed();
+            return;
         }
-        else
+
+        // Fallback: just hide the canvas.
+        if (shopCanvasRoot != null)
         {
-            // Fallback: just hide the canvas.
-            if (shopCanvasRoot != null)
-            {
-                shopCanvasRoot.SetActive(false);
-            }
+            shopCanvasRoot.SetActive(false);
         }
     }
 

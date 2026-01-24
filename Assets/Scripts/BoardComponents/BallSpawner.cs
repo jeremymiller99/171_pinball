@@ -42,6 +42,14 @@ public sealed class BallSpawner : MonoBehaviour
     public GameObject ActiveBall => _activeBall;
     public int HandCount => _handBalls.Count;
 
+    /// <summary>
+    /// Allows the gameplay core to rebind the spawn point when a new board scene is loaded.
+    /// </summary>
+    public void SetSpawnPoint(Transform newSpawnPoint)
+    {
+        spawnPoint = newSpawnPoint;
+    }
+
     private struct RigidbodyState
     {
         public bool hasRb;
@@ -388,8 +396,12 @@ public sealed class BallSpawner : MonoBehaviour
 
             if (hadRb)
             {
-                rb.linearVelocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
+                // Hand balls often start as kinematic; setting velocities on kinematic RBs can warn.
+                if (!rb.isKinematic)
+                {
+                    rb.linearVelocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                }
                 rb.isKinematic = true;
             }
         }

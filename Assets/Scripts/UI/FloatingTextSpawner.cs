@@ -22,6 +22,12 @@ public class FloatingTextSpawner : MonoBehaviour
     {
         if (floatingTextPrefab == null || canvas == null) return;
 
+        if (targetCamera == null)
+        {
+            targetCamera = Camera.main;
+        }
+        if (targetCamera == null) return;
+
         FloatingText ft = Instantiate(floatingTextPrefab, canvas.transform);
         RectTransform rt = ft.GetComponent<RectTransform>();
 

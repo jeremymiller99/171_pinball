@@ -2,16 +2,30 @@ using UnityEngine;
 
 public class CameraShake : MonoBehaviour
 {
+    public static CameraShake Instance { get; private set; }
 
     private Vector3 originalPos;
     
     void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            // Keep the first instance (should live in GameplayCore).
+            // Don't destroy to avoid surprises; just don't register.
+        }
         originalPos = transform.localPosition;
     }
 
     public void Shake(float duration, float magnitude)
     {
+        if (!isActiveAndEnabled)
+        {
+            return;
+        }
         StopAllCoroutines(); 
         StartCoroutine(ShakeRoutine(duration, magnitude));
     }

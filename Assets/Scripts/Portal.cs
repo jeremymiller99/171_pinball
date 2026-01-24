@@ -68,6 +68,13 @@ public class Portal : MonoBehaviour
 
         traveller.lastTeleportTime = Time.time;
 
+
+        //make sure camshake exists
+        if (!camShake)
+        {
+            camShake = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraShake>();
+        }
+        
         camShake.Shake(0.2f, 0.1f);
     }
 }

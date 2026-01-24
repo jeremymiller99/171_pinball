@@ -16,11 +16,9 @@ public class Segment : MonoBehaviour
     void Awake()
     {
         GameObject[] objs = GameObject.FindGameObjectsWithTag("Segment");
-        Debug.Log(objs);
 
         foreach(GameObject obj in objs)
         {
-            Debug.Log(obj);
             if (obj.GetComponent<Segment>().type == type && obj != gameObject)
             {
                 Destroy(gameObject);

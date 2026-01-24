@@ -10,12 +10,9 @@ public class ReplaceSegment : MonoBehaviour
 
     private Segment seg;
 
-    private SegmentTracker tracker;
-
 
     void Awake()
     {
-        tracker = GameObject.FindGameObjectWithTag("SegmentTracker").GetComponent<SegmentTracker>();
         seg = prefab.GetComponent<Segment>();
     }
 
@@ -25,14 +22,13 @@ public class ReplaceSegment : MonoBehaviour
         foreach (GameObject obj in segments) {
             if(obj.GetComponent<Segment>().type == seg.type)
             {
+                obj.tag = "Untagged";
                 Destroy(obj);
-                Instantiate(prefab);
-                tracker.RefreshPrefabs();
-                return;
             }
         }
+        Debug.Log(GameObject.FindGameObjectsWithTag("Segment").Length);
         PrefabUtility.InstantiatePrefab(prefab);
-        tracker.RefreshPrefabs();
+        Debug.Log(GameObject.FindGameObjectsWithTag("Segment").Length);
         
     }
 }

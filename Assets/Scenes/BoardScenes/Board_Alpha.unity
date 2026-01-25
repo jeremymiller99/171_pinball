@@ -2642,14 +2642,14 @@ MonoBehaviour:
   spawnPoint: {fileID: 236381329}
   handSpacing: 0.35
   handDirection: {x: 1, y: 0, z: 0}
-  handPathStart: {fileID: 0}
+  handPathStart: {fileID: 236381329}
   handPathWaypoints:
   - {fileID: 1679105316}
   - {fileID: 959179429}
   - {fileID: 236381329}
   activateAlongHandPath: 1
   distributeHandEvenlyAlongPath: 1
-  handEndInset: 0
+  handEndInset: 2
   moveDuration: 0.35
   moveCurve:
     serializedVersion: 2
@@ -8328,7 +8328,7 @@ Transform:
   m_GameObject: {fileID: 1679105315}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 16.12, y: -1.83, z: -3.32}
+  m_LocalPosition: {x: 16.12, y: 0.172, z: -3.32}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

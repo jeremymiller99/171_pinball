@@ -35,6 +35,28 @@ public sealed class BallSpawner : MonoBehaviour
     [Min(0f)]
     [SerializeField] private float handEndInset = 0f;
 
+    [Header("Hand distribution tuning (queue lane)")]
+    [Tooltip("Only used when there are at least 2 waypoints.\n" +
+             "The queue lane is HandPathWaypoints[0] -> HandPathWaypoints[1].\n" +
+             "Hand balls are distributed within that segment so they don't stack on the same point.")]
+    [Min(0f)]
+    [SerializeField] private float queueInsetFromStart = 0f;
+
+    [Min(0f)]
+    [SerializeField] private float queueInsetFromEnd = 0f;
+
+    [Tooltip("Shifts ALL hand balls along the queue lane (+ moves toward the queue end, - toward the queue start).")]
+    [SerializeField] private float queueGlobalOffset = 0f;
+
+    [Tooltip("0 = even spacing (uses Queue Distribution Curve).\n" +
+             "> 0 = fixed spacing in world units (measured from the queue end backwards).")]
+    [Min(0f)]
+    [SerializeField] private float queueFixedSpacing = 0f;
+
+    [Tooltip("Controls spacing bias along the queue lane when Queue Fixed Spacing = 0.\n" +
+             "X=ball index normalized (0..1), Y=position normalized (0..1).")]
+    [SerializeField] private AnimationCurve queueDistributionCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+
     [Header("Turn transition")]
     [SerializeField] private float moveDuration = 0.35f;
     [SerializeField] private AnimationCurve moveCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
@@ -343,6 +365,17 @@ public sealed class BallSpawner : MonoBehaviour
                 {
                     (queueA, queueB) = (queueB, queueA);
                 }
+
+                // Apply insets (padding) within the queue lane.
+                queueA = Mathf.Clamp(queueA + Mathf.Max(0f, queueInsetFromStart), 0f, endDist);
+                queueB = Mathf.Clamp(queueB - Mathf.Max(0f, queueInsetFromEnd), 0f, endDist);
+                if (queueA > queueB)
+                {
+                    // Degenerate queue lane after insets; collapse to a single safe point.
+                    float mid = (queueA + queueB) * 0.5f;
+                    queueA = mid;
+                    queueB = mid;
+                }
             }
 
             for (int i = 0; i < n; i++)
@@ -355,9 +388,21 @@ public sealed class BallSpawner : MonoBehaviour
                 {
                     if (hasQueueSegment)
                     {
-                        // Spread within queue segment: i=0 closest to queueB (waypoint[1]), i=n-1 closest to queueA (waypoint[0]).
-                        float t = n <= 1 ? 0f : (float)i / (n - 1);
-                        dist = Mathf.Lerp(queueB, queueA, t);
+                        // Spread within queue segment: i=0 closest to queueB (queue end), i=n-1 closest to queueA (queue start).
+                        if (queueFixedSpacing > 0f)
+                        {
+                            dist = queueB - (queueFixedSpacing * i);
+                        }
+                        else
+                        {
+                            float t = n <= 1 ? 0f : (float)i / (n - 1);
+                            float shaped = queueDistributionCurve != null ? queueDistributionCurve.Evaluate(Mathf.Clamp01(t)) : t;
+                            dist = Mathf.Lerp(queueB, queueA, Mathf.Clamp01(shaped));
+                        }
+
+                        // Apply global offset along the queue lane, then clamp.
+                        dist += queueGlobalOffset;
+                        dist = Mathf.Clamp(dist, queueA, queueB);
                     }
                     else
                     {

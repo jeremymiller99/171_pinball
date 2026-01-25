@@ -10339,7 +10339,7 @@ MonoBehaviour:
   - 3000
   - 4000
   pointsPerCoin: 100
-  startingMaxBalls: 3
+  startingMaxBalls: 5
   autoStartOnPlay: 1
   ballSpawner: {fileID: 1263309646}
   ballPrefab: {fileID: 5723297401256486482, guid: 033d99f73f115d846a140c40987ca5fe, type: 3}

@@ -1658,13 +1658,13 @@ MonoBehaviour:
     ballPrefab: {fileID: 5723297401256486482, guid: 033d99f73f115d846a140c40987ca5fe, type: 3}
     cost: 1
   - displayName: Blue Two
-    ballPrefab: {fileID: 5723297401256486482, guid: 8f14b359d9507704a87dbcbf1f1289c3, type: 3}
+    ballPrefab: {fileID: 5723297401256486482, guid: 0b2f4077d0fca1b438e6fa6723996428, type: 3}
     cost: 5
   - displayName: Scatter
     ballPrefab: {fileID: 5723297401256486482, guid: a01593e6a666487488d83ad40c8160a4, type: 3}
     cost: 5
   - displayName: Red Two
-    ballPrefab: {fileID: 5723297401256486482, guid: 0b2f4077d0fca1b438e6fa6723996428, type: 3}
+    ballPrefab: {fileID: 5723297401256486482, guid: 8f14b359d9507704a87dbcbf1f1289c3, type: 3}
     cost: 5
 --- !u!222 &460876980
 CanvasRenderer:
@@ -3828,7 +3828,7 @@ MonoBehaviour:
   - 3000
   - 4000
   pointsPerCoin: 100
-  startingMaxBalls: 3
+  startingMaxBalls: 5
   autoStartOnPlay: 0
   ballSpawner: {fileID: 0}
   startingBallLoadout: []

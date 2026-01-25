@@ -10,7 +10,7 @@ public class GameRulesManager : MonoBehaviour
     [SerializeField] private float pointsPerCoin = 100f;
 
     [Header("Balls / Rounds")]
-    [SerializeField] private int startingMaxBalls = 3;
+    [SerializeField] private int startingMaxBalls = 5;
     [SerializeField] private bool autoStartOnPlay = true;
 
     [Header("Ball Spawning")]

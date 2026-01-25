@@ -92,11 +92,21 @@ public sealed class BoardLoader : MonoBehaviour
 
         currentBoardRoot.Initialize(board);
 
-        // Bind spawn point into core systems.
+        // Bind spawn/play point into core systems.
+        // Convention:
+        // - HandPathWaypoints[0] = queue start
+        // - HandPathWaypoints[1] = queue end
+        // - HandPathWaypoints[2] = play/activation point (optional override)
         Transform sp = currentBoardRoot.SpawnPoint;
+        var wps = currentBoardRoot.HandPathWaypoints;
+        if (wps != null && wps.Length >= 3 && wps[2] != null)
+        {
+            sp = wps[2];
+        }
+
         if (sp == null)
         {
-            Debug.LogError($"{nameof(BoardLoader)}: BoardRoot '{currentBoardRoot.name}' has no spawnPoint assigned.", currentBoardRoot);
+            Debug.LogError($"{nameof(BoardLoader)}: BoardRoot '{currentBoardRoot.name}' has no spawn/play point assigned. Assign SpawnPoint or HandPathWaypoints[2].", currentBoardRoot);
             yield break;
         }
 

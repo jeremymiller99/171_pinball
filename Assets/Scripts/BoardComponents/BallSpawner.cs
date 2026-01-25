@@ -15,14 +15,25 @@ public sealed class BallSpawner : MonoBehaviour
     [SerializeField] private Transform spawnPoint;
 
     [Header("Hand (balls remaining visual)")]
-    [Tooltip("Anchor for the 'hand' line of balls (balls remaining).")]
-    [SerializeField] private Transform handAnchor;
     [Tooltip("Spacing between balls in the hand line.")]
     [SerializeField] private float handSpacing = 0.35f;
     [Tooltip("World-space direction for the hand line. Default is left->right (+X).")]
     [SerializeField] private Vector3 handDirection = Vector3.right;
-    [Tooltip("If true, balls in the hand will be rotated to match the handAnchor (if provided).")]
-    [SerializeField] private bool alignHandRotationToAnchor = true;
+
+    [Header("Hand path (optional)")]
+    [Tooltip("If set (or waypoints exist), hand balls will be placed along a path: start -> waypoints -> spawnPoint.")]
+    [SerializeField] private Transform handPathStart;
+    [Tooltip("Optional corner points for the hand path (in order).")]
+    [SerializeField] private List<Transform> handPathWaypoints = new List<Transform>();
+    [Tooltip("If true, activating the next ball will move it along the hand path to spawnPoint (instead of straight-line lerp).")]
+    [SerializeField] private bool activateAlongHandPath = true;
+    [Tooltip("If true, the hand balls will be evenly distributed along the path from end->start.\n" +
+             "Index 0 (next ball) is closest to the end/spawnPoint, and the last ball is closest to the start.")]
+    [SerializeField] private bool distributeHandEvenlyAlongPath = true;
+    [Tooltip("Distance (world units) to keep the next ball away from the end/spawnPoint while it is still in the hand.\n" +
+             "Useful if the spawnPoint area has triggers/colliders you don't want 'hand' balls to overlap.")]
+    [Min(0f)]
+    [SerializeField] private float handEndInset = 0f;
 
     [Header("Turn transition")]
     [SerializeField] private float moveDuration = 0.35f;
@@ -35,12 +46,14 @@ public sealed class BallSpawner : MonoBehaviour
 
     private readonly List<GameObject> _handBalls = new List<GameObject>();
     private readonly Dictionary<int, RigidbodyState> _rbStateById = new Dictionary<int, RigidbodyState>();
+    private readonly Dictionary<int, float> _handDistanceById = new Dictionary<int, float>();
 
     private Coroutine _moveCoroutine;
     private GameObject _activeBall;
 
     public GameObject ActiveBall => _activeBall;
     public int HandCount => _handBalls.Count;
+    public GameObject DefaultBallPrefab => ballPrefab;
 
     /// <summary>
     /// Allows the gameplay core to rebind the spawn point when a new board scene is loaded.
@@ -48,6 +61,28 @@ public sealed class BallSpawner : MonoBehaviour
     public void SetSpawnPoint(Transform newSpawnPoint)
     {
         spawnPoint = newSpawnPoint;
+        if (_handBalls.Count > 0)
+            LayoutHandImmediate();
+    }
+
+    /// <summary>
+    /// Sets the polyline path for laying out the hand and (optionally) moving active balls to spawn.
+    /// End point is always <see cref="spawnPoint"/>.
+    /// </summary>
+    public void SetHandPath(Transform start, IList<Transform> waypoints)
+    {
+        handPathStart = start;
+        handPathWaypoints.Clear();
+        if (waypoints != null)
+        {
+            for (int i = 0; i < waypoints.Count; i++)
+            {
+                if (waypoints[i] != null)
+                    handPathWaypoints.Add(waypoints[i]);
+            }
+        }
+        if (_handBalls.Count > 0)
+            LayoutHandImmediate();
     }
 
     private struct RigidbodyState
@@ -88,6 +123,7 @@ public sealed class BallSpawner : MonoBehaviour
 
         _handBalls.Clear();
         _rbStateById.Clear();
+        _handDistanceById.Clear();
     }
 
     /// <summary>
@@ -210,6 +246,7 @@ public sealed class BallSpawner : MonoBehaviour
 
         _handBalls.Remove(ball);
         _rbStateById.Remove(ball.GetInstanceID());
+        _handDistanceById.Remove(ball.GetInstanceID());
 
         Destroy(ball);
     }
@@ -222,7 +259,9 @@ public sealed class BallSpawner : MonoBehaviour
             return null;
         }
 
-        Vector3 pos = GetHandBallWorldPos(_handBalls.Count);
+        int index = _handBalls.Count;
+        float dist = handSpacing * index;
+        Vector3 pos = GetHandBallWorldPos(index, dist);
         Quaternion rot = GetHandBallWorldRot();
 
         GameObject b = Instantiate(ballPrefab, pos, rot);
@@ -239,7 +278,8 @@ public sealed class BallSpawner : MonoBehaviour
             return null;
         }
 
-        Vector3 pos = GetHandBallWorldPos(index);
+        float dist = handSpacing * index;
+        Vector3 pos = GetHandBallWorldPos(index, dist);
         Quaternion rot = GetHandBallWorldRot();
 
         GameObject b = Instantiate(prefab, pos, rot);
@@ -269,33 +309,106 @@ public sealed class BallSpawner : MonoBehaviour
 
     private void LayoutHandImmediate()
     {
+        // Path layout: spread balls from end->start so "next ball" sits closest to the spawn point.
+        if (TryGetHandPathPoints(out var pts))
+        {
+            float totalLen = GetPolylineLength(pts);
+            float endDist = Mathf.Max(0f, totalLen - Mathf.Max(0f, handEndInset));
+            int n = _handBalls.Count;
+
+            // If the board provides at least TWO waypoints, treat the segment waypoint[0] -> waypoint[1]
+            // as the "queue segment" and distribute ALL hand balls within that segment.
+            // This prevents overlap with the active ball at the end/spawn and avoids multiple balls snapping to the same waypoint.
+            bool hasQueueSegment = handPathWaypoints.Count >= 2 && pts.Count >= 4; // start + wp0 + wp1 + end
+            float queueA = 0f;
+            float queueB = 0f;
+            if (hasQueueSegment)
+            {
+                // pts indices: 0=start, 1=waypoint[0], 2=waypoint[1], ..., last=end/spawn
+                var cum = new float[pts.Count];
+                for (int p = 1; p < pts.Count; p++)
+                {
+                    cum[p] = cum[p - 1] + Vector3.Distance(pts[p - 1], pts[p]);
+                }
+
+                queueA = cum[1]; // waypoint[0]
+                queueB = cum[2]; // waypoint[1]
+
+                // Clamp away from end/spawn just in case (should already be before the end).
+                queueA = Mathf.Clamp(queueA, 0f, endDist);
+                queueB = Mathf.Clamp(queueB, 0f, endDist);
+
+                // Ensure A <= B so our lerp is stable even if points were authored "backwards".
+                if (queueA > queueB)
+                {
+                    (queueA, queueB) = (queueB, queueA);
+                }
+            }
+
+            for (int i = 0; i < n; i++)
+            {
+                var b = _handBalls[i];
+                if (b == null) continue;
+
+                float dist;
+                if (distributeHandEvenlyAlongPath)
+                {
+                    if (hasQueueSegment)
+                    {
+                        // Spread within queue segment: i=0 closest to queueB (waypoint[1]), i=n-1 closest to queueA (waypoint[0]).
+                        float t = n <= 1 ? 0f : (float)i / (n - 1);
+                        dist = Mathf.Lerp(queueB, queueA, t);
+                    }
+                    else
+                    {
+                        // Fallback: even distribution along length (excluding the end).
+                        // i=0 (next ball) => endDist, i=n-1 => 0. For n==1, place at the midpoint.
+                        float t = n <= 1 ? 0.5f : (float)i / (n - 1);
+                        dist = Mathf.Lerp(endDist, 0f, t);
+                    }
+                }
+                else
+                {
+                    // Legacy spacing measured from start.
+                    dist = Mathf.Clamp(handSpacing * i, 0f, totalLen);
+                }
+
+                // Never allow a hand ball to be placed at/inside the end/spawn area.
+                dist = Mathf.Min(dist, endDist);
+                b.transform.position = SamplePolyline(pts, dist);
+
+                _handDistanceById[b.GetInstanceID()] = dist;
+            }
+
+            return;
+        }
+
         for (int i = 0; i < _handBalls.Count; i++)
         {
             var b = _handBalls[i];
             if (b == null) continue;
 
-            b.transform.position = GetHandBallWorldPos(i);
-            if (alignHandRotationToAnchor && handAnchor != null)
-            {
-                b.transform.rotation = handAnchor.rotation;
-            }
+            float dist = handSpacing * i;
+            b.transform.position = GetHandBallWorldPos(i, dist);
+
+            _handDistanceById[b.GetInstanceID()] = dist;
         }
     }
 
-    private Vector3 GetHandBallWorldPos(int index)
+    private Vector3 GetHandBallWorldPos(int index, float distance)
     {
-        Vector3 anchorPos = handAnchor != null ? handAnchor.position : transform.position;
+        if (TryGetHandPathPoints(out var pts))
+        {
+            return SamplePolyline(pts, distance);
+        }
+
+        Vector3 anchorPos = transform.position;
         Vector3 dir = handDirection.sqrMagnitude > 0.0001f ? handDirection.normalized : Vector3.right;
         return anchorPos + dir * (handSpacing * index);
     }
 
     private Quaternion GetHandBallWorldRot()
     {
-        if (alignHandRotationToAnchor && handAnchor != null)
-        {
-            return handAnchor.rotation;
-        }
-
         return Quaternion.identity;
     }
 
@@ -370,6 +483,22 @@ public sealed class BallSpawner : MonoBehaviour
             yield break;
         }
 
+        List<Vector3> pts = null;
+        bool usePath = false;
+        if (activateAlongHandPath && TryGetHandPathPoints(out var tmpPts) && tmpPts.Count >= 2)
+        {
+            pts = tmpPts;
+            usePath = true;
+        }
+
+        float startDist = 0f;
+        if (usePath)
+        {
+            // If we tracked this ball as part of the hand, start from its assigned distance.
+            // Otherwise start from the beginning of the path.
+            _handDistanceById.TryGetValue(ball.GetInstanceID(), out startDist);
+        }
+
         Rigidbody rb = ball.GetComponent<Rigidbody>();
         bool hadRb = rb != null;
 
@@ -414,13 +543,29 @@ public sealed class BallSpawner : MonoBehaviour
         float dur = Mathf.Max(0.01f, moveDuration);
         float t = 0f;
 
+        // Cache polyline total length (used for path movement).
+        float totalLen = 0f;
+        if (usePath)
+        {
+            totalLen = GetPolylineLength(pts);
+        }
+
         while (t < 1f)
         {
             t += Time.deltaTime / dur;
             float eased = moveCurve != null ? moveCurve.Evaluate(Mathf.Clamp01(t)) : Mathf.Clamp01(t);
 
-            ball.transform.position = Vector3.LerpUnclamped(startPos, endPos, eased);
-            ball.transform.rotation = Quaternion.SlerpUnclamped(startRot, endRot, eased);
+            if (usePath)
+            {
+                float dist = Mathf.LerpUnclamped(startDist, totalLen, eased);
+                ball.transform.position = SamplePolyline(pts, dist);
+                ball.transform.rotation = endRot;
+            }
+            else
+            {
+                ball.transform.position = Vector3.LerpUnclamped(startPos, endPos, eased);
+                ball.transform.rotation = Quaternion.SlerpUnclamped(startRot, endRot, eased);
+            }
 
             yield return null;
         }
@@ -453,6 +598,95 @@ public sealed class BallSpawner : MonoBehaviour
             StopCoroutine(_moveCoroutine);
             _moveCoroutine = null;
         }
+    }
+
+    private bool TryGetHandPathPoints(out List<Vector3> points)
+    {
+        points = null;
+        if (spawnPoint == null)
+            return false;
+
+        // Enable path mode if either start is set or there are any waypoints set.
+        bool hasAnyWaypoint = false;
+        for (int i = 0; i < handPathWaypoints.Count; i++)
+        {
+            if (handPathWaypoints[i] != null)
+            {
+                hasAnyWaypoint = true;
+                break;
+            }
+        }
+
+        Transform startT = handPathStart != null ? handPathStart : transform;
+
+        points = new List<Vector3>(2 + handPathWaypoints.Count)
+        {
+            startT.position
+        };
+
+        for (int i = 0; i < handPathWaypoints.Count; i++)
+        {
+            if (handPathWaypoints[i] != null)
+                points.Add(handPathWaypoints[i].position);
+        }
+
+        points.Add(spawnPoint.position);
+
+        // Remove consecutive duplicates (prevents zero-length segments).
+        for (int i = points.Count - 2; i >= 0; i--)
+        {
+            if ((points[i + 1] - points[i]).sqrMagnitude < 0.0000001f)
+                points.RemoveAt(i + 1);
+        }
+
+        return points.Count >= 2;
+    }
+
+    private static float GetPolylineLength(IList<Vector3> pts)
+    {
+        if (pts == null || pts.Count < 2) return 0f;
+        float len = 0f;
+        for (int i = 0; i < pts.Count - 1; i++)
+        {
+            len += Vector3.Distance(pts[i], pts[i + 1]);
+        }
+        return len;
+    }
+
+    private static Vector3 SamplePolyline(IList<Vector3> pts, float distance)
+    {
+        if (pts == null || pts.Count == 0) return Vector3.zero;
+        if (pts.Count == 1) return pts[0];
+
+        distance = Mathf.Max(0f, distance);
+
+        for (int i = 0; i < pts.Count - 1; i++)
+        {
+            Vector3 a = pts[i];
+            Vector3 b = pts[i + 1];
+            float segLen = Vector3.Distance(a, b);
+            if (segLen <= 0.000001f)
+                continue;
+
+            if (distance <= segLen)
+            {
+                float t = distance / segLen;
+                return Vector3.LerpUnclamped(a, b, t);
+            }
+
+            distance -= segLen;
+        }
+
+        // If we ran past the end, extrapolate along the last valid segment.
+        Vector3 last = pts[pts.Count - 1];
+        Vector3 prev = pts[pts.Count - 2];
+        Vector3 dir = (last - prev);
+        if (dir.sqrMagnitude > 0.000001f)
+        {
+            dir.Normalize();
+            return last + dir * distance;
+        }
+        return last;
     }
 }
 

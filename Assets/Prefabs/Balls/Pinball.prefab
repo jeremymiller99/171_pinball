@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 5316753179070647220}
   - component: {fileID: 1682731018784348660}
   m_Layer: 0
-  m_Name: Red Ball
+  m_Name: Pinball
   m_TagString: Ball
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -69,7 +69,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8be922540fe9b134ba19143c39c6a995, type: 2}
+  - {fileID: 2100000, guid: 2bf6d822e28432c46b7da73bee4a5b32, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

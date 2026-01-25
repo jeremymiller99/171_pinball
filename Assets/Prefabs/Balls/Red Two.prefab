@@ -14,8 +14,9 @@ GameObject:
   - component: {fileID: 2295593079652826086}
   - component: {fileID: 5316753179070647220}
   - component: {fileID: 1682731018784348660}
+  - component: {fileID: 1976190117028334336}
   m_Layer: 0
-  m_Name: Blue Ball
+  m_Name: Red Two
   m_TagString: Ball
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -69,7 +70,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: fac3f08216e02eb4fbf46b280ee01540, type: 2}
+  - {fileID: 2100000, guid: 8be922540fe9b134ba19143c39c6a995, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -154,3 +155,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PortalTraveller
   teleportCooldown: 0.1
   lastTeleportTime: -999
+--- !u!114 &1976190117028334336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bda9135bfee90f43b12821974121881, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'

@@ -13,12 +13,9 @@ public class GameRulesManager : MonoBehaviour
     [SerializeField] private int startingMaxBalls = 3;
     [SerializeField] private bool autoStartOnPlay = true;
 
-    [Header("Ball Spawning (optional)")]
-    [Tooltip("Preferred: assigns BallSpawner which pre-spawns a hand of balls and lerps the next ball to spawnPoint.")]
+    [Header("Ball Spawning")]
+    [Tooltip("Required: BallSpawner pre-spawns a hand of balls and lerps the next ball to spawnPoint.")]
     [SerializeField] private BallSpawner ballSpawner;
-    [SerializeField] private GameObject ballPrefab;
-    [SerializeField] private Transform spawnPoint;
-    [SerializeField] private bool enforceSingleActiveBall = true;
 
     [Header("Ball Loadout (hand)")]
     [Tooltip("Optional: starting ball prefabs for the player's hand/loadout. If empty, falls back to repeating Ball Prefab.")]
@@ -37,12 +34,10 @@ public class GameRulesManager : MonoBehaviour
 
     private bool runActive;
     private bool shopOpen;
-    private GameObject activeBall;
     private bool _drainProcessing;
 
     // Which prefabs will be used for the next round's hand (size == maxBalls).
     private readonly List<GameObject> _ballLoadout = new List<GameObject>();
-    private int _nextBallSpawnIndex;
 
     public int RoundIndex => roundIndex;
     public int MaxBalls => maxBalls;
@@ -51,7 +46,49 @@ public class GameRulesManager : MonoBehaviour
     public float RoundTotal => roundTotal;
     public float CurrentGoal => GetGoalForRound(roundIndex);
     public int BallLoadoutCount => _ballLoadout.Count;
-    public GameObject ActiveBall => ballSpawner != null ? ballSpawner.ActiveBall : activeBall;
+    public GameObject ActiveBall => ballSpawner != null ? ballSpawner.ActiveBall : null;
+
+    private void ResolveBallSpawner(bool logIfMissing)
+    {
+        if (ballSpawner != null)
+            return;
+
+        // In additive scene setups, the BallSpawner may exist in a different loaded scene than this object.
+        // Always resolve by searching across all loaded scenes.
+        BallSpawner[] found;
+#if UNITY_2022_2_OR_NEWER
+        found = FindObjectsByType<BallSpawner>(FindObjectsSortMode.None);
+#else
+        found = FindObjectsOfType<BallSpawner>(includeInactive: false);
+#endif
+
+        if (found == null || found.Length == 0)
+        {
+            if (logIfMissing)
+                Debug.LogError($"{nameof(GameRulesManager)} could not find any {nameof(BallSpawner)} in loaded scenes.", this);
+            return;
+        }
+
+        if (found.Length == 1)
+        {
+            ballSpawner = found[0];
+            return;
+        }
+
+        // Prefer a spawner in the same scene (usually GameplayCore), otherwise take the first.
+        for (int i = 0; i < found.Length; i++)
+        {
+            if (found[i] != null && found[i].gameObject.scene == gameObject.scene)
+            {
+                ballSpawner = found[i];
+                break;
+            }
+        }
+        if (ballSpawner == null)
+            ballSpawner = found[0];
+
+        Debug.LogWarning($"{nameof(GameRulesManager)} found multiple {nameof(BallSpawner)} instances; using '{ballSpawner.name}'. Remove duplicates for a single source of truth.", ballSpawner);
+    }
 
     /// <summary>
     /// Returns a snapshot copy of the current ball loadout (one prefab per hand slot).
@@ -69,28 +106,27 @@ public class GameRulesManager : MonoBehaviour
         {
             goalByRound = new List<float> { 500f, 800f, 1200f, 1700f, 2300f, 3000f, 4000f };
         }
+
+        ResolveBallSpawner(logIfMissing: false);
     }
 
     private void Start()
     {
-        // In the additive-board architecture, the spawnPoint will usually be injected by BoardLoader.
-        // Only auto-start if we already have a spawn point configured.
-        if (autoStartOnPlay && spawnPoint != null)
+        ResolveBallSpawner(logIfMissing: true);
+
+        // In the additive-board architecture, the board is loaded first, then StartRun() is called by RunFlowController.
+        if (autoStartOnPlay)
         {
             StartRun();
         }
     }
 
-    /// <summary>
-    /// Called by BoardLoader when a board scene is loaded.
-    /// </summary>
-    public void SetSpawnPoint(Transform newSpawnPoint)
-    {
-        spawnPoint = newSpawnPoint;
-    }
-
     public void StartRun()
     {
+        ResolveBallSpawner(logIfMissing: true);
+        if (ballSpawner == null)
+            return;
+
         runActive = true;
         roundIndex = 0;
         coins = 0;
@@ -101,6 +137,10 @@ public class GameRulesManager : MonoBehaviour
 
     public void StartRound()
     {
+        ResolveBallSpawner(logIfMissing: true);
+        if (ballSpawner == null)
+            return;
+
         shopOpen = false;
         SetShopOpen(false);
         SetRoundFailedOpen(false);
@@ -108,7 +148,6 @@ public class GameRulesManager : MonoBehaviour
         roundTotal = 0f;
         EnsureLoadoutWithinCapacity();
         ballsRemaining = _ballLoadout.Count;
-        _nextBallSpawnIndex = 0;
 
         if (scoreManager != null)
         {
@@ -120,11 +159,8 @@ public class GameRulesManager : MonoBehaviour
             scoreManager.SetCoins(coins);
         }
 
-        if (ballSpawner != null)
-        {
-            ballSpawner.ClearAll();
-            ballSpawner.BuildHandFromPrefabs(_ballLoadout);
-        }
+        ballSpawner.ClearAll();
+        ballSpawner.BuildHandFromPrefabs(_ballLoadout);
 
         if (ballsRemaining > 0)
         {
@@ -392,39 +428,11 @@ public class GameRulesManager : MonoBehaviour
 
     private GameObject SpawnBall()
     {
-        if (ballSpawner != null)
-        {
-            activeBall = ballSpawner.ActivateNextBall();
-            return activeBall;
-        }
-
-        if (spawnPoint == null)
-        {
+        ResolveBallSpawner(logIfMissing: false);
+        if (ballSpawner == null)
             return null;
-        }
 
-        // Prefer loadout-based prefabs if configured.
-        GameObject prefabToSpawn = ballPrefab;
-        if (_ballLoadout.Count > 0)
-        {
-            int idx = Mathf.Clamp(_nextBallSpawnIndex, 0, _ballLoadout.Count - 1);
-            prefabToSpawn = _ballLoadout[idx] != null ? _ballLoadout[idx] : prefabToSpawn;
-        }
-        _nextBallSpawnIndex++;
-
-        if (prefabToSpawn == null)
-        {
-            return null;
-        }
-
-        if (enforceSingleActiveBall && activeBall != null)
-        {
-            Destroy(activeBall);
-            activeBall = null;
-        }
-
-        activeBall = Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation);
-        return activeBall;
+        return ballSpawner.ActivateNextBall();
     }
 
     private void DespawnBall(GameObject ball)
@@ -435,34 +443,15 @@ public class GameRulesManager : MonoBehaviour
         }
 
         if (ballSpawner != null)
-        {
             ballSpawner.DespawnBall(ball);
-            if (ball == activeBall)
-            {
-                activeBall = null;
-            }
-            return;
-        }
-
-        if (ball == activeBall)
-        {
-            activeBall = null;
-        }
-
-        Destroy(ball);
     }
 
     private void ClearAllBalls()
     {
+        ResolveBallSpawner(logIfMissing: false);
         if (ballSpawner != null)
         {
             ballSpawner.ClearAll();
-        }
-
-        if (activeBall != null)
-        {
-            Destroy(activeBall);
-            activeBall = null;
         }
     }
 
@@ -488,6 +477,8 @@ public class GameRulesManager : MonoBehaviour
 
     private void InitializeLoadoutForNewRun()
     {
+        ResolveBallSpawner(logIfMissing: false);
+
         _ballLoadout.Clear();
 
         int cap = Mathf.Max(1, maxBalls);
@@ -503,11 +494,12 @@ public class GameRulesManager : MonoBehaviour
             }
         }
 
-        // If the starting list doesn't fill the hand, fill the remainder with the fallback prefab (if any),
+        // If the starting list doesn't fill the hand, fill the remainder with the spawner's default prefab
         // so you start with a full hand by default.
-        while (_ballLoadout.Count < cap && ballPrefab != null)
+        GameObject fallback = ballSpawner != null ? ballSpawner.DefaultBallPrefab : null;
+        while (_ballLoadout.Count < cap && fallback != null)
         {
-            _ballLoadout.Add(ballPrefab);
+            _ballLoadout.Add(fallback);
         }
 
         EnsureLoadoutWithinCapacity();

@@ -103,11 +103,8 @@ public sealed class BoardLoader : MonoBehaviour
         if (ballSpawner != null)
         {
             ballSpawner.SetSpawnPoint(sp);
-        }
-
-        if (rulesManager != null)
-        {
-            rulesManager.SetSpawnPoint(sp);
+            // Hand path start; if unset, the spawner will fall back to its own transform.
+            ballSpawner.SetHandPath(currentBoardRoot.HandPathStart, currentBoardRoot.HandPathWaypoints);
         }
     }
 

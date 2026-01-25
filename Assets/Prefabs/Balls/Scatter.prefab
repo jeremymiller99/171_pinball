@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 2295593079652826086}
   - component: {fileID: 5316753179070647220}
   - component: {fileID: 1682731018784348660}
-  - component: {fileID: 1976190117028334336}
+  - component: {fileID: 4058802016084885643}
   m_Layer: 0
-  m_Name: Mult Ball
+  m_Name: Scatter
   m_TagString: Ball
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -70,7 +70,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 3951dd17123c2f74991958e5d0ad8daf, type: 2}
+  - {fileID: 2100000, guid: d29635be321261d43a700c46193be81f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -155,7 +155,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PortalTraveller
   teleportCooldown: 0.1
   lastTeleportTime: -999
---- !u!114 &1976190117028334336
+--- !u!114 &4058802016084885643
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -164,6 +164,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5723297401256486482}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0bda9135bfee90f43b12821974121881, type: 3}
+  m_Script: {fileID: 11500000, guid: c60dd978084cc5d46a5252362dbd6251, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  readyToSplit: 1

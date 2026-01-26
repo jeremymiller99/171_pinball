@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Plays a simple "tally" animation for current-ball scoring:
@@ -32,6 +33,28 @@ public class ScoreTallyAnimator : MonoBehaviour
     private bool _initialized;
     public bool IsTallying { get; private set; }
 
+    private const string ScorePanelRootName = "Score Panel";
+    private const string PointsObjectName = "Points";
+    private const string MultObjectName = "Mult";
+    private const string XObjectName = "X";
+    private const string RoundTotalObjectName = "RoundTotal";
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+        EnsureTextBindings();
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        EnsureTextBindings();
+    }
+
     private void CacheInitialStateIfNeeded()
     {
         if (_initialized) return;
@@ -48,9 +71,15 @@ public class ScoreTallyAnimator : MonoBehaviour
 
     public IEnumerator PlayTally(ScoreManager scoreManager)
     {
+        return PlayTally(scoreManager, 1f);
+    }
+
+    public IEnumerator PlayTally(ScoreManager scoreManager, float bankMultiplier)
+    {
         if (IsTallying) yield break;
         IsTallying = true;
 
+        EnsureTextBindings();
         CacheInitialStateIfNeeded();
 
         if (scoreManager != null && lockScoreManagerDuringTally)
@@ -60,7 +89,7 @@ public class ScoreTallyAnimator : MonoBehaviour
         if (scoreManager == null || pointsText == null || multText == null || xText == null || roundTotalText == null)
         {
             if (scoreManager != null)
-                scoreManager.BankCurrentBallScore();
+                scoreManager.BankCurrentBallScore(bankMultiplier);
 
             if (scoreManager != null && lockScoreManagerDuringTally)
                 scoreManager.SetScoringLocked(false);
@@ -84,7 +113,10 @@ public class ScoreTallyAnimator : MonoBehaviour
         SetVisible(pointsText, false);
         SetVisible(multText, false);
 
-        float banked = scoreManager.points * scoreManager.mult;
+        float m = bankMultiplier;
+        if (m <= 0f) m = 1f;
+
+        float banked = scoreManager.points * scoreManager.mult * m;
         xText.text = banked.ToString();
 
         if (holdAtXDuration > 0f)
@@ -98,7 +130,7 @@ public class ScoreTallyAnimator : MonoBehaviour
             yield return new WaitForSeconds(endHoldDuration);
 
         // Commit bank into round total + reset scoring for next ball.
-        scoreManager.BankCurrentBallScore();
+        scoreManager.BankCurrentBallScore(bankMultiplier);
 
         // Hide the moving total, then reset all visuals back to "ready for next ball".
         SetVisible(xText, false);
@@ -118,6 +150,75 @@ public class ScoreTallyAnimator : MonoBehaviour
             scoreManager.SetScoringLocked(false);
 
         IsTallying = false;
+    }
+
+    private void EnsureTextBindings()
+    {
+        if (IsLiveSceneText(pointsText) && IsLiveSceneText(multText) && IsLiveSceneText(xText) && IsLiveSceneText(roundTotalText))
+            return;
+
+        // Prefer binding within a Score Panel root if present (works regardless of which additive scene it lives in).
+        GameObject scorePanel = GameObject.Find(ScorePanelRootName);
+        if (scorePanel != null)
+        {
+            if (!IsLiveSceneText(pointsText)) pointsText = FindTmpTextInChildrenByName(scorePanel.transform, PointsObjectName);
+            if (!IsLiveSceneText(multText)) multText = FindTmpTextInChildrenByName(scorePanel.transform, MultObjectName);
+            if (!IsLiveSceneText(xText)) xText = FindTmpTextInChildrenByName(scorePanel.transform, XObjectName);
+        }
+
+        if (!IsLiveSceneText(roundTotalText))
+        {
+            // Round total may live outside the Score Panel (e.g., another HUD element).
+            // Try exact name match first.
+            roundTotalText = FindTmpTextInLoadedScenesByName(RoundTotalObjectName);
+        }
+
+        // As a last resort, also allow X to be found globally (if your panel structure changes).
+        if (!IsLiveSceneText(xText))
+            xText = FindTmpTextInLoadedScenesByName(XObjectName);
+
+        if (!IsLiveSceneText(pointsText))
+            pointsText = FindTmpTextInLoadedScenesByName(PointsObjectName);
+        if (!IsLiveSceneText(multText))
+            multText = FindTmpTextInLoadedScenesByName(MultObjectName);
+    }
+
+    private static TMP_Text FindTmpTextInChildrenByName(Transform root, string childName)
+    {
+        if (root == null) return null;
+        TMP_Text[] texts = root.GetComponentsInChildren<TMP_Text>(includeInactive: true);
+        for (int i = 0; i < texts.Length; i++)
+        {
+            TMP_Text t = texts[i];
+            if (t == null) continue;
+            if (!t.gameObject.activeInHierarchy) continue;
+            if (string.Equals(t.gameObject.name, childName, System.StringComparison.OrdinalIgnoreCase))
+                return t;
+        }
+        return null;
+    }
+
+    private static TMP_Text FindTmpTextInLoadedScenesByName(string objectName)
+    {
+        TMP_Text[] allTexts = Resources.FindObjectsOfTypeAll<TMP_Text>();
+        for (int i = 0; i < allTexts.Length; i++)
+        {
+            TMP_Text t = allTexts[i];
+            if (t == null) continue;
+            if (!t.gameObject.scene.IsValid()) continue;
+            if (!t.gameObject.activeInHierarchy) continue;
+            if (string.Equals(t.gameObject.name, objectName, System.StringComparison.OrdinalIgnoreCase))
+                return t;
+        }
+        return null;
+    }
+
+    private static bool IsLiveSceneText(TMP_Text t)
+    {
+        if (t == null) return false;
+        if (!t.gameObject.scene.IsValid()) return false;
+        if (!t.gameObject.activeInHierarchy) return false;
+        return true;
     }
 
     private static void SetVisible(TMP_Text t, bool visible)

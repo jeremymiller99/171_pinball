@@ -21,6 +21,7 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     [SerializeField] private TMP_Text speedText;
     [SerializeField] private bool autoFindTextByName = true;
     [SerializeField] private string speedTextObjectName = "BallSpeedText";
+    [SerializeField] private bool autoFindTextInChildren = true;
 
     [Header("Source")]
     [SerializeField] private GameRulesManager gameRules;
@@ -36,6 +37,9 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     [Header("3D Meter (optional)")]
     [Tooltip("Assign a 3D box/cube transform that should 'fill' as speed increases.")]
     [SerializeField] private Transform meterFill;
+    [SerializeField] private bool autoFindMeterFillInChildren = true;
+    [SerializeField] private bool autoFindMeterFillByName = false;
+    [SerializeField] private string meterFillObjectName = "MeterFill";
     [Tooltip("Local axis the meter extends along. Use Z if your box points forward.")]
     [SerializeField] private MeterAxis meterAxis = MeterAxis.Z;
     [Tooltip("If false, the meter will extend in the negative axis direction.")]
@@ -92,6 +96,9 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
 
     private void ResolveRefs()
     {
+        if (!speedText && autoFindTextInChildren)
+            speedText = GetComponentInChildren<TMP_Text>(includeInactive: true);
+
         if (!speedText && autoFindTextByName && !string.IsNullOrWhiteSpace(speedTextObjectName))
         {
             var go = GameObject.Find(speedTextObjectName);
@@ -103,6 +110,19 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
 
         if (!gameRules)
             gameRules = FindFirstObjectByType<GameRulesManager>();
+
+        if (!meterFill)
+        {
+            // Prefer local lookup (HUD prefab), then optional global name lookup.
+            if (autoFindMeterFillInChildren)
+                meterFill = FindLikelyMeterFillInChildren();
+
+            if (!meterFill && autoFindMeterFillByName && !string.IsNullOrWhiteSpace(meterFillObjectName))
+            {
+                var go = GameObject.Find(meterFillObjectName);
+                if (go) meterFill = go.transform;
+            }
+        }
     }
 
     private void InitMeterIfNeeded()
@@ -365,6 +385,21 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         }
 
         return 1f;
+    }
+
+    private Transform FindLikelyMeterFillInChildren()
+    {
+        // Heuristic: first child transform with a Renderer (and not a TMP object).
+        // This keeps the prefab self-contained when moved between scenes.
+        var renderers = GetComponentsInChildren<Renderer>(includeInactive: true);
+        foreach (var r in renderers)
+        {
+            if (!r) continue;
+            if (r.GetComponent<TMP_Text>()) continue;
+            return r.transform;
+        }
+
+        return null;
     }
 }
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class GameRulesManager : MonoBehaviour
@@ -24,6 +25,8 @@ public class GameRulesManager : MonoBehaviour
     [Header("UI (optional)")]
     [SerializeField] private GameObject shopCanvasRoot;
     [SerializeField] private GameObject roundFailedUIRoot;
+    [SerializeField] private GameObject homeRunUIRoot;
+    [SerializeField] private TMP_Text homeRunMessageText;
 
     [Header("Debug (read-only at runtime)")]
     [SerializeField] private int roundIndex;
@@ -170,16 +173,21 @@ public class GameRulesManager : MonoBehaviour
 
     public void OnBallDrained(GameObject ball)
     {
+        OnBallDrained(ball, 1f, showHomeRunPopup: false);
+    }
+
+    public void OnBallDrained(GameObject ball, float bankMultiplier, bool showHomeRunPopup)
+    {
         if (_drainProcessing)
         {
             DespawnBall(ball);
             return;
         }
 
-        StartCoroutine(OnBallDrainedRoutine(ball));
+        StartCoroutine(OnBallDrainedRoutine(ball, bankMultiplier, showHomeRunPopup));
     }
 
-    private System.Collections.IEnumerator OnBallDrainedRoutine(GameObject ball)
+    private System.Collections.IEnumerator OnBallDrainedRoutine(GameObject ball, float bankMultiplier, bool showHomeRunPopup)
     {
         _drainProcessing = true;
 
@@ -192,15 +200,20 @@ public class GameRulesManager : MonoBehaviour
 
         DespawnBall(ball);
 
+        if (showHomeRunPopup)
+        {
+            ShowHomeRunPopup();
+        }
+
         // Play animated tally if configured; otherwise instant-bank.
         if (scoreTallyAnimator != null && scoreManager != null)
         {
-            yield return scoreTallyAnimator.PlayTally(scoreManager);
+            yield return scoreTallyAnimator.PlayTally(scoreManager, bankMultiplier);
             roundTotal = scoreManager.roundTotal;
         }
         else
         {
-            BankCurrentBallIntoRoundTotal();
+            BankCurrentBallIntoRoundTotal(bankMultiplier);
         }
 
         ballsRemaining = Mathf.Max(0, ballsRemaining - 1);
@@ -356,15 +369,36 @@ public class GameRulesManager : MonoBehaviour
 
     private float BankCurrentBallIntoRoundTotal()
     {
+        return BankCurrentBallIntoRoundTotal(1f);
+    }
+
+    private float BankCurrentBallIntoRoundTotal(float bankMultiplier)
+    {
         if (scoreManager == null)
         {
             return 0f;
         }
 
         // Prefer ScoreManager API so its internal roundTotal + TMP labels stay in sync.
-        float banked = scoreManager.BankCurrentBallScore();
+        float banked = scoreManager.BankCurrentBallScore(bankMultiplier);
         roundTotal = scoreManager.roundTotal;
         return banked;
+    }
+
+    private void ShowHomeRunPopup()
+    {
+        if (homeRunUIRoot != null)
+        {
+            homeRunUIRoot.SetActive(true);
+        }
+    }
+
+    public void CloseHomeRunPopup()
+    {
+        if (homeRunUIRoot != null)
+        {
+            homeRunUIRoot.SetActive(false);
+        }
     }
 
     private void ResetCurrentBallScoreVisuals()

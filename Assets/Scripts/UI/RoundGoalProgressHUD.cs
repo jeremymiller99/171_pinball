@@ -24,6 +24,9 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
     [Header("UI (optional)")]
     [Tooltip("Optional TMP label that displays the current (live) round total as a number.")]
     [SerializeField] private TMP_Text roundTotalText;
+    [SerializeField] private bool autoFindTextInChildren = true;
+    [SerializeField] private bool autoFindTextByName = false;
+    [SerializeField] private string roundTotalTextObjectName = "RoundTotalText";
     [Tooltip("Number of decimal places to show in the round total text.")]
     [Min(0)]
     [SerializeField] private int roundTotalDecimals = 0;
@@ -31,6 +34,9 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
     [Header("3D Meter")]
     [Tooltip("Assign a 3D box/cube transform that should 'fill' as progress increases.")]
     [SerializeField] private Transform meterFill;
+    [SerializeField] private bool autoFindMeterFillInChildren = true;
+    [SerializeField] private bool autoFindMeterFillByName = false;
+    [SerializeField] private string meterFillObjectName = "MeterFill";
     [Tooltip("Local axis the meter extends along. Use Z if your box points forward.")]
     [SerializeField] private MeterAxis meterAxis = MeterAxis.Z;
     [Tooltip("If false, the meter will extend in the negative axis direction.")]
@@ -91,6 +97,32 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
     {
         if (scoreManager == null)
             scoreManager = FindFirstObjectByType<ScoreManager>();
+
+        if (!roundTotalText)
+        {
+            // Prefer local lookup (HUD prefab), then optional global name lookup.
+            if (autoFindTextInChildren)
+                roundTotalText = GetComponentInChildren<TMP_Text>(includeInactive: true);
+
+            if (!roundTotalText && autoFindTextByName && !string.IsNullOrWhiteSpace(roundTotalTextObjectName))
+            {
+                var go = GameObject.Find(roundTotalTextObjectName);
+                if (go) roundTotalText = go.GetComponent<TMP_Text>();
+            }
+        }
+
+        if (!meterFill)
+        {
+            // Prefer local lookup (HUD prefab), then optional global name lookup.
+            if (autoFindMeterFillInChildren)
+                meterFill = FindLikelyMeterFillInChildren();
+
+            if (!meterFill && autoFindMeterFillByName && !string.IsNullOrWhiteSpace(meterFillObjectName))
+            {
+                var go = GameObject.Find(meterFillObjectName);
+                if (go) meterFill = go.transform;
+            }
+        }
     }
 
     private void OnScoreChanged()
@@ -302,6 +334,21 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
         }
 
         return 1f;
+    }
+
+    private Transform FindLikelyMeterFillInChildren()
+    {
+        // Heuristic: first child transform with a Renderer (and not a TMP object).
+        // This keeps the prefab self-contained when moved between scenes.
+        var renderers = GetComponentsInChildren<Renderer>(includeInactive: true);
+        foreach (var r in renderers)
+        {
+            if (!r) continue;
+            if (r.GetComponent<TMP_Text>()) continue;
+            return r.transform;
+        }
+
+        return null;
     }
 }
 

@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using System;
+using UnityEngine.SceneManagement;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -45,6 +46,21 @@ public class ScoreManager : MonoBehaviour
     /// </summary>
     public float LiveRoundTotal => roundTotal + (points * mult);
 
+    private const string ScorePanelRootName = "Score Panel";
+    private const string PointsObjectName = "Points";
+    private const string MultObjectName = "Mult";
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+        EnsureCoreScoreTextBindings();
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+    }
+
     private void Start()
     {
         // Keep existing defaults.
@@ -53,6 +69,7 @@ public class ScoreManager : MonoBehaviour
         roundTotal = 0f;
         _goal = 0f;
 
+        EnsureCoreScoreTextBindings();
         RefreshScoreUI();
         ScoreChanged?.Invoke();
     }
@@ -60,6 +77,7 @@ public class ScoreManager : MonoBehaviour
     public void AddPoints(float p)
     {
         if (scoringLocked) return;
+        EnsureCoreScoreTextBindings();
         points += p;
         if (pointsText != null)
             pointsText.text = points.ToString();
@@ -69,6 +87,7 @@ public class ScoreManager : MonoBehaviour
     public void AddMult(float m)
     {
         if (scoringLocked) return;
+        EnsureCoreScoreTextBindings();
         mult += m;
         if (multText != null)
             multText.text = mult.ToString();
@@ -86,7 +105,20 @@ public class ScoreManager : MonoBehaviour
     /// </summary>
     public float BankCurrentBallScore()
     {
-        float banked = points * mult;
+        return BankCurrentBallScore(1f);
+    }
+
+    /// <summary>
+    /// Bank the current ball score into the round total, multiplied by <paramref name="bankMultiplier"/>,
+    /// then reset the per-ball score state.
+    /// Returns the banked amount (points * mult * bankMultiplier).
+    /// </summary>
+    public float BankCurrentBallScore(float bankMultiplier)
+    {
+        float m = bankMultiplier;
+        if (m <= 0f) m = 1f;
+
+        float banked = points * mult * m;
         roundTotal += banked;
 
         // Reset for next ball.
@@ -142,11 +174,85 @@ public class ScoreManager : MonoBehaviour
 
     private void RefreshScoreUI()
     {
+        EnsureCoreScoreTextBindings();
         if (pointsText != null)
             pointsText.text = points.ToString();
         if (multText != null)
             multText.text = mult.ToString();
         if (roundTotalText != null)
             roundTotalText.text = roundTotal.ToString();
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // In additive-scene setups, the Score UI may live in a different scene than this manager.
+        // Re-resolve references whenever a new scene is loaded.
+        EnsureCoreScoreTextBindings();
+        RefreshScoreUI();
+    }
+
+    private void EnsureCoreScoreTextBindings()
+    {
+        if (IsLiveSceneText(pointsText) && IsLiveSceneText(multText))
+            return;
+
+        // Prefer binding within a Score Panel root if present.
+        GameObject scorePanel = GameObject.Find(ScorePanelRootName);
+        if (scorePanel != null)
+        {
+            if (!IsLiveSceneText(pointsText))
+                pointsText = FindTmpTextInChildrenByName(scorePanel.transform, PointsObjectName);
+            if (!IsLiveSceneText(multText))
+                multText = FindTmpTextInChildrenByName(scorePanel.transform, MultObjectName);
+        }
+
+        if (IsLiveSceneText(pointsText) && IsLiveSceneText(multText))
+            return;
+
+        // Fallback: search all loaded-scene TMP_Text objects (including inactive).
+        // Resources.FindObjectsOfTypeAll includes assets/prefabs too, so filter by valid scene.
+        TMP_Text[] allTexts = Resources.FindObjectsOfTypeAll<TMP_Text>();
+        for (int i = 0; i < allTexts.Length; i++)
+        {
+            TMP_Text t = allTexts[i];
+            if (t == null) continue;
+            if (!t.gameObject.scene.IsValid()) continue;
+            if (!t.gameObject.activeInHierarchy) continue;
+
+            string n = t.gameObject.name;
+            if (!IsLiveSceneText(pointsText) && string.Equals(n, PointsObjectName, StringComparison.OrdinalIgnoreCase))
+                pointsText = t;
+            else if (!IsLiveSceneText(multText) && string.Equals(n, MultObjectName, StringComparison.OrdinalIgnoreCase))
+                multText = t;
+
+            if (IsLiveSceneText(pointsText) && IsLiveSceneText(multText))
+                break;
+        }
+    }
+
+    private static TMP_Text FindTmpTextInChildrenByName(Transform root, string childName)
+    {
+        if (root == null) return null;
+
+        // Look for an exact name match (case-insensitive) and grab TMP on that object.
+        TMP_Text[] texts = root.GetComponentsInChildren<TMP_Text>(includeInactive: true);
+        for (int i = 0; i < texts.Length; i++)
+        {
+            TMP_Text t = texts[i];
+            if (t == null) continue;
+            if (!t.gameObject.activeInHierarchy) continue;
+            if (string.Equals(t.gameObject.name, childName, StringComparison.OrdinalIgnoreCase))
+                return t;
+        }
+
+        return null;
+    }
+
+    private static bool IsLiveSceneText(TMP_Text t)
+    {
+        if (t == null) return false;
+        if (!t.gameObject.scene.IsValid()) return false;
+        if (!t.gameObject.activeInHierarchy) return false;
+        return true;
     }
 }

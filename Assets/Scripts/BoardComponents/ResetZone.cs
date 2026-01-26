@@ -3,6 +3,7 @@ using UnityEngine;
 public class ResetZone : MonoBehaviour
 {
     [SerializeField] private GameRulesManager rulesManager;
+    [SerializeField] private bool outsideBounds;
 
     private void Awake()
     {
@@ -26,7 +27,14 @@ public class ResetZone : MonoBehaviour
                 return;
             }
 
-            rulesManager.OnBallDrained(other.gameObject);
+            if (outsideBounds)
+            {
+                rulesManager.OnBallDrained(other.gameObject, 2f, showHomeRunPopup: true);
+            }
+            else
+            {
+                rulesManager.OnBallDrained(other.gameObject);
+            }
         }
     }
 }

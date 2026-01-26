@@ -115,9 +115,11 @@ public class GameRulesManager : MonoBehaviour
 
     private void Start()
     {
-        ResolveBallSpawner(logIfMissing: true);
+        // In the additive-board architecture, the board (containing the BallSpawner) is loaded 
+        // after GameplayCore, then StartRun() is called by RunFlowController.
+        // Don't log an error here since the board scene may not be loaded yet.
+        ResolveBallSpawner(logIfMissing: false);
 
-        // In the additive-board architecture, the board is loaded first, then StartRun() is called by RunFlowController.
         if (autoStartOnPlay)
         {
             StartRun();

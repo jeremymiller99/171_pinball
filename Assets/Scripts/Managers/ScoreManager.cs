@@ -47,8 +47,14 @@ public class ScoreManager : MonoBehaviour
     public float LiveRoundTotal => roundTotal + (points * mult);
 
     private const string ScorePanelRootName = "Score Panel";
+    private const string RoundInfoPanelRootName = "Round Info Panel";
     private const string PointsObjectName = "Points";
     private const string MultObjectName = "Mult";
+    private const string RoundIndexObjectName = "Round Index";
+    private const string RoundTotalObjectName = "RoundTotal";
+    private const string GoalObjectName = "Goal";
+    private const string BallsRemainingObjectName = "Balls Remaining";
+    private const string CoinsObjectName = "Coins";
 
     private void OnEnable()
     {
@@ -149,6 +155,7 @@ public class ScoreManager : MonoBehaviour
     public void SetGoal(float goal)
     {
         _goal = goal;
+        EnsureCoreScoreTextBindings();
         if (goalText != null)
             goalText.text = goal.ToString();
         ScoreChanged?.Invoke();
@@ -156,18 +163,21 @@ public class ScoreManager : MonoBehaviour
 
     public void SetRoundIndex(int roundIndex)
     {
+        EnsureCoreScoreTextBindings();
         if (roundIndexText != null)
             roundIndexText.text = (roundIndex + 1).ToString();
     }
 
     public void SetBallsRemaining(int ballsRemaining)
     {
+        EnsureCoreScoreTextBindings();
         if (ballsRemainingText != null)
             ballsRemainingText.text = ballsRemaining.ToString();
     }
 
     public void SetCoins(int coins)
     {
+        EnsureCoreScoreTextBindings();
         if (coinsText != null)
             coinsText.text = coins.ToString();
     }
@@ -181,6 +191,8 @@ public class ScoreManager : MonoBehaviour
             multText.text = mult.ToString();
         if (roundTotalText != null)
             roundTotalText.text = roundTotal.ToString();
+        if (goalText != null)
+            goalText.text = _goal.ToString();
     }
 
     private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -193,20 +205,53 @@ public class ScoreManager : MonoBehaviour
 
     private void EnsureCoreScoreTextBindings()
     {
-        if (IsLiveSceneText(pointsText) && IsLiveSceneText(multText))
+        bool scorePanelBound = IsLiveSceneText(pointsText) && IsLiveSceneText(multText);
+        bool roundInfoBound = IsLiveSceneText(roundIndexText) && IsLiveSceneText(roundTotalText) 
+                              && IsLiveSceneText(goalText) && IsLiveSceneText(ballsRemainingText) 
+                              && IsLiveSceneText(coinsText);
+
+        if (scorePanelBound && roundInfoBound)
             return;
 
         // Prefer binding within a Score Panel root if present.
-        GameObject scorePanel = GameObject.Find(ScorePanelRootName);
-        if (scorePanel != null)
+        if (!scorePanelBound)
         {
-            if (!IsLiveSceneText(pointsText))
-                pointsText = FindTmpTextInChildrenByName(scorePanel.transform, PointsObjectName);
-            if (!IsLiveSceneText(multText))
-                multText = FindTmpTextInChildrenByName(scorePanel.transform, MultObjectName);
+            GameObject scorePanel = GameObject.Find(ScorePanelRootName);
+            if (scorePanel != null)
+            {
+                if (!IsLiveSceneText(pointsText))
+                    pointsText = FindTmpTextInChildrenByName(scorePanel.transform, PointsObjectName);
+                if (!IsLiveSceneText(multText))
+                    multText = FindTmpTextInChildrenByName(scorePanel.transform, MultObjectName);
+            }
         }
 
-        if (IsLiveSceneText(pointsText) && IsLiveSceneText(multText))
+        // Prefer binding within Round Info Panel root if present.
+        if (!roundInfoBound)
+        {
+            GameObject roundInfoPanel = GameObject.Find(RoundInfoPanelRootName);
+            if (roundInfoPanel != null)
+            {
+                if (!IsLiveSceneText(roundIndexText))
+                    roundIndexText = FindTmpTextInChildrenByName(roundInfoPanel.transform, RoundIndexObjectName);
+                if (!IsLiveSceneText(roundTotalText))
+                    roundTotalText = FindTmpTextInChildrenByName(roundInfoPanel.transform, RoundTotalObjectName);
+                if (!IsLiveSceneText(goalText))
+                    goalText = FindTmpTextInChildrenByName(roundInfoPanel.transform, GoalObjectName);
+                if (!IsLiveSceneText(ballsRemainingText))
+                    ballsRemainingText = FindTmpTextInChildrenByName(roundInfoPanel.transform, BallsRemainingObjectName);
+                if (!IsLiveSceneText(coinsText))
+                    coinsText = FindTmpTextInChildrenByName(roundInfoPanel.transform, CoinsObjectName);
+            }
+        }
+
+        // Recheck after panel-based search.
+        scorePanelBound = IsLiveSceneText(pointsText) && IsLiveSceneText(multText);
+        roundInfoBound = IsLiveSceneText(roundIndexText) && IsLiveSceneText(roundTotalText) 
+                         && IsLiveSceneText(goalText) && IsLiveSceneText(ballsRemainingText) 
+                         && IsLiveSceneText(coinsText);
+
+        if (scorePanelBound && roundInfoBound)
             return;
 
         // Fallback: search all loaded-scene TMP_Text objects (including inactive).
@@ -220,13 +265,23 @@ public class ScoreManager : MonoBehaviour
             if (!t.gameObject.activeInHierarchy) continue;
 
             string n = t.gameObject.name;
+            
+            // Score Panel elements
             if (!IsLiveSceneText(pointsText) && string.Equals(n, PointsObjectName, StringComparison.OrdinalIgnoreCase))
                 pointsText = t;
             else if (!IsLiveSceneText(multText) && string.Equals(n, MultObjectName, StringComparison.OrdinalIgnoreCase))
                 multText = t;
-
-            if (IsLiveSceneText(pointsText) && IsLiveSceneText(multText))
-                break;
+            // Round Info Panel elements
+            else if (!IsLiveSceneText(roundIndexText) && string.Equals(n, RoundIndexObjectName, StringComparison.OrdinalIgnoreCase))
+                roundIndexText = t;
+            else if (!IsLiveSceneText(roundTotalText) && string.Equals(n, RoundTotalObjectName, StringComparison.OrdinalIgnoreCase))
+                roundTotalText = t;
+            else if (!IsLiveSceneText(goalText) && string.Equals(n, GoalObjectName, StringComparison.OrdinalIgnoreCase))
+                goalText = t;
+            else if (!IsLiveSceneText(ballsRemainingText) && string.Equals(n, BallsRemainingObjectName, StringComparison.OrdinalIgnoreCase))
+                ballsRemainingText = t;
+            else if (!IsLiveSceneText(coinsText) && string.Equals(n, CoinsObjectName, StringComparison.OrdinalIgnoreCase))
+                coinsText = t;
         }
     }
 

@@ -25,7 +25,7 @@ public class ResetZone : MonoBehaviour
                 Debug.LogError($"{nameof(ResetZone)}: No {nameof(GameRulesManager)} found. Assign it in the inspector.", this);
                 return;
             }
-
+            FMODUnity.RuntimeManager.PlayOneShot("event:/ball_lost");
             rulesManager.OnBallDrained(other.gameObject);
         }
     }

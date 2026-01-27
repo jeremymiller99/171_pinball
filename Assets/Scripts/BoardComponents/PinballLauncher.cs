@@ -134,6 +134,7 @@ public sealed class PinballLauncher : MonoBehaviour
 
                 if (_ballRb != null)
                 {
+                    FMODUnity.RuntimeManager.PlayOneShot("event:/ball_launched");
                     Launch();
                 }
                 else

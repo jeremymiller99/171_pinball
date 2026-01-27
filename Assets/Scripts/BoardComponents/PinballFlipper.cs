@@ -1,4 +1,5 @@
 using UnityEngine;
+using FMODUnity;
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -40,6 +41,8 @@ public class PinballFlipper : MonoBehaviour
     private float _currentOffset;
     private bool _pressed;
     private Rigidbody _rb;
+    private bool _upSFXPlayed = false;
+    private bool _downSFXPlayed = true;
 
     private void Awake()
     {
@@ -91,7 +94,18 @@ public class PinballFlipper : MonoBehaviour
                 else if (useMouseMiddleButton && mouse.middleButton.isPressed) pressed = true;
             }
         }
-
+        if (pressed && !_upSFXPlayed)
+        {
+            FMODUnity.RuntimeManager.PlayOneShot("event:/flipper_up");
+            _upSFXPlayed = true;
+            _downSFXPlayed = false;
+        }
+        if (!pressed && !_downSFXPlayed)
+        {
+            FMODUnity.RuntimeManager.PlayOneShot("event:/flipper_down");
+            _downSFXPlayed = true;
+            _upSFXPlayed = false;
+        }
         return pressed;
     }
 #else
@@ -121,6 +135,7 @@ public class PinballFlipper : MonoBehaviour
     {
         float dir = invertDirection ? -1f : 1f;
         float targetOffset = _pressed ? (flipAngle * dir) : 0f;
+        
 
         _currentOffset = Mathf.MoveTowards(
             _currentOffset,

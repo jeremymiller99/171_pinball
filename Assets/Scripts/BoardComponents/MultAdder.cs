@@ -1,4 +1,5 @@
 using UnityEngine;
+using FMODUnity;
 
 public class MultAdder : MonoBehaviour
 {
@@ -37,6 +38,7 @@ public class MultAdder : MonoBehaviour
         if (collision.collider.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
+            FMODUnity.RuntimeManager.PlayOneShot("event:/collide_mult");
             scoreManager?.AddMult(multToAdd);
             // Spawn text at the ball's position
             floatingTextSpawner?.SpawnText(collision.collider.transform.position, "x" + multToAdd);

@@ -45,6 +45,7 @@ public class Portal : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        
         Rigidbody rb = other.attachedRigidbody;
         if (rb == null) return;
 
@@ -58,6 +59,10 @@ public class Portal : MonoBehaviour
         Vector3 localPos = transform.InverseTransformPoint(other.transform.position);
         Vector3 newWorldPos = portalExit.TransformPoint(localPos);
         newWorldPos += portalExit.forward * exitOffset;
+        if (other.transform.position != newWorldPos)
+        {
+            FMODUnity.RuntimeManager.PlayOneShot("event:/effect_portal");
+        }
         other.transform.position = newWorldPos;
 
         // --- ROTATION (optional � keeps orientation relative to portals) ---

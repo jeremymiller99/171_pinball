@@ -1,4 +1,5 @@
 using UnityEngine;
+using FMODUnity;
 
 public class Bumper : MonoBehaviour
 {
@@ -34,6 +35,7 @@ public class Bumper : MonoBehaviour
     {
         if (collision.collider.CompareTag("Ball")){
             Rigidbody rb = collision.rigidbody;
+            FMODUnity.RuntimeManager.PlayOneShot("event:/collide_points");
 
             Vector3 forceDir = (collision.transform.position - transform.position).normalized;
             rb.AddForce(forceDir * bounceForce, ForceMode.Impulse);

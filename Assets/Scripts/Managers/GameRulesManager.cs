@@ -288,6 +288,19 @@ public class GameRulesManager : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// Adds coins to the player (e.g. from board components like CoinAdder on ball hit).
+    /// </summary>
+    public void AddCoins(int amount)
+    {
+        if (amount <= 0) return;
+        coins += amount;
+        if (scoreManager != null)
+        {
+            scoreManager.SetCoins(coins);
+        }
+    }
+
     public void RetryRound()
     {
         if (!runActive)

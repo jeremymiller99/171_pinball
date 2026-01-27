@@ -27,8 +27,32 @@ public class ScoreManager : MonoBehaviour
     [Header("Scoring Control")]
     [SerializeField] private bool scoringLocked;
 
+    [Header("Round Goal Tier Scaling")]
+    [Tooltip("If enabled: each time LiveRoundTotal crosses another multiple of Goal (Goal * N), " +
+             "the game speeds up and points awarded are increased additively.")]
+    [SerializeField] private bool enableGoalTierScaling = true;
+
+    [Tooltip("Game speed increases by this amount per goal tier (additive). Example: 0.10 => +10% per tier.")]
+    [Min(0f)]
+    [SerializeField] private float speedIncreasePerGoalTier = 0.10f;
+
+    [Tooltip("Points awarded increases by this amount per goal tier (additive). Example: 0.50 => +50% per tier.")]
+    [Min(0f)]
+    [SerializeField] private float scoreIncreasePerGoalTier = 0.50f;
+
+    [Tooltip("If true, applies speed-up via Time.timeScale (and scales fixedDeltaTime accordingly).")]
+    [SerializeField] private bool applySpeedToTimeScale = true;
+
     // Stored goal value for the current round (set via SetGoal).
     private float _goal;
+
+    // Tier is floor(LiveRoundTotal / Goal). Tier 0 means "not yet reached the goal".
+    [SerializeField, Tooltip("Read-only at runtime. Increments at Goal * N.")]
+    private int _goalTier;
+
+    private bool _timeBaseCaptured;
+    private float _baseTimeScale = 1f;
+    private float _baseFixedDeltaTime = 0.02f;
 
     /// <summary>
     /// Fired whenever score-related values change (points/mult/roundTotal/goal).
@@ -37,9 +61,41 @@ public class ScoreManager : MonoBehaviour
     public event Action ScoreChanged;
 
     /// <summary>
+    /// Fired when the goal tier changes (crossing Goal * N thresholds).
+    /// </summary>
+    public event Action<int> GoalTierChanged;
+
+    /// <summary>
     /// Current round goal (set by GameRulesManager via SetGoal).
     /// </summary>
     public float Goal => _goal;
+
+    /// <summary>
+    /// Current goal tier, computed from LiveRoundTotal / Goal.
+    /// Tier 0 means LiveRoundTotal is below the goal.
+    /// </summary>
+    public int GoalTier => _goalTier;
+
+    /// <summary>
+    /// Multiplier applied to awarded points (not to banking).
+    /// Computed additively per tier: 1 + tier * scoreIncreasePerGoalTier.
+    /// </summary>
+    public float ScoreAwardMultiplier => 1f + (_goalTier * scoreIncreasePerGoalTier);
+
+    /// <summary>
+    /// Game speed multiplier, computed additively per tier: 1 + tier * speedIncreasePerGoalTier.
+    /// </summary>
+    public float SpeedMultiplier => 1f + (_goalTier * speedIncreasePerGoalTier);
+
+    /// <summary>
+    /// Per-tier speed increase (e.g. 0.10 == +10% per tier).
+    /// </summary>
+    public float SpeedIncreasePerGoalTier => speedIncreasePerGoalTier;
+
+    /// <summary>
+    /// Per-tier score increase (e.g. 0.50 == +50% per tier).
+    /// </summary>
+    public float ScoreIncreasePerGoalTier => scoreIncreasePerGoalTier;
 
     /// <summary>
     /// Live round progress total: banked round total plus current ball's (points * mult).
@@ -74,6 +130,10 @@ public class ScoreManager : MonoBehaviour
         mult = 1f;
         roundTotal = 0f;
         _goal = 0f;
+        _goalTier = 0;
+
+        CaptureTimeBaseIfNeeded();
+        ApplySpeedFromTier(force: true);
 
         EnsureCoreScoreTextBindings();
         RefreshScoreUI();
@@ -82,12 +142,36 @@ public class ScoreManager : MonoBehaviour
 
     public void AddPoints(float p)
     {
-        if (scoringLocked) return;
+        AddPointsScaled(p);
+    }
+
+    /// <summary>
+    /// Adds points, applying the current tier-based award multiplier to positive values.
+    /// Returns the applied points amount (after multiplier).
+    /// </summary>
+    public float AddPointsScaled(float p)
+    {
+        if (scoringLocked) return 0f;
+
         EnsureCoreScoreTextBindings();
-        points += p;
+
+        // Only scale positive awards. Negative values are used by some reset/undo paths.
+        float applied = p;
+        if (enableGoalTierScaling && p > 0f)
+        {
+            applied *= Mathf.Max(0f, ScoreAwardMultiplier);
+        }
+
+        points += applied;
+
+        // Recompute tier and apply speed when crossing Goal * N thresholds.
+        UpdateGoalTierAndApplySpeed();
+
         if (pointsText != null)
             pointsText.text = points.ToString();
+
         ScoreChanged?.Invoke();
+        return applied;
     }
 
     public void AddMult(float m)
@@ -95,6 +179,7 @@ public class ScoreManager : MonoBehaviour
         if (scoringLocked) return;
         EnsureCoreScoreTextBindings();
         mult += m;
+        UpdateGoalTierAndApplySpeed();
         if (multText != null)
             multText.text = mult.ToString();
         ScoreChanged?.Invoke();
@@ -131,6 +216,7 @@ public class ScoreManager : MonoBehaviour
         points = 0f;
         mult = 1f;
 
+        UpdateGoalTierAndApplySpeed();
         RefreshScoreUI();
         ScoreChanged?.Invoke();
         return banked;
@@ -144,6 +230,10 @@ public class ScoreManager : MonoBehaviour
         roundTotal = 0f;
         points = 0f;
         mult = 1f;
+        _goalTier = 0;
+
+        // Reset game speed back to baseline at the start of each round.
+        ApplySpeedFromTier(force: true);
 
         RefreshScoreUI();
         ScoreChanged?.Invoke();
@@ -155,6 +245,7 @@ public class ScoreManager : MonoBehaviour
     public void SetGoal(float goal)
     {
         _goal = goal;
+        UpdateGoalTierAndApplySpeed();
         EnsureCoreScoreTextBindings();
         if (goalText != null)
             goalText.text = goal.ToString();
@@ -193,6 +284,59 @@ public class ScoreManager : MonoBehaviour
             roundTotalText.text = roundTotal.ToString();
         if (goalText != null)
             goalText.text = _goal.ToString();
+    }
+
+    private void UpdateGoalTierAndApplySpeed()
+    {
+        int newTier = ComputeGoalTier();
+        if (newTier != _goalTier)
+        {
+            _goalTier = newTier;
+            ApplySpeedFromTier(force: true);
+            GoalTierChanged?.Invoke(_goalTier);
+        }
+        else
+        {
+            // Keep speed in sync even if another system changed Time.timeScale.
+            ApplySpeedFromTier(force: false);
+        }
+    }
+
+    private int ComputeGoalTier()
+    {
+        if (!enableGoalTierScaling) return 0;
+        if (_goal <= 0f) return 0;
+
+        float live = LiveRoundTotal;
+        if (live <= 0f) return 0;
+
+        int tier = Mathf.FloorToInt(live / _goal);
+        return Mathf.Max(0, tier);
+    }
+
+    private void CaptureTimeBaseIfNeeded()
+    {
+        if (_timeBaseCaptured) return;
+        _timeBaseCaptured = true;
+        _baseTimeScale = Mathf.Max(0f, Time.timeScale);
+        _baseFixedDeltaTime = Mathf.Max(0.0001f, Time.fixedDeltaTime);
+    }
+
+    private void ApplySpeedFromTier(bool force)
+    {
+        if (!applySpeedToTimeScale) return;
+        CaptureTimeBaseIfNeeded();
+
+        // Target is baseline * tier multiplier.
+        float targetScale = _baseTimeScale * Mathf.Max(0f, SpeedMultiplier);
+        if (!force && Mathf.Approximately(Time.timeScale, targetScale))
+            return;
+
+        Time.timeScale = targetScale;
+
+        // Keep physics stepping consistent relative to scaled time.
+        // Standard approach: fixedDeltaTime scales with timeScale.
+        Time.fixedDeltaTime = _baseFixedDeltaTime * Mathf.Max(0f, Time.timeScale);
     }
 
     private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)

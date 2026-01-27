@@ -23,8 +23,11 @@ public sealed class ShopUIController : MonoBehaviour
     [Header("Refs")]
     [SerializeField] private GameRulesManager rulesManager;
     [SerializeField] private RunFlowController runFlowController;
+    [SerializeField] private ShopTransitionController shopTransitionController;
     [Tooltip("Optional: root object for the shop canvas. If omitted, this component's GameObject will be toggled.")]
     [SerializeField] private GameObject shopCanvasRoot;
+    [Tooltip("Optional: tab controller used to switch between Balls and Board Components screens.")]
+    [SerializeField] private ShopTabsController tabsController;
 
     [Header("UI (optional)")]
     [Tooltip("Shown when a replacement slot must be chosen.")]
@@ -48,6 +51,7 @@ public sealed class ShopUIController : MonoBehaviour
 
     private BallShopItem _pendingItem;
     private readonly List<BallShopItem> _currentOffers = new List<BallShopItem>(capacity: 3);
+    private bool _closeRequested;
 
     private void Awake()
     {
@@ -69,20 +73,48 @@ public sealed class ShopUIController : MonoBehaviour
 #endif
         }
 
+        if (shopTransitionController == null)
+        {
+#if UNITY_2022_2_OR_NEWER
+            shopTransitionController = FindFirstObjectByType<ShopTransitionController>();
+#else
+            shopTransitionController = FindObjectOfType<ShopTransitionController>();
+#endif
+        }
+
         if (shopCanvasRoot == null)
         {
             shopCanvasRoot = gameObject;
+        }
+
+        if (tabsController == null && shopCanvasRoot != null)
+        {
+            tabsController = shopCanvasRoot.GetComponentInChildren<ShopTabsController>(includeInactive: true);
         }
     }
 
     private void OnEnable()
     {
+        _closeRequested = false;
+
         // Canvas enabled by GameRulesManager; treat that as "open".
+        HookTabs();
+        if (tabsController != null)
+        {
+            // Default to balls screen every time the shop is opened.
+            tabsController.SetTab(ShopTabsController.Tab.Balls, notify: false);
+        }
+
         SetReplacePanelOpen(false);
         _pendingItem = null;
         RebuildReplaceSlots();
         RebuildOffers();
         RefreshUI();
+    }
+
+    private void OnDisable()
+    {
+        UnhookTabs();
     }
 
     public void Open()
@@ -91,6 +123,13 @@ public sealed class ShopUIController : MonoBehaviour
         {
             shopCanvasRoot.SetActive(true);
         }
+
+        if (tabsController != null)
+        {
+            // If another system opened us without OnEnable (rare), ensure we start on Balls.
+            tabsController.SetTab(ShopTabsController.Tab.Balls, notify: false);
+        }
+
         RebuildReplaceSlots();
         RebuildOffers();
         RefreshUI();
@@ -102,11 +141,42 @@ public sealed class ShopUIController : MonoBehaviour
     /// </summary>
     public void CloseAndContinue()
     {
+        if (_closeRequested)
+            return;
+        _closeRequested = true;
+
         SetReplacePanelOpen(false);
         _pendingItem = null;
-        ClearReplaceSlots();
-        ClearOffers();
 
+        // Prefer animated close transition, then hand off to RunFlowController.
+        if (shopTransitionController != null)
+        {
+            shopTransitionController.CloseShopThen(() =>
+            {
+                // Let the RunFlowController drive the transition (it may swap boards before starting the next round).
+                if (runFlowController != null)
+                {
+                    runFlowController.ContinueAfterShop();
+                    return;
+                }
+
+                // Fallback: old behavior.
+                if (rulesManager != null)
+                {
+                    rulesManager.OnShopClosed();
+                    return;
+                }
+
+                // Fallback: just hide the canvas.
+                if (shopCanvasRoot != null)
+                {
+                    shopCanvasRoot.SetActive(false);
+                }
+            });
+            return;
+        }
+
+        // No transition controller: immediate continue as before.
         // Let the RunFlowController drive the transition (it may swap boards before starting the next round).
         if (runFlowController != null)
         {
@@ -248,6 +318,46 @@ public sealed class ShopUIController : MonoBehaviour
         {
             coinsText.text = rulesManager.Coins.ToString();
         }
+    }
+
+    private void HookTabs()
+    {
+        if (tabsController == null)
+            return;
+
+        tabsController.TabChanged -= OnTabChanged;
+        tabsController.TabChanged += OnTabChanged;
+    }
+
+    private void UnhookTabs()
+    {
+        if (tabsController == null)
+            return;
+
+        tabsController.TabChanged -= OnTabChanged;
+    }
+
+    private void OnTabChanged(ShopTabsController.Tab tab)
+    {
+        // If the player is in the middle of a "choose slot to replace" flow, leaving the Balls tab
+        // should safely abort it (otherwise they'd come back to a stale pending purchase).
+        if (tab != ShopTabsController.Tab.Balls)
+        {
+            ClearPendingReplaceFlow();
+        }
+        else
+        {
+            // Coming back to Balls: ensure coin display is current.
+            RefreshUI();
+        }
+    }
+
+    private void ClearPendingReplaceFlow()
+    {
+        _pendingItem = null;
+        SetReplacePanelOpen(false);
+        SetPrompt(string.Empty);
+        RefreshUI();
     }
 
     private void RebuildReplaceSlots()

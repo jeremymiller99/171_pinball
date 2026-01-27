@@ -28,6 +28,9 @@ public class GameRulesManager : MonoBehaviour
     [SerializeField] private GameObject homeRunUIRoot;
     [SerializeField] private TMP_Text homeRunMessageText;
 
+    [Header("Transitions (optional)")]
+    [SerializeField] private ShopTransitionController shopTransitionController;
+
     [Header("Debug (read-only at runtime)")]
     [SerializeField] private int roundIndex;
     [SerializeField] private int maxBalls;
@@ -111,6 +114,15 @@ public class GameRulesManager : MonoBehaviour
         }
 
         ResolveBallSpawner(logIfMissing: false);
+
+        if (shopTransitionController == null)
+        {
+#if UNITY_2022_2_OR_NEWER
+            shopTransitionController = FindFirstObjectByType<ShopTransitionController>();
+#else
+            shopTransitionController = FindObjectOfType<ShopTransitionController>();
+#endif
+        }
     }
 
     private void Start()
@@ -437,6 +449,14 @@ public class GameRulesManager : MonoBehaviour
     {
         shopOpen = true;
         ClearAllBalls();
+
+        // Prefer the animated transition controller if present.
+        if (shopTransitionController != null)
+        {
+            shopTransitionController.OpenShop();
+            return;
+        }
+
         SetShopOpen(true);
     }
 

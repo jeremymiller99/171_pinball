@@ -658,17 +658,15 @@ MonoBehaviour:
   gameplayCoreSceneName: GameplayCore
   quickRunBoards:
   - {fileID: 11400000, guid: 6c3ed43778e1f254490b8b449bd4076a, type: 2}
-  - {fileID: 11400000, guid: 8e70885ac9926544298b19b01dc07de5, type: 2}
-  - {fileID: 11400000, guid: 8b443c12419c0ac4ea29def8f38b7d57, type: 2}
+  - {fileID: 11400000, guid: f127bfed3b47f274a9b8120a8f90324b, type: 2}
   challengeModes:
   - {fileID: 11400000, guid: b2349c469a3ecdf4c93edc8b993a3d5e, type: 2}
-  - {fileID: 11400000, guid: ff749c193b864b342811d6beeb8a5d27, type: 2}
+  - {fileID: 11400000, guid: 3c57818e0de10e44588894d3d75d797b, type: 2}
   - {fileID: 11400000, guid: 6d51c25da29a18246859fbc9181d5e1d, type: 2}
   - {fileID: 11400000, guid: 28800bf419a6b334aa48928b28d1e1ce, type: 2}
   challengeBoards:
   - {fileID: 11400000, guid: 6c3ed43778e1f254490b8b449bd4076a, type: 2}
-  - {fileID: 11400000, guid: 8e70885ac9926544298b19b01dc07de5, type: 2}
-  - {fileID: 11400000, guid: 8b443c12419c0ac4ea29def8f38b7d57, type: 2}
+  - {fileID: 11400000, guid: f127bfed3b47f274a9b8120a8f90324b, type: 2}
   startRunButton: {fileID: 1848347632}
   challengeButtonsRoot: {fileID: 2008279963}
   challengeButtonTemplate: {fileID: 2572350563248524216, guid: b956240e32e21094b864ad31352d9826, type: 3}

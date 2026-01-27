@@ -37,9 +37,9 @@ public class PointAdder : MonoBehaviour
         if (collision.collider.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
-            scoreManager?.AddPoints(pointsToAdd);
+            float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
             // Spawn text at the ball's position
-            floatingTextSpawner?.SpawnText(collision.collider.transform.position, "+" + pointsToAdd);
+            floatingTextSpawner?.SpawnText(collision.collider.transform.position, "+" + applied);
         }
     }
 
@@ -48,9 +48,9 @@ public class PointAdder : MonoBehaviour
         if (col.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
-            scoreManager?.AddPoints(pointsToAdd);
+            float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
             // Spawn text at the ball's position
-            floatingTextSpawner?.SpawnText(col.transform.position, "+" + pointsToAdd);
+            floatingTextSpawner?.SpawnText(col.transform.position, "+" + applied);
         }
     }
 

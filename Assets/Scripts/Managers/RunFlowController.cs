@@ -14,6 +14,7 @@ public sealed class RunFlowController : MonoBehaviour
     [Header("Refs")]
     [SerializeField] private GameRulesManager rulesManager;
     [SerializeField] private BoardLoader boardLoader;
+    [SerializeField] private ShopTransitionController shopTransitionController;
 
     [Header("Scene names")]
     [SerializeField] private string gameplayCoreSceneName = "GameplayCore";
@@ -39,6 +40,15 @@ public sealed class RunFlowController : MonoBehaviour
             boardLoader = FindFirstObjectByType<BoardLoader>();
 #else
             boardLoader = FindObjectOfType<BoardLoader>();
+#endif
+        }
+
+        if (shopTransitionController == null)
+        {
+#if UNITY_2022_2_OR_NEWER
+            shopTransitionController = FindFirstObjectByType<ShopTransitionController>();
+#else
+            shopTransitionController = FindObjectOfType<ShopTransitionController>();
 #endif
         }
     }
@@ -81,6 +91,12 @@ public sealed class RunFlowController : MonoBehaviour
             // IMPORTANT: in GameplayCore, set GameRulesManager.autoStartOnPlay = false in the Inspector.
             rulesManager.StartRun();
         }
+
+        // Ensure input is unlocked at the beginning of gameplay (in case we returned from a shop or scene reload).
+        if (shopTransitionController != null)
+        {
+            shopTransitionController.ResumeGameplayInput();
+        }
     }
 
     /// <summary>
@@ -105,6 +121,10 @@ public sealed class RunFlowController : MonoBehaviour
         if (!boardCleared)
         {
             rulesManager.StartRound();
+            if (shopTransitionController != null)
+            {
+                shopTransitionController.ResumeGameplayInput();
+            }
             yield break;
         }
 
@@ -112,6 +132,10 @@ public sealed class RunFlowController : MonoBehaviour
         if (session == null)
         {
             rulesManager.StartRound();
+            if (shopTransitionController != null)
+            {
+                shopTransitionController.ResumeGameplayInput();
+            }
             yield break;
         }
 
@@ -132,6 +156,10 @@ public sealed class RunFlowController : MonoBehaviour
         }
 
         rulesManager.StartRound();
+        if (shopTransitionController != null)
+        {
+            shopTransitionController.ResumeGameplayInput();
+        }
     }
 }
 

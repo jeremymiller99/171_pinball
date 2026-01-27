@@ -258,6 +258,7 @@ public sealed class PinballLauncher : MonoBehaviour
 
         Vector3 dir = launchDirection.forward.normalized;
         _ballRb.AddForce(dir * _charge, ForceMode.Impulse);
+        FMODUnity.RuntimeManager.PlayOneShot("event:/ball_launched");
 
         _charge = 0f;
         UpdateVisual(0f);

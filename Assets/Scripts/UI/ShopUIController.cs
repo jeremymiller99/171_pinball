@@ -265,6 +265,7 @@ public sealed class ShopUIController : MonoBehaviour
         RebuildReplaceSlots();
         SetReplacePanelOpen(true);
         SetPrompt($"Choose a ball to replace with {GetItemLabel(item)} (cost {item.cost}).");
+        FMODUnity.RuntimeManager.PlayOneShot("event:/button_click");
         RefreshUI();
     }
 
@@ -295,6 +296,7 @@ public sealed class ShopUIController : MonoBehaviour
         rulesManager.ReplaceBallInLoadout(slotIndex, _pendingItem.ballPrefab);
 
         SetPrompt($"Purchased {GetItemLabel(_pendingItem)}.");
+        FMODUnity.RuntimeManager.PlayOneShot("event:/button_click");
         _pendingItem = null;
         SetReplacePanelOpen(false);
         RebuildReplaceSlots();
@@ -305,6 +307,7 @@ public sealed class ShopUIController : MonoBehaviour
     public void CancelPendingPurchase()
     {
         _pendingItem = null;
+        FMODUnity.RuntimeManager.PlayOneShot("event:/button_click");
         SetReplacePanelOpen(false);
         SetPrompt(string.Empty);
         RebuildReplaceSlots();

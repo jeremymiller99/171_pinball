@@ -2,8 +2,9 @@ using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// 3D meter that fills based on round-goal progress:
-/// progress01 = (ScoreManager.LiveRoundTotal / ScoreManager.Goal).
+/// 3D meter that fills based on round-goal progress, using a tiered/stacking system:
+/// tier = floor(LiveRoundTotal / Goal)
+/// fill01 = (LiveRoundTotal / Goal) - tier
 /// Mirrors the "3D Meter" behavior from ActiveBallSpeedHUD (scale + anchor shift).
 /// </summary>
 public sealed class RoundGoalProgressHUD : MonoBehaviour
@@ -15,8 +16,33 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
         Z = 2
     }
 
+    [System.Serializable]
+    private struct MeterPalette
+    {
+        public Color empty;
+        public Color mid;
+        public Color full;
+        [Range(0f, 1f)] public float midPoint;
+
+        public static MeterPalette From(Color empty, Color mid, Color full, float midPoint)
+        {
+            return new MeterPalette
+            {
+                empty = empty,
+                mid = mid,
+                full = full,
+                midPoint = Mathf.Clamp01(midPoint)
+            };
+        }
+    }
+
     private static readonly int ColorId = Shader.PropertyToID("_Color");
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+    private static readonly int TintColorId = Shader.PropertyToID("_TintColor");
+    private static readonly int MainColorId = Shader.PropertyToID("_MainColor");
+    private static readonly int UnlitColorId = Shader.PropertyToID("_UnlitColor");
+    private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
+    private static readonly int EmissiveColorId = Shader.PropertyToID("_EmissiveColor");
 
     [Header("Source")]
     [SerializeField] private ScoreManager scoreManager;
@@ -50,7 +76,8 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
 
     [Header("3D Meter Color (optional)")]
     [Tooltip("If enabled, the meter fill mesh color will change as it fills (white → yellow → orange).")]
-    [SerializeField] private bool meterColorEnabled = true;
+    // Color lerp is core to this meter now; keep serialized for existing scenes but don't expose as a toggle.
+    [SerializeField, HideInInspector] private bool meterColorEnabled = true;
     [Tooltip("Color when the meter is empty (0%).")]
     [SerializeField] private Color meterColorEmpty = Color.white;
     [Tooltip("Color at the mid point (defaults to ~50%).")]
@@ -61,6 +88,36 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField] private float meterColorMidPoint = 0.5f;
 
+    [Header("Tiered / Stacking Meter (new)")]
+    // Tiered behavior is the default/only mode now. Keep this hidden field only so the value
+    // can exist in serialized scenes without confusing the inspector.
+    [SerializeField, HideInInspector] private bool tieredMeterEnabled = true;
+
+    [Tooltip("Optional background mesh behind the fill. When tiered, its color becomes the previous tier's 'full' color.")]
+    [SerializeField] private Transform meterBackground;
+    [SerializeField] private bool autoFindMeterBackgroundInChildren = true;
+    [SerializeField] private bool autoFindMeterBackgroundByName = false;
+    [SerializeField] private string meterBackgroundObjectName = "MeterBackground";
+
+    [Tooltip("If no background is assigned, this does nothing.")]
+    [SerializeField] private bool meterBackgroundColorEnabled = true;
+
+    [Tooltip("Background color to use before the first goal is completed (tier 0).")]
+    [SerializeField] private Color meterBackgroundDefaultColor = new Color(0.05f, 0.05f, 0.05f, 1f);
+
+    [Tooltip("If true, uses Palettes By Tier below. Otherwise auto-generates palettes by hue shifting your base colors.")]
+    [SerializeField] private bool usePalettesByTier = false;
+
+    [Tooltip("Optional explicit palettes per tier (tier 0 = first). If tier exceeds count, it will clamp or loop based on 'Loop Palettes'.")]
+    [SerializeField] private MeterPalette[] palettesByTier;
+
+    [Tooltip("If true, tiers beyond the palette list loop back to the start.")]
+    [SerializeField] private bool loopPalettes = true;
+
+    [Tooltip("When auto-generating palettes, shift hue by this amount per tier (0..1). Example: 0.12 ~= 43 degrees.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float autoHueShiftPerTier = 0.12f;
+
     // Meter baseline state (so we can anchor one end while scaling).
     private Vector3 _meterBaseLocalScale;
     private Vector3 _meterBaseLocalPos;
@@ -70,6 +127,19 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
     private Renderer _meterRenderer;
     private MaterialPropertyBlock _meterMPB;
     private float _meterBaseAlpha = 1f;
+    private Material _meterMaterialInstance;
+
+    private Renderer _bgRenderer;
+    private MaterialPropertyBlock _bgMPB;
+    private float _bgBaseAlpha = 1f;
+    private Material _bgMaterialInstance;
+
+    [Header("Color Application (debug / compatibility)")]
+    [Tooltip("If enabled, also writes colors directly to Renderer.material (creates a material instance at runtime). " +
+             "Use this if your shader ignores MaterialPropertyBlock updates.")]
+    [SerializeField] private bool forceMaterialColorUpdates = true;
+
+    private int _displayTier;
 
     private void Awake()
     {
@@ -81,7 +151,10 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
     {
         ResolveRefs();
         if (scoreManager != null)
+        {
             scoreManager.ScoreChanged += OnScoreChanged;
+            scoreManager.GoalTierChanged += OnGoalTierChanged;
+        }
 
         // Initialize meter to correct state immediately.
         UpdateMeterFromScore();
@@ -90,7 +163,10 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
     private void OnDisable()
     {
         if (scoreManager != null)
+        {
             scoreManager.ScoreChanged -= OnScoreChanged;
+            scoreManager.GoalTierChanged -= OnGoalTierChanged;
+        }
     }
 
     private void ResolveRefs()
@@ -123,11 +199,34 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
                 if (go) meterFill = go.transform;
             }
         }
+
+        if (!meterBackground)
+        {
+            if (autoFindMeterBackgroundInChildren)
+                meterBackground = FindLikelyMeterBackgroundInChildren();
+
+            if (!meterBackground && autoFindMeterBackgroundByName && !string.IsNullOrWhiteSpace(meterBackgroundObjectName))
+            {
+                var go = GameObject.Find(meterBackgroundObjectName);
+                if (go) meterBackground = go.transform;
+            }
+
+            // Fallback: if the fill is assigned somewhere else in the scene,
+            // try to find a sibling "background" object near it.
+            if (!meterBackground && meterFill)
+                meterBackground = FindLikelyMeterBackgroundNearFill(meterFill);
+        }
     }
 
     private void OnScoreChanged()
     {
         UpdateMeterFromScore();
+    }
+
+    private void OnGoalTierChanged(int newTier)
+    {
+        // Prefer event-driven tier transitions to avoid per-frame flicker at thresholds.
+        HandleTierTransitionIfNeeded(newTier);
     }
 
     private void Update()
@@ -138,7 +237,10 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
         {
             ResolveRefs();
             if (scoreManager != null)
+            {
                 scoreManager.ScoreChanged += OnScoreChanged;
+                scoreManager.GoalTierChanged += OnGoalTierChanged;
+            }
         }
 
         // If no events fire (e.g., custom scripts mutate fields directly),
@@ -163,10 +265,22 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
             roundTotalText.text = live.ToString("F" + d);
         }
 
-        float t01 = (goal > 0f) ? Mathf.Clamp01(live / goal) : 0f;
+        int tier = 0;
+        float t01 = 0f;
+        if (goal > 0f && live > 0f)
+        {
+            float raw = live / goal;
+            // Compute tier independently of ScoreManager's optional tier scaling feature.
+            // Add a tiny epsilon to reduce float edge cases at exact boundaries.
+            tier = Mathf.Max(0, Mathf.FloorToInt(raw + 0.0001f));
+            t01 = Mathf.Clamp01(raw - tier);
+        }
+
+        HandleTierTransitionIfNeeded(tier);
+
         float targetUnits = Mathf.Max(0f, meterMaxUnits) * t01;
 
-        UpdateMeterUnits(targetUnits);
+        UpdateMeterUnits(targetUnits, t01, _displayTier);
     }
 
     private void InitMeterIfNeeded()
@@ -179,6 +293,7 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
         _meterBaseLocalPos = meterFill.localPosition;
         _meterMeshUnitSize = Mathf.Max(0.0001f, GetMeshUnitSizeAlongAxis(meterFill, meterAxis));
         _meterUnitsSmoothed = 0f;
+        _displayTier = 0;
 
         // Cache renderer + baseline alpha so we can tint via MaterialPropertyBlock (no material instancing).
         _meterRenderer = meterFill.GetComponent<Renderer>();
@@ -195,9 +310,18 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
             else if (mat.HasProperty(ColorId))
                 _meterBaseAlpha = mat.GetColor(ColorId).a;
         }
+        _meterMaterialInstance = null;
+        if (forceMaterialColorUpdates && _meterRenderer)
+        {
+            // Grab (and thus create) the renderer material instance once.
+            _meterMaterialInstance = _meterRenderer.material;
+        }
+
+        InitBackgroundIfNeeded();
+        UpdateBackgroundForTier(_displayTier);
     }
 
-    private void UpdateMeterUnits(float targetUnits)
+    private void UpdateMeterUnits(float targetUnits, float fill01, int tier)
     {
         if (!_meterInit)
             return;
@@ -231,13 +355,13 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
         meterFill.localPosition = _meterBaseLocalPos + axisDir * (deltaLen * 0.5f);
 
         // Drive fill color based on current fill percent (use smoothed units to match visuals).
-        float fill01 = meterMaxUnits > 0.0001f ? Mathf.Clamp01(_meterUnitsSmoothed / meterMaxUnits) : 0f;
-        UpdateMeterColor(fill01);
+        float smoothedFill01 = meterMaxUnits > 0.0001f ? Mathf.Clamp01(_meterUnitsSmoothed / meterMaxUnits) : 0f;
+        UpdateMeterColor(smoothedFill01, tier);
     }
 
-    private void UpdateMeterColor(float fill01)
+    private void UpdateMeterColor(float fill01, int tier)
     {
-        if (!meterColorEnabled || !meterFill)
+        if (!meterFill)
             return;
 
         if (!_meterRenderer)
@@ -252,30 +376,186 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
 
         _meterMPB ??= new MaterialPropertyBlock();
 
-        Color c = EvaluateMeterColor(fill01);
+        Color c = EvaluateMeterColor(fill01, tier);
         c.a = _meterBaseAlpha;
 
-        _meterRenderer.GetPropertyBlock(_meterMPB);
-        // Support both built-in/Standard (_Color) and URP/Lit (_BaseColor).
-        _meterMPB.SetColor(ColorId, c);
-        _meterMPB.SetColor(BaseColorId, c);
-        _meterRenderer.SetPropertyBlock(_meterMPB);
+        ApplyColorToRenderer(_meterRenderer, _meterMPB, c, ref _meterMaterialInstance);
     }
 
-    private Color EvaluateMeterColor(float fill01)
+    private Color EvaluateMeterColor(float fill01, int tier)
     {
-        float mid = Mathf.Clamp01(meterColorMidPoint);
+        MeterPalette p = GetPaletteForTier(tier);
+        float mid = Mathf.Clamp01(p.midPoint);
         if (fill01 <= mid)
         {
             float t = mid <= 0.0001f ? 1f : Mathf.Clamp01(fill01 / mid);
-            return Color.Lerp(meterColorEmpty, meterColorMid, t);
+            return Color.Lerp(p.empty, p.mid, t);
         }
         else
         {
             float denom = Mathf.Max(0.0001f, 1f - mid);
             float t = Mathf.Clamp01((fill01 - mid) / denom);
-            return Color.Lerp(meterColorMid, meterColorFull, t);
+            return Color.Lerp(p.mid, p.full, t);
         }
+    }
+
+    private void HandleTierTransitionIfNeeded(int newTier)
+    {
+        if (!_meterInit)
+            return;
+
+        newTier = Mathf.Max(0, newTier);
+        if (newTier == _displayTier)
+            return;
+
+        // When wrapping tiers, reset smoothing so the bar doesn't "lerp backward" from full to empty.
+        _displayTier = newTier;
+        _meterUnitsSmoothed = 0f;
+
+        // Keep this very simple: just update colors on tier change.
+        UpdateBackgroundForTier(_displayTier);
+    }
+
+    private void InitBackgroundIfNeeded()
+    {
+        if (_bgRenderer || !meterBackground)
+            return;
+
+        _bgRenderer = meterBackground.GetComponent<Renderer>();
+        if (!_bgRenderer)
+            _bgRenderer = meterBackground.GetComponentInChildren<Renderer>();
+
+        _bgMPB ??= new MaterialPropertyBlock();
+        _bgBaseAlpha = 1f;
+        if (_bgRenderer && _bgRenderer.sharedMaterial)
+        {
+            var mat = _bgRenderer.sharedMaterial;
+            if (mat.HasProperty(BaseColorId))
+                _bgBaseAlpha = mat.GetColor(BaseColorId).a;
+            else if (mat.HasProperty(ColorId))
+                _bgBaseAlpha = mat.GetColor(ColorId).a;
+        }
+
+        _bgMaterialInstance = null;
+        if (forceMaterialColorUpdates && _bgRenderer)
+        {
+            _bgMaterialInstance = _bgRenderer.material;
+        }
+    }
+
+    private void UpdateBackgroundForTier(int tier)
+    {
+        if (!meterBackgroundColorEnabled)
+            return;
+
+        InitBackgroundIfNeeded();
+        if (!_bgRenderer)
+            return;
+
+        // Background becomes the previous tier's FULL color to create a stacked look.
+        // Tier 0 uses the configured default background color.
+        Color c = tier <= 0 ? meterBackgroundDefaultColor : GetPaletteForTier(tier - 1).full;
+        c.a = _bgBaseAlpha;
+
+        ApplyColorToRenderer(_bgRenderer, _bgMPB, c, ref _bgMaterialInstance);
+    }
+
+    private void ApplyColorToRenderer(Renderer r, MaterialPropertyBlock mpb, Color c, ref Material materialInstance)
+    {
+        if (!r)
+            return;
+
+        r.GetPropertyBlock(mpb);
+        // Support common shader color properties (varies by pipeline/shader).
+        mpb.SetColor(ColorId, c);           // Built-in/Standard
+        mpb.SetColor(BaseColorId, c);       // URP Lit/Unlit, HDRP Lit
+        mpb.SetColor(TintColorId, c);       // Many unlit/custom shaders
+        mpb.SetColor(MainColorId, c);       // Some custom shaders
+        mpb.SetColor(UnlitColorId, c);      // Some unlit shaders
+        mpb.SetColor(EmissionColorId, c);   // If emission enabled in material
+        mpb.SetColor(EmissiveColorId, c);   // HDRP
+        r.SetPropertyBlock(mpb);
+
+        if (!forceMaterialColorUpdates)
+            return;
+
+        if (!materialInstance && r)
+        {
+            // Ensure we have (and thus create) an instance once, not every frame.
+            materialInstance = r.material;
+        }
+
+        if (!materialInstance)
+            return;
+
+        SetColorIfPresent(materialInstance, ColorId, c);
+        SetColorIfPresent(materialInstance, BaseColorId, c);
+        SetColorIfPresent(materialInstance, TintColorId, c);
+        SetColorIfPresent(materialInstance, MainColorId, c);
+        SetColorIfPresent(materialInstance, UnlitColorId, c);
+        // Emission only shows if enabled on the material; still safe to set.
+        SetColorIfPresent(materialInstance, EmissionColorId, c);
+        SetColorIfPresent(materialInstance, EmissiveColorId, c);
+    }
+
+    private static void SetColorIfPresent(Material m, int propertyId, Color c)
+    {
+        if (m != null && m.HasProperty(propertyId))
+            m.SetColor(propertyId, c);
+    }
+
+    private MeterPalette GetPaletteForTier(int tier)
+    {
+        tier = Mathf.Max(0, tier);
+
+        // Tier 0 base palette from existing fields (keeps current behavior).
+        var basePalette = MeterPalette.From(meterColorEmpty, meterColorMid, meterColorFull, meterColorMidPoint);
+
+        // If palettes are provided, prefer them (this is the "color sets" workflow).
+        // The toggle remains, but palettes win if present to avoid "it still uses old colors" confusion.
+        bool hasPalettes = palettesByTier != null && palettesByTier.Length > 0;
+        if ((usePalettesByTier || hasPalettes) && hasPalettes)
+        {
+            int idx;
+            if (loopPalettes)
+                idx = tier % palettesByTier.Length;
+            else
+                idx = Mathf.Clamp(tier, 0, palettesByTier.Length - 1);
+
+            // If the inspector palette has default (0,0,0,0) values, fall back to base.
+            MeterPalette p = palettesByTier[idx];
+            if (p.midPoint <= 0f && p.empty.a == 0f && p.mid.a == 0f && p.full.a == 0f)
+                return basePalette;
+
+            if (p.midPoint <= 0f)
+                p.midPoint = basePalette.midPoint;
+
+            return p;
+        }
+
+        // Auto-generate by hue shifting the base palette.
+        if (tier <= 0)
+            return basePalette;
+
+        // NOTE: existing scenes may serialize this new field as 0; ensure we still cycle by default.
+        float perTier = autoHueShiftPerTier > 0.0001f ? autoHueShiftPerTier : 0.12f;
+        float shift = Mathf.Repeat(perTier * tier, 1f);
+        return MeterPalette.From(
+            ShiftHue(basePalette.empty, shift),
+            ShiftHue(basePalette.mid, shift),
+            ShiftHue(basePalette.full, shift),
+            basePalette.midPoint
+        );
+    }
+
+    private static Color ShiftHue(Color c, float hueShift01)
+    {
+        // Preserve alpha while shifting hue.
+        Color.RGBToHSV(c, out float h, out float s, out float v);
+        h = Mathf.Repeat(h + hueShift01, 1f);
+        Color outC = Color.HSVToRGB(h, s, v);
+        outC.a = c.a;
+        return outC;
     }
 
     private static Vector3 GetLocalAxisDir(MeterAxis axis)
@@ -346,6 +626,61 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
             if (!r) continue;
             if (r.GetComponent<TMP_Text>()) continue;
             return r.transform;
+        }
+
+        return null;
+    }
+
+    private Transform FindLikelyMeterBackgroundInChildren()
+    {
+        // Heuristic: first renderer transform that is NOT the fill (and not TMP).
+        // If your HUD has multiple renderers, consider using name-based lookup.
+        var renderers = GetComponentsInChildren<Renderer>(includeInactive: true);
+        foreach (var r in renderers)
+        {
+            if (!r) continue;
+            if (r.GetComponent<TMP_Text>()) continue;
+            if (meterFill != null && (r.transform == meterFill || r.transform.IsChildOf(meterFill))) continue;
+            return r.transform;
+        }
+
+        return null;
+    }
+
+    private static Transform FindLikelyMeterBackgroundNearFill(Transform fill)
+    {
+        if (!fill)
+            return null;
+
+        Transform parent = fill.parent;
+        if (!parent)
+            return null;
+
+        // Prefer name hints among siblings.
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            Transform t = parent.GetChild(i);
+            if (!t || t == fill) continue;
+
+            string n = t.name ?? string.Empty;
+            bool nameHint =
+                n.IndexOf("background", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                n.IndexOf("back", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                n.IndexOf("bg", System.StringComparison.OrdinalIgnoreCase) >= 0;
+
+            if (!nameHint) continue;
+
+            var r = t.GetComponent<Renderer>();
+            if (r) return t;
+        }
+
+        // Fallback: first renderer sibling that isn't the fill.
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            Transform t = parent.GetChild(i);
+            if (!t || t == fill) continue;
+            var r = t.GetComponent<Renderer>();
+            if (r) return t;
         }
 
         return null;

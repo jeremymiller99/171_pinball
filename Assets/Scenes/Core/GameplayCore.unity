@@ -3409,12 +3409,7 @@ MonoBehaviour:
   startingMaxBalls: 5
   autoStartOnPlay: 0
   ballSpawner: {fileID: 0}
-  startingBallLoadout:
-  - {fileID: 5723297401256486482, guid: 0b2f4077d0fca1b438e6fa6723996428, type: 3}
-  - {fileID: 5723297401256486482, guid: 8f14b359d9507704a87dbcbf1f1289c3, type: 3}
-  - {fileID: 5723297401256486482, guid: 033d99f73f115d846a140c40987ca5fe, type: 3}
-  - {fileID: 5723297401256486482, guid: 033d99f73f115d846a140c40987ca5fe, type: 3}
-  - {fileID: 5723297401256486482, guid: 033d99f73f115d846a140c40987ca5fe, type: 3}
+  startingBallLoadout: []
   shopCanvasRoot: {fileID: 460876978}
   roundFailedUIRoot: {fileID: 1243198069}
   homeRunUIRoot: {fileID: 2109000000}

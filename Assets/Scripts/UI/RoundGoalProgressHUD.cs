@@ -105,6 +105,17 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
     [Tooltip("Background color to use before the first goal is completed (tier 0).")]
     [SerializeField] private Color meterBackgroundDefaultColor = new Color(0.05f, 0.05f, 0.05f, 1f);
 
+    [Header("Palette integration (optional)")]
+    [Tooltip("If assigned, meter background tier-0 default color will be pulled from this palette switcher (so resets match board palette).")]
+    [SerializeField] private BoardAlphaPaletteSwitcher paletteSwitcher;
+
+    [Tooltip("Which target index in the palette switcher should drive the meter background default color (usually your BG target).")]
+    [Min(0)]
+    [SerializeField] private int paletteTargetIndexForMeterBackgroundDefault = 0;
+
+    [Tooltip("If true, overwrite meterBackgroundDefaultColor from the palette switcher on Awake/Enable.")]
+    [SerializeField] private bool pullMeterBackgroundDefaultFromPalette = true;
+
     [Tooltip("If true, uses Palettes By Tier below. Otherwise auto-generates palettes by hue shifting your base colors.")]
     [SerializeField] private bool usePalettesByTier = false;
 
@@ -144,12 +155,14 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
     private void Awake()
     {
         ResolveRefs();
+        PullMeterBackgroundDefaultFromPalette();
         InitMeterIfNeeded();
     }
 
     private void OnEnable()
     {
         ResolveRefs();
+        PullMeterBackgroundDefaultFromPalette();
         if (scoreManager != null)
         {
             scoreManager.ScoreChanged += OnScoreChanged;
@@ -173,6 +186,9 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
     {
         if (scoreManager == null)
             scoreManager = FindFirstObjectByType<ScoreManager>();
+
+        if (paletteSwitcher == null)
+            paletteSwitcher = FindFirstObjectByType<BoardAlphaPaletteSwitcher>();
 
         if (!roundTotalText)
         {
@@ -440,6 +456,21 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
         if (forceMaterialColorUpdates && _bgRenderer)
         {
             _bgMaterialInstance = _bgRenderer.material;
+        }
+    }
+
+    private void PullMeterBackgroundDefaultFromPalette()
+    {
+        if (!pullMeterBackgroundDefaultFromPalette)
+            return;
+
+        if (paletteSwitcher == null)
+            return;
+
+        if (paletteSwitcher.TryGetCurrentColor(paletteTargetIndexForMeterBackgroundDefault, out Color c))
+        {
+            // Alpha is driven by the background material/base alpha anyway.
+            meterBackgroundDefaultColor = c;
         }
     }
 

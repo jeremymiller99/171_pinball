@@ -4,11 +4,13 @@ using FMODUnity;
 public class Bumper : MonoBehaviour
 {
     [SerializeField] private CameraShake camShake;
+    [SerializeField] private PointAdder pa;
     [SerializeField] private float bounceForce = 10f;
 
     private void Awake()
     {
         ResolveCameraShake();
+        pa = GetComponent<PointAdder>();
     }
 
     private void ResolveCameraShake()
@@ -45,6 +47,11 @@ public class Bumper : MonoBehaviour
                 ResolveCameraShake();
             }
             camShake?.Shake(0.2f, 0.1f);
+        }
+        // Give points
+        if (collision.collider.CompareTag("Ball"))
+        {
+            pa.AddPoints(collision.collider.transform);
         }
     }   
 }

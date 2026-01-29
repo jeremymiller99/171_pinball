@@ -3,6 +3,7 @@ using UnityEngine;
 public class Portal : MonoBehaviour
 {
     [SerializeField] private CameraShake camShake;
+    [SerializeField] private PointAdder pa;
     public Transform portalExit;
 
     [Header("Settings")]
@@ -21,6 +22,7 @@ public class Portal : MonoBehaviour
     private void Awake()
     {
         ResolveCameraShake();
+        pa = GetComponent<PointAdder>();
     }
 
     private void ResolveCameraShake()
@@ -103,5 +105,11 @@ public class Portal : MonoBehaviour
             ResolveCameraShake();
         }
         camShake?.Shake(0.2f, 0.1f);
+
+        // Give points
+        if (other.CompareTag("Ball"))
+        {
+            pa.AddPoints(other.transform);
+        }
     }
 }

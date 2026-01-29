@@ -31,7 +31,7 @@ public class PointAdder : MonoBehaviour
 #endif
         }
     }
-
+/*
     void OnCollisionEnter(Collision collision)
     {
         if (collision.collider.CompareTag("Ball"))
@@ -53,9 +53,17 @@ public class PointAdder : MonoBehaviour
             floatingTextSpawner?.SpawnText(col.transform.position, "+" + applied);
         }
     }
-
+*/
     public void multiplyPointsToAdd(float mult)
     {
         pointsToAdd *= mult;
+    }
+
+    public void AddPoints(Transform pos)
+    {
+        if (scoreManager == null) EnsureRefs();
+        float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
+        // Spawn text at the ball's position
+        floatingTextSpawner?.SpawnText(pos.position, "+" + pointsToAdd);
     }
 }

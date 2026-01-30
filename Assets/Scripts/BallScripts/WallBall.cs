@@ -4,12 +4,14 @@ using UnityEngine;
 public class WallBall : MonoBehaviour
 {
     [SerializeField] private PhysicsMaterial wallMaterial;
+    [SerializeField] private PointAdder pa;
     [SerializeField] private CameraShake camShake;
     [SerializeField] private float bounceForce = 10f;
 
 
     void Awake()
     {
+        pa = GetComponent<PointAdder>();
         ResolveCameraShake();
     }
 
@@ -43,6 +45,8 @@ public class WallBall : MonoBehaviour
                 ResolveCameraShake();
             }
             camShake?.Shake(0.2f, 0.1f);
+
+            pa.AddScore(transform);
         }
     }
 

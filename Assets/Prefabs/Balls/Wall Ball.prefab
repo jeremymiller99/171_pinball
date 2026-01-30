@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 5316753179070647220}
   - component: {fileID: 1682731018784348660}
   - component: {fileID: 295504782689548292}
+  - component: {fileID: -5737138886917130576}
   m_Layer: 0
   m_Name: Wall Ball
   m_TagString: Ball
@@ -168,5 +169,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   wallMaterial: {fileID: 13400000, guid: 2538733681627dc44ab2109ad5e3bdcb, type: 2}
+  pa: {fileID: -5737138886917130576}
   camShake: {fileID: 0}
   bounceForce: 50
+--- !u!114 &-5737138886917130576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7978cd7051874c242b090bce93cfdf89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PointAdder
+  scoreManager: {fileID: 0}
+  pointsToAdd: 1
+  floatingTextSpawner: {fileID: 0}

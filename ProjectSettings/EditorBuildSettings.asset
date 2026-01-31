@@ -27,5 +27,7 @@ EditorBuildSettings:
     path: Assets/Scenes/BoardScenes/Board_Charlie.unity
     guid: b3247a3318bb662479ead9168132be7f
   m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: cb46637bbf1f9044dbadfee88b4ba194, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    com.unity.localization.settings: {fileID: 11400000, guid: 54c3a11e5ebae2e4e9d856f66e38163b, type: 2}
   m_UseUCBPForAssetBundles: 0

@@ -54,6 +54,26 @@ public class PointAdder : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Adds this component's configured points amount, and spawns floating text at the given transform.
+    /// Useful for board elements that award points without a collision/trigger (e.g. spinner ticks).
+    /// </summary>
+    public void AddPoints(Transform spawnAt)
+    {
+        if (spawnAt == null) return;
+        AddPoints(spawnAt.position);
+    }
+
+    /// <summary>
+    /// Adds this component's configured points amount, and spawns floating text at the given position.
+    /// </summary>
+    public void AddPoints(Vector3 spawnPosition)
+    {
+        if (scoreManager == null) EnsureRefs();
+        float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
+        floatingTextSpawner?.SpawnText(spawnPosition, "+" + applied);
+    }
+
     public void multiplyPointsToAdd(float mult)
     {
         pointsToAdd *= mult;

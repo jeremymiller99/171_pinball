@@ -662,6 +662,10 @@ public sealed class BallSpawner : MonoBehaviour
             }
         }
 
+        // If nothing is configured, don't treat this as "path mode".
+        if (handPathStart == null && !hasAnyWaypoint)
+            return false;
+
         Transform startT = handPathStart != null ? handPathStart : transform;
 
         points = new List<Vector3>(2 + handPathWaypoints.Count)

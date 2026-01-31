@@ -56,6 +56,13 @@ public sealed class RunFlowController : MonoBehaviour
     private void Start()
     {
         // GameplayCore scene should start the run once it loads.
+        // If this controller exists in other scenes (eg. due to prefab reuse), don't start a run there.
+        string activeSceneName = SceneManager.GetActiveScene().name;
+        if (!string.IsNullOrWhiteSpace(gameplayCoreSceneName) && activeSceneName != gameplayCoreSceneName)
+        {
+            return;
+        }
+
         if (!hasStartedRun)
         {
             StartCoroutine(StartRunFromSession());

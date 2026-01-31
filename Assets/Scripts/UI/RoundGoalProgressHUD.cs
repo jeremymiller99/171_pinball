@@ -154,6 +154,10 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
 
     private void Awake()
     {
+        // Legacy serialized toggles (kept for scene/prefab compatibility).
+        // Behavior is always enabled now; we intentionally ignore these values.
+        if (!meterColorEnabled || !tieredMeterEnabled) { }
+
         ResolveRefs();
         PullMeterBackgroundDefaultFromPalette();
         InitMeterIfNeeded();

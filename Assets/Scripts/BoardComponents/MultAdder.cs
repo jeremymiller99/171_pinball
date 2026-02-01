@@ -40,8 +40,8 @@ public class MultAdder : MonoBehaviour
             if (scoreManager == null) EnsureRefs();
             FMODUnity.RuntimeManager.PlayOneShot("event:/collide_mult");
             scoreManager?.AddMult(multToAdd);
-            // Spawn text at the ball's position
-            floatingTextSpawner?.SpawnText(collision.collider.transform.position, "x" + multToAdd);
+            // Spawn red mult text at the ball's position
+            floatingTextSpawner?.SpawnMultText(collision.collider.transform.position, "x" + multToAdd, multToAdd);
         }
     }
 
@@ -51,8 +51,8 @@ public class MultAdder : MonoBehaviour
         {
             if (scoreManager == null) EnsureRefs();
             scoreManager?.AddMult(multToAdd);
-            // Spawn text at the ball's position
-            floatingTextSpawner?.SpawnText(col.transform.position, "x" + multToAdd);
+            // Spawn red mult text at the ball's position
+            floatingTextSpawner?.SpawnMultText(col.transform.position, "x" + multToAdd, multToAdd);
         }
     }
 

@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82d0d182ddbe25a41967d0f099516017, type: 3}
   m_Name: Challenge_Alpha
   m_EditorClassIdentifier: Assembly-CSharp::ChallengeModeDefinition
-  displayName: Alpha
-  description: Complete the Alpha Board
+  displayName: OG
+  description: Complete the OG Board
+  winConditionDescription: Beat 10 rounds
   boards:
   - {fileID: 11400000, guid: 6c3ed43778e1f254490b8b449bd4076a, type: 2}

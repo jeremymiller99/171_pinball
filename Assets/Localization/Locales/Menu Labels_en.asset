@@ -34,6 +34,10 @@ MonoBehaviour:
     m_Localized: Profile
     m_Metadata:
       m_Items: []
+  - m_Id: 62695853670400
+    m_Localized: Team 22
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

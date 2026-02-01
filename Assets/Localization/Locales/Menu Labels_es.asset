@@ -23,15 +23,19 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 72881684480
-    m_Localized: Configuracion
+    m_Localized: "Configuraci\xF3n"
     m_Metadata:
       m_Items: []
   - m_Id: 11278602354688
-    m_Localized: Coleccion
+    m_Localized: "Collecci\xF3n"
     m_Metadata:
       m_Items: []
   - m_Id: 11281550950400
     m_Localized: Perfil
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62695853670400
+    m_Localized: Equipo 22
     m_Metadata:
       m_Items: []
   references:

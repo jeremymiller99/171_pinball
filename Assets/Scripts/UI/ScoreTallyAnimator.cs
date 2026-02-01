@@ -16,6 +16,12 @@ public class ScoreTallyAnimator : MonoBehaviour
     [SerializeField] private TMP_Text xText;
     [SerializeField] private TMP_Text roundTotalText;
 
+    [Header("World Space Start (optional)")]
+    [Tooltip("Camera used to convert a world position to a screen point. If null, uses Camera.main.")]
+    [SerializeField] private Camera worldCamera;
+    [Tooltip("Canvas used to project a world position onto the score UI plane. If null, inferred from pointsText.")]
+    [SerializeField] private Canvas scoreCanvas;
+
     [Header("Timing")]
     [SerializeField] private float moveToXDuration = 0.35f;
     [SerializeField] private float holdAtXDuration = 0.15f;
@@ -29,6 +35,7 @@ public class ScoreTallyAnimator : MonoBehaviour
     private Vector3 _multStartPos;
     private Vector3 _xStartPos;
     private string _xStartString;
+    private Vector3 _pointsToMultOffset;
 
     private bool _initialized;
     public bool IsTallying { get; private set; }
@@ -62,6 +69,7 @@ public class ScoreTallyAnimator : MonoBehaviour
 
         if (pointsText != null) _pointsStartPos = pointsText.transform.position;
         if (multText != null) _multStartPos = multText.transform.position;
+        _pointsToMultOffset = _multStartPos - _pointsStartPos;
         if (xText != null)
         {
             _xStartPos = xText.transform.position;
@@ -75,6 +83,15 @@ public class ScoreTallyAnimator : MonoBehaviour
     }
 
     public IEnumerator PlayTally(ScoreManager scoreManager, float bankMultiplier)
+    {
+        return PlayTally(scoreManager, bankMultiplier, null);
+    }
+
+    /// <summary>
+    /// Plays the tally animation, optionally starting the Points/Mult labels at a world-space position
+    /// (projected onto the score canvas).
+    /// </summary>
+    public IEnumerator PlayTally(ScoreManager scoreManager, float bankMultiplier, Vector3? worldStartPosition)
     {
         if (IsTallying) yield break;
         IsTallying = true;
@@ -103,10 +120,22 @@ public class ScoreTallyAnimator : MonoBehaviour
         SetVisible(multText, true);
         SetVisible(xText, true);
 
+        Vector3 pointsStartPos = _pointsStartPos;
+        Vector3 multStartPos = _multStartPos;
+
+        // Optional: start Points/Mult from a world-space point (e.g., drained ball position).
+        if (worldStartPosition.HasValue && TryProjectWorldPointToCanvas(worldStartPosition.Value, out Vector3 projectedOnCanvas))
+        {
+            pointsStartPos = projectedOnCanvas;
+            multStartPos = projectedOnCanvas + _pointsToMultOffset;
+            pointsText.transform.position = pointsStartPos;
+            multText.transform.position = multStartPos;
+        }
+
         // Step 1: Points + Mult move toward X.
         Vector3 xPos = xText.transform.position;
-        yield return MoveTogetherTo(pointsText.transform, _pointsStartPos, xPos,
-            multText.transform, _multStartPos, xPos,
+        yield return MoveTogetherTo(pointsText.transform, pointsStartPos, xPos,
+            multText.transform, multStartPos, xPos,
             moveToXDuration);
 
         // Step 2: Hide Points/Mult, turn X into total.
@@ -181,6 +210,87 @@ public class ScoreTallyAnimator : MonoBehaviour
             pointsText = FindTmpTextInLoadedScenesByName(PointsObjectName);
         if (!IsLiveSceneText(multText))
             multText = FindTmpTextInLoadedScenesByName(MultObjectName);
+
+        if (scoreCanvas == null && pointsText != null)
+            scoreCanvas = pointsText.GetComponentInParent<Canvas>();
+    }
+
+    private bool TryProjectWorldPointToCanvas(Vector3 worldPoint, out Vector3 projectedWorldOnCanvasPlane)
+    {
+        projectedWorldOnCanvasPlane = default;
+
+        if (scoreCanvas == null && pointsText != null)
+            scoreCanvas = pointsText.GetComponentInParent<Canvas>();
+
+        Camera cam = worldCamera != null
+            ? worldCamera
+            : (scoreCanvas != null && scoreCanvas.worldCamera != null ? scoreCanvas.worldCamera : FindLikelyMainCamera());
+        if (cam == null) return false;
+        if (scoreCanvas == null) return false;
+
+        RectTransform canvasRect = scoreCanvas.transform as RectTransform;
+        if (canvasRect == null) return false;
+
+        Vector3 screenPos3 = cam.WorldToScreenPoint(worldPoint);
+        Vector2 screenPos = new Vector2(screenPos3.x, screenPos3.y);
+
+        Camera uiCam = scoreCanvas.renderMode == RenderMode.ScreenSpaceOverlay
+            ? null
+            : (scoreCanvas.worldCamera != null ? scoreCanvas.worldCamera : cam);
+
+        return RectTransformUtility.ScreenPointToWorldPointInRectangle(
+            canvasRect,
+            screenPos,
+            uiCam,
+            out projectedWorldOnCanvasPlane);
+    }
+
+    private static Camera FindLikelyMainCamera()
+    {
+        // Fast path: Unity's tag-based lookup.
+        if (Camera.main != null)
+            return Camera.main;
+
+        // Additive scenes can leave Camera.main null if the camera isn't tagged MainCamera
+        // or is temporarily disabled. Fall back to any enabled camera.
+        Camera[] cams;
+#if UNITY_2022_2_OR_NEWER
+        cams = FindObjectsByType<Camera>(FindObjectsSortMode.None);
+#else
+        cams = FindObjectsOfType<Camera>(includeInactive: false);
+#endif
+
+        if (cams == null || cams.Length == 0)
+            return null;
+
+        // Prefer an enabled camera tagged MainCamera.
+        for (int i = 0; i < cams.Length; i++)
+        {
+            var c = cams[i];
+            if (c == null || !c.enabled) continue;
+            if (c.gameObject != null && c.gameObject.activeInHierarchy && c.CompareTag("MainCamera"))
+                return c;
+        }
+
+        // Next, prefer "Main Camera" naming convention.
+        for (int i = 0; i < cams.Length; i++)
+        {
+            var c = cams[i];
+            if (c == null || !c.enabled) continue;
+            if (c.gameObject != null && c.gameObject.activeInHierarchy && c.name.IndexOf("Main", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return c;
+        }
+
+        // Finally, any enabled active camera.
+        for (int i = 0; i < cams.Length; i++)
+        {
+            var c = cams[i];
+            if (c == null || !c.enabled) continue;
+            if (c.gameObject != null && c.gameObject.activeInHierarchy)
+                return c;
+        }
+
+        return cams[0];
     }
 
     private static TMP_Text FindTmpTextInChildrenByName(Transform root, string childName)

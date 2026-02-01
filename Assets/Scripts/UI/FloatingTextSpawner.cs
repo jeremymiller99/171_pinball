@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 public class FloatingTextSpawner : MonoBehaviour
 {
@@ -6,6 +7,30 @@ public class FloatingTextSpawner : MonoBehaviour
     [SerializeField] private Canvas canvas;
     [SerializeField] private Camera targetCamera;
     [SerializeField] private Vector2 spawnOffset = new Vector2(20f, 0f);
+
+    [Header("Points")]
+    [Tooltip("TMP Font Asset for points text (blue style).")]
+    [SerializeField] private TMP_FontAsset pointsFontAsset;
+    [SerializeField] private float pointsScaleMin = 0.6f;
+    [SerializeField] private float pointsScaleMax = 1.2f;
+    [Tooltip("Points value at which scale reaches max.")]
+    [SerializeField] private float pointsMaxValue = 100f;
+
+    [Header("Multiplier")]
+    [Tooltip("TMP Font Asset for multiplier text (red style).")]
+    [SerializeField] private TMP_FontAsset multFontAsset;
+    [SerializeField] private float multScaleMin = 0.6f;
+    [SerializeField] private float multScaleMax = 1.3f;
+    [Tooltip("Mult value at which scale reaches max.")]
+    [SerializeField] private float multMaxValue = 3f;
+
+    [Header("Gold/Coins")]
+    [Tooltip("TMP Font Asset for gold/coins text (yellow style).")]
+    [SerializeField] private TMP_FontAsset goldFontAsset;
+    [SerializeField] private float goldScaleMin = 0.6f;
+    [SerializeField] private float goldScaleMax = 1.1f;
+    [Tooltip("Gold value at which scale reaches max.")]
+    [SerializeField] private float goldMaxValue = 5f;
 
     private void Start()
     {
@@ -19,6 +44,41 @@ public class FloatingTextSpawner : MonoBehaviour
     /// <param name="worldPosition">World position to spawn the text (e.g., ball position)</param>
     /// <param name="text">The text to display</param>
     public void SpawnText(Vector3 worldPosition, string text)
+    {
+        SpawnTextInternal(worldPosition, text, null, 0.6f);
+    }
+
+    /// <summary>
+    /// Spawns floating text for points using the points font asset, size based on value.
+    /// </summary>
+    public void SpawnPointsText(Vector3 worldPosition, string text, float pointsValue)
+    {
+        float t = Mathf.Clamp01(pointsValue / pointsMaxValue);
+        float scale = Mathf.Lerp(pointsScaleMin, pointsScaleMax, t);
+        SpawnTextInternal(worldPosition, text, pointsFontAsset, scale);
+    }
+
+    /// <summary>
+    /// Spawns floating text for multiplier using the mult font asset, size based on value.
+    /// </summary>
+    public void SpawnMultText(Vector3 worldPosition, string text, float multValue)
+    {
+        float t = Mathf.Clamp01(multValue / multMaxValue);
+        float scale = Mathf.Lerp(multScaleMin, multScaleMax, t);
+        SpawnTextInternal(worldPosition, text, multFontAsset, scale);
+    }
+
+    /// <summary>
+    /// Spawns floating text for gold/coins using the gold font asset, size based on value.
+    /// </summary>
+    public void SpawnGoldText(Vector3 worldPosition, string text, float goldValue)
+    {
+        float t = Mathf.Clamp01(goldValue / goldMaxValue);
+        float scale = Mathf.Lerp(goldScaleMin, goldScaleMax, t);
+        SpawnTextInternal(worldPosition, text, goldFontAsset, scale);
+    }
+
+    private void SpawnTextInternal(Vector3 worldPosition, string text, TMP_FontAsset fontAsset, float scale)
     {
         if (floatingTextPrefab == null || canvas == null) return;
 
@@ -42,5 +102,12 @@ public class FloatingTextSpawner : MonoBehaviour
 
         rt.anchoredPosition = anchoredPos + spawnOffset;
         ft.SetText(text);
+        
+        if (fontAsset != null)
+        {
+            ft.SetFontAsset(fontAsset);
+        }
+        
+        ft.SetScale(scale);
     }
 }

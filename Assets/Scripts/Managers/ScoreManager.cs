@@ -16,6 +16,38 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private TMP_Text pointsText;
     [SerializeField] private TMP_Text multText;
 
+    [Header("Camera Shake on Score")]
+    [Tooltip("Reference to CameraShake. Auto-resolved if not set.")]
+    [SerializeField] private CameraShake cameraShake;
+    
+    [Header("Points Shake Settings")]
+    [Tooltip("Base duration of camera shake when earning points.")]
+    [SerializeField] private float shakeBaseDuration = 0.2f;
+    [Tooltip("How much to increase duration per point earned. E.g., 0.004 means +100 points adds 0.4s.")]
+    [SerializeField] private float shakeDurationPerPoint = 0.004f;
+    [Tooltip("Maximum shake duration cap for points.")]
+    [SerializeField] private float shakeMaxDuration = 0.5f;
+    [Tooltip("Base magnitude of camera shake when earning points.")]
+    [SerializeField] private float shakeBaseMagnitude = 0.18f;
+    [Tooltip("How much to scale shake magnitude per point earned. E.g., 0.008 means +100 points adds 0.8 to magnitude.")]
+    [SerializeField] private float shakeMagnitudePerPoint = 0.008f;
+    [Tooltip("Maximum shake magnitude cap for points.")]
+    [SerializeField] private float shakeMaxMagnitude = 0.8f;
+    
+    [Header("Multiplier Shake Settings")]
+    [Tooltip("Base duration of camera shake when gaining multiplier.")]
+    [SerializeField] private float multShakeBaseDuration = 0.25f;
+    [Tooltip("How much to increase duration per multiplier gained. E.g., 0.15 means +1x adds 0.15s.")]
+    [SerializeField] private float multShakeDurationPerMult = 0.15f;
+    [Tooltip("Maximum shake duration cap for multiplier.")]
+    [SerializeField] private float multShakeMaxDuration = 0.6f;
+    [Tooltip("Base magnitude of camera shake when gaining multiplier.")]
+    [SerializeField] private float multShakeBaseMagnitude = 0.22f;
+    [Tooltip("How much to scale shake magnitude per multiplier gained. E.g., 0.25 means +1x adds 0.25 to magnitude.")]
+    [SerializeField] private float multShakeMagnitudePerMult = 0.25f;
+    [Tooltip("Maximum shake magnitude cap for multiplier.")]
+    [SerializeField] private float multShakeMaxMagnitude = 0.7f;
+
     // Optional UI hooks (wire in inspector if you have these labels).
     [Header("Optional extra UI")]
     [SerializeField] private TMP_Text roundIndexText;
@@ -136,6 +168,7 @@ public class ScoreManager : MonoBehaviour
         ApplySpeedFromTier(force: true);
 
         EnsureCoreScoreTextBindings();
+        ResolveCameraShake();
         RefreshScoreUI();
         ScoreChanged?.Invoke();
     }
@@ -164,6 +197,12 @@ public class ScoreManager : MonoBehaviour
 
         points += applied;
 
+        // Trigger camera shake scaled by the points earned (only for positive scores).
+        if (applied > 0f)
+        {
+            TriggerScoreShake(applied);
+        }
+
         // Recompute tier and apply speed when crossing Goal * N thresholds.
         UpdateGoalTierAndApplySpeed();
 
@@ -179,6 +218,13 @@ public class ScoreManager : MonoBehaviour
         if (scoringLocked) return;
         EnsureCoreScoreTextBindings();
         mult += m;
+
+        // Trigger camera shake scaled by multiplier gained (only for positive gains).
+        if (m > 0f)
+        {
+            TriggerMultShake(m);
+        }
+
         UpdateGoalTierAndApplySpeed();
         if (multText != null)
             multText.text = mult.ToString();
@@ -344,7 +390,66 @@ public class ScoreManager : MonoBehaviour
         // In additive-scene setups, the Score UI may live in a different scene than this manager.
         // Re-resolve references whenever a new scene is loaded.
         EnsureCoreScoreTextBindings();
+        ResolveCameraShake();
         RefreshScoreUI();
+    }
+
+    private void ResolveCameraShake()
+    {
+        if (cameraShake != null && cameraShake.isActiveAndEnabled)
+            return;
+
+        cameraShake = CameraShake.Instance;
+        if (cameraShake != null && cameraShake.isActiveAndEnabled)
+            return;
+
+#if UNITY_2022_2_OR_NEWER
+        cameraShake = FindFirstObjectByType<CameraShake>();
+#else
+        cameraShake = FindObjectOfType<CameraShake>();
+#endif
+    }
+
+    private void TriggerScoreShake(float pointsEarned)
+    {
+        if (cameraShake == null || !cameraShake.isActiveAndEnabled)
+        {
+            ResolveCameraShake();
+        }
+
+        if (cameraShake == null || !cameraShake.isActiveAndEnabled)
+            return;
+
+        // Calculate duration based on points earned.
+        float duration = shakeBaseDuration + (pointsEarned * shakeDurationPerPoint);
+        duration = Mathf.Clamp(duration, shakeBaseDuration, shakeMaxDuration);
+
+        // Calculate magnitude based on points earned.
+        float magnitude = shakeBaseMagnitude + (pointsEarned * shakeMagnitudePerPoint);
+        magnitude = Mathf.Clamp(magnitude, shakeBaseMagnitude, shakeMaxMagnitude);
+
+        cameraShake.Shake(duration, magnitude);
+    }
+
+    private void TriggerMultShake(float multGained)
+    {
+        if (cameraShake == null || !cameraShake.isActiveAndEnabled)
+        {
+            ResolveCameraShake();
+        }
+
+        if (cameraShake == null || !cameraShake.isActiveAndEnabled)
+            return;
+
+        // Calculate duration based on multiplier gained.
+        float duration = multShakeBaseDuration + (multGained * multShakeDurationPerMult);
+        duration = Mathf.Clamp(duration, multShakeBaseDuration, multShakeMaxDuration);
+
+        // Calculate magnitude based on multiplier gained.
+        float magnitude = multShakeBaseMagnitude + (multGained * multShakeMagnitudePerMult);
+        magnitude = Mathf.Clamp(magnitude, multShakeBaseMagnitude, multShakeMaxMagnitude);
+
+        cameraShake.Shake(duration, magnitude);
     }
 
     private void EnsureCoreScoreTextBindings()

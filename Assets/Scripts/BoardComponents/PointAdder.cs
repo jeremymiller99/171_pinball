@@ -38,8 +38,8 @@ public class PointAdder : MonoBehaviour
         {
             if (scoreManager == null) EnsureRefs();
             float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
-            // Spawn text at the ball's position
-            floatingTextSpawner?.SpawnText(collision.collider.transform.position, "+" + applied);
+            // Spawn blue points text at the ball's position
+            floatingTextSpawner?.SpawnPointsText(collision.collider.transform.position, "+" + applied, applied);
         }
     }
 
@@ -49,8 +49,8 @@ public class PointAdder : MonoBehaviour
         {
             if (scoreManager == null) EnsureRefs();
             float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
-            // Spawn text at the ball's position
-            floatingTextSpawner?.SpawnText(col.transform.position, "+" + applied);
+            // Spawn blue points text at the ball's position
+            floatingTextSpawner?.SpawnPointsText(col.transform.position, "+" + applied, applied);
         }
     }
 
@@ -71,7 +71,7 @@ public class PointAdder : MonoBehaviour
     {
         if (scoreManager == null) EnsureRefs();
         float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
-        floatingTextSpawner?.SpawnText(spawnPosition, "+" + applied);
+        floatingTextSpawner?.SpawnPointsText(spawnPosition, "+" + applied, applied);
     }
 
     public void multiplyPointsToAdd(float mult)

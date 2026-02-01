@@ -32,5 +32,20 @@ public class FloatingText : MonoBehaviour
         if (text == null) text = GetComponent<TMP_Text>();
         text.text = value;
     }
+
+    public void SetFontAsset(TMP_FontAsset fontAsset)
+    {
+        if (fontAsset == null) return;
+        if (text == null) text = GetComponent<TMP_Text>();
+        text.font = fontAsset;
+        // Refresh start color from the new font's default material if needed
+        startColor = text.color;
+    }
+
+    public void SetScale(float scale)
+    {
+        if (rectTransform == null) rectTransform = GetComponent<RectTransform>();
+        rectTransform.localScale = Vector3.one * scale;
+    }
 }
 

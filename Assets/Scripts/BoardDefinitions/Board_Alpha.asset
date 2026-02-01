@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f4fae2076c9d634ebeb23ae8d47dd53, type: 3}
   m_Name: Board_Alpha
   m_EditorClassIdentifier: Assembly-CSharp::BoardDefinition
-  displayName: Alpha
+  displayName: OG
   boardSceneName: Board_Alpha
   clearCondition: 1
   targetRoundIndex: 10

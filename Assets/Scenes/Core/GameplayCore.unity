@@ -1048,6 +1048,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba129e542ec4bc744bd531b11bf00621, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraShake
+  decayExponent: 2
+  initialKickMultiplier: 1.8
+  shakeFrequency: 12
+  smoothing: 0.4
 --- !u!114 &330585549
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1088,7 +1092,6 @@ GameObject:
   m_Component:
   - component: {fileID: 349540275}
   - component: {fileID: 349540274}
-  - component: {fileID: 349540276}
   m_Layer: 0
   m_Name: ScoreManager
   m_TagString: Untagged
@@ -1113,6 +1116,19 @@ MonoBehaviour:
   roundTotal: 0
   pointsText: {fileID: 0}
   multText: {fileID: 0}
+  cameraShake: {fileID: 0}
+  shakeBaseDuration: 0.2
+  shakeDurationPerPoint: 0.004
+  shakeMaxDuration: 0.5
+  shakeBaseMagnitude: 0.18
+  shakeMagnitudePerPoint: 0.008
+  shakeMaxMagnitude: 0.8
+  multShakeBaseDuration: 0.25
+  multShakeDurationPerMult: 0.15
+  multShakeMaxDuration: 0.6
+  multShakeBaseMagnitude: 0.22
+  multShakeMagnitudePerMult: 0.25
+  multShakeMaxMagnitude: 0.7
   roundIndexText: {fileID: 0}
   roundTotalText: {fileID: 0}
   goalText: {fileID: 0}
@@ -1139,27 +1155,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &349540276
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 349540273}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d18df8fe34cd3994e96ca0d381a81bdc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ScoreTallyAnimator
-  pointsText: {fileID: 0}
-  multText: {fileID: 0}
-  xText: {fileID: 0}
-  roundTotalText: {fileID: 0}
-  moveToXDuration: 0.25
-  holdAtXDuration: 0.5
-  moveToRoundTotalDuration: 0.5
-  endHoldDuration: 0.05
-  lockScoreManagerDuringTally: 1
 --- !u!1 &371714673
 GameObject:
   m_ObjectHideFlags: 0
@@ -2921,10 +2916,19 @@ MonoBehaviour:
   quickRunBoards: []
   challengeModes: []
   challengeBoards: []
+  mainMenuPanel: {fileID: 0}
+  runSelectorPanel: {fileID: 0}
+  settingsPanel: {fileID: 0}
+  profilePanel: {fileID: 0}
+  collectionPanel: {fileID: 0}
   startRunButton: {fileID: 0}
+  settingsButton: {fileID: 0}
+  profileButton: {fileID: 0}
+  collectionButton: {fileID: 0}
   challengeButtonsRoot: {fileID: 0}
   challengeButtonTemplate: {fileID: 0}
-  startRunLabel: {fileID: 0}
+  returnToMainMenuButton: {fileID: 0}
+  currentPanel: 0
 --- !u!114 &912259836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3951,7 +3955,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameRulesManager
   scoreManager: {fileID: 349540274}
-  scoreTallyAnimator: {fileID: 349540276}
+  scoreTallyAnimator: {fileID: 0}
   goalByRound:
   - 300
   - 500
@@ -5427,6 +5431,18 @@ MonoBehaviour:
   canvas: {fileID: 912259833}
   targetCamera: {fileID: 248943762}
   spawnOffset: {x: 100, y: 0}
+  pointsFontAsset: {fileID: 11400000, guid: d58a353ed7431b940a08824b02c7af05, type: 2}
+  pointsScaleMin: 0.6
+  pointsScaleMax: 1.2
+  pointsMaxValue: 100
+  multFontAsset: {fileID: 11400000, guid: d21ddfd4eab2bfe428c5817cb44d8b3a, type: 2}
+  multScaleMin: 0.6
+  multScaleMax: 1.3
+  multMaxValue: 3
+  goldFontAsset: {fileID: 11400000, guid: a93d5d896884a4b43a3e717eb13c16b1, type: 2}
+  goldScaleMin: 0.6
+  goldScaleMax: 1.1
+  goldMaxValue: 5
 --- !u!4 &1995152005
 Transform:
   m_ObjectHideFlags: 0

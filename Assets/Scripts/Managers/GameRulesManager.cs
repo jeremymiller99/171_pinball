@@ -96,6 +96,56 @@ public class GameRulesManager : MonoBehaviour
         Debug.LogWarning($"{nameof(GameRulesManager)} found multiple {nameof(BallSpawner)} instances; using '{ballSpawner.name}'. Remove duplicates for a single source of truth.", ballSpawner);
     }
 
+    private void ResolveScoreManager(bool logIfMissing)
+    {
+        if (scoreManager != null)
+            return;
+
+        ScoreManager[] found;
+#if UNITY_2022_2_OR_NEWER
+        found = FindObjectsByType<ScoreManager>(FindObjectsSortMode.None);
+#else
+        found = FindObjectsOfType<ScoreManager>(includeInactive: false);
+#endif
+
+        if (found == null || found.Length == 0)
+        {
+            if (logIfMissing)
+                Debug.LogError($"{nameof(GameRulesManager)} could not find any {nameof(ScoreManager)} in loaded scenes.", this);
+            return;
+        }
+
+        scoreManager = found[0];
+
+        if (found.Length > 1)
+            Debug.LogWarning($"{nameof(GameRulesManager)} found multiple {nameof(ScoreManager)} instances; using '{scoreManager.name}'. Remove duplicates for a single source of truth.", scoreManager);
+    }
+
+    private void ResolveScoreTallyAnimator(bool logIfMissing)
+    {
+        if (scoreTallyAnimator != null)
+            return;
+
+        ScoreTallyAnimator[] found;
+#if UNITY_2022_2_OR_NEWER
+        found = FindObjectsByType<ScoreTallyAnimator>(FindObjectsSortMode.None);
+#else
+        found = FindObjectsOfType<ScoreTallyAnimator>(includeInactive: false);
+#endif
+
+        if (found == null || found.Length == 0)
+        {
+            if (logIfMissing)
+                Debug.LogError($"{nameof(GameRulesManager)} could not find any {nameof(ScoreTallyAnimator)} in loaded scenes.", this);
+            return;
+        }
+
+        scoreTallyAnimator = found[0];
+
+        if (found.Length > 1)
+            Debug.LogWarning($"{nameof(GameRulesManager)} found multiple {nameof(ScoreTallyAnimator)} instances; using '{scoreTallyAnimator.name}'. Remove duplicates for a single source of truth.", scoreTallyAnimator);
+    }
+
     /// <summary>
     /// Returns a snapshot copy of the current ball loadout (one prefab per hand slot).
     /// Safe to enumerate without risking external mutation.
@@ -108,6 +158,9 @@ public class GameRulesManager : MonoBehaviour
 
     private void Awake()
     {
+        ResolveScoreManager(logIfMissing: false);
+        ResolveScoreTallyAnimator(logIfMissing: false);
+
         if (goalByRound == null || goalByRound.Count == 0)
         {
             goalByRound = new List<float> { 500f, 800f, 1200f, 1700f, 2300f, 3000f, 4000f };
@@ -127,6 +180,9 @@ public class GameRulesManager : MonoBehaviour
 
     private void Start()
     {
+        ResolveScoreManager(logIfMissing: false);
+        ResolveScoreTallyAnimator(logIfMissing: false);
+
         // In the additive-board architecture, the board (containing the BallSpawner) is loaded 
         // after GameplayCore, then StartRun() is called by RunFlowController.
         // Don't log an error here since the board scene may not be loaded yet.
@@ -157,6 +213,9 @@ public class GameRulesManager : MonoBehaviour
         ResolveBallSpawner(logIfMissing: true);
         if (ballSpawner == null)
             return;
+
+        ResolveScoreManager(logIfMissing: false);
+        ResolveScoreTallyAnimator(logIfMissing: false);
 
         shopOpen = false;
         SetShopOpen(false);
@@ -212,6 +271,10 @@ public class GameRulesManager : MonoBehaviour
             yield break;
         }
 
+        ResolveScoreManager(logIfMissing: false);
+        ResolveScoreTallyAnimator(logIfMissing: false);
+
+        Vector3 drainedBallWorldPos = ball != null ? ball.transform.position : Vector3.zero;
         DespawnBall(ball);
 
         if (showHomeRunPopup)
@@ -222,7 +285,7 @@ public class GameRulesManager : MonoBehaviour
         // Play animated tally if configured; otherwise instant-bank.
         if (scoreTallyAnimator != null && scoreManager != null)
         {
-            yield return scoreTallyAnimator.PlayTally(scoreManager, bankMultiplier);
+            yield return scoreTallyAnimator.PlayTally(scoreManager, bankMultiplier, drainedBallWorldPos);
             roundTotal = scoreManager.roundTotal;
         }
         else
@@ -388,6 +451,7 @@ public class GameRulesManager : MonoBehaviour
 
     private float BankCurrentBallIntoRoundTotal(float bankMultiplier)
     {
+        ResolveScoreManager(logIfMissing: false);
         if (scoreManager == null)
         {
             return 0f;

@@ -167,4 +167,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c60dd978084cc5d46a5252362dbd6251, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  prefab: {fileID: 5723297401256486482}
   readyToSplit: 1
+  newBallOffset: {x: 0, y: 0, z: 0}

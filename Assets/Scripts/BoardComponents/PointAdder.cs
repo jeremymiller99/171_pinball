@@ -80,4 +80,12 @@ public class PointAdder : MonoBehaviour
     {
         pointsToAdd *= mult;
     }
+
+    public void AddScore(Transform pos)
+    {
+        if (scoreManager == null) EnsureRefs();
+            float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
+            // Spawn text at the ball's position
+            floatingTextSpawner?.SpawnText(pos.position, "+" + applied);
+    }
 }

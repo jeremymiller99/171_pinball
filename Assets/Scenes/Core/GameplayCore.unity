@@ -1538,6 +1538,12 @@ MonoBehaviour:
   - displayName: Red Two
     ballPrefab: {fileID: 5723297401256486482, guid: 8f14b359d9507704a87dbcbf1f1289c3, type: 3}
     cost: 5
+  - displayName: Leprechaun
+    ballPrefab: {fileID: 5723297401256486482, guid: 7ed9408449ec9ff4bb8710c09c4a0141, type: 3}
+    cost: 5
+  - displayName: Wall Ball
+    ballPrefab: {fileID: 5723297401256486482, guid: 358cb191f3549ea42ba8ddac974ec3bc, type: 3}
+    cost: 5
 --- !u!222 &460876980
 CanvasRenderer:
   m_ObjectHideFlags: 0

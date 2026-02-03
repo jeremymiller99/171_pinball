@@ -1272,6 +1272,10 @@ MonoBehaviour:
   speedIncreasePerGoalTier: 0.1
   scoreIncreasePerGoalTier: 0.5
   applySpeedToTimeScale: 1
+  externalTimeScaleMultiplier: 1
+  externalScoreAwardMultiplier: 1
+  maxTimeScale: 1
+  maxFixedDeltaTime: 0.1
   _goalTier: 0
 --- !u!4 &349540275
 Transform:

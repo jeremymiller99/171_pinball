@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -48,6 +49,12 @@ public class GameRulesManager : MonoBehaviour
     // Active round modifier (from GameSession's generated rounds)
     private RoundModifierDefinition _activeModifier;
     private RoundData _currentRoundData;
+
+    /// <summary>
+    /// Fired whenever a new round is started (after goal/round UI is reset).
+    /// Useful for per-round systems like Frenzy.
+    /// </summary>
+    public event Action RoundStarted;
 
     public int RoundIndex => roundIndex;
     public int MaxBalls => maxBalls;
@@ -272,6 +279,8 @@ public class GameRulesManager : MonoBehaviour
             scoreManager.SetBallsRemaining(ballsRemaining);
             scoreManager.SetCoins(coins);
         }
+
+        RoundStarted?.Invoke();
 
         ballSpawner.ClearAll();
         ballSpawner.BuildHandFromPrefabs(_ballLoadout);

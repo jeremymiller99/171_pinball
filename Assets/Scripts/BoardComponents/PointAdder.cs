@@ -6,6 +6,8 @@ public class PointAdder : MonoBehaviour
     [SerializeField] private float pointsToAdd;
     [SerializeField] private FloatingTextSpawner floatingTextSpawner;
 
+    public float PointsToAdd => pointsToAdd;
+
     private void Awake()
     {
         EnsureRefs();

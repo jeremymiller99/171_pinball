@@ -98,6 +98,8 @@ public class MainMenuUI : MonoBehaviour
 
     // Stores the currently selected mode's boards when viewing the info panel.
     private BoardDefinition[] _pendingChallengeBoards;
+    // Stores the full challenge mode definition for round modifier generation.
+    private ChallengeModeDefinition _pendingChallengeMode;
 
     public void LoadGameScene()
     {
@@ -457,7 +459,7 @@ public class MainMenuUI : MonoBehaviour
         text.fontStyle = style;
         text.alignment = alignment;
         text.color = Color.white;
-        text.enableWordWrapping = true;
+        text.textWrappingMode = TMPro.TextWrappingModes.Normal;
 
         var le = go.AddComponent<LayoutElement>();
         le.preferredWidth = 520f;
@@ -594,7 +596,17 @@ public class MainMenuUI : MonoBehaviour
     public void StartChallengeBoards(BoardDefinition[] boards)
     {
         int seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-        GameSession.Instance.ConfigureChallenge(boards, seed);
+
+        // Use the full challenge mode if available (for round modifier support)
+        if (_pendingChallengeMode != null)
+        {
+            GameSession.Instance.ConfigureChallenge(_pendingChallengeMode, seed);
+        }
+        else
+        {
+            GameSession.Instance.ConfigureChallenge(boards, seed);
+        }
+
         SceneManager.LoadScene(gameplayCoreSceneName);
     }
 
@@ -630,7 +642,8 @@ public class MainMenuUI : MonoBehaviour
     {
         if (mode == null) return;
 
-        // Store the boards for when the user clicks Play.
+        // Store the challenge mode and boards for when the user clicks Play.
+        _pendingChallengeMode = mode;
         _pendingChallengeBoards = mode.boards;
 
         // Populate the panel UI.
@@ -665,6 +678,7 @@ public class MainMenuUI : MonoBehaviour
     {
         if (board == null) return;
 
+        _pendingChallengeMode = null; // No challenge mode for single board
         _pendingChallengeBoards = new[] { board };
 
         if (modeInfoTitleText != null)
@@ -726,6 +740,7 @@ public class MainMenuUI : MonoBehaviour
     public void CloseModeInfoPanel()
     {
         _pendingChallengeBoards = null;
+        _pendingChallengeMode = null;
         if (modeInfoPanel != null)
             modeInfoPanel.SetActive(false);
     }

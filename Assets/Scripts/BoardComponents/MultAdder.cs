@@ -7,6 +7,8 @@ public class MultAdder : MonoBehaviour
     [SerializeField] private float multToAdd;
     [SerializeField] private FloatingTextSpawner floatingTextSpawner;
 
+    public float MultToAdd => multToAdd;
+
     private void Awake()
     {
         EnsureRefs();

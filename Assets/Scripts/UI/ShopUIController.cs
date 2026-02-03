@@ -148,39 +148,29 @@ public sealed class ShopUIController : MonoBehaviour
         SetReplacePanelOpen(false);
         _pendingItem = null;
 
-        // Prefer animated close transition, then hand off to RunFlowController.
+        // Let RunFlowController handle the flow: show round preview over shop, then close shop.
+        if (runFlowController != null)
+        {
+            runFlowController.ContinueAfterShop();
+            return;
+        }
+
+        // Fallback: use transition controller directly.
         if (shopTransitionController != null)
         {
             shopTransitionController.CloseShopThen(() =>
             {
-                // Let the RunFlowController drive the transition (it may swap boards before starting the next round).
-                if (runFlowController != null)
-                {
-                    runFlowController.ContinueAfterShop();
-                    return;
-                }
-
-                // Fallback: old behavior.
                 if (rulesManager != null)
                 {
                     rulesManager.OnShopClosed();
                     return;
                 }
 
-                // Fallback: just hide the canvas.
                 if (shopCanvasRoot != null)
                 {
                     shopCanvasRoot.SetActive(false);
                 }
             });
-            return;
-        }
-
-        // No transition controller: immediate continue as before.
-        // Let the RunFlowController drive the transition (it may swap boards before starting the next round).
-        if (runFlowController != null)
-        {
-            runFlowController.ContinueAfterShop();
             return;
         }
 
@@ -313,6 +303,18 @@ public sealed class ShopUIController : MonoBehaviour
         RebuildReplaceSlots();
         RebuildOffers();
         RefreshUI();
+    }
+
+    /// <summary>
+    /// Shows the round info/preview panel as an overlay.
+    /// Hook this to a "View Rounds" button in the shop.
+    /// </summary>
+    public void ShowRoundInfo()
+    {
+        if (runFlowController != null)
+        {
+            runFlowController.ShowRoundPreviewOverlay();
+        }
     }
 
     private void RefreshUI()

@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using System;
+using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
 public class ScoreManager : MonoBehaviour
@@ -75,6 +76,27 @@ public class ScoreManager : MonoBehaviour
     [Tooltip("If true, applies speed-up via Time.timeScale (and scales fixedDeltaTime accordingly).")]
     [SerializeField] private bool applySpeedToTimeScale = true;
 
+    [Header("External Multipliers (runtime)")]
+    [Tooltip("Additional multiplier applied on top of tier-based SpeedMultiplier when writing Time.timeScale.\n" +
+             "Used by cinematic systems (e.g., slow-mo) without fighting tier speed-up.")]
+    [Min(0f)]
+    [SerializeField] private float externalTimeScaleMultiplier = 1f;
+
+    [Tooltip("Additional multiplier applied to POSITIVE point awards (after tier + round modifier scaling).\n" +
+             "Used by Frenzy mode to boost scoring globally.")]
+    [Min(0f)]
+    [SerializeField] private float externalScoreAwardMultiplier = 1f;
+
+    [Header("TimeScale Safety Caps")]
+    [Tooltip("Unity (in-editor) requires Time.timeScale <= 100.\n" +
+             "This cap prevents runaway goal-tier scaling (especially during Frenzy).")]
+    [Min(0f)]
+    [SerializeField] private float maxTimeScale = 100f;
+
+    [Tooltip("Caps Time.fixedDeltaTime after applying timeScale (prevents huge physics steps at high timeScale).")]
+    [Min(0.0001f)]
+    [SerializeField] private float maxFixedDeltaTime = 0.1f;
+
     // Stored goal value for the current round (set via SetGoal).
     private float _goal;
 
@@ -134,6 +156,51 @@ public class ScoreManager : MonoBehaviour
     /// </summary>
     public float LiveRoundTotal => roundTotal + (points * mult);
 
+    /// <summary>
+    /// Additional multiplier applied on top of tier-based SpeedMultiplier when writing Time.timeScale.
+    /// </summary>
+    public float ExternalTimeScaleMultiplier => externalTimeScaleMultiplier;
+
+    /// <summary>
+    /// Additional multiplier applied to positive point awards (after tier + modifier scaling).
+    /// </summary>
+    public float ExternalScoreAwardMultiplier => externalScoreAwardMultiplier;
+
+    // Multiple systems can request slow-mo. Effective request is the MIN of active requests.
+    private readonly Dictionary<int, float> _timeScaleRequestBySourceId = new Dictionary<int, float>();
+    private float _timeScaleRequestMin = 1f;
+
+    /// <summary>
+    /// Current effective requested time scale multiplier (min across active requests).
+    /// </summary>
+    public float TimeScaleRequestMultiplier => _timeScaleRequestMin;
+
+    /// <summary>
+    /// Returns the effective multiplier applied to POSITIVE point awards (as used by AddPointsScaled),
+    /// including tier scaling (if enabled), active round modifier multiplier, and external award multiplier.
+    /// </summary>
+    public float GetEffectivePositivePointAwardMultiplier()
+    {
+        float m = 1f;
+        if (enableGoalTierScaling)
+        {
+            m *= Mathf.Max(0f, ScoreAwardMultiplier);
+        }
+
+        float modifierMult = GetModifierScoreMultiplier();
+        if (!Mathf.Approximately(modifierMult, 1f))
+        {
+            m *= Mathf.Max(0f, modifierMult);
+        }
+
+        if (!Mathf.Approximately(externalScoreAwardMultiplier, 1f))
+        {
+            m *= Mathf.Max(0f, externalScoreAwardMultiplier);
+        }
+
+        return m;
+    }
+
     private const string ScorePanelRootName = "Score Panel";
     private const string RoundInfoPanelRootName = "Round Info Panel";
     private const string PointsObjectName = "Points";
@@ -180,6 +247,8 @@ public class ScoreManager : MonoBehaviour
 
     /// <summary>
     /// Adds points, applying the current tier-based award multiplier to positive values.
+    /// Also applies the round modifier score multiplier if one is active.
+    /// Also applies the external (runtime) score award multiplier if set (e.g. Frenzy).
     /// Returns the applied points amount (after multiplier).
     /// </summary>
     public float AddPointsScaled(float p)
@@ -193,6 +262,22 @@ public class ScoreManager : MonoBehaviour
         if (enableGoalTierScaling && p > 0f)
         {
             applied *= Mathf.Max(0f, ScoreAwardMultiplier);
+        }
+
+        // Apply round modifier score multiplier if active
+        if (p > 0f)
+        {
+            float modifierMult = GetModifierScoreMultiplier();
+            if (!Mathf.Approximately(modifierMult, 1f))
+            {
+                applied *= Mathf.Max(0f, modifierMult);
+            }
+        }
+
+        // Apply external (runtime) score award multiplier last.
+        if (p > 0f && !Mathf.Approximately(externalScoreAwardMultiplier, 1f))
+        {
+            applied *= Mathf.Max(0f, externalScoreAwardMultiplier);
         }
 
         points += applied;
@@ -213,10 +298,52 @@ public class ScoreManager : MonoBehaviour
         return applied;
     }
 
+    /// <summary>
+    /// Gets the score multiplier from the active round modifier via GameRulesManager.
+    /// Returns 1.0 if no modifier is active or GameRulesManager is not found.
+    /// </summary>
+    private float GetModifierScoreMultiplier()
+    {
+        GameRulesManager rulesManager = FindRulesManager();
+        return rulesManager != null ? rulesManager.GetModifierScoreMultiplier() : 1f;
+    }
+
+    /// <summary>
+    /// Returns true if the multiplier is disabled by an active round modifier.
+    /// </summary>
+    private bool IsModifierMultiplierDisabled()
+    {
+        GameRulesManager rulesManager = FindRulesManager();
+        return rulesManager != null && rulesManager.IsMultiplierDisabled();
+    }
+
+    private GameRulesManager _cachedRulesManager;
+
+    private GameRulesManager FindRulesManager()
+    {
+        if (_cachedRulesManager != null)
+            return _cachedRulesManager;
+
+#if UNITY_2022_2_OR_NEWER
+        _cachedRulesManager = UnityEngine.Object.FindFirstObjectByType<GameRulesManager>();
+#else
+        _cachedRulesManager = UnityEngine.Object.FindObjectOfType<GameRulesManager>();
+#endif
+        return _cachedRulesManager;
+    }
+
     public void AddMult(float m)
     {
         if (scoringLocked) return;
         EnsureCoreScoreTextBindings();
+
+        // If multiplier is disabled by round modifier, prevent positive mult gains
+        if (m > 0f && IsModifierMultiplierDisabled())
+        {
+            // Still trigger a small effect to show something happened, but don't increase mult
+            return;
+        }
+
         mult += m;
 
         // Trigger camera shake scaled by multiplier gained (only for positive gains).
@@ -298,6 +425,81 @@ public class ScoreManager : MonoBehaviour
         ScoreChanged?.Invoke();
     }
 
+    /// <summary>
+    /// Sets an external multiplier for time scaling (multiplies with tier-based SpeedMultiplier).
+    /// Useful for goal cinematics / slow motion.
+    /// </summary>
+    public void SetExternalTimeScaleMultiplier(float multiplier)
+    {
+        externalTimeScaleMultiplier = Mathf.Max(0f, multiplier);
+        ApplySpeedFromTier(force: true);
+    }
+
+    /// <summary>
+    /// Registers/updates a time-scale request from a specific source (e.g. a ball proximity trigger).
+    /// The effective request is the MIN across all active requests.
+    /// Use multiplier=1 to mean "no slow-mo"; prefer ClearTimeScaleRequest when done.
+    /// </summary>
+    public void SetTimeScaleRequest(UnityEngine.Object source, float multiplier)
+    {
+        if (source == null) return;
+        int id = source.GetInstanceID();
+        _timeScaleRequestBySourceId[id] = Mathf.Max(0f, multiplier);
+        RecomputeTimeScaleRequestMin();
+        ApplySpeedFromTier(force: true);
+    }
+
+    /// <summary>
+    /// Clears a previously-set time-scale request from a specific source.
+    /// </summary>
+    public void ClearTimeScaleRequest(UnityEngine.Object source)
+    {
+        if (source == null) return;
+        int id = source.GetInstanceID();
+        if (_timeScaleRequestBySourceId.Remove(id))
+        {
+            RecomputeTimeScaleRequestMin();
+            ApplySpeedFromTier(force: true);
+        }
+    }
+
+    private void ClearAllTimeScaleRequests()
+    {
+        _timeScaleRequestBySourceId.Clear();
+        _timeScaleRequestMin = 1f;
+    }
+
+    private void RecomputeTimeScaleRequestMin()
+    {
+        float min = 1f;
+        foreach (var kv in _timeScaleRequestBySourceId)
+        {
+            float v = Mathf.Max(0f, kv.Value);
+            if (v < min) min = v;
+        }
+        _timeScaleRequestMin = min;
+    }
+
+    /// <summary>
+    /// Sets an external multiplier for point awards (applied to positive awards only).
+    /// Useful for Frenzy mode.
+    /// </summary>
+    public void SetExternalScoreAwardMultiplier(float multiplier)
+    {
+        externalScoreAwardMultiplier = Mathf.Max(0f, multiplier);
+    }
+
+    /// <summary>
+    /// Resets external (runtime) multipliers back to defaults.
+    /// </summary>
+    public void ResetExternalMultipliers()
+    {
+        externalTimeScaleMultiplier = 1f;
+        externalScoreAwardMultiplier = 1f;
+        ClearAllTimeScaleRequests();
+        ApplySpeedFromTier(force: true);
+    }
+
     public void SetRoundIndex(int roundIndex)
     {
         EnsureCoreScoreTextBindings();
@@ -374,7 +576,12 @@ public class ScoreManager : MonoBehaviour
         CaptureTimeBaseIfNeeded();
 
         // Target is baseline * tier multiplier.
-        float targetScale = _baseTimeScale * Mathf.Max(0f, SpeedMultiplier);
+        float requestMult = Mathf.Max(0f, _timeScaleRequestMin);
+        float targetScale = _baseTimeScale * Mathf.Max(0f, SpeedMultiplier) * Mathf.Max(0f, externalTimeScaleMultiplier) * requestMult;
+        if (maxTimeScale > 0f)
+        {
+            targetScale = Mathf.Min(targetScale, maxTimeScale);
+        }
         if (!force && Mathf.Approximately(Time.timeScale, targetScale))
             return;
 
@@ -382,7 +589,12 @@ public class ScoreManager : MonoBehaviour
 
         // Keep physics stepping consistent relative to scaled time.
         // Standard approach: fixedDeltaTime scales with timeScale.
-        Time.fixedDeltaTime = _baseFixedDeltaTime * Mathf.Max(0f, Time.timeScale);
+        float targetFixed = _baseFixedDeltaTime * Mathf.Max(0f, Time.timeScale);
+        if (maxFixedDeltaTime > 0f)
+        {
+            targetFixed = Mathf.Min(targetFixed, maxFixedDeltaTime);
+        }
+        Time.fixedDeltaTime = Mathf.Max(0.0001f, targetFixed);
     }
 
     private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)

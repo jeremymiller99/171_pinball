@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -45,6 +46,16 @@ public class GameRulesManager : MonoBehaviour
     // Which prefabs will be used for the next round's hand (size == maxBalls).
     private readonly List<GameObject> _ballLoadout = new List<GameObject>();
 
+    // Active round modifier (from GameSession's generated rounds)
+    private RoundModifierDefinition _activeModifier;
+    private RoundData _currentRoundData;
+
+    /// <summary>
+    /// Fired whenever a new round is started (after goal/round UI is reset).
+    /// Useful for per-round systems like Frenzy.
+    /// </summary>
+    public event Action RoundStarted;
+
     public int RoundIndex => roundIndex;
     public int MaxBalls => maxBalls;
     public int BallsRemaining => ballsRemaining;
@@ -53,6 +64,31 @@ public class GameRulesManager : MonoBehaviour
     public float CurrentGoal => GetGoalForRound(roundIndex);
     public int BallLoadoutCount => _ballLoadout.Count;
     public GameObject ActiveBall => ballSpawner != null ? ballSpawner.ActiveBall : null;
+
+    /// <summary>
+    /// The currently active round modifier, if any.
+    /// </summary>
+    public RoundModifierDefinition ActiveModifier => _activeModifier;
+
+    /// <summary>
+    /// The current round's data (type, modifier).
+    /// </summary>
+    public RoundData CurrentRoundData => _currentRoundData;
+
+    /// <summary>
+    /// Returns the score multiplier from the active modifier (1.0 if no modifier).
+    /// </summary>
+    public float GetModifierScoreMultiplier() => _activeModifier?.scoreMultiplier ?? 1f;
+
+    /// <summary>
+    /// Returns the coin multiplier from the active modifier (1.0 if no modifier).
+    /// </summary>
+    public float GetModifierCoinMultiplier() => _activeModifier?.coinMultiplier ?? 1f;
+
+    /// <summary>
+    /// Returns true if the multiplier is disabled by the active modifier.
+    /// </summary>
+    public bool IsMultiplierDisabled() => _activeModifier?.disableMultiplier ?? false;
 
     private void ResolveBallSpawner(bool logIfMissing)
     {
@@ -221,9 +257,18 @@ public class GameRulesManager : MonoBehaviour
         SetShopOpen(false);
         SetRoundFailedOpen(false);
 
+        // Apply round modifier from GameSession
+        ApplyRoundModifier();
+
         roundTotal = 0f;
         EnsureLoadoutWithinCapacity();
         ballsRemaining = _ballLoadout.Count;
+
+        // Apply ball modifier from active modifier
+        if (_activeModifier != null && _activeModifier.ballModifier != 0)
+        {
+            ballsRemaining = Mathf.Max(1, ballsRemaining + _activeModifier.ballModifier);
+        }
 
         if (scoreManager != null)
         {
@@ -235,12 +280,35 @@ public class GameRulesManager : MonoBehaviour
             scoreManager.SetCoins(coins);
         }
 
+        RoundStarted?.Invoke();
+
         ballSpawner.ClearAll();
         ballSpawner.BuildHandFromPrefabs(_ballLoadout);
 
         if (ballsRemaining > 0)
         {
             SpawnBall();
+        }
+    }
+
+    /// <summary>
+    /// Applies the round modifier from GameSession for the current round.
+    /// </summary>
+    private void ApplyRoundModifier()
+    {
+        _activeModifier = null;
+        _currentRoundData = null;
+
+        var session = GameSession.Instance;
+        if (session == null || !session.HasGeneratedRounds)
+        {
+            return;
+        }
+
+        _currentRoundData = session.GetRoundData(roundIndex);
+        if (_currentRoundData != null)
+        {
+            _activeModifier = _currentRoundData.modifier;
         }
     }
 
@@ -449,12 +517,23 @@ public class GameRulesManager : MonoBehaviour
             index = 0;
         }
 
+        float baseGoal;
         if (index >= goalByRound.Count)
         {
-            return goalByRound[goalByRound.Count - 1];
+            baseGoal = goalByRound[goalByRound.Count - 1];
+        }
+        else
+        {
+            baseGoal = goalByRound[index];
         }
 
-        return goalByRound[index];
+        // Apply goal modifier from active modifier
+        if (_activeModifier != null && !Mathf.Approximately(_activeModifier.goalModifier, 0f))
+        {
+            baseGoal = Mathf.Max(0f, baseGoal + _activeModifier.goalModifier);
+        }
+
+        return baseGoal;
     }
 
     private float BankCurrentBallIntoRoundTotal()
@@ -512,6 +591,14 @@ public class GameRulesManager : MonoBehaviour
         }
 
         int award = Mathf.FloorToInt(roundTotal / pointsPerCoin);
+
+        // Apply coin multiplier from active modifier
+        float coinMultiplier = GetModifierCoinMultiplier();
+        if (!Mathf.Approximately(coinMultiplier, 1f))
+        {
+            award = Mathf.FloorToInt(award * coinMultiplier);
+        }
+
         if (award > 0)
         {
             coins += award;

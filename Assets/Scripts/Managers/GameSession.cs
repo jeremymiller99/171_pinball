@@ -29,10 +29,24 @@ public sealed class GameSession : MonoBehaviour
     [SerializeField] private RunPlan activeRunPlan = new RunPlan();
     [SerializeField] private int currentBoardIndex;
 
+    [Header("Round Modifiers (debug)")]
+    [SerializeField] private List<RoundData> generatedRounds = new List<RoundData>();
+    [SerializeField] private ChallengeModeDefinition activeChallenge;
+
     public StartType ActiveStartType => startType;
     public int Seed => seed;
     public IReadOnlyList<BoardDefinition> Boards => activeRunPlan?.boards;
     public int CurrentBoardIndex => currentBoardIndex;
+
+    /// <summary>
+    /// The generated round data for the current run.
+    /// </summary>
+    public IReadOnlyList<RoundData> GeneratedRounds => generatedRounds;
+
+    /// <summary>
+    /// The active challenge mode definition, if any.
+    /// </summary>
+    public ChallengeModeDefinition ActiveChallenge => activeChallenge;
 
     /// <summary>
     /// Ensures a session exists even if you didn't create a Bootstrap scene yet.
@@ -82,6 +96,22 @@ public sealed class GameSession : MonoBehaviour
             activeRunPlan.boards.AddRange(boardsForChallenge);
         }
         currentBoardIndex = 0;
+        activeChallenge = null;
+        generatedRounds.Clear();
+    }
+
+    public void ConfigureChallenge(ChallengeModeDefinition challenge, int runSeed)
+    {
+        startType = StartType.Challenge;
+        seed = runSeed;
+        activeRunPlan = new RunPlan();
+        activeChallenge = challenge;
+        if (challenge != null && challenge.boards != null)
+        {
+            activeRunPlan.boards.AddRange(challenge.boards);
+        }
+        currentBoardIndex = 0;
+        generatedRounds.Clear();
     }
 
     public void ConfigureChallenge(BoardDefinition singleBoardChallenge, int runSeed)
@@ -119,12 +149,151 @@ public sealed class GameSession : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// Generates round data for the run using the active challenge's settings.
+    /// Call this after ConfigureChallenge and before starting the run.
+    /// </summary>
+    /// <param name="totalRounds">The total number of rounds to generate.</param>
+    public void GenerateRounds(int totalRounds)
+    {
+        generatedRounds.Clear();
+
+        if (totalRounds <= 0)
+        {
+            return;
+        }
+
+        var rng = new System.Random(seed);
+
+        // If no challenge or no modifier pools, all rounds are normal
+        if (activeChallenge == null || !activeChallenge.HasModifierPools)
+        {
+            for (int i = 0; i < totalRounds; i++)
+            {
+                generatedRounds.Add(new RoundData(i, RoundType.Normal, null));
+            }
+            return;
+        }
+
+        // Initialize all rounds as normal first
+        var roundTypes = new RoundType[totalRounds];
+        for (int i = 0; i < totalRounds; i++)
+        {
+            roundTypes[i] = RoundType.Normal;
+        }
+
+        if (activeChallenge.distributionMode == RoundDistributionMode.Guaranteed)
+        {
+            // Guaranteed mode: place a fixed number of angel and devil rounds
+            AssignGuaranteedRounds(roundTypes, rng);
+        }
+        else
+        {
+            // Probability mode: each round has a chance to be angel or devil
+            AssignProbabilityRounds(roundTypes, rng);
+        }
+
+        // Create RoundData with assigned modifiers
+        for (int i = 0; i < totalRounds; i++)
+        {
+            RoundModifierDefinition modifier = null;
+
+            if (roundTypes[i] == RoundType.Angel && activeChallenge.angelPool != null)
+            {
+                modifier = activeChallenge.angelPool.GetRandomModifier(rng);
+            }
+            else if (roundTypes[i] == RoundType.Devil && activeChallenge.devilPool != null)
+            {
+                modifier = activeChallenge.devilPool.GetRandomModifier(rng);
+            }
+
+            generatedRounds.Add(new RoundData(i, roundTypes[i], modifier));
+        }
+    }
+
+    private void AssignGuaranteedRounds(RoundType[] roundTypes, System.Random rng)
+    {
+        int totalRounds = roundTypes.Length;
+        int angelsToPlace = Mathf.Min(activeChallenge.guaranteedAngels, totalRounds);
+        int devilsToPlace = Mathf.Min(activeChallenge.guaranteedDevils, totalRounds - angelsToPlace);
+
+        // Create list of available indices
+        var availableIndices = new List<int>();
+        for (int i = 0; i < totalRounds; i++)
+        {
+            availableIndices.Add(i);
+        }
+
+        // Shuffle the indices
+        for (int i = availableIndices.Count - 1; i > 0; i--)
+        {
+            int j = rng.Next(i + 1);
+            int temp = availableIndices[i];
+            availableIndices[i] = availableIndices[j];
+            availableIndices[j] = temp;
+        }
+
+        // Assign angels first
+        int indexPos = 0;
+        for (int i = 0; i < angelsToPlace && indexPos < availableIndices.Count; i++, indexPos++)
+        {
+            roundTypes[availableIndices[indexPos]] = RoundType.Angel;
+        }
+
+        // Then assign devils
+        for (int i = 0; i < devilsToPlace && indexPos < availableIndices.Count; i++, indexPos++)
+        {
+            roundTypes[availableIndices[indexPos]] = RoundType.Devil;
+        }
+    }
+
+    private void AssignProbabilityRounds(RoundType[] roundTypes, System.Random rng)
+    {
+        float angelChance = Mathf.Clamp01(activeChallenge.angelChance);
+        float devilChance = Mathf.Clamp01(activeChallenge.devilChance);
+
+        for (int i = 0; i < roundTypes.Length; i++)
+        {
+            float roll = (float)rng.NextDouble();
+
+            if (roll < angelChance)
+            {
+                roundTypes[i] = RoundType.Angel;
+            }
+            else if (roll < angelChance + devilChance)
+            {
+                roundTypes[i] = RoundType.Devil;
+            }
+            // else stays Normal
+        }
+    }
+
+    /// <summary>
+    /// Gets the RoundData for a specific round index.
+    /// Returns null if the index is out of range or rounds haven't been generated.
+    /// </summary>
+    public RoundData GetRoundData(int roundIndex)
+    {
+        if (generatedRounds == null || roundIndex < 0 || roundIndex >= generatedRounds.Count)
+        {
+            return null;
+        }
+        return generatedRounds[roundIndex];
+    }
+
+    /// <summary>
+    /// Returns true if rounds have been generated for this session.
+    /// </summary>
+    public bool HasGeneratedRounds => generatedRounds != null && generatedRounds.Count > 0;
+
     public void ResetSession()
     {
         startType = StartType.None;
         seed = 0;
         activeRunPlan = new RunPlan();
         currentBoardIndex = 0;
+        activeChallenge = null;
+        generatedRounds.Clear();
     }
 }
 

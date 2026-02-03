@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 428c704bfab174c499afe62b29001913, type: 3}
+  m_Name: AngelPool
+  m_EditorClassIdentifier: Assembly-CSharp::RoundModifierPool
+  modifiers:
+  - {fileID: 11400000, guid: a9d5bfca8db541a45bef4ba24371c67b, type: 2}
+  - {fileID: 11400000, guid: 49eae3f1c0720b84b95311309c2fb7f8, type: 2}
+  - {fileID: 11400000, guid: d7f07562ff6c91a499fe6e9b535c17e1, type: 2}
+  - {fileID: 11400000, guid: f91916d0021203740adbc69f29ac032c, type: 2}

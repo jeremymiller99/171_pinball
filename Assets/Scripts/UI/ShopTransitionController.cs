@@ -36,6 +36,11 @@ public sealed class ShopTransitionController : MonoBehaviour
     [SerializeField] private float uiSlideDuration = 0.45f;
     [SerializeField] private AnimationCurve uiEase = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
+    [Header("Board UI")]
+    [Tooltip("Name of the board UI GameObject to find in loaded scenes.")]
+    [SerializeField] private string boardUIName = "Board Canvas";
+    private GameObject _boardUIRoot;
+
     [Header("Input lock (while shop open)")]
     [Tooltip("Disables PinballLauncher components while shop is open.")]
     [SerializeField] private bool disableLaunchers = true;
@@ -84,6 +89,9 @@ public sealed class ShopTransitionController : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // Clear cached board UI reference so we find the new one
+        _boardUIRoot = null;
+
         // If boards are swapped additively while we're locked, disable newly-loaded controls too.
         if (_inputLocked)
         {
@@ -109,6 +117,9 @@ public sealed class ShopTransitionController : MonoBehaviour
         _isOpen = true;
         _inputLocked = true;
         LockGameplayInput();
+
+        // Hide board UI before camera pans to shop
+        HideBoardUI();
 
         if (shopCanvasRoot != null && !shopCanvasRoot.activeSelf)
             shopCanvasRoot.SetActive(true);
@@ -157,6 +168,39 @@ public sealed class ShopTransitionController : MonoBehaviour
     {
         _inputLocked = false;
         UnlockGameplayInput();
+    }
+
+    /// <summary>
+    /// Shows the board UI. Call this after round preview closes.
+    /// </summary>
+    public void ShowBoardUI()
+    {
+        FindBoardUI();
+        if (_boardUIRoot != null)
+            _boardUIRoot.SetActive(true);
+    }
+
+    /// <summary>
+    /// Hides the board UI. Called automatically when opening shop.
+    /// </summary>
+    public void HideBoardUI()
+    {
+        FindBoardUI();
+        if (_boardUIRoot != null)
+            _boardUIRoot.SetActive(false);
+    }
+
+    private void FindBoardUI()
+    {
+        if (_boardUIRoot != null)
+            return;
+
+        if (string.IsNullOrEmpty(boardUIName))
+            return;
+
+        var go = GameObject.Find(boardUIName);
+        if (go != null)
+            _boardUIRoot = go;
     }
 
     private void StartTransition(IEnumerator routine)

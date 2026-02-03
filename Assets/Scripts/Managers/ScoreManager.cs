@@ -180,6 +180,7 @@ public class ScoreManager : MonoBehaviour
 
     /// <summary>
     /// Adds points, applying the current tier-based award multiplier to positive values.
+    /// Also applies the round modifier score multiplier if one is active.
     /// Returns the applied points amount (after multiplier).
     /// </summary>
     public float AddPointsScaled(float p)
@@ -193,6 +194,16 @@ public class ScoreManager : MonoBehaviour
         if (enableGoalTierScaling && p > 0f)
         {
             applied *= Mathf.Max(0f, ScoreAwardMultiplier);
+        }
+
+        // Apply round modifier score multiplier if active
+        if (p > 0f)
+        {
+            float modifierMult = GetModifierScoreMultiplier();
+            if (!Mathf.Approximately(modifierMult, 1f))
+            {
+                applied *= Mathf.Max(0f, modifierMult);
+            }
         }
 
         points += applied;
@@ -213,10 +224,52 @@ public class ScoreManager : MonoBehaviour
         return applied;
     }
 
+    /// <summary>
+    /// Gets the score multiplier from the active round modifier via GameRulesManager.
+    /// Returns 1.0 if no modifier is active or GameRulesManager is not found.
+    /// </summary>
+    private float GetModifierScoreMultiplier()
+    {
+        GameRulesManager rulesManager = FindRulesManager();
+        return rulesManager != null ? rulesManager.GetModifierScoreMultiplier() : 1f;
+    }
+
+    /// <summary>
+    /// Returns true if the multiplier is disabled by an active round modifier.
+    /// </summary>
+    private bool IsModifierMultiplierDisabled()
+    {
+        GameRulesManager rulesManager = FindRulesManager();
+        return rulesManager != null && rulesManager.IsMultiplierDisabled();
+    }
+
+    private GameRulesManager _cachedRulesManager;
+
+    private GameRulesManager FindRulesManager()
+    {
+        if (_cachedRulesManager != null)
+            return _cachedRulesManager;
+
+#if UNITY_2022_2_OR_NEWER
+        _cachedRulesManager = UnityEngine.Object.FindFirstObjectByType<GameRulesManager>();
+#else
+        _cachedRulesManager = UnityEngine.Object.FindObjectOfType<GameRulesManager>();
+#endif
+        return _cachedRulesManager;
+    }
+
     public void AddMult(float m)
     {
         if (scoringLocked) return;
         EnsureCoreScoreTextBindings();
+
+        // If multiplier is disabled by round modifier, prevent positive mult gains
+        if (m > 0f && IsModifierMultiplierDisabled())
+        {
+            // Still trigger a small effect to show something happened, but don't increase mult
+            return;
+        }
+
         mult += m;
 
         // Trigger camera shake scaled by multiplier gained (only for positive gains).

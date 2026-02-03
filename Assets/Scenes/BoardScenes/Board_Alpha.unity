@@ -4067,7 +4067,7 @@ GameObject:
   - component: {fileID: 621671459}
   - component: {fileID: 621671460}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: Board Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4251,15 +4251,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c61f1867c77b09d45a87f58ae70d10c0, type: 2}
+  m_sharedMaterial: {fileID: 3371922777799870729, guid: c61f1867c77b09d45a87f58ae70d10c0, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278251519
-  m_fontColor: {r: 1, g: 0.9372188, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -9512,8 +9512,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: d21ddfd4eab2bfe428c5817cb44d8b3a, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: d21ddfd4eab2bfe428c5817cb44d8b3a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 247f814cefeaec743a15406dbb427857, type: 2}
+  m_sharedMaterial: {fileID: 3371922777799870729, guid: 247f814cefeaec743a15406dbb427857, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

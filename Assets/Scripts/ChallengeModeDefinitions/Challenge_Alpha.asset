@@ -17,3 +17,11 @@ MonoBehaviour:
   winConditionDescription: Beat 10 rounds
   boards:
   - {fileID: 11400000, guid: 6c3ed43778e1f254490b8b449bd4076a, type: 2}
+  totalRounds: 10
+  angelPool: {fileID: 11400000, guid: 9a90e637bd564f34fa0864c1a4dc23fa, type: 2}
+  devilPool: {fileID: 11400000, guid: 42267a49eda47a44ab4f4df6daca2f7d, type: 2}
+  distributionMode: 1
+  angelChance: 0.2
+  devilChance: 0.2
+  guaranteedAngels: 2
+  guaranteedDevils: 2

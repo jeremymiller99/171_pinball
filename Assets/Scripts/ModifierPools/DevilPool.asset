@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 428c704bfab174c499afe62b29001913, type: 3}
+  m_Name: DevilPool
+  m_EditorClassIdentifier: Assembly-CSharp::RoundModifierPool
+  modifiers:
+  - {fileID: 11400000, guid: 6601eb3a349ac1049a2973f6da064a56, type: 2}
+  - {fileID: 11400000, guid: 940b435a4b921a54dbb5ee8230175982, type: 2}
+  - {fileID: 11400000, guid: cabe5f1fe1beb6441a54b2c8b1941f69, type: 2}
+  - {fileID: 11400000, guid: db8d56dfd962cec47ad0aa039e0290b0, type: 2}
+  - {fileID: 11400000, guid: f1509a9dd14b9f14bb8a5ee6924b8095, type: 2}

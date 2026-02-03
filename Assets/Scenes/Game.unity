@@ -566,6 +566,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
   rulesManager: {fileID: 1398822445}
+  outsideBounds: 0
 --- !u!1 &37594355
 GameObject:
   m_ObjectHideFlags: 0
@@ -3042,6 +3043,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba129e542ec4bc744bd531b11bf00621, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraShake
+  decayExponent: 2
+  initialKickMultiplier: 1.8
+  shakeFrequency: 12
+  smoothing: 0.4
 --- !u!114 &330585549
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3224,12 +3229,30 @@ MonoBehaviour:
   roundTotal: 0
   pointsText: {fileID: 1146335244}
   multText: {fileID: 2011285161}
+  cameraShake: {fileID: 0}
+  shakeBaseDuration: 0.2
+  shakeDurationPerPoint: 0.004
+  shakeMaxDuration: 0.5
+  shakeBaseMagnitude: 0.18
+  shakeMagnitudePerPoint: 0.008
+  shakeMaxMagnitude: 0.8
+  multShakeBaseDuration: 0.25
+  multShakeDurationPerMult: 0.15
+  multShakeMaxDuration: 0.6
+  multShakeBaseMagnitude: 0.22
+  multShakeMagnitudePerMult: 0.25
+  multShakeMaxMagnitude: 0.7
   roundIndexText: {fileID: 141080452}
   roundTotalText: {fileID: 2132941054}
   goalText: {fileID: 782432820}
   ballsRemainingText: {fileID: 22796209}
   coinsText: {fileID: 55742561}
   scoringLocked: 0
+  enableGoalTierScaling: 1
+  speedIncreasePerGoalTier: 0.1
+  scoreIncreasePerGoalTier: 0.5
+  applySpeedToTimeScale: 1
+  _goalTier: 0
 --- !u!4 &349540275
 Transform:
   m_ObjectHideFlags: 0
@@ -3261,6 +3284,8 @@ MonoBehaviour:
   multText: {fileID: 2011285161}
   xText: {fileID: 968074746}
   roundTotalText: {fileID: 2132941054}
+  worldCamera: {fileID: 0}
+  scoreCanvas: {fileID: 0}
   moveToXDuration: 0.25
   holdAtXDuration: 0.5
   moveToRoundTotalDuration: 0.5
@@ -4038,7 +4063,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShopUIController
   rulesManager: {fileID: 1398822445}
   runFlowController: {fileID: 0}
+  shopTransitionController: {fileID: 0}
   shopCanvasRoot: {fileID: 912259830}
+  tabsController: {fileID: 0}
   replacePanelRoot: {fileID: 1644103175}
   replaceSlotsContainer: {fileID: 589655654}
   replaceSlotEntryPrefab: {fileID: 1349654000483729274, guid: 8c7324a6784f14446ba23bc9d53ffad2, type: 3}
@@ -4298,12 +4325,16 @@ MonoBehaviour:
   speedText: {fileID: 1896921314}
   autoFindTextByName: 1
   speedTextObjectName: BallSpeedText
+  autoFindTextInChildren: 1
   gameRules: {fileID: 1398822445}
   ballSpawner: {fileID: 1263309646}
   freezeWhileKinematic: 1
   decimals: 1
   showUnits: 1
   meterFill: {fileID: 206167412}
+  autoFindMeterFillInChildren: 1
+  autoFindMeterFillByName: 0
+  meterFillObjectName: MeterFill
   meterAxis: 2
   meterPositiveDirection: 1
   meterUnitsPerMps: 0.02
@@ -7576,10 +7607,25 @@ MonoBehaviour:
   quickRunBoards: []
   challengeModes: []
   challengeBoards: []
+  mainMenuPanel: {fileID: 0}
+  runSelectorPanel: {fileID: 0}
+  settingsPanel: {fileID: 0}
+  profilePanel: {fileID: 0}
+  collectionPanel: {fileID: 0}
+  modeInfoPanel: {fileID: 0}
+  modeInfoTitleText: {fileID: 0}
+  modeInfoDescriptionText: {fileID: 0}
+  modeInfoWinConditionText: {fileID: 0}
+  modeInfoPlayButton: {fileID: 0}
+  modeInfoCloseButton: {fileID: 0}
   startRunButton: {fileID: 0}
+  settingsButton: {fileID: 0}
+  profileButton: {fileID: 0}
+  collectionButton: {fileID: 0}
   challengeButtonsRoot: {fileID: 0}
   challengeButtonTemplate: {fileID: 0}
-  startRunLabel: {fileID: 0}
+  returnToMainMenuButton: {fileID: 0}
+  currentPanel: 0
 --- !u!1 &924146523
 GameObject:
   m_ObjectHideFlags: 0
@@ -9661,10 +9707,41 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallSpawner
   ballPrefab: {fileID: 5723297401256486482, guid: 033d99f73f115d846a140c40987ca5fe, type: 3}
   spawnPoint: {fileID: 236381329}
-  handAnchor: {fileID: 1849954917}
   handSpacing: 3
   handDirection: {x: 1, y: 0, z: 0}
-  alignHandRotationToAnchor: 1
+  handPathStart: {fileID: 0}
+  handPathWaypoints: []
+  activateAlongHandPath: 1
+  distributeHandEvenlyAlongPath: 1
+  handEndInset: 0
+  queueInsetFromStart: 0
+  queueInsetFromEnd: 0
+  queueGlobalOffset: 0
+  queueFixedSpacing: 0
+  queueDistributionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   moveDuration: 0.35
   moveCurve:
     serializedVersion: 2
@@ -10252,12 +10329,12 @@ MonoBehaviour:
   startingMaxBalls: 5
   autoStartOnPlay: 1
   ballSpawner: {fileID: 1263309646}
-  ballPrefab: {fileID: 5723297401256486482, guid: 033d99f73f115d846a140c40987ca5fe, type: 3}
-  spawnPoint: {fileID: 1637677143}
-  enforceSingleActiveBall: 1
   startingBallLoadout: []
   shopCanvasRoot: {fileID: 460876978}
   roundFailedUIRoot: {fileID: 1243198069}
+  homeRunUIRoot: {fileID: 0}
+  homeRunMessageText: {fileID: 0}
+  shopTransitionController: {fileID: 0}
   roundIndex: 0
   maxBalls: 0
   ballsRemaining: 0
@@ -10914,8 +10991,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoundGoalProgressHUD
   scoreManager: {fileID: 349540274}
   roundTotalText: {fileID: 1987411978}
+  autoFindTextInChildren: 1
+  autoFindTextByName: 0
+  roundTotalTextObjectName: RoundTotalText
   roundTotalDecimals: 0
   meterFill: {fileID: 2074759524}
+  autoFindMeterFillInChildren: 1
+  autoFindMeterFillByName: 0
+  meterFillObjectName: MeterFill
   meterAxis: 2
   meterPositiveDirection: 1
   meterMaxUnits: 30
@@ -10925,6 +11008,21 @@ MonoBehaviour:
   meterColorMid: {r: 0, g: 0.8074074, b: 1, a: 1}
   meterColorFull: {r: 0, g: 0.5594096, b: 1, a: 1}
   meterColorMidPoint: 0.35
+  tieredMeterEnabled: 1
+  meterBackground: {fileID: 0}
+  autoFindMeterBackgroundInChildren: 1
+  autoFindMeterBackgroundByName: 0
+  meterBackgroundObjectName: MeterBackground
+  meterBackgroundColorEnabled: 1
+  meterBackgroundDefaultColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+  paletteSwitcher: {fileID: 0}
+  paletteTargetIndexForMeterBackgroundDefault: 0
+  pullMeterBackgroundDefaultFromPalette: 1
+  usePalettesByTier: 0
+  palettesByTier: []
+  loopPalettes: 1
+  autoHueShiftPerTier: 0.12
+  forceMaterialColorUpdates: 1
 --- !u!222 &1528536964
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -13458,6 +13556,18 @@ MonoBehaviour:
   canvas: {fileID: 912259833}
   targetCamera: {fileID: 248943762}
   spawnOffset: {x: 100, y: 0}
+  pointsFontAsset: {fileID: 0}
+  pointsScaleMin: 0.6
+  pointsScaleMax: 1.2
+  pointsMaxValue: 100
+  multFontAsset: {fileID: 0}
+  multScaleMin: 0.6
+  multScaleMax: 1.3
+  multMaxValue: 3
+  goldFontAsset: {fileID: 0}
+  goldScaleMin: 0.6
+  goldScaleMax: 1.1
+  goldMaxValue: 5
 --- !u!4 &1995152005
 Transform:
   m_ObjectHideFlags: 0

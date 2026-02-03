@@ -724,5 +724,10 @@ public class GameRulesManager : MonoBehaviour
 
         EnsureLoadoutWithinCapacity();
     }
+
+    public void AddCoins(int amount)
+    {
+        coins+= amount;
+    }
 }
 

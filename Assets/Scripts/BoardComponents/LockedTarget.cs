@@ -132,7 +132,7 @@ public class LockedTarget : MonoBehaviour
             if (scoreManager == null) EnsureRefs();
             scoreManager?.AddPoints(pointsToAdd);
             Vector3 pos = collision.collider.transform.position;
-            floatingTextSpawner?.SpawnText(pos, "+" + pointsToAdd);
+            floatingTextSpawner?.SpawnText(pos, "+" + Mathf.RoundToInt(pointsToAdd));
         }
     }
 
@@ -154,7 +154,7 @@ public class LockedTarget : MonoBehaviour
             _hitCount = 2;
             if (scoreManager == null) EnsureRefs();
             scoreManager?.AddPoints(pointsToAdd);
-            floatingTextSpawner?.SpawnText(col.transform.position, "+" + pointsToAdd);
+            floatingTextSpawner?.SpawnText(col.transform.position, "+" + Mathf.RoundToInt(pointsToAdd));
         }
     }
 }

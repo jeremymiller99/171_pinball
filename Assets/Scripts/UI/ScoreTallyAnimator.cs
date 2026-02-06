@@ -146,7 +146,7 @@ public class ScoreTallyAnimator : MonoBehaviour
         if (m <= 0f) m = 1f;
 
         float banked = scoreManager.points * scoreManager.mult * m;
-        xText.text = banked.ToString();
+        xText.text = Mathf.RoundToInt(banked).ToString();
 
         if (holdAtXDuration > 0f)
             yield return new WaitForSeconds(holdAtXDuration);

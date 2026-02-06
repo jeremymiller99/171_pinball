@@ -46,6 +46,10 @@ public sealed class PinballLauncher : MonoBehaviour
     [Tooltip("How fast the launcher charges per second.")]
     public float chargePerSecond = 900f;
 
+    [Tooltip("Random variance on launch force (0 = same every time, 0.1 = ±10%). Stops the first launch from always bouncing back the same way.")]
+    [Range(0f, 0.2f)]
+    public float launchForceVariance = 0.05f;
+
     [Header("Optional visuals")]
     [Tooltip("If set, this object will slide backward while charging and forward on release.")]
     public Transform plungerVisual;
@@ -257,7 +261,13 @@ public sealed class PinballLauncher : MonoBehaviour
             return;
 
         Vector3 dir = launchDirection.forward.normalized;
-        _ballRb.AddForce(dir * _charge, ForceMode.Impulse);
+        float force = _charge;
+        if (launchForceVariance > 0f)
+        {
+            float t = 1f + (UnityEngine.Random.value * 2f - 1f) * launchForceVariance;
+            force *= Mathf.Max(0.5f, t);
+        }
+        _ballRb.AddForce(dir * force, ForceMode.Impulse);
         FMODUnity.RuntimeManager.PlayOneShot("event:/ball_launched");
 
         _charge = 0f;

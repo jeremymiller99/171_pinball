@@ -18,6 +18,8 @@ public class GameRulesManager : MonoBehaviour
     [Header("Ball Spawning")]
     [Tooltip("Required: BallSpawner pre-spawns a hand of balls and lerps the next ball to spawnPoint.")]
     [SerializeField] private BallSpawner ballSpawner;
+    [Tooltip("Seconds after a ball arrives at spawn before it can be drained. Prevents immediate drain when spawn overlaps ResetZone.")]
+    [SerializeField] private float spawnGracePeriod = 1.2f;
 
     [Header("Ball Loadout (hand)")]
     [Tooltip("Optional: starting ball prefabs for the player's hand/loadout. If empty, falls back to repeating Ball Prefab.")]
@@ -283,7 +285,15 @@ public class GameRulesManager : MonoBehaviour
         RoundStarted?.Invoke();
 
         ballSpawner.ClearAll();
-        ballSpawner.BuildHandFromPrefabs(_ballLoadout);
+        // Build hand with exactly ballsRemaining balls (Fragile=4, normal=5)
+        var handPrefabs = new List<GameObject>();
+        for (int i = 0; i < ballsRemaining; i++)
+        {
+            GameObject prefab = _ballLoadout.Count > 0 ? _ballLoadout[i % _ballLoadout.Count] : ballSpawner?.DefaultBallPrefab;
+            if (prefab != null)
+                handPrefabs.Add(prefab);
+        }
+        ballSpawner.BuildHandFromPrefabs(handPrefabs);
 
         if (ballsRemaining > 0)
         {
@@ -323,6 +333,15 @@ public class GameRulesManager : MonoBehaviour
         {
             DespawnBall(ball);
             return;
+        }
+
+        // Avoid draining a ball that just arrived at spawn (prevents freeze when spawn overlaps ResetZone).
+        ResolveBallSpawner(logIfMissing: false);
+        if (ballSpawner != null && ball == ballSpawner.ActiveBall && spawnGracePeriod > 0f)
+        {
+            float elapsed = Time.time - ballSpawner.LastActivationTime;
+            if (elapsed < spawnGracePeriod)
+                return;
         }
 
         StartCoroutine(OnBallDrainedRoutine(ball, bankMultiplier, showHomeRunPopup));

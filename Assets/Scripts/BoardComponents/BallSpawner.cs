@@ -72,8 +72,11 @@ public sealed class BallSpawner : MonoBehaviour
 
     private Coroutine _moveCoroutine;
     private GameObject _activeBall;
+    private float _lastActivationTime;
 
     public GameObject ActiveBall => _activeBall;
+    /// <summary>Time when the current active ball was activated (moved to spawn). Used to avoid draining a ball that just arrived.</summary>
+    public float LastActivationTime => _lastActivationTime;
     public int HandCount => _handBalls.Count;
     public GameObject DefaultBallPrefab => ballPrefab;
 
@@ -326,6 +329,7 @@ public sealed class BallSpawner : MonoBehaviour
 
         _activeBall = Instantiate(ballPrefab, spawnPoint.position, spawnPoint.rotation);
         _activeBall.name = $"{ballPrefab.name}_ActiveBall";
+        _lastActivationTime = Time.time;
         return _activeBall;
     }
 
@@ -633,6 +637,7 @@ public sealed class BallSpawner : MonoBehaviour
             }
             Physics.SyncTransforms();
         }
+        _lastActivationTime = Time.time;
         _moveCoroutine = null;
     }
 

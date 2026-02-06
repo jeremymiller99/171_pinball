@@ -1268,7 +1268,7 @@ MonoBehaviour:
   ballsRemainingText: {fileID: 0}
   coinsText: {fileID: 0}
   scoringLocked: 0
-  enableGoalTierScaling: 1
+  enableGoalTierScaling: 0
   speedIncreasePerGoalTier: 0.1
   scoreIncreasePerGoalTier: 0.5
   applySpeedToTimeScale: 1
@@ -1465,6 +1465,10 @@ MonoBehaviour:
   mainMenuSceneName: MainMenu
   showRoundPreview: 1
   defaultTotalRounds: 7
+  forceFirstRoundModifier: {fileID: 0}
+  forceSecondRoundModifier: {fileID: 11400000, guid: 49eae3f1c0720b84b95311309c2fb7f8, type: 2}
+  forceFirstRoundNormal: 1
+  forceFirstBoard: {fileID: 0}
   hasStartedRun: 0
 --- !u!4 &430388228
 Transform:
@@ -4727,6 +4731,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1398822446}
   - component: {fileID: 1398822445}
+  - component: {fileID: 1398822447}
   m_Layer: 0
   m_Name: GameRulesManager
   m_TagString: Untagged
@@ -4763,6 +4768,7 @@ MonoBehaviour:
   startingMaxBalls: 5
   autoStartOnPlay: 0
   ballSpawner: {fileID: 0}
+  spawnGracePeriod: 1.2
   startingBallLoadout: []
   shopCanvasRoot: {fileID: 460876978}
   roundFailedUIRoot: {fileID: 1243198069}
@@ -4789,6 +4795,76 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1398822447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1398822444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfc21802534bc4e51a8d3a7060349fe8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BallVisibilityModifierController
+  gameRulesManager: {fileID: 0}
+  ballSpawner: {fileID: 0}
+  vanishDuration: 0.5
+  appearDuration: 0.5
+  useScaleAnimation: 0
+  vanishCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  appearCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  ringEffectPrefab: {fileID: 0}
+  ringMaterial: {fileID: 0}
+  ringRadius: 0.4
+  ringParticleCount: 20
+  ringLifetime: 0.5
 --- !u!1 &1462674263
 GameObject:
   m_ObjectHideFlags: 0

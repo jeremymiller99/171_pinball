@@ -43,6 +43,9 @@ public static class RoundModifierSetupHelper
         CreateModifier("Weakened", "Points earned reduced by 25%.",
             RoundModifierDefinition.ModifierType.Devil, scoreMultiplier: 0.75f);
 
+        CreateModifier("Guess Where", "The ball disappears every 5 seconds for 3 seconds. Can you guess where it is?",
+            RoundModifierDefinition.ModifierType.Devil, cycleBallVisibility: true, ballHideInterval: 5f, ballHideDuration: 3f);
+
         // Create pools
         CreateAngelPool();
         CreateDevilPool();
@@ -64,7 +67,10 @@ public static class RoundModifierSetupHelper
         float goalModifier = 0f,
         float coinMultiplier = 1f,
         int ballModifier = 0,
-        bool disableMultiplier = false)
+        bool disableMultiplier = false,
+        bool cycleBallVisibility = false,
+        float ballHideInterval = 5f,
+        float ballHideDuration = 3f)
     {
         string sanitizedName = displayName.Replace(" ", "_");
         string path = $"{ModifierDefinitionsPath}{sanitizedName}.asset";
@@ -90,11 +96,30 @@ public static class RoundModifierSetupHelper
         modifier.coinMultiplier = coinMultiplier;
         modifier.ballModifier = ballModifier;
         modifier.disableMultiplier = disableMultiplier;
+        modifier.cycleBallVisibility = cycleBallVisibility;
+        modifier.ballHideInterval = ballHideInterval;
+        modifier.ballHideDuration = ballHideDuration;
 
         AssetDatabase.CreateAsset(modifier, path);
         Debug.Log($"Created modifier: {path}");
 
         return modifier;
+    }
+
+    [MenuItem("Tools/Round Modifiers/Create Guess Where Modifier")]
+    public static void CreateGuessWhereModifier()
+    {
+        EnsureDirectoryExists(ModifierDefinitionsPath);
+        CreateModifier(
+            "Guess Where",
+            "The ball disappears every 5 seconds for 3 seconds. Can you guess where it is?",
+            RoundModifierDefinition.ModifierType.Devil,
+            cycleBallVisibility: true,
+            ballHideInterval: 5f,
+            ballHideDuration: 3f);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log("Guess Where modifier created. Add it to DevilPool so it can appear on red (devil) round cards.");
     }
 
     private static void CreateAngelPool()

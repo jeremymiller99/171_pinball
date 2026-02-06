@@ -60,10 +60,13 @@ public class ScoreManager : MonoBehaviour
     [Header("Scoring Control")]
     [SerializeField] private bool scoringLocked;
 
+    [Tooltip("If true, points and mult carry over when a ball drains. If false, they reset to 0 and 1 (classic per-ball scoring).")]
+    [SerializeField] private bool persistPointsAcrossBalls = true;
+
     [Header("Round Goal Tier Scaling")]
     [Tooltip("If enabled: each time LiveRoundTotal crosses another multiple of Goal (Goal * N), " +
-             "the game speeds up and points awarded are increased additively.")]
-    [SerializeField] private bool enableGoalTierScaling = true;
+             "the game speeds up and points awarded are increased additively. OFF by default to prevent runaway scores.")]
+    [SerializeField] private bool enableGoalTierScaling = false;
 
     [Tooltip("Game speed increases by this amount per goal tier (additive). Example: 0.10 => +10% per tier.")]
     [Min(0f)]
@@ -292,7 +295,7 @@ public class ScoreManager : MonoBehaviour
         UpdateGoalTierAndApplySpeed();
 
         if (pointsText != null)
-            pointsText.text = points.ToString();
+            pointsText.text = Mathf.RoundToInt(points).ToString();
 
         ScoreChanged?.Invoke();
         return applied;
@@ -354,7 +357,7 @@ public class ScoreManager : MonoBehaviour
 
         UpdateGoalTierAndApplySpeed();
         if (multText != null)
-            multText.text = mult.ToString();
+            multText.text = mult.ToString("0.#");
         ScoreChanged?.Invoke();
     }
 
@@ -383,11 +386,16 @@ public class ScoreManager : MonoBehaviour
         if (m <= 0f) m = 1f;
 
         float banked = points * mult * m;
-        roundTotal += banked;
-
-        // Reset for next ball.
-        points = 0f;
-        mult = 1f;
+        if (persistPointsAcrossBalls)
+        {
+            roundTotal = banked; // Total is the running points*mult, not additive
+        }
+        else
+        {
+            roundTotal += banked;
+            points = 0f;
+            mult = 1f;
+        }
 
         UpdateGoalTierAndApplySpeed();
         RefreshScoreUI();
@@ -421,7 +429,7 @@ public class ScoreManager : MonoBehaviour
         UpdateGoalTierAndApplySpeed();
         EnsureCoreScoreTextBindings();
         if (goalText != null)
-            goalText.text = goal.ToString();
+            goalText.text = Mathf.RoundToInt(goal).ToString();
         ScoreChanged?.Invoke();
     }
 
@@ -525,13 +533,13 @@ public class ScoreManager : MonoBehaviour
     {
         EnsureCoreScoreTextBindings();
         if (pointsText != null)
-            pointsText.text = points.ToString();
+            pointsText.text = Mathf.RoundToInt(points).ToString();
         if (multText != null)
-            multText.text = mult.ToString();
+            multText.text = mult.ToString("0.#");
         if (roundTotalText != null)
-            roundTotalText.text = roundTotal.ToString();
+            roundTotalText.text = Mathf.RoundToInt(roundTotal).ToString();
         if (goalText != null)
-            goalText.text = _goal.ToString();
+            goalText.text = Mathf.RoundToInt(_goal).ToString();
     }
 
     private void UpdateGoalTierAndApplySpeed()

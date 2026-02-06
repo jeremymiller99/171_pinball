@@ -27,6 +27,18 @@ public sealed class RunFlowController : MonoBehaviour
     [Tooltip("Default number of rounds if not specified by the challenge.")]
     [SerializeField] private int defaultTotalRounds = 7;
 
+    [Header("Testing: Force Round Modifiers")]
+    [Tooltip("If set, round 0 will always use this modifier. Card color matches modifier type (Angel=green, Devil=red).")]
+    [SerializeField] private RoundModifierDefinition forceFirstRoundModifier;
+    [Tooltip("If set, round 1 (second round) will always use this modifier. Card color matches modifier type.")]
+    [SerializeField] private RoundModifierDefinition forceSecondRoundModifier;
+    [Tooltip("If true, round 0 will have no modifier (normal round). Overrides Force First Round Modifier.")]
+    [SerializeField] private bool forceFirstRoundNormal;
+
+    [Header("Testing: Force First Board")]
+    [Tooltip("If set, this board is used for the run (overrides session selection). Use when playing directly from GameplayCore or to test a specific board. Clear when done testing.")]
+    [SerializeField] private BoardDefinition forceFirstBoard;
+
     [Header("Runtime (debug)")]
     [SerializeField] private bool hasStartedRun;
 
@@ -98,7 +110,7 @@ public sealed class RunFlowController : MonoBehaviour
             yield break;
         }
 
-        BoardDefinition first = session.GetCurrentBoard();
+        BoardDefinition first = forceFirstBoard != null ? forceFirstBoard : session.GetCurrentBoard();
         if (first == null)
         {
             Debug.LogWarning($"{nameof(RunFlowController)}: No board selected; returning to menu.", this);
@@ -106,9 +118,21 @@ public sealed class RunFlowController : MonoBehaviour
             yield break;
         }
 
+        // When forcing a board for testing, ensure session has a run plan so rounds work
+        if (forceFirstBoard != null && (session.Boards == null || session.Boards.Count == 0))
+        {
+            session.ConfigureQuickRun(new[] { forceFirstBoard }, session.Seed > 0 ? session.Seed : UnityEngine.Random.Range(int.MinValue, int.MaxValue));
+        }
+
         // Generate rounds if not already generated
         if (!session.HasGeneratedRounds)
         {
+            session.SetForceFirstRoundNormal(forceFirstRoundNormal);
+            if (!forceFirstRoundNormal && forceFirstRoundModifier != null)
+                session.SetForceFirstRoundModifier(forceFirstRoundModifier);
+            if (forceSecondRoundModifier != null)
+                session.SetForceSecondRoundModifier(forceSecondRoundModifier);
+
             int totalRounds = defaultTotalRounds;
             if (session.ActiveChallenge != null)
             {

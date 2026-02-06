@@ -48,6 +48,18 @@ public class RoundModifierDefinition : ScriptableObject
     [Tooltip("Number of balls added or removed for this round. Positive = more balls.")]
     public int ballModifier = 0;
 
+    [Header("Ball Visibility (e.g. Guess Where)")]
+    [Tooltip("If true, the ball visually disappears on a timer (physics unchanged).")]
+    public bool cycleBallVisibility = false;
+
+    [Tooltip("Seconds the ball is visible before it disappears.")]
+    [Min(0.1f)]
+    public float ballHideInterval = 5f;
+
+    [Tooltip("Seconds the ball stays invisible before reappearing.")]
+    [Min(0.1f)]
+    public float ballHideDuration = 3f;
+
     /// <summary>
     /// Returns a formatted string describing all active effects.
     /// </summary>
@@ -84,6 +96,11 @@ public class RoundModifierDefinition : ScriptableObject
         {
             string sign = ballModifier > 0 ? "+" : "";
             sb.AppendLine($"{sign}{ballModifier} Ball{(Mathf.Abs(ballModifier) != 1 ? "s" : "")}");
+        }
+
+        if (cycleBallVisibility)
+        {
+            sb.AppendLine($"Ball invisible every {ballHideInterval:0.#}s for {ballHideDuration:0.#}s");
         }
 
         return sb.ToString().TrimEnd();

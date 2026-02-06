@@ -2350,6 +2350,7 @@ GameObject:
   - component: {fileID: 350990198}
   - component: {fileID: 350990197}
   - component: {fileID: 350990196}
+  - component: {fileID: 350990199}
   m_Layer: 0
   m_Name: Wall (4)
   m_TagString: Untagged
@@ -2449,6 +2450,31 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 350990194}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &350990199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 350990194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c5d7e9f1a2b4c6d8e0f1a2b3c4d5e6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FrenzyExplodable
+  ballTag: Ball
+  triggerOnCollision: 1
+  triggerOnTrigger: 1
+  shardCount: 18
+  shardForce: 9
+  shardRadius: 0.55
+  shardUpwardsModifier: 0.15
+  shardTorque: 10
+  shardSizeRange: {x: 0.08, y: 0.16}
+  shardLifetime: 3
+  destructionBonusPoints: 250
+  disableGameObjectOnExplode: 1
+  destroyGameObjectOnExplode: 0
 --- !u!1 &356603988
 GameObject:
   m_ObjectHideFlags: 0
@@ -3153,6 +3179,7 @@ GameObject:
   - component: {fileID: 434337402}
   - component: {fileID: 434337401}
   - component: {fileID: 434337400}
+  - component: {fileID: 434337403}
   m_Layer: 0
   m_Name: Wall (5)
   m_TagString: Untagged
@@ -3252,6 +3279,31 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 434337398}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &434337403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 434337398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c5d7e9f1a2b4c6d8e0f1a2b3c4d5e6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FrenzyExplodable
+  ballTag: Ball
+  triggerOnCollision: 1
+  triggerOnTrigger: 1
+  shardCount: 18
+  shardForce: 9
+  shardRadius: 0.55
+  shardUpwardsModifier: 0.15
+  shardTorque: 10
+  shardSizeRange: {x: 0.08, y: 0.16}
+  shardLifetime: 3
+  destructionBonusPoints: 250
+  disableGameObjectOnExplode: 1
+  destroyGameObjectOnExplode: 0
 --- !u!1 &474810401
 GameObject:
   m_ObjectHideFlags: 0
@@ -7354,10 +7406,21 @@ PrefabInstance:
       propertyPath: invertDirection
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5856829977129076378, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
+      propertyPath: useMouseLeftButton
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5856829977129076378, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
+      propertyPath: useMouseRightButton
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3240940857872849999, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1176266324}
   m_SourcePrefab: {fileID: 100100000, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
 --- !u!4 &1176266320 stripped
 Transform:
@@ -7374,6 +7437,36 @@ MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 2259877599075248741, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
   m_PrefabInstance: {fileID: 1176266319}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1176266323 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3240940857872849999, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
+  m_PrefabInstance: {fileID: 1176266319}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1176266324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1176266323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c5d7e9f1a2b4c6d8e0f1a2b3c4d5e6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FrenzyExplodable
+  ballTag: Ball
+  triggerOnCollision: 1
+  triggerOnTrigger: 1
+  shardCount: 18
+  shardForce: 9
+  shardRadius: 0.55
+  shardUpwardsModifier: 0.15
+  shardTorque: 10
+  shardSizeRange: {x: 0.08, y: 0.16}
+  shardLifetime: 3
+  destructionBonusPoints: 250
+  disableGameObjectOnExplode: 1
+  destroyGameObjectOnExplode: 0
 --- !u!1 &1228442103
 GameObject:
   m_ObjectHideFlags: 0
@@ -8967,7 +9060,7 @@ MonoBehaviour:
   debugHover: 1
   debugDrag: 1
   allowKeyboardLaunch: 1
-  launchKey: 1
+  launchKey: 64
   launchDirection: {fileID: 0}
   maxLaunchForce: 200
   chargePerSecond: 100
@@ -9864,6 +9957,7 @@ GameObject:
   - component: {fileID: 1831134705}
   - component: {fileID: 1831134704}
   - component: {fileID: 1831134703}
+  - component: {fileID: 1831134706}
   m_Layer: 0
   m_Name: Wall (12)
   m_TagString: Untagged
@@ -9963,6 +10057,31 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1831134701}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1831134706
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1831134701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c5d7e9f1a2b4c6d8e0f1a2b3c4d5e6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FrenzyExplodable
+  ballTag: Ball
+  triggerOnCollision: 1
+  triggerOnTrigger: 1
+  shardCount: 18
+  shardForce: 9
+  shardRadius: 0.55
+  shardUpwardsModifier: 0.15
+  shardTorque: 10
+  shardSizeRange: {x: 0.08, y: 0.16}
+  shardLifetime: 3
+  destructionBonusPoints: 250
+  disableGameObjectOnExplode: 1
+  destroyGameObjectOnExplode: 0
 --- !u!1 &1868082483
 GameObject:
   m_ObjectHideFlags: 0
@@ -11037,10 +11156,21 @@ PrefabInstance:
       propertyPath: invertDirection
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5856829977129076378, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
+      propertyPath: useMouseLeftButton
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5856829977129076378, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
+      propertyPath: useMouseRightButton
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3240940857872849999, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2035460070}
   m_SourcePrefab: {fileID: 100100000, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
 --- !u!4 &2035460066 stripped
 Transform:
@@ -11057,6 +11187,36 @@ MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 2259877599075248741, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
   m_PrefabInstance: {fileID: 2035460065}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2035460069 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3240940857872849999, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
+  m_PrefabInstance: {fileID: 2035460065}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2035460070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2035460069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c5d7e9f1a2b4c6d8e0f1a2b3c4d5e6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FrenzyExplodable
+  ballTag: Ball
+  triggerOnCollision: 1
+  triggerOnTrigger: 1
+  shardCount: 18
+  shardForce: 9
+  shardRadius: 0.55
+  shardUpwardsModifier: 0.15
+  shardTorque: 10
+  shardSizeRange: {x: 0.08, y: 0.16}
+  shardLifetime: 3
+  destructionBonusPoints: 250
+  disableGameObjectOnExplode: 1
+  destroyGameObjectOnExplode: 0
 --- !u!1 &2074759523
 GameObject:
   m_ObjectHideFlags: 0
@@ -11600,7 +11760,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3240940857872849999, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6269261198397325362}
   m_SourcePrefab: {fileID: 100100000, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
 --- !u!23 &6269261198397325359 stripped
 MeshRenderer:
@@ -11612,6 +11775,36 @@ MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 2259877599075248741, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
   m_PrefabInstance: {fileID: 6269261198397325358}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &6269261198397325361 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3240940857872849999, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
+  m_PrefabInstance: {fileID: 6269261198397325358}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6269261198397325362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6269261198397325361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c5d7e9f1a2b4c6d8e0f1a2b3c4d5e6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FrenzyExplodable
+  ballTag: Ball
+  triggerOnCollision: 1
+  triggerOnTrigger: 1
+  shardCount: 18
+  shardForce: 9
+  shardRadius: 0.55
+  shardUpwardsModifier: 0.15
+  shardTorque: 10
+  shardSizeRange: {x: 0.08, y: 0.16}
+  shardLifetime: 3
+  destructionBonusPoints: 250
+  disableGameObjectOnExplode: 1
+  destroyGameObjectOnExplode: 0
 --- !u!1001 &7769202156614912996
 PrefabInstance:
   m_ObjectHideFlags: 0

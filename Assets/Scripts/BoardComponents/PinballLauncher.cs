@@ -30,10 +30,13 @@ public sealed class PinballLauncher : MonoBehaviour
     [Tooltip("If true, Space (or the key below) also charges/launches.")]
     public bool allowKeyboardLaunch = false;
 
+    [Tooltip("If true, keyboard launch reads from ControlsBindingsService (ControlAction.Launch).")]
+    public bool useCentralBindings = true;
+
 #if ENABLE_INPUT_SYSTEM
-    public Key launchKey = Key.Space;
+    public Key launchKey = Key.DownArrow;
 #else
-    public KeyCode launchKey = KeyCode.Space;
+    public KeyCode launchKey = KeyCode.DownArrow;
 #endif
 
     [Header("Launch")]
@@ -233,6 +236,9 @@ public sealed class PinballLauncher : MonoBehaviour
 
     private bool GetLaunchHeld()
     {
+        if (useCentralBindings)
+            return ControlsBindingsService.IsHeld(ControlAction.Launch);
+
 #if ENABLE_INPUT_SYSTEM
         var kb = Keyboard.current;
         return kb != null && kb[launchKey].isPressed;
@@ -243,6 +249,9 @@ public sealed class PinballLauncher : MonoBehaviour
 
     private bool GetLaunchReleasedThisFrame()
     {
+        if (useCentralBindings)
+            return ControlsBindingsService.WasReleasedThisFrame(ControlAction.Launch);
+
 #if ENABLE_INPUT_SYSTEM
         var kb = Keyboard.current;
         return kb != null && kb[launchKey].wasReleasedThisFrame;

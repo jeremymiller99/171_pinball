@@ -8,6 +8,20 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody))]
 public class PinballFlipper : MonoBehaviour
 {
+    public enum FlipperInputAction
+    {
+        Auto = 0,
+        LeftFlipper = 1,
+        RightFlipper = 2,
+    }
+
+    [Header("Centralized Bindings (recommended)")]
+    [Tooltip("If true, reads input from ControlsBindingsService instead of per-object keys.")]
+    [SerializeField] private bool useCentralBindings = true;
+
+    [Tooltip("Which centralized action should drive this flipper. Auto tries to infer from the configured key or object name.")]
+    [SerializeField] private FlipperInputAction flipperAction = FlipperInputAction.Auto;
+
     [Header("Input")]
 #if ENABLE_INPUT_SYSTEM
     [Tooltip("Primary key for this flipper.")]
@@ -54,10 +68,38 @@ public class PinballFlipper : MonoBehaviour
     private void Update()
     {
 #if ENABLE_INPUT_SYSTEM
-        _pressed = GetPressed_InputSystem();
+        _pressed = useCentralBindings ? GetPressed_Centralized() : GetPressed_InputSystem();
 #else
-        _pressed = GetPressed_LegacyInput();
+        _pressed = useCentralBindings ? GetPressed_Centralized() : GetPressed_LegacyInput();
 #endif
+    }
+
+    private bool GetPressed_Centralized()
+    {
+        ControlAction action = ResolveCentralAction();
+        return ControlsBindingsService.IsHeld(action);
+    }
+
+    private ControlAction ResolveCentralAction()
+    {
+        if (flipperAction == FlipperInputAction.LeftFlipper)
+            return ControlAction.LeftFlipper;
+        if (flipperAction == FlipperInputAction.RightFlipper)
+            return ControlAction.RightFlipper;
+
+        // Auto: infer from current configured key or name.
+#if ENABLE_INPUT_SYSTEM
+        if (key == Key.LeftArrow) return ControlAction.LeftFlipper;
+        if (key == Key.RightArrow) return ControlAction.RightFlipper;
+#else
+        if (key == KeyCode.LeftArrow) return ControlAction.LeftFlipper;
+        if (key == KeyCode.RightArrow) return ControlAction.RightFlipper;
+#endif
+
+        string n = name != null ? name.ToLowerInvariant() : "";
+        if (n.Contains("left")) return ControlAction.LeftFlipper;
+        if (n.Contains("right")) return ControlAction.RightFlipper;
+        return ControlAction.RightFlipper;
     }
 
 #if ENABLE_INPUT_SYSTEM

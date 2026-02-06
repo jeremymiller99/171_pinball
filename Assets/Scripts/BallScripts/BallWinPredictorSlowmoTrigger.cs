@@ -19,6 +19,11 @@ public sealed class BallWinPredictorSlowmoTrigger : MonoBehaviour
     [SerializeField] private string ballTag = "Ball";
     [Tooltip("Optional: restrict which layers are considered as targets. Leave to Everything to keep simple.")]
     [SerializeField] private LayerMask targetLayers = ~0;
+    [Tooltip("If false, ignores trigger colliders inside the bubble (helps avoid zones/UI triggers).")]
+    [SerializeField] private bool includeTriggerColliders = false;
+    [Min(0)]
+    [Tooltip("How many parents upward to search for a scoring root (to find sibling adders).")]
+    [SerializeField] private int siblingSearchParentHops = 2;
 
     [Header("Slow motion request")]
     [Range(0.01f, 1f)]
@@ -78,6 +83,7 @@ public sealed class BallWinPredictorSlowmoTrigger : MonoBehaviour
         if (other == null) return;
         if (!IsLayerAllowed(other.gameObject.layer)) return;
         if (!string.IsNullOrWhiteSpace(ballTag) && other.CompareTag(ballTag)) return;
+        if (!includeTriggerColliders && other.isTrigger) return;
         _nearby.Add(other);
     }
 
@@ -145,9 +151,9 @@ public sealed class BallWinPredictorSlowmoTrigger : MonoBehaviour
                 continue;
             }
 
-            // Prefer the object/parent that actually holds the scoring components.
-            PointAdder pa = col.GetComponentInParent<PointAdder>();
-            MultAdder ma = col.GetComponentInParent<MultAdder>();
+            // Find scoring scripts even if the collider is a child/sibling of the actual component.
+            if (!TryFindScoringOnOrNearCollider(col, out PointAdder pa, out MultAdder ma))
+                continue;
             if (pa == null && ma == null)
                 continue;
 
@@ -176,6 +182,41 @@ public sealed class BallWinPredictorSlowmoTrigger : MonoBehaviour
         ListPool<Collider>.Release(toRemove);
 
         return canReach;
+    }
+
+    private bool TryFindScoringOnOrNearCollider(Collider col, out PointAdder pa, out MultAdder ma)
+    {
+        pa = null;
+        ma = null;
+        if (col == null) return false;
+
+        // Fast path: same object.
+        pa = col.GetComponent<PointAdder>();
+        ma = col.GetComponent<MultAdder>();
+        if (pa != null || ma != null) return true;
+
+        // Parent chain (common: collider child, adder on root).
+        pa = col.GetComponentInParent<PointAdder>();
+        ma = col.GetComponentInParent<MultAdder>();
+        if (pa != null || ma != null) return true;
+
+        // Children (common for compound targets).
+        pa = col.GetComponentInChildren<PointAdder>(includeInactive: true);
+        ma = col.GetComponentInChildren<MultAdder>(includeInactive: true);
+        if (pa != null || ma != null) return true;
+
+        // Sibling search: walk up a couple parents and search their children.
+        Transform t = col.transform != null ? col.transform.parent : null;
+        int hops = Mathf.Max(0, siblingSearchParentHops);
+        for (int i = 0; i < hops && t != null; i++)
+        {
+            if (pa == null) pa = t.GetComponentInChildren<PointAdder>(includeInactive: true);
+            if (ma == null) ma = t.GetComponentInChildren<MultAdder>(includeInactive: true);
+            if (pa != null || ma != null) return true;
+            t = t.parent;
+        }
+
+        return false;
     }
 
     // Tiny list pool to avoid per-frame allocations.

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class LeprechaunBall : MonoBehaviour
 {
-    [SerializeField] private GameRulesManager grm;
+    [SerializeField] private GameRulesManager gameRulesManager;
     [SerializeField] private FloatingTextSpawner floatingTextSpawner;
     [SerializeField] private Vector3 textOffset;
     [SerializeField] private int coinsToAdd = 1;
@@ -11,7 +11,7 @@ public class LeprechaunBall : MonoBehaviour
 
     void Awake()
     {
-        grm = FindFirstObjectByType<GameRulesManager>();
+        gameRulesManager = FindFirstObjectByType<GameRulesManager>();
         floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
     }
 
@@ -20,7 +20,7 @@ public class LeprechaunBall : MonoBehaviour
     {
         if (collision.collider.GetComponent<PointAdder>() || collision.collider.GetComponent<MultAdder>())
         {
-            grm.AddCoins(1);
+            gameRulesManager.AddCoins(coinsToAdd);
             floatingTextSpawner.SpawnText(transform.position + textOffset,"$" + coinsToAdd);
         }
     }

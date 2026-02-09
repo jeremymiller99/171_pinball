@@ -64,16 +64,16 @@ public sealed class BallSpawner : MonoBehaviour
     [SerializeField] private bool disablePhysicsWhileMoving = true;
 
     [Header("Safety")]
-    [SerializeField] private bool enforceSingleActiveBall = true;
+    [SerializeField] private bool enforceSingleActiveBall = false;
 
     private readonly List<GameObject> _handBalls = new List<GameObject>();
     private readonly Dictionary<int, RigidbodyState> _rbStateById = new Dictionary<int, RigidbodyState>();
     private readonly Dictionary<int, float> _handDistanceById = new Dictionary<int, float>();
 
     private Coroutine _moveCoroutine;
-    private GameObject _activeBall;
+    private List<GameObject> _activeBalls = new List<GameObject>();
 
-    public GameObject ActiveBall => _activeBall;
+    public List<GameObject> ActiveBalls => _activeBalls;
     public int HandCount => _handBalls.Count;
     public GameObject DefaultBallPrefab => ballPrefab;
 
@@ -129,10 +129,9 @@ public sealed class BallSpawner : MonoBehaviour
             _moveCoroutine = null;
         }
 
-        if (_activeBall != null)
+        if (_activeBalls.Count != 0)
         {
-            Destroy(_activeBall);
-            _activeBall = null;
+            _activeBalls.Clear();
         }
 
         for (int i = _handBalls.Count - 1; i >= 0; i--)
@@ -233,16 +232,11 @@ public sealed class BallSpawner : MonoBehaviour
             return SpawnBallAtSpawnPoint();
         }
 
-        if (enforceSingleActiveBall && _activeBall != null)
-        {
-            DespawnBall(_activeBall);
-        }
-
         GameObject next = _handBalls[0];
         _handBalls.RemoveAt(0);
         LayoutHandImmediate();
 
-        _activeBall = next;
+        _activeBalls.Add(next);
 
         if (_moveCoroutine != null)
         {
@@ -261,9 +255,9 @@ public sealed class BallSpawner : MonoBehaviour
     {
         if (ball == null) return;
 
-        if (ball == _activeBall)
+        if (_activeBalls.Contains(ball))
         {
-            _activeBall = null;
+            _activeBalls.Remove(ball);
         }
 
         _handBalls.Remove(ball);
@@ -319,14 +313,14 @@ public sealed class BallSpawner : MonoBehaviour
             return null;
         }
 
-        if (enforceSingleActiveBall && _activeBall != null)
+        if (enforceSingleActiveBall && _activeBalls.Count == 1)
         {
-            DespawnBall(_activeBall);
+            DespawnBall(_activeBalls[0]);
         }
 
-        _activeBall = Instantiate(ballPrefab, spawnPoint.position, spawnPoint.rotation);
-        _activeBall.name = $"{ballPrefab.name}_ActiveBall";
-        return _activeBall;
+        _activeBalls[0] = Instantiate(ballPrefab, spawnPoint.position, spawnPoint.rotation);
+        _activeBalls[0].name = $"{ballPrefab.name}_ActiveBall";
+        return _activeBalls[0];
     }
 
     private void LayoutHandImmediate()

@@ -27,6 +27,12 @@ public sealed class RunFlowController : MonoBehaviour
     [Tooltip("Default number of rounds if not specified by the challenge.")]
     [SerializeField] private int defaultTotalRounds = 7;
 
+    [Header("Testing: Force Round Modifiers")]
+    [Tooltip("If set, round 0 will always use this modifier. Clear when done testing.")]
+    [SerializeField] private RoundModifierDefinition forceFirstRoundModifier;
+    [Tooltip("If set, round 1 (second round) will always use this modifier. Clear when done testing.")]
+    [SerializeField] private RoundModifierDefinition forceSecondRoundModifier;
+
     [Header("Runtime (debug)")]
     [SerializeField] private bool hasStartedRun;
 
@@ -109,6 +115,11 @@ public sealed class RunFlowController : MonoBehaviour
         // Generate rounds if not already generated
         if (!session.HasGeneratedRounds)
         {
+            if (forceFirstRoundModifier != null)
+                session.SetForceFirstRoundModifier(forceFirstRoundModifier);
+            if (forceSecondRoundModifier != null)
+                session.SetForceSecondRoundModifier(forceSecondRoundModifier);
+
             int totalRounds = defaultTotalRounds;
             if (session.ActiveChallenge != null)
             {

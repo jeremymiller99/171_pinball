@@ -107,6 +107,7 @@ public class ScoreManager : MonoBehaviour
     private bool _timeBaseCaptured;
     private float _baseTimeScale = 1f;
     private float _baseFixedDeltaTime = 0.02f;
+    private float _modifierTimeScaleMultiplier = 1f;
 
     /// <summary>
     /// Fired whenever score-related values change (points/mult/roundTotal/goal).
@@ -404,6 +405,7 @@ public class ScoreManager : MonoBehaviour
         points = 0f;
         mult = 1f;
         _goalTier = 0;
+        _modifierTimeScaleMultiplier = 1f;
 
         // Reset game speed back to baseline at the start of each round.
         ApplySpeedFromTier(force: true);
@@ -423,6 +425,15 @@ public class ScoreManager : MonoBehaviour
         if (goalText != null)
             goalText.text = goal.ToString();
         ScoreChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Sets the round modifier's speed multiplier (e.g. Turbo = 1.2). Applied on top of tier and external multipliers.
+    /// </summary>
+    public void SetModifierSpeedMultiplier(float multiplier)
+    {
+        _modifierTimeScaleMultiplier = multiplier > 0f ? multiplier : 1f;
+        ApplySpeedFromTier(force: true);
     }
 
     /// <summary>
@@ -575,9 +586,9 @@ public class ScoreManager : MonoBehaviour
         if (!applySpeedToTimeScale) return;
         CaptureTimeBaseIfNeeded();
 
-        // Target is baseline * tier multiplier.
+        // Target is baseline * tier multiplier * round modifier (e.g. Turbo).
         float requestMult = Mathf.Max(0f, _timeScaleRequestMin);
-        float targetScale = _baseTimeScale * Mathf.Max(0f, SpeedMultiplier) * Mathf.Max(0f, externalTimeScaleMultiplier) * requestMult;
+        float targetScale = _baseTimeScale * Mathf.Max(0f, SpeedMultiplier) * Mathf.Max(0f, externalTimeScaleMultiplier) * Mathf.Max(0.1f, _modifierTimeScaleMultiplier) * requestMult;
         if (maxTimeScale > 0f)
         {
             targetScale = Mathf.Min(targetScale, maxTimeScale);

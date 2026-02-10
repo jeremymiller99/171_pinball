@@ -1465,6 +1465,10 @@ MonoBehaviour:
   mainMenuSceneName: MainMenu
   showRoundPreview: 1
   defaultTotalRounds: 7
+  forceFirstRoundModifier: {fileID: 0}
+  forceSecondRoundModifier: {fileID: 0}
+  forceFirstRoundNormal: 0
+  forceFirstBoard: {fileID: 0}
   hasStartedRun: 0
 --- !u!4 &430388228
 Transform:
@@ -4749,17 +4753,14 @@ MonoBehaviour:
   scoreManager: {fileID: 349540274}
   scoreTallyAnimator: {fileID: 0}
   goalByRound:
-  - 300
   - 500
-  - 1000
-  - 2000
+  - 800
+  - 1200
+  - 1700
+  - 2300
+  - 3000
   - 4000
-  - 8000
-  - 16000
-  - 32000
-  - 64000
-  - 128000
-  pointsPerCoin: 100
+  pointsPerCoin: 300
   startingMaxBalls: 5
   autoStartOnPlay: 0
   ballSpawner: {fileID: 0}

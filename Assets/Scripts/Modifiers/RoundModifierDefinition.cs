@@ -48,6 +48,15 @@ public class RoundModifierDefinition : ScriptableObject
     [Tooltip("Number of balls added or removed for this round. Positive = more balls.")]
     public int ballModifier = 0;
 
+    [Header("Speed")]
+    [Tooltip("Multiplier for game/ball speed this round (Time.timeScale). 1.2 = 20% faster.")]
+    [Min(0.1f)]
+    public float ballSpeedMultiplier = 1f;
+
+    [Header("Composite (special)")]
+    [Tooltip("If true, this modifier is \"Unlucky Day\": at round start, 2 random devil modifiers from the challenge's devil pool are applied instead of this asset's numeric fields.")]
+    public bool useTwoRandomDevilsFromPool = false;
+
     /// <summary>
     /// Returns a formatted string describing all active effects.
     /// </summary>
@@ -84,6 +93,13 @@ public class RoundModifierDefinition : ScriptableObject
         {
             string sign = ballModifier > 0 ? "+" : "";
             sb.AppendLine($"{sign}{ballModifier} Ball{(Mathf.Abs(ballModifier) != 1 ? "s" : "")}");
+        }
+
+        if (ballSpeedMultiplier > 0f && !Mathf.Approximately(ballSpeedMultiplier, 1f))
+        {
+            float percent = (ballSpeedMultiplier - 1f) * 100f;
+            string sign = percent >= 0 ? "+" : "";
+            sb.AppendLine($"{sign}{percent:0}% Speed");
         }
 
         return sb.ToString().TrimEnd();

@@ -487,7 +487,6 @@ public class GameRulesManager : MonoBehaviour
     /// </summary>
     public void AddCoins(int amount)
     {
-        if (amount <= 0) return;
         coins += amount;
         if (scoreManager != null)
         {

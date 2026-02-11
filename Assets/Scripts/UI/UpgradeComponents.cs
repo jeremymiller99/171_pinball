@@ -42,7 +42,6 @@ public class UpgradeComponents : MonoBehaviour
             if(pointAdder)
             {
                 pointAdder.multiplyPointsToAdd(multiplyPointsBy);
-                return;
             }
 
             if(multAdder)

@@ -43,6 +43,7 @@ public class CoinAdder : MonoBehaviour
     {
         if (_hasAwarded) return;
         if (!collision.collider.CompareTag("Ball")) return;
+        if (collision.collider.GetComponent<GolfBallBehavior>() != null || collision.collider.GetComponent<TenzoBallBehavior>() != null) return;
 
         if (gameRulesManager == null) EnsureRefs();
         gameRulesManager?.AddCoins(CoinsToAdd);
@@ -54,6 +55,7 @@ public class CoinAdder : MonoBehaviour
     {
         if (_hasAwarded) return;
         if (!col.CompareTag("Ball")) return;
+        if (col.GetComponent<GolfBallBehavior>() != null || col.GetComponent<TenzoBallBehavior>() != null) return;
 
         if (gameRulesManager == null) EnsureRefs();
         gameRulesManager?.AddCoins(CoinsToAdd);

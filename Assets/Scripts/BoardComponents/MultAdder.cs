@@ -41,9 +41,14 @@ public class MultAdder : MonoBehaviour
         {
             if (scoreManager == null) EnsureRefs();
             FMODUnity.RuntimeManager.PlayOneShot("event:/collide_mult");
-            scoreManager?.AddMult(multToAdd);
-            // Spawn red mult text at the ball's position
-            floatingTextSpawner?.SpawnMultText(collision.collider.transform.position, "x" + multToAdd, multToAdd);
+            GameObject ball = collision.collider.gameObject;
+            var (appliedP, appliedM, isGolfFirstHit) = scoreManager != null ? scoreManager.ApplyScoringHit(ball, 0f, multToAdd) : (0f, 0f, false);
+            Vector3 pos = ball.transform.position;
+            Vector3 multOffset = (floatingTextSpawner != null && appliedP != 0f && appliedM != 0f) ? floatingTextSpawner.GetSideBySideOffsetForMultText() : Vector3.zero;
+            if (appliedP != 0f)
+                floatingTextSpawner?.SpawnPointsText(pos, appliedP >= 0f ? "+" + appliedP : appliedP.ToString(), appliedP);
+            if (appliedM != 0f)
+                floatingTextSpawner?.SpawnMultText(pos + multOffset, appliedM >= 0f ? "x" + appliedM : appliedM + " mult", appliedM);
         }
     }
 
@@ -52,9 +57,14 @@ public class MultAdder : MonoBehaviour
         if (col.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
-            scoreManager?.AddMult(multToAdd);
-            // Spawn red mult text at the ball's position
-            floatingTextSpawner?.SpawnMultText(col.transform.position, "x" + multToAdd, multToAdd);
+            GameObject ball = col.gameObject;
+            var (appliedP, appliedM, isGolfFirstHit) = scoreManager != null ? scoreManager.ApplyScoringHit(ball, 0f, multToAdd) : (0f, 0f, false);
+            Vector3 pos = ball.transform.position;
+            Vector3 multOffset = (floatingTextSpawner != null && appliedP != 0f && appliedM != 0f) ? floatingTextSpawner.GetSideBySideOffsetForMultText() : Vector3.zero;
+            if (appliedP != 0f)
+                floatingTextSpawner?.SpawnPointsText(pos, appliedP >= 0f ? "+" + appliedP : appliedP.ToString(), appliedP);
+            if (appliedM != 0f)
+                floatingTextSpawner?.SpawnMultText(pos + multOffset, appliedM >= 0f ? "x" + appliedM : appliedM + " mult", appliedM);
         }
     }
 

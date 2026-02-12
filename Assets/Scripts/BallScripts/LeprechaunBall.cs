@@ -20,7 +20,10 @@ public class LeprechaunBall : MonoBehaviour
     {
         if (collision.collider.GetComponent<PointAdder>() || collision.collider.GetComponent<MultAdder>())
         {
-            grm.AddCoins(1);
+            // Golf Ball and Tenzo Ball must not get coins from any source
+            if (GetComponent<GolfBallBehavior>() != null || GetComponent<TenzoBallBehavior>() != null)
+                return;
+            grm.AddCoins(coinsToAdd);
             floatingTextSpawner.SpawnText(transform.position + textOffset,"$" + coinsToAdd);
         }
     }

@@ -358,6 +358,57 @@ public class ScoreManager : MonoBehaviour
         ScoreChanged?.Invoke();
     }
 
+    /// <summary>
+    /// Apply a scoring hit (points and/or mult). If the ball has TenzoBallBehavior, only awards on every 10th hit (100 pts + 0.2 mult);
+    /// otherwise uses defaultPoints and defaultMult. Pass null for ball to use the current active ball.
+    /// Set countForTenzo false for wall bounces etc. so they don't count toward the 10.
+    /// Returns (points applied, mult applied, isGolfFirstHit for text offset).
+    /// </summary>
+    public (float pointsApplied, float multApplied, bool isGolfFirstHit) ApplyScoringHit(GameObject ball, float defaultPoints, float defaultMult, bool countForTenzo = true)
+    {
+        if (scoringLocked)
+            return (0f, 0f, false);
+
+        if (ball == null)
+        {
+            var rules = FindRulesManager();
+            ball = rules != null ? rules.ActiveBall : null;
+        }
+
+        bool isScoringHit = countForTenzo && (defaultPoints != 0f || defaultMult != 0f);
+
+        // Check Golf before Tenzo so Golf Ball gets first-hit +500 / 2x even if prefab has both
+        var golf = ball != null ? ball.GetComponent<GolfBallBehavior>() : null;
+        if (golf != null && isScoringHit)
+        {
+            bool isFirst = golf.IsFirstHit;
+            golf.GetAwardForHit(out float p, out float m);
+            float appliedP = AddPointsScaled(p);
+            AddMult(m);
+            return (appliedP, m, isFirst);
+        }
+
+        var tenzo = ball != null ? ball.GetComponent<TenzoBallBehavior>() : null;
+        if (tenzo != null)
+        {
+            if (!isScoringHit)
+                return (0f, 0f, false);
+
+            if (tenzo.TryRecordHit(out float p, out float m))
+            {
+                float appliedP = AddPointsScaled(p);
+                AddMult(m);
+                return (appliedP, m, false);
+            }
+            return (0f, 0f, false);
+        }
+
+        float appliedPoints = defaultPoints != 0f ? AddPointsScaled(defaultPoints) : 0f;
+        if (defaultMult != 0f)
+            AddMult(defaultMult);
+        return (appliedPoints, defaultMult, false);
+    }
+
     public void SetScoringLocked(bool locked)
     {
         scoringLocked = locked;

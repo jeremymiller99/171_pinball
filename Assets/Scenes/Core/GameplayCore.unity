@@ -4763,7 +4763,8 @@ MonoBehaviour:
   startingMaxBalls: 5
   autoStartOnPlay: 0
   ballSpawner: {fileID: 0}
-  startingBallLoadout: []
+  startingBallLoadout:
+  - {fileID: 5723297401256486482, guid: 1cf34cf056f434d0b8d338f1108a5c33, type: 3}
   shopCanvasRoot: {fileID: 460876978}
   roundFailedUIRoot: {fileID: 1243198069}
   homeRunUIRoot: {fileID: 2109000000}
@@ -6582,6 +6583,7 @@ MonoBehaviour:
   goldScaleMin: 0.6
   goldScaleMax: 1.1
   goldMaxValue: 5
+  sideBySideOffsetForMultText: {x: 3, y: 0, z: 0}
 --- !u!4 &1995152005
 Transform:
   m_ObjectHideFlags: 0

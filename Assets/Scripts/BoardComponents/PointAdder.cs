@@ -39,9 +39,14 @@ public class PointAdder : MonoBehaviour
         if (collision.collider.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
-            float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
-            // Spawn blue points text at the ball's position
-            floatingTextSpawner?.SpawnPointsText(collision.collider.transform.position, "+" + applied, applied);
+            GameObject ball = collision.collider.gameObject;
+            var (appliedP, appliedM, isGolfFirstHit) = scoreManager != null ? scoreManager.ApplyScoringHit(ball, pointsToAdd, 0f) : (0f, 0f, false);
+            Vector3 pos = ball.transform.position;
+            Vector3 multOffset = (floatingTextSpawner != null && appliedP != 0f && appliedM != 0f) ? floatingTextSpawner.GetSideBySideOffsetForMultText() : Vector3.zero;
+            if (appliedP != 0f)
+                floatingTextSpawner?.SpawnPointsText(pos, appliedP >= 0f ? "+" + appliedP : appliedP.ToString(), appliedP);
+            if (appliedM != 0f)
+                floatingTextSpawner?.SpawnMultText(pos + multOffset, appliedM >= 0f ? "+" + appliedM + " mult" : appliedM + " mult", appliedM);
         }
     }
 
@@ -50,9 +55,14 @@ public class PointAdder : MonoBehaviour
         if (col.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
-            float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
-            // Spawn blue points text at the ball's position
-            floatingTextSpawner?.SpawnPointsText(col.transform.position, "+" + applied, applied);
+            GameObject ball = col.gameObject;
+            var (appliedP, appliedM, isGolfFirstHit) = scoreManager != null ? scoreManager.ApplyScoringHit(ball, pointsToAdd, 0f) : (0f, 0f, false);
+            Vector3 pos = ball.transform.position;
+            Vector3 multOffset = (floatingTextSpawner != null && appliedP != 0f && appliedM != 0f) ? floatingTextSpawner.GetSideBySideOffsetForMultText() : Vector3.zero;
+            if (appliedP != 0f)
+                floatingTextSpawner?.SpawnPointsText(pos, appliedP >= 0f ? "+" + appliedP : appliedP.ToString(), appliedP);
+            if (appliedM != 0f)
+                floatingTextSpawner?.SpawnMultText(pos + multOffset, appliedM >= 0f ? "+" + appliedM + " mult" : appliedM + " mult", appliedM);
         }
     }
 
@@ -68,12 +78,18 @@ public class PointAdder : MonoBehaviour
 
     /// <summary>
     /// Adds this component's configured points amount, and spawns floating text at the given position.
+    /// Passes null for ball so Tenzo uses active ball if applicable (e.g. spinner).
     /// </summary>
     public void AddPoints(Vector3 spawnPosition)
     {
         if (scoreManager == null) EnsureRefs();
-        float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
-        floatingTextSpawner?.SpawnPointsText(spawnPosition, "+" + applied, applied);
+        var (appliedP, appliedM, isGolfFirstHit) = scoreManager != null ? scoreManager.ApplyScoringHit(null, pointsToAdd, 0f) : (0f, 0f, false);
+        Vector3 pos = spawnPosition;
+        Vector3 multOffset = (floatingTextSpawner != null && appliedP != 0f && appliedM != 0f) ? floatingTextSpawner.GetSideBySideOffsetForMultText() : Vector3.zero;
+        if (appliedP != 0f)
+            floatingTextSpawner?.SpawnPointsText(pos, appliedP >= 0f ? "+" + appliedP : appliedP.ToString(), appliedP);
+        if (appliedM != 0f)
+            floatingTextSpawner?.SpawnMultText(pos + multOffset, appliedM >= 0f ? "+" + appliedM + " mult" : appliedM + " mult", appliedM);
     }
 
     public void multiplyPointsToAdd(float mult)
@@ -81,11 +97,19 @@ public class PointAdder : MonoBehaviour
         pointsToAdd *= mult;
     }
 
-    public void AddScore(Transform pos)
+    /// <summary>
+    /// Adds points and spawns text. Use countForTenzo = false for wall bounces (WallBall) so they don't count toward Tenzo's 10.
+    /// </summary>
+    public void AddScore(Transform pos, bool countForTenzo = true)
     {
+        if (pos == null) return;
         if (scoreManager == null) EnsureRefs();
-            float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
-            // Spawn text at the ball's position
-            floatingTextSpawner?.SpawnText(pos.position, "+" + applied);
+        var (appliedP, appliedM, isGolfFirstHit) = scoreManager != null ? scoreManager.ApplyScoringHit(null, pointsToAdd, 0f, countForTenzo) : (0f, 0f, false);
+        Vector3 worldPos = pos.position;
+        Vector3 multOffset = (floatingTextSpawner != null && appliedP != 0f && appliedM != 0f) ? floatingTextSpawner.GetSideBySideOffsetForMultText() : Vector3.zero;
+        if (appliedP != 0f)
+            floatingTextSpawner?.SpawnText(worldPos, appliedP >= 0f ? "+" + appliedP : appliedP.ToString());
+        if (appliedM != 0f)
+            floatingTextSpawner?.SpawnMultText(worldPos + multOffset, appliedM >= 0f ? "x" + appliedM : appliedM + " mult", appliedM);
     }
 }

@@ -130,9 +130,14 @@ public class LockedTarget : MonoBehaviour
         {
             _hitCount = 2;
             if (scoreManager == null) EnsureRefs();
-            scoreManager?.AddPoints(pointsToAdd);
-            Vector3 pos = collision.collider.transform.position;
-            floatingTextSpawner?.SpawnText(pos, "+" + pointsToAdd);
+            GameObject ball = collision.collider.gameObject;
+            var (appliedP, appliedM, isGolfFirstHit) = scoreManager != null ? scoreManager.ApplyScoringHit(ball, pointsToAdd, 0f) : (0f, 0f, false);
+            Vector3 pos = ball.transform.position;
+            Vector3 multOffset = (floatingTextSpawner != null && appliedP != 0f && appliedM != 0f) ? floatingTextSpawner.GetSideBySideOffsetForMultText() : Vector3.zero;
+            if (appliedP != 0f)
+                floatingTextSpawner?.SpawnText(pos, appliedP >= 0f ? "+" + appliedP : appliedP.ToString());
+            if (appliedM != 0f)
+                floatingTextSpawner?.SpawnMultText(pos + multOffset, appliedM >= 0f ? "x" + appliedM : appliedM + " mult", appliedM);
         }
     }
 
@@ -153,8 +158,15 @@ public class LockedTarget : MonoBehaviour
         {
             _hitCount = 2;
             if (scoreManager == null) EnsureRefs();
-            scoreManager?.AddPoints(pointsToAdd);
-            floatingTextSpawner?.SpawnText(col.transform.position, "+" + pointsToAdd);
+            GameObject ball = col.gameObject;
+            var (appliedP, appliedM, isGolfFirstHit) = scoreManager != null ? scoreManager.ApplyScoringHit(ball, pointsToAdd, 0f) : (0f, 0f, false);
+            Vector3 pos = ball.transform.position;
+            Vector3 multOffset = (floatingTextSpawner != null && appliedP != 0f && appliedM != 0f) ? floatingTextSpawner.GetSideBySideOffsetForMultText() : Vector3.zero;
+            if (appliedP != 0f)
+                floatingTextSpawner?.SpawnText(pos, appliedP >= 0f ? "+" + appliedP : appliedP.ToString());
+            if (appliedM != 0f)
+                floatingTextSpawner?.SpawnMultText(pos + multOffset, appliedM >= 0f ? "x" + appliedM : appliedM + " mult", appliedM);
         }
     }
+
 }

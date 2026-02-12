@@ -32,11 +32,20 @@ public class FloatingTextSpawner : MonoBehaviour
     [Tooltip("Gold value at which scale reaches max.")]
     [SerializeField] private float goldMaxValue = 5f;
 
+    [Header("Points + Mult side by side")]
+    [Tooltip("When both points and mult text are shown for the same hit, mult text is offset by this (world space) so they don't overlap. Set X positive for mult to the right of points.")]
+    [SerializeField] private Vector3 sideBySideOffsetForMultText = new Vector3(0.4f, 0f, 0f);
+
     private void Start()
     {
         if (targetCamera == null)
             targetCamera = Camera.main;
     }
+
+    /// <summary>
+    /// When showing both points and mult for the same hit, offset the mult text by this so they appear side by side at contact.
+    /// </summary>
+    public Vector3 GetSideBySideOffsetForMultText() => sideBySideOffsetForMultText;
 
     /// <summary>
     /// Spawns floating text at the given world position, mapped to the canvas.

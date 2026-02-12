@@ -46,7 +46,7 @@ public class WallBall : MonoBehaviour
             }
             camShake?.Shake(0.2f, 0.1f);
 
-            pa.AddScore(transform);
+            pa.AddScore(transform, countForTenzo: false);
         }
     }
 

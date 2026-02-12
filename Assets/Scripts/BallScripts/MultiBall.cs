@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MultiBall : MonoBehaviour
+public class MultiBall : Ball
 {
     [SerializeField] private GameObject prefab;
     public bool readyToSplit = true;

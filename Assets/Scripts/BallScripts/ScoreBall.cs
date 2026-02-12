@@ -1,7 +1,7 @@
 using System.Net.Sockets;
 using UnityEngine;
 
-public class ScoreBall : MonoBehaviour
+public class ScoreBall : Ball
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()

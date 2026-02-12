@@ -1,7 +1,7 @@
 using System.Drawing;
 using UnityEngine;
 
-public class WallBall : MonoBehaviour
+public class WallBall : Ball
 {
     [SerializeField] private PhysicsMaterial wallMaterial;
     [SerializeField] private PointAdder pa;

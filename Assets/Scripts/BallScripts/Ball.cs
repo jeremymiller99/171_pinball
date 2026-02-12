@@ -1,4 +1,5 @@
 using System.Drawing;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class Ball : MonoBehaviour
@@ -17,17 +18,17 @@ public class Ball : MonoBehaviour
         if (collision.collider.GetComponent<Portal>())
         {
             trailRenderer.emitting = false;
-            return; //get rid of this line if we want hitting portal to emit particles.
         }
 
-        if (collision.collider.GetComponent<PointAdder>())
-        {
-            //use particle system on the collider
-        }
 
-        if (collision.collider.GetComponent<MultAdder>())
+        ParticleSystem emitter = collision.collider.GetComponent<ParticleSystem>();
+        if (emitter)
         {
-            //use particle system on the collider
+            var emitterShape = emitter.shape;
+            emitterShape.rotation = emitter.transform.position - transform.position;
+            ParticleSystem.EmitParams prms = new ParticleSystem.EmitParams();
+
+            emitter.Emit(prms, amountToEmit);
         }
 
     }

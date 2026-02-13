@@ -287,6 +287,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c3279caae1b40b4d8534d67b707bd90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  particleSystem: {fileID: 0}
   trailRenderer: {fileID: 0}
   amountToEmit: 10
+  baseSizeVector: {x: 2.5, y: 1, z: 0.4}

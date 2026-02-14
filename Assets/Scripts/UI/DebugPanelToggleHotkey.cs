@@ -42,11 +42,8 @@ public sealed class DebugPanelToggleHotkey : MonoBehaviour
 
     private static bool WasTogglePressed()
     {
-#if ENABLE_INPUT_SYSTEM
-        return Keyboard.current != null && Keyboard.current.backquoteKey.wasPressedThisFrame;
-#else
-        return Input.GetKeyDown(KeyCode.BackQuote);
-#endif
+        // Centralized binding (default: backquote/tilde).
+        return ControlsBindingsService.WasPressedThisFrame(ControlAction.ToggleDebugPanel);
     }
 }
 

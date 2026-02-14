@@ -122,6 +122,11 @@ public class MainMenuUI : MonoBehaviour
         // Allow Esc to return from sub-panels.
         if (WasEscapePressedThisFrame())
         {
+            // If the controls menu is listening for a rebind, Esc should cancel that
+            // (not immediately back out of Settings).
+            if (ControlsMenuController.IsRebindingInProgress())
+                return;
+
             // First check if mode info overlay is open.
             if (modeInfoPanel != null && modeInfoPanel.activeSelf)
             {
@@ -150,6 +155,7 @@ public class MainMenuUI : MonoBehaviour
         _built = true;
 
         AutoWirePanels();
+        InstallControlsMenuIfPossible();
         AutoWireMainMenuButtons();
         AutoWireStartRunButton();
         AutoWireChallengeRootAndTemplate();
@@ -159,6 +165,16 @@ public class MainMenuUI : MonoBehaviour
 
         // Ensure a consistent initial panel state at runtime.
         OpenMainMenuPanel();
+    }
+
+    private void InstallControlsMenuIfPossible()
+    {
+        if (settingsPanel == null)
+            return;
+
+        // Adds a nested Controls menu under Settings at runtime.
+        // (Safer than editing the scene YAML by hand.)
+        ControlsMenuController.InstallInto(settingsPanel);
     }
 
     private void AutoWirePanels()

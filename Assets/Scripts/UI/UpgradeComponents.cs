@@ -1,5 +1,4 @@
 using System;
-using System.Drawing;
 using UnityEngine;
 
 public class UpgradeComponents : MonoBehaviour
@@ -39,14 +38,14 @@ public class UpgradeComponents : MonoBehaviour
         {
             PointAdder pointAdder = obj.GetComponent<PointAdder>();
             MultAdder multAdder = obj.GetComponent<MultAdder>();
-            if(pointAdder)
+            if (pointAdder)
             {
-                pointAdder.multiplyPointsToAdd(multiplyPointsBy);
+                pointAdder.UpgradeAddBaseValue();
             }
 
-            if(multAdder)
+            if (multAdder)
             {
-                multAdder.multiplyMultToAdd(multiplyPointsBy);
+                multAdder.UpgradeAddBaseValue();
             }
         }
     }

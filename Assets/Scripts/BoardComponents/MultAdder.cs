@@ -7,11 +7,22 @@ public class MultAdder : MonoBehaviour
     [SerializeField] private float multToAdd;
     [SerializeField] private FloatingTextSpawner floatingTextSpawner;
 
-    public float MultToAdd => multToAdd;
+    private float baseMultToAdd;
+    private int upgradeCount;
+    private float multMultiplier = 1f;
+
+    public float MultToAdd => GetEffectiveMultToAdd();
 
     private void Awake()
     {
+        baseMultToAdd = multToAdd;
+
         EnsureRefs();
+    }
+
+    private float GetEffectiveMultToAdd()
+    {
+        return (baseMultToAdd * (1 + upgradeCount)) * multMultiplier;
     }
 
     private void EnsureRefs()
@@ -41,9 +52,10 @@ public class MultAdder : MonoBehaviour
         {
             if (scoreManager == null) EnsureRefs();
             FMODUnity.RuntimeManager.PlayOneShot("event:/collide_mult");
-            scoreManager?.AddMult(multToAdd);
+            float applied = GetEffectiveMultToAdd();
+            scoreManager?.AddMult(applied);
             // Spawn red mult text at the ball's position
-            floatingTextSpawner?.SpawnMultText(collision.collider.transform.position, "x" + multToAdd, multToAdd);
+            floatingTextSpawner?.SpawnMultText(collision.collider.transform.position, "x" + applied, applied);
         }
     }
 
@@ -52,14 +64,20 @@ public class MultAdder : MonoBehaviour
         if (col.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
-            scoreManager?.AddMult(multToAdd);
+            float applied = GetEffectiveMultToAdd();
+            scoreManager?.AddMult(applied);
             // Spawn red mult text at the ball's position
-            floatingTextSpawner?.SpawnMultText(col.transform.position, "x" + multToAdd, multToAdd);
+            floatingTextSpawner?.SpawnMultText(col.transform.position, "x" + applied, applied);
         }
     }
 
     public void multiplyMultToAdd(float mult)
     {
-        multToAdd *= mult;
+        multMultiplier *= mult;
+    }
+
+    public void UpgradeAddBaseValue()
+    {
+        upgradeCount++;
     }
 }

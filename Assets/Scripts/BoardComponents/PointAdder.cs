@@ -6,11 +6,22 @@ public class PointAdder : MonoBehaviour
     [SerializeField] private float pointsToAdd;
     [SerializeField] private FloatingTextSpawner floatingTextSpawner;
 
-    public float PointsToAdd => pointsToAdd;
+    private float basePointsToAdd;
+    private int upgradeCount;
+    private float pointsMultiplier = 1f;
+
+    public float PointsToAdd => GetEffectivePointsToAdd();
 
     private void Awake()
     {
+        basePointsToAdd = pointsToAdd;
+
         EnsureRefs();
+    }
+
+    private float GetEffectivePointsToAdd()
+    {
+        return (basePointsToAdd * (1 + upgradeCount)) * pointsMultiplier;
     }
 
     private void EnsureRefs()
@@ -39,7 +50,7 @@ public class PointAdder : MonoBehaviour
         if (collision.collider.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
-            float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
+            float applied = scoreManager != null ? scoreManager.AddPointsScaled(GetEffectivePointsToAdd()) : 0f;
             // Spawn blue points text at the ball's position
             floatingTextSpawner?.SpawnPointsText(collision.collider.transform.position, "+" + applied, applied);
         }
@@ -50,7 +61,7 @@ public class PointAdder : MonoBehaviour
         if (col.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
-            float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
+            float applied = scoreManager != null ? scoreManager.AddPointsScaled(GetEffectivePointsToAdd()) : 0f;
             // Spawn blue points text at the ball's position
             floatingTextSpawner?.SpawnPointsText(col.transform.position, "+" + applied, applied);
         }
@@ -72,20 +83,25 @@ public class PointAdder : MonoBehaviour
     public void AddPoints(Vector3 spawnPosition)
     {
         if (scoreManager == null) EnsureRefs();
-        float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
+        float applied = scoreManager != null ? scoreManager.AddPointsScaled(GetEffectivePointsToAdd()) : 0f;
         floatingTextSpawner?.SpawnPointsText(spawnPosition, "+" + applied, applied);
     }
 
     public void multiplyPointsToAdd(float mult)
     {
-        pointsToAdd *= mult;
+        pointsMultiplier *= mult;
+    }
+
+    public void UpgradeAddBaseValue()
+    {
+        upgradeCount++;
     }
 
     public void AddScore(Transform pos)
     {
         if (scoreManager == null) EnsureRefs();
-            float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd) : 0f;
-            // Spawn text at the ball's position
-            floatingTextSpawner?.SpawnText(pos.position, "+" + applied);
+        float applied = scoreManager != null ? scoreManager.AddPointsScaled(GetEffectivePointsToAdd()) : 0f;
+        // Spawn text at the ball's position
+        floatingTextSpawner?.SpawnText(pos.position, "+" + applied);
     }
 }

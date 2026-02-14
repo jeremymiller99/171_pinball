@@ -306,11 +306,17 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
 
     private GameObject GetActiveBall()
     {
-        if (ballSpawner && ballSpawner.ActiveBall)
-            return ballSpawner.ActiveBall;
+        if (ballSpawner && ballSpawner.ActiveBalls.Count != 0)
+        {
+            return ballSpawner.ActiveBalls[0];
+        }
+            
 
-        if (gameRules && gameRules.ActiveBall)
-            return gameRules.ActiveBall;
+        if (gameRules && gameRules.ActiveBalls.Count != 0)
+        {
+            return gameRules.ActiveBalls[0];
+        }
+            
 
         return null;
     }

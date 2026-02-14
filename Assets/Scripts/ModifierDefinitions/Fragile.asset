@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Fragile
   m_EditorClassIdentifier: Assembly-CSharp::RoundModifierDefinition
   displayName: Fragile
-  description: Start with one fewer ball.
+  description: "Start with one fewer ball this round."
   icon: {fileID: 0}
   type: 1
   scoreMultiplier: 1

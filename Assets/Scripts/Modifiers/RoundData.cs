@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -24,6 +25,12 @@ public class RoundData
 
     [Tooltip("The modifier applied to this round. Null for Normal rounds.")]
     public RoundModifierDefinition modifier;
+
+    /// <summary>
+    /// When the modifier is Unlucky Day (useTwoRandomDevilsFromPool), the two resolved devil modifiers from the pool.
+    /// Set at round generation so the round card can show their names in the description.
+    /// </summary>
+    public List<RoundModifierDefinition> compositeModifiers;
 
     public RoundData()
     {
@@ -54,15 +61,25 @@ public class RoundData
 
     /// <summary>
     /// Returns the description for this round's modifier, or empty string if none.
+    /// For Unlucky Day, includes the two resolved devil names when available.
     /// </summary>
     public string GetModifierDescription()
     {
         if (modifier != null)
         {
-            if (!string.IsNullOrEmpty(modifier.description))
+            if (modifier.useTwoRandomDevilsFromPool && compositeModifiers != null && compositeModifiers.Count > 0)
             {
-                return modifier.description;
+                var names = new List<string>();
+                foreach (var m in compositeModifiers)
+                {
+                    if (m != null && !string.IsNullOrEmpty(m.displayName))
+                        names.Add(m.displayName);
+                }
+                if (names.Count > 0)
+                    return "Two random devil modifiers this round: " + string.Join(", ", names) + ".";
             }
+            if (!string.IsNullOrEmpty(modifier.description))
+                return modifier.description;
             return modifier.GetEffectsSummary();
         }
 

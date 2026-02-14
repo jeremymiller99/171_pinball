@@ -86,4 +86,32 @@ public class RoundModifierPool : ScriptableObject
             return count;
         }
     }
+
+    /// <summary>
+    /// Returns up to `count` distinct random modifiers from the pool, excluding `exclude`.
+    /// Used e.g. by "Unlucky Day" to get 2 random devils without picking itself.
+    /// </summary>
+    public List<RoundModifierDefinition> GetRandomModifiers(System.Random rng, int count, RoundModifierDefinition exclude = null)
+    {
+        var result = new List<RoundModifierDefinition>();
+        if (modifiers == null || count <= 0) return result;
+
+        var valid = new List<RoundModifierDefinition>();
+        foreach (var mod in modifiers)
+        {
+            if (mod != null && mod != exclude)
+                valid.Add(mod);
+        }
+
+        if (valid.Count == 0) return result;
+        int take = Mathf.Min(count, valid.Count);
+
+        for (int i = 0; i < take; i++)
+        {
+            int idx = rng.Next(valid.Count);
+            result.Add(valid[idx]);
+            valid.RemoveAt(idx);
+        }
+        return result;
+    }
 }

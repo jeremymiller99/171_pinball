@@ -32,23 +32,10 @@ public sealed class GameSession : MonoBehaviour
     [Header("Round Modifiers (debug)")]
     [SerializeField] private List<RoundData> generatedRounds = new List<RoundData>();
     [SerializeField] private ChallengeModeDefinition activeChallenge;
-
-    [Header("Testing: Force Round Modifiers")]
-    [Tooltip("If set, round 0 will always use this modifier. Card color matches modifier type (Angel=green, Devil=red). Set via RunFlowController.")]
+    [Tooltip("Testing: if set, round 0 will always use this modifier. Card color matches modifier type (Angel/Devil).")]
     [SerializeField] private RoundModifierDefinition forceFirstRoundModifier;
-    [Tooltip("If set, round 1 (second round) will always use this modifier. Card color matches modifier type. Set via RunFlowController.")]
+    [Tooltip("Testing: if set, round 1 (second round) will always use this modifier. Card color matches modifier type.")]
     [SerializeField] private RoundModifierDefinition forceSecondRoundModifier;
-    [Tooltip("If true, round 0 will have no modifier (normal round). Overrides forceFirstRoundModifier. Set via RunFlowController.")]
-    [SerializeField] private bool forceFirstRoundNormal;
-
-    /// <summary>For testing: force the first round to use this modifier. Call before the run starts.</summary>
-    public void SetForceFirstRoundModifier(RoundModifierDefinition modifier) => forceFirstRoundModifier = modifier;
-
-    /// <summary>For testing: force the second round to use this modifier. Call before the run starts.</summary>
-    public void SetForceSecondRoundModifier(RoundModifierDefinition modifier) => forceSecondRoundModifier = modifier;
-
-    /// <summary>For testing: force the first round to be normal (no modifier). Call before the run starts.</summary>
-    public void SetForceFirstRoundNormal(bool normal) => forceFirstRoundNormal = normal;
 
     public StartType ActiveStartType => startType;
     public int Seed => seed;
@@ -64,6 +51,15 @@ public sealed class GameSession : MonoBehaviour
     /// The active challenge mode definition, if any.
     /// </summary>
     public ChallengeModeDefinition ActiveChallenge => activeChallenge;
+
+    /// <summary>
+    /// For testing: force the first round to use a specific modifier (e.g. Higher Stakes).
+    /// Call before the run starts (RunFlowController is a good place).
+    /// </summary>
+    public void SetForceFirstRoundModifier(RoundModifierDefinition modifier) => forceFirstRoundModifier = modifier;
+
+    /// <summary>For testing: force round 1 (second round) to use this modifier. Call before the run starts.</summary>
+    public void SetForceSecondRoundModifier(RoundModifierDefinition modifier) => forceSecondRoundModifier = modifier;
 
     /// <summary>
     /// Ensures a session exists even if you didn't create a Bootstrap scene yet.
@@ -182,12 +178,24 @@ public sealed class GameSession : MonoBehaviour
 
         var rng = new System.Random(seed);
 
-        // If no challenge or no modifier pools, all rounds are normal
+        // If no challenge or no modifier pools, all rounds are normal (but still apply forced modifiers for testing)
         if (activeChallenge == null || !activeChallenge.HasModifierPools)
         {
             for (int i = 0; i < totalRounds; i++)
             {
-                generatedRounds.Add(new RoundData(i, RoundType.Normal, null));
+                RoundModifierDefinition modifier = null;
+                RoundType roundType = RoundType.Normal;
+                if (i == 0 && forceFirstRoundModifier != null)
+                {
+                    modifier = forceFirstRoundModifier;
+                    roundType = modifier.type == RoundModifierDefinition.ModifierType.Angel ? RoundType.Angel : RoundType.Devil;
+                }
+                else if (i == 1 && forceSecondRoundModifier != null)
+                {
+                    modifier = forceSecondRoundModifier;
+                    roundType = modifier.type == RoundModifierDefinition.ModifierType.Angel ? RoundType.Angel : RoundType.Devil;
+                }
+                generatedRounds.Add(new RoundData(i, roundType, modifier));
             }
             return;
         }
@@ -210,30 +218,26 @@ public sealed class GameSession : MonoBehaviour
             AssignProbabilityRounds(roundTypes, rng);
         }
 
-        // Create RoundData with assigned modifiers
+        // Create RoundData with assigned (and optionally forced) modifiers
         for (int i = 0; i < totalRounds; i++)
         {
             RoundModifierDefinition modifier = null;
             RoundType roundType = roundTypes[i];
 
-            // Testing: force specific rounds to use a modifier (card color matches modifier type: Angel=green, Devil=red)
-            if (i == 0)
+            // Testing hook: force first or second round to use a specific modifier
+            if (i == 0 && forceFirstRoundModifier != null)
             {
-                if (forceFirstRoundNormal)
-                {
-                    modifier = null;
-                    roundType = RoundType.Normal;
-                }
-                else if (forceFirstRoundModifier != null)
-                {
-                    modifier = forceFirstRoundModifier;
-                    roundType = modifier.type == RoundModifierDefinition.ModifierType.Angel ? RoundType.Angel : RoundType.Devil;
-                }
+                modifier = forceFirstRoundModifier;
+                roundType = modifier.type == RoundModifierDefinition.ModifierType.Angel
+                    ? RoundType.Angel
+                    : RoundType.Devil;
             }
             else if (i == 1 && forceSecondRoundModifier != null)
             {
                 modifier = forceSecondRoundModifier;
-                roundType = modifier.type == RoundModifierDefinition.ModifierType.Angel ? RoundType.Angel : RoundType.Devil;
+                roundType = modifier.type == RoundModifierDefinition.ModifierType.Angel
+                    ? RoundType.Angel
+                    : RoundType.Devil;
             }
             else if (roundType == RoundType.Angel && activeChallenge != null && activeChallenge.angelPool != null)
             {
@@ -244,7 +248,14 @@ public sealed class GameSession : MonoBehaviour
                 modifier = activeChallenge.devilPool.GetRandomModifier(rng);
             }
 
-            generatedRounds.Add(new RoundData(i, roundType, modifier));
+            var roundData = new RoundData(i, roundType, modifier);
+            if (modifier != null && modifier.useTwoRandomDevilsFromPool && activeChallenge != null && activeChallenge.devilPool != null)
+            {
+                var resolved = activeChallenge.devilPool.GetRandomModifiers(rng, 2, modifier);
+                if (resolved != null && resolved.Count > 0)
+                    roundData.compositeModifiers = resolved;
+            }
+            generatedRounds.Add(roundData);
         }
     }
 

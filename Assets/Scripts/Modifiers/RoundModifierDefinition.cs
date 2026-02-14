@@ -48,17 +48,14 @@ public class RoundModifierDefinition : ScriptableObject
     [Tooltip("Number of balls added or removed for this round. Positive = more balls.")]
     public int ballModifier = 0;
 
-    [Header("Ball Visibility (e.g. Guess Where)")]
-    [Tooltip("If true, the ball visually disappears on a timer (physics unchanged).")]
-    public bool cycleBallVisibility = false;
-
-    [Tooltip("Seconds the ball is visible before it disappears.")]
+    [Header("Speed")]
+    [Tooltip("Multiplier for game/ball speed this round (Time.timeScale). 1.2 = 20% faster.")]
     [Min(0.1f)]
-    public float ballHideInterval = 5f;
+    public float ballSpeedMultiplier = 1f;
 
-    [Tooltip("Seconds the ball stays invisible before reappearing.")]
-    [Min(0.1f)]
-    public float ballHideDuration = 3f;
+    [Header("Composite (special)")]
+    [Tooltip("If true, this modifier is \"Unlucky Day\": at round start, 2 random devil modifiers from the challenge's devil pool are applied instead of this asset's numeric fields.")]
+    public bool useTwoRandomDevilsFromPool = false;
 
     /// <summary>
     /// Returns a formatted string describing all active effects.
@@ -98,9 +95,11 @@ public class RoundModifierDefinition : ScriptableObject
             sb.AppendLine($"{sign}{ballModifier} Ball{(Mathf.Abs(ballModifier) != 1 ? "s" : "")}");
         }
 
-        if (cycleBallVisibility)
+        if (ballSpeedMultiplier > 0f && !Mathf.Approximately(ballSpeedMultiplier, 1f))
         {
-            sb.AppendLine($"Ball invisible every {ballHideInterval:0.#}s for {ballHideDuration:0.#}s");
+            float percent = (ballSpeedMultiplier - 1f) * 100f;
+            string sign = percent >= 0 ? "+" : "";
+            sb.AppendLine($"{sign}{percent:0}% Speed");
         }
 
         return sb.ToString().TrimEnd();

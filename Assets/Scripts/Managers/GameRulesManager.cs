@@ -9,7 +9,7 @@ public class GameRulesManager : MonoBehaviour
     [SerializeField] private ScoreManager scoreManager;
     [SerializeField] private ScoreTallyAnimator scoreTallyAnimator;
     [SerializeField] private List<float> goalByRound = new List<float> { 500f, 800f, 1200f, 1700f, 2300f, 3000f, 4000f };
-    [SerializeField] private float pointsPerCoin = 100f;
+    [SerializeField] private float pointsPerCoin = 300f;
 
     [Header("Balls / Rounds")]
     [SerializeField] private int startingMaxBalls = 5;
@@ -18,8 +18,6 @@ public class GameRulesManager : MonoBehaviour
     [Header("Ball Spawning")]
     [Tooltip("Required: BallSpawner pre-spawns a hand of balls and lerps the next ball to spawnPoint.")]
     [SerializeField] private BallSpawner ballSpawner;
-    [Tooltip("Seconds after a ball arrives at spawn before it can be drained. Prevents immediate drain when spawn overlaps ResetZone.")]
-    [SerializeField] private float spawnGracePeriod = 1.2f;
 
     [Header("Ball Loadout (hand)")]
     [Tooltip("Optional: starting ball prefabs for the player's hand/loadout. If empty, falls back to repeating Ball Prefab.")]
@@ -51,6 +49,8 @@ public class GameRulesManager : MonoBehaviour
     // Active round modifier (from GameSession's generated rounds)
     private RoundModifierDefinition _activeModifier;
     private RoundData _currentRoundData;
+    // When active modifier is "Unlucky Day" (useTwoRandomDevilsFromPool), these are the 2 resolved devil modifiers.
+    private readonly List<RoundModifierDefinition> _compositeModifiers = new List<RoundModifierDefinition>();
 
     /// <summary>
     /// Fired whenever a new round is started (after goal/round UI is reset).
@@ -65,7 +65,7 @@ public class GameRulesManager : MonoBehaviour
     public float RoundTotal => roundTotal;
     public float CurrentGoal => GetGoalForRound(roundIndex);
     public int BallLoadoutCount => _ballLoadout.Count;
-    public List<GameObject> ActiveBalls => ballSpawner != null ? ballSpawner.ActiveBalls : null;
+    public GameObject ActiveBall => ballSpawner != null ? ballSpawner.ActiveBall : null;
 
     /// <summary>
     /// The currently active round modifier, if any.
@@ -78,19 +78,83 @@ public class GameRulesManager : MonoBehaviour
     public RoundData CurrentRoundData => _currentRoundData;
 
     /// <summary>
-    /// Returns the score multiplier from the active modifier (1.0 if no modifier).
+    /// Returns the score multiplier from the active modifier (or product of composite modifiers for Unlucky Day).
     /// </summary>
-    public float GetModifierScoreMultiplier() => _activeModifier?.scoreMultiplier ?? 1f;
+    public float GetModifierScoreMultiplier()
+    {
+        if (_compositeModifiers.Count > 0)
+        {
+            float p = 1f;
+            foreach (var m in _compositeModifiers)
+                p *= m != null ? m.scoreMultiplier : 1f;
+            return p;
+        }
+        return _activeModifier?.scoreMultiplier ?? 1f;
+    }
 
     /// <summary>
-    /// Returns the coin multiplier from the active modifier (1.0 if no modifier).
+    /// Returns the coin multiplier from the active modifier (or product of composite modifiers).
     /// </summary>
-    public float GetModifierCoinMultiplier() => _activeModifier?.coinMultiplier ?? 1f;
+    public float GetModifierCoinMultiplier()
+    {
+        if (_compositeModifiers.Count > 0)
+        {
+            float p = 1f;
+            foreach (var m in _compositeModifiers)
+                p *= m != null ? m.coinMultiplier : 1f;
+            return p;
+        }
+        return _activeModifier?.coinMultiplier ?? 1f;
+    }
 
     /// <summary>
-    /// Returns true if the multiplier is disabled by the active modifier.
+    /// Returns the ball/game speed multiplier from the active modifier (or product of composites).
     /// </summary>
-    public bool IsMultiplierDisabled() => _activeModifier?.disableMultiplier ?? false;
+    public float GetModifierSpeedMultiplier()
+    {
+        if (_compositeModifiers.Count > 0)
+        {
+            float p = 1f;
+            foreach (var m in _compositeModifiers)
+            {
+                if (m != null && m.ballSpeedMultiplier > 0f)
+                    p *= m.ballSpeedMultiplier;
+            }
+            return p > 0f ? p : 1f;
+        }
+        if (_activeModifier == null) return 1f;
+        float single = _activeModifier.ballSpeedMultiplier;
+        return single > 0f ? single : 1f;
+    }
+
+    /// <summary>
+    /// Returns true if the multiplier is disabled by the active modifier (or any composite).
+    /// </summary>
+    public bool IsMultiplierDisabled()
+    {
+        if (_compositeModifiers.Count > 0)
+        {
+            foreach (var m in _compositeModifiers)
+                if (m != null && m.disableMultiplier) return true;
+            return false;
+        }
+        return _activeModifier?.disableMultiplier ?? false;
+    }
+
+    /// <summary>
+    /// Returns the combined ball modifier (balls added/removed) from the active modifier or composites.
+    /// </summary>
+    public int GetModifierBallModifier()
+    {
+        if (_compositeModifiers.Count > 0)
+        {
+            int sum = 0;
+            foreach (var m in _compositeModifiers)
+                if (m != null) sum += m.ballModifier;
+            return sum;
+        }
+        return _activeModifier?.ballModifier ?? 0;
+    }
 
     private void ResolveBallSpawner(bool logIfMissing)
     {
@@ -100,9 +164,11 @@ public class GameRulesManager : MonoBehaviour
         // In additive scene setups, the BallSpawner may exist in a different loaded scene than this object.
         // Always resolve by searching across all loaded scenes.
         BallSpawner[] found;
-
+#if UNITY_2022_2_OR_NEWER
         found = FindObjectsByType<BallSpawner>(FindObjectsSortMode.None);
-
+#else
+        found = FindObjectsOfType<BallSpawner>(includeInactive: false);
+#endif
 
         if (found == null || found.Length == 0)
         {
@@ -163,8 +229,11 @@ public class GameRulesManager : MonoBehaviour
             return;
 
         ScoreTallyAnimator[] found;
+#if UNITY_2022_2_OR_NEWER
         found = FindObjectsByType<ScoreTallyAnimator>(FindObjectsSortMode.None);
-
+#else
+        found = FindObjectsOfType<ScoreTallyAnimator>(includeInactive: false);
+#endif
 
         if (found == null || found.Length == 0)
         {
@@ -203,8 +272,11 @@ public class GameRulesManager : MonoBehaviour
 
         if (shopTransitionController == null)
         {
+#if UNITY_2022_2_OR_NEWER
             shopTransitionController = FindFirstObjectByType<ShopTransitionController>();
-
+#else
+            shopTransitionController = FindObjectOfType<ShopTransitionController>();
+#endif
         }
     }
 
@@ -258,10 +330,11 @@ public class GameRulesManager : MonoBehaviour
         EnsureLoadoutWithinCapacity();
         ballsRemaining = _ballLoadout.Count;
 
-        // Apply ball modifier from active modifier
-        if (_activeModifier != null && _activeModifier.ballModifier != 0)
+        // Apply ball modifier from active modifier (or combined composites for Unlucky Day)
+        int ballMod = GetModifierBallModifier();
+        if (ballMod != 0)
         {
-            ballsRemaining = Mathf.Max(1, ballsRemaining + _activeModifier.ballModifier);
+            ballsRemaining = Mathf.Max(1, ballsRemaining + ballMod);
         }
 
         if (scoreManager != null)
@@ -272,12 +345,13 @@ public class GameRulesManager : MonoBehaviour
             scoreManager.SetGoal(CurrentGoal);
             scoreManager.SetBallsRemaining(ballsRemaining);
             scoreManager.SetCoins(coins);
+            scoreManager.SetModifierSpeedMultiplier(GetModifierSpeedMultiplier());
         }
 
         RoundStarted?.Invoke();
 
         ballSpawner.ClearAll();
-        // Build hand with exactly ballsRemaining balls (Fragile=4, normal=5)
+        // Build hand with exactly ballsRemaining balls (e.g. 5 normal, 6 Extra Life, 4 Fragile)
         var handPrefabs = new List<GameObject>();
         for (int i = 0; i < ballsRemaining; i++)
         {
@@ -300,6 +374,7 @@ public class GameRulesManager : MonoBehaviour
     {
         _activeModifier = null;
         _currentRoundData = null;
+        _compositeModifiers.Clear();
 
         var session = GameSession.Instance;
         if (session == null || !session.HasGeneratedRounds)
@@ -311,6 +386,24 @@ public class GameRulesManager : MonoBehaviour
         if (_currentRoundData != null)
         {
             _activeModifier = _currentRoundData.modifier;
+            if (_activeModifier != null && _activeModifier.useTwoRandomDevilsFromPool)
+            {
+                if (_currentRoundData.compositeModifiers != null && _currentRoundData.compositeModifiers.Count > 0)
+                {
+                    _compositeModifiers.AddRange(_currentRoundData.compositeModifiers);
+                }
+                else
+                {
+                    var challenge = session.ActiveChallenge;
+                    if (challenge != null && challenge.devilPool != null)
+                    {
+                        var rng = new System.Random(session.Seed + roundIndex);
+                        var resolved = challenge.devilPool.GetRandomModifiers(rng, 2, _activeModifier);
+                        if (resolved != null)
+                            _compositeModifiers.AddRange(resolved);
+                    }
+                }
+            }
         }
     }
 
@@ -327,25 +420,11 @@ public class GameRulesManager : MonoBehaviour
             return;
         }
 
-        // Avoid draining a ball that just arrived at spawn (prevents freeze when spawn overlaps ResetZone).
-        ResolveBallSpawner(logIfMissing: false);
-        if (ballSpawner != null && ball == ballSpawner.ActiveBall && spawnGracePeriod > 0f)
-        {
-            float elapsed = Time.time - ballSpawner.LastActivationTime;
-            if (elapsed < spawnGracePeriod)
-                return;
-        }
-
         StartCoroutine(OnBallDrainedRoutine(ball, bankMultiplier, showHomeRunPopup));
     }
 
     private System.Collections.IEnumerator OnBallDrainedRoutine(GameObject ball, float bankMultiplier, bool showHomeRunPopup)
     {
-        if (ActiveBalls.Count > 1)
-        {
-            DespawnBall(ball);
-            yield break;
-        }
         _drainProcessing = true;
 
         if (!runActive || shopOpen)
@@ -523,33 +602,30 @@ public class GameRulesManager : MonoBehaviour
 
     private float GetGoalForRound(int index)
     {
-        if (goalByRound == null || goalByRound.Count == 0)
+        float baseGoal = GetBaseGoalForRound(index);
+        if (_compositeModifiers.Count > 0)
         {
-            return 0f;
+            foreach (var m in _compositeModifiers)
+                if (m != null) baseGoal = Mathf.Max(0f, baseGoal + m.goalModifier);
+            return baseGoal;
         }
-
-        if (index < 0)
-        {
-            index = 0;
-        }
-
-        float baseGoal;
-        if (index >= goalByRound.Count)
-        {
-            baseGoal = goalByRound[goalByRound.Count - 1];
-        }
-        else
-        {
-            baseGoal = goalByRound[index];
-        }
-
-        // Apply goal modifier from active modifier
         if (_activeModifier != null && !Mathf.Approximately(_activeModifier.goalModifier, 0f))
-        {
             baseGoal = Mathf.Max(0f, baseGoal + _activeModifier.goalModifier);
-        }
-
         return baseGoal;
+    }
+
+    /// <summary>
+    /// Returns the round goal before any modifier (e.g. Higher Stakes) is applied.
+    /// Used for coin awards so the player doesn't get extra coins for modifier-added difficulty.
+    /// </summary>
+    private float GetBaseGoalForRound(int index)
+    {
+        if (goalByRound == null || goalByRound.Count == 0)
+            return 0f;
+        if (index < 0) index = 0;
+        if (index >= goalByRound.Count)
+            return goalByRound[goalByRound.Count - 1];
+        return goalByRound[index];
     }
 
     private float BankCurrentBallIntoRoundTotal()
@@ -602,11 +678,12 @@ public class GameRulesManager : MonoBehaviour
     private void AwardCoinsFromRoundTotal()
     {
         if (pointsPerCoin <= 0f)
-        {
             return;
-        }
 
-        int award = Mathf.FloorToInt(roundTotal / pointsPerCoin);
+        // Award coins based on base goal only (not roundTotal). So Higher Stakes' +500
+        // doesn't pay extra coins, and payouts stay reasonable.
+        float baseGoal = GetBaseGoalForRound(roundIndex);
+        int award = Mathf.FloorToInt(baseGoal / pointsPerCoin);
 
         // Apply coin multiplier from active modifier
         float coinMultiplier = GetModifierCoinMultiplier();

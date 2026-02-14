@@ -295,8 +295,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MultAdder
   scoreManager: {fileID: 0}
+  gameRulesManager: {fileID: 0}
   multToAdd: 0.5
   floatingTextSpawner: {fileID: 0}
+  blockedMultTextOffset: 0.4
 --- !u!114 &37594358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1709,8 +1711,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MultAdder
   scoreManager: {fileID: 0}
+  gameRulesManager: {fileID: 0}
   multToAdd: 0.1
   floatingTextSpawner: {fileID: 0}
+  blockedMultTextOffset: 0.4
 --- !u!114 &275102298
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3887,6 +3891,7 @@ GameObject:
   - component: {fileID: 612767042}
   - component: {fileID: 612767044}
   - component: {fileID: 612767043}
+  - component: {fileID: 612767045}
   m_Layer: 5
   m_Name: Score Panel
   m_TagString: Untagged
@@ -3954,6 +3959,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 612767041}
   m_CullTransparentMesh: 1
+--- !u!114 &612767045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 612767041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29238535f1c1e944fb99ddae01c82c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MultAdder
+  scoreManager: {fileID: 0}
+  gameRulesManager: {fileID: 0}
+  multToAdd: 1
+  floatingTextSpawner: {fileID: 0}
+  blockedMultTextOffset: 1
 --- !u!1 &616263959
 GameObject:
   m_ObjectHideFlags: 0
@@ -7559,6 +7581,7 @@ GameObject:
   - component: {fileID: 1233534047}
   - component: {fileID: 1233534046}
   - component: {fileID: 1233534051}
+  - component: {fileID: 1233534052}
   m_Layer: 0
   m_Name: Bumper (5)
   m_TagString: Untagged
@@ -7714,6 +7737,23 @@ MonoBehaviour:
   destructionBonusPoints: 250
   disableGameObjectOnExplode: 1
   destroyGameObjectOnExplode: 0
+--- !u!114 &1233534052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1233534044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29238535f1c1e944fb99ddae01c82c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MultAdder
+  scoreManager: {fileID: 0}
+  gameRulesManager: {fileID: 0}
+  multToAdd: 0
+  floatingTextSpawner: {fileID: 0}
+  blockedMultTextOffset: 0.4
 --- !u!1 &1259238407
 GameObject:
   m_ObjectHideFlags: 0
@@ -7729,6 +7769,7 @@ GameObject:
   - component: {fileID: 1259238410}
   - component: {fileID: 1259238409}
   - component: {fileID: 1259238414}
+  - component: {fileID: 1259238415}
   m_Layer: 0
   m_Name: Bumper (4)
   m_TagString: Untagged
@@ -7884,6 +7925,23 @@ MonoBehaviour:
   destructionBonusPoints: 250
   disableGameObjectOnExplode: 1
   destroyGameObjectOnExplode: 0
+--- !u!114 &1259238415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1259238407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29238535f1c1e944fb99ddae01c82c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MultAdder
+  scoreManager: {fileID: 0}
+  gameRulesManager: {fileID: 0}
+  multToAdd: 1
+  floatingTextSpawner: {fileID: 0}
+  blockedMultTextOffset: 0.7
 --- !u!1 &1262688782
 GameObject:
   m_ObjectHideFlags: 0
@@ -8538,6 +8596,7 @@ GameObject:
   - component: {fileID: 1417931062}
   - component: {fileID: 1417931061}
   - component: {fileID: 1417931066}
+  - component: {fileID: 1417931067}
   m_Layer: 0
   m_Name: Bumper (7)
   m_TagString: Untagged
@@ -8693,6 +8752,23 @@ MonoBehaviour:
   destructionBonusPoints: 250
   disableGameObjectOnExplode: 1
   destroyGameObjectOnExplode: 0
+--- !u!114 &1417931067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1417931059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29238535f1c1e944fb99ddae01c82c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MultAdder
+  scoreManager: {fileID: 0}
+  gameRulesManager: {fileID: 0}
+  multToAdd: 1
+  floatingTextSpawner: {fileID: 0}
+  blockedMultTextOffset: 1
 --- !u!1 &1424678470
 GameObject:
   m_ObjectHideFlags: 0
@@ -10236,8 +10312,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MultAdder
   scoreManager: {fileID: 0}
+  gameRulesManager: {fileID: 0}
   multToAdd: 0.1
   floatingTextSpawner: {fileID: 0}
+  blockedMultTextOffset: 0.4
 --- !u!114 &1938440443
 MonoBehaviour:
   m_ObjectHideFlags: 0

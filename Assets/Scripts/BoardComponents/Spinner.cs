@@ -5,12 +5,13 @@ using UnityEngine;
 public class Spinner : MonoBehaviour
 {
     [SerializeField] private float prevAngle = 0;
-    [SerializeField] private PointAdder pa;
-    [SerializeField] private Transform bt;
+    [SerializeField] private PointAdder pointAdder;
+    [SerializeField] private float maxAngle = 300;
+    [SerializeField] private float minAngle = 100;
 
     void Awake()
     {
-        pa = GetComponent<PointAdder>();
+        pointAdder = GetComponent<PointAdder>();
     }
     void FixedUpdate()
     {
@@ -22,19 +23,10 @@ public class Spinner : MonoBehaviour
             return;
         }
 
-        if ((newAngle <= 100 && prevAngle >= 300) || (newAngle >= 300 && prevAngle <= 100))
+        if ((newAngle <= minAngle && prevAngle >= maxAngle) || (newAngle >= maxAngle && prevAngle <= minAngle))
         {
-            pa.AddPoints(transform);
+            pointAdder.AddPoints(transform);
         }
         prevAngle = newAngle;
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        
-        if (collision.collider.CompareTag("Ball"))
-        {
-            bt = collision.collider.transform;
-        }
     }
 }

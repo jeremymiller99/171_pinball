@@ -2,25 +2,14 @@ using UnityEngine;
 
 public class MultBall : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [SerializeField] private float amountToMultiply;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    //Doubles mults's multtoadd when it enters, halves it when collision is over.
     void OnCollisionEnter(Collision collision)
     {
         MultAdder adder = collision.collider.GetComponent<MultAdder>();
         if(adder)
         {
-            adder.multiplyMultToAdd(2);
+            adder.multiplyMultToAdd(amountToMultiply);
         }
     }
 
@@ -29,7 +18,25 @@ public class MultBall : MonoBehaviour
         MultAdder adder = collision.collider.GetComponent<MultAdder>();
         if(adder)
         {
-            adder.multiplyMultToAdd(.5f);
+            adder.multiplyMultToAdd(1 / amountToMultiply);
+        }
+    }
+
+    void OnTriggerEnter(Collider collider)
+    {
+        MultAdder adder = collider.GetComponent<MultAdder>();
+        if(adder)
+        {
+            adder.multiplyMultToAdd(amountToMultiply);
+        }
+    }
+
+    void OnTriggerExit(Collider collider)
+    {
+        MultAdder adder = collider.GetComponent<MultAdder>();
+        if(adder)
+        {
+            adder.multiplyMultToAdd(1 / amountToMultiply);
         }
     }
 }

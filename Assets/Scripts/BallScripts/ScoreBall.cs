@@ -3,25 +3,14 @@ using UnityEngine;
 
 public class ScoreBall : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [SerializeField] private float amountToMultiply;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    //Doubles adder's pointstoadd when it enters, halves it when collision is over.
     void OnCollisionEnter(Collision collision)
     {
         PointAdder adder = collision.collider.GetComponent<PointAdder>();
         if(adder)
         {
-            adder.multiplyPointsToAdd(2);
+            adder.multiplyPointsToAdd(amountToMultiply);
         }
     }
 
@@ -30,7 +19,7 @@ public class ScoreBall : MonoBehaviour
         PointAdder adder = collision.collider.GetComponent<PointAdder>();
         if(adder)
         {
-            adder.multiplyPointsToAdd(.5f);
+            adder.multiplyPointsToAdd(1 / amountToMultiply);
         }
     }
 
@@ -39,7 +28,7 @@ public class ScoreBall : MonoBehaviour
         PointAdder adder = collision.GetComponent<PointAdder>();
         if (adder)
         {
-            adder.multiplyPointsToAdd(2);
+            adder.multiplyPointsToAdd(amountToMultiply);
         }
     }
 
@@ -48,7 +37,7 @@ public class ScoreBall : MonoBehaviour
         PointAdder adder = collision.GetComponent<PointAdder>();
         if (adder)
         {
-            adder.multiplyPointsToAdd(.5f);
+            adder.multiplyPointsToAdd(1 / amountToMultiply);
         }
     }
 }

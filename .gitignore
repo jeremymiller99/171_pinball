@@ -120,3 +120,7 @@ fmod_editor.log
 # FMOD 1.10.x (Legacy)
 /Assets/FMODAssets/*
 /Assets/FMODStudioCache.meta
+
+# Ignore dev folder
+/[Aa]ssets/_Dev
+/[Aa]ssets/_Dev.meta

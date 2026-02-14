@@ -65,7 +65,7 @@ public class GameRulesManager : MonoBehaviour
     public float RoundTotal => roundTotal;
     public float CurrentGoal => GetGoalForRound(roundIndex);
     public int BallLoadoutCount => _ballLoadout.Count;
-    public GameObject ActiveBall => ballSpawner != null ? ballSpawner.ActiveBall : null;
+    public List<GameObject> ActiveBalls => ballSpawner != null ? ballSpawner.ActiveBalls : null;
 
     /// <summary>
     /// The currently active round modifier, if any.
@@ -100,11 +100,9 @@ public class GameRulesManager : MonoBehaviour
         // In additive scene setups, the BallSpawner may exist in a different loaded scene than this object.
         // Always resolve by searching across all loaded scenes.
         BallSpawner[] found;
-#if UNITY_2022_2_OR_NEWER
+
         found = FindObjectsByType<BallSpawner>(FindObjectsSortMode.None);
-#else
-        found = FindObjectsOfType<BallSpawner>(includeInactive: false);
-#endif
+
 
         if (found == null || found.Length == 0)
         {
@@ -165,11 +163,8 @@ public class GameRulesManager : MonoBehaviour
             return;
 
         ScoreTallyAnimator[] found;
-#if UNITY_2022_2_OR_NEWER
         found = FindObjectsByType<ScoreTallyAnimator>(FindObjectsSortMode.None);
-#else
-        found = FindObjectsOfType<ScoreTallyAnimator>(includeInactive: false);
-#endif
+
 
         if (found == null || found.Length == 0)
         {
@@ -208,11 +203,8 @@ public class GameRulesManager : MonoBehaviour
 
         if (shopTransitionController == null)
         {
-#if UNITY_2022_2_OR_NEWER
             shopTransitionController = FindFirstObjectByType<ShopTransitionController>();
-#else
-            shopTransitionController = FindObjectOfType<ShopTransitionController>();
-#endif
+
         }
     }
 
@@ -349,6 +341,11 @@ public class GameRulesManager : MonoBehaviour
 
     private System.Collections.IEnumerator OnBallDrainedRoutine(GameObject ball, float bankMultiplier, bool showHomeRunPopup)
     {
+        if (ActiveBalls.Count > 1)
+        {
+            DespawnBall(ball);
+            yield break;
+        }
         _drainProcessing = true;
 
         if (!runActive || shopOpen)

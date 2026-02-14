@@ -221,8 +221,8 @@ public sealed class FrenzyController : MonoBehaviour
 
     private Vector3 ResolveGoalBurstOrigin()
     {
-        if (_rules != null && _rules.ActiveBall != null)
-            return _rules.ActiveBall.transform.position;
+        if (_rules != null && _rules.ActiveBalls.Count != 0)
+            return _rules.ActiveBalls[0].transform.position;
 
         Camera cam = Camera.main;
         if (cam != null)

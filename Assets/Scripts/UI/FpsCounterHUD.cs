@@ -10,8 +10,9 @@ using UnityEngine.UI;
 public sealed class FpsCounterHUD : MonoBehaviour
 {
     internal const string RootObjectName = "__FPSCounterHUD";
-    private const float AnchorPaddingX = 12f;
-    private const float AnchorPaddingY = -15f; // moved down by 3 (was -12)
+    // Top-right inset (anchoredPosition is relative to the anchor/pivot).
+    private const float AnchorPaddingX = -12f;
+    private const float AnchorPaddingY = -15f;
     private const float BaseFontSize = 24f;
     private const float FontScale = 0.65f; // 35% smaller
     private const string PreferredFontName = "Early GameBoy";
@@ -24,8 +25,9 @@ public sealed class FpsCounterHUD : MonoBehaviour
     [Min(0.05f)]
     [SerializeField] private float updateInterval = 0.25f;
 
-    [Tooltip("If true, shows both FPS and frame time in ms.")]
-    [SerializeField] private bool showMs = true;
+    // Intentionally kept for backward compatibility with existing serialized data.
+    // FPS display is now always a compact "fps: 000" format.
+    [SerializeField, HideInInspector] private bool showMs = false;
 
     private int _frames;
     private float _timeAccum;
@@ -56,15 +58,8 @@ public sealed class FpsCounterHUD : MonoBehaviour
             return;
 
         float fps = _frames / Mathf.Max(0.000001f, _timeAccum);
-        if (showMs)
-        {
-            float ms = 1000f / Mathf.Max(0.000001f, fps);
-            label.text = $"FPS: {fps:0}  ({ms:0.0}ms)";
-        }
-        else
-        {
-            label.text = $"FPS: {fps:0}";
-        }
+        int fpsRounded = Mathf.Clamp(Mathf.RoundToInt(fps), 0, 999);
+        label.text = $"fps: {fpsRounded:000}";
 
         _frames = 0;
         _timeAccum = 0f;
@@ -90,11 +85,11 @@ public sealed class FpsCounterHUD : MonoBehaviour
         transform.SetAsLastSibling(); // keep on top
 
         var rootRt = GetComponent<RectTransform>() ?? gameObject.AddComponent<RectTransform>();
-        rootRt.anchorMin = new Vector2(0f, 1f);
-        rootRt.anchorMax = new Vector2(0f, 1f);
-        rootRt.pivot = new Vector2(0f, 1f);
+        rootRt.anchorMin = new Vector2(1f, 1f);
+        rootRt.anchorMax = new Vector2(1f, 1f);
+        rootRt.pivot = new Vector2(1f, 1f);
         rootRt.anchoredPosition = new Vector2(AnchorPaddingX, AnchorPaddingY);
-        rootRt.sizeDelta = new Vector2(320f, 60f);
+        rootRt.sizeDelta = new Vector2(200f, 40f);
 
         if (!label)
         {
@@ -114,10 +109,10 @@ public sealed class FpsCounterHUD : MonoBehaviour
             var tmp = textGo.GetComponent<TextMeshProUGUI>();
             tmp.raycastTarget = false;
             tmp.textWrappingMode = TextWrappingModes.NoWrap;
-            tmp.alignment = TextAlignmentOptions.TopLeft;
+            tmp.alignment = TextAlignmentOptions.TopRight;
             tmp.fontSize = Mathf.Ceil(BaseFontSize * FontScale);
             tmp.color = Color.white;
-            tmp.text = "FPS: --";
+            tmp.text = "fps: 000";
             ApplyPreferredFont(tmp);
 
             label = tmp;

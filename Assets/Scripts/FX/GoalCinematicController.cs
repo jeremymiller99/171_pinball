@@ -15,6 +15,8 @@ using UnityEngine.SceneManagement;
 [DefaultExecutionOrder(200)]
 public sealed class GoalCinematicController : MonoBehaviour
 {
+    // Slow motion removed per request:
+    // This component now disables itself immediately so it cannot affect Time.timeScale.
     [Header("Activation")]
     [Range(0f, 1f)]
     [SerializeField] private float startThreshold01 = 0.85f;
@@ -51,6 +53,14 @@ public sealed class GoalCinematicController : MonoBehaviour
     private void OnEnable()
     {
         ResolveRefs();
+
+        // Ensure no lingering request, then disable permanently.
+        if (_score != null)
+        {
+            _score.ClearTimeScaleRequest(this);
+        }
+        enabled = false;
+        if (!enabled) return;
 
         if (_score != null)
             _score.GoalTierChanged += OnGoalTierChanged;

@@ -20,7 +20,8 @@ public sealed class FrenzyController : MonoBehaviour
 
     [Header("Frenzy scoring")]
     [Min(0f)]
-    [SerializeField] private float frenzyScoreAwardMultiplier = 10f;
+    [Tooltip("Multiplier applied to positive point awards during Frenzy. Example: 1.10 = +10%.")]
+    [SerializeField] private float frenzyScoreAwardMultiplier = 1.10f;
 
     [Header("Goal pop (cube burst)")]
     [Min(0)]
@@ -152,7 +153,7 @@ public sealed class FrenzyController : MonoBehaviour
 
         if (_score != null)
         {
-            // Apply frenzy scoring. (GoalCinematicController handles the goal-hit slow-mo hold.)
+            // Apply frenzy scoring.
             _score.SetExternalScoreAwardMultiplier(frenzyScoreAwardMultiplier);
         }
 

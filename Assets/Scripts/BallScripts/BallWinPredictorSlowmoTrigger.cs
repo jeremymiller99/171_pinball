@@ -15,6 +15,8 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public sealed class BallWinPredictorSlowmoTrigger : MonoBehaviour
 {
+    // Slow motion removed per request:
+    // This component now disables itself immediately so it cannot affect Time.timeScale.
     [Header("Trigger filtering")]
     [SerializeField] private string ballTag = "Ball";
     [Tooltip("Optional: restrict which layers are considered as targets. Leave to Everything to keep simple.")]
@@ -55,6 +57,13 @@ public sealed class BallWinPredictorSlowmoTrigger : MonoBehaviour
     private void OnEnable()
     {
         ResolveScore();
+
+        // Ensure no lingering request, then disable permanently.
+        if (_score != null)
+        {
+            _score.ClearTimeScaleRequest(this);
+        }
+        enabled = false;
     }
 
     private void OnDisable()

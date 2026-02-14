@@ -431,7 +431,8 @@ public class ScoreManager : MonoBehaviour
     /// </summary>
     public void SetExternalTimeScaleMultiplier(float multiplier)
     {
-        externalTimeScaleMultiplier = Mathf.Max(0f, multiplier);
+        // Slow-mo removed: never allow multipliers below 1.
+        externalTimeScaleMultiplier = Mathf.Max(1f, multiplier);
         ApplySpeedFromTier(force: true);
     }
 
@@ -444,7 +445,8 @@ public class ScoreManager : MonoBehaviour
     {
         if (source == null) return;
         int id = source.GetInstanceID();
-        _timeScaleRequestBySourceId[id] = Mathf.Max(0f, multiplier);
+        // Slow-mo removed: treat any request below 1 as "no request".
+        _timeScaleRequestBySourceId[id] = Mathf.Max(1f, multiplier);
         RecomputeTimeScaleRequestMin();
         ApplySpeedFromTier(force: true);
     }
@@ -576,8 +578,10 @@ public class ScoreManager : MonoBehaviour
         CaptureTimeBaseIfNeeded();
 
         // Target is baseline * tier multiplier.
-        float requestMult = Mathf.Max(0f, _timeScaleRequestMin);
-        float targetScale = _baseTimeScale * Mathf.Max(0f, SpeedMultiplier) * Mathf.Max(0f, externalTimeScaleMultiplier) * requestMult;
+        // Slow-mo removed: never allow any multiplier to reduce speed below baseline.
+        float requestMult = Mathf.Max(1f, _timeScaleRequestMin);
+        float extMult = Mathf.Max(1f, externalTimeScaleMultiplier);
+        float targetScale = _baseTimeScale * Mathf.Max(0f, SpeedMultiplier) * extMult * requestMult;
         if (maxTimeScale > 0f)
         {
             targetScale = Mathf.Min(targetScale, maxTimeScale);

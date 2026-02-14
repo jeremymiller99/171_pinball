@@ -20,6 +20,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BoardScenes/Board_Spinners.unity
     guid: 242f12e6e1cafda41b069f7c2b80174b
+  - enabled: 1
+    path: Assets/Scenes/Core/ComponentGameplayCore.unity
+    guid: 39bb9bf33aaca544883e4a11bea6f652
+  - enabled: 1
+    path: Assets/Scenes/Core/CompGameplay.unity
+    guid: 515a1c9362ac35c40bf8b7122bc95b14
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: cb46637bbf1f9044dbadfee88b4ba194, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

@@ -317,7 +317,7 @@ public sealed class ShopUIController : MonoBehaviour
         }
     }
 
-    private void RefreshUI()
+    public void RefreshUI()
     {
         if (coinsText != null && rulesManager != null)
         {

@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - Ball
+  - Target
+  - Portal
+  - Bumper
   layers:
   - Default
   - TransparentFX

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MultiBall : MonoBehaviour
+public class MultiBall : Ball
 {
     [SerializeField] private GameObject prefab;
     [SerializeField] private BallSpawner ballSpawner;

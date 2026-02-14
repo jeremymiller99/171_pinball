@@ -1,7 +1,7 @@
 using System.Net.Sockets;
 using UnityEngine;
 
-public class ScoreBall : MonoBehaviour
+public class ScoreBall : Ball
 {
     [SerializeField] private float amountToMultiply;
 

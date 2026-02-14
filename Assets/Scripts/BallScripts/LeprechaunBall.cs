@@ -1,7 +1,7 @@
 using System.Drawing;
 using UnityEngine;
 
-public class LeprechaunBall : MonoBehaviour
+public class LeprechaunBall : Ball
 {
     [SerializeField] private GameRulesManager gameRulesManager;
     [SerializeField] private FloatingTextSpawner floatingTextSpawner;

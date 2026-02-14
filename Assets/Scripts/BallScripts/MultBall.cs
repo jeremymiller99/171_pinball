@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MultBall : MonoBehaviour
+public class MultBall : Ball
 {
     [SerializeField] private float amountToMultiply;
 

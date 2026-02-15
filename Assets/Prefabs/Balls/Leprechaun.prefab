@@ -168,9 +168,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 710cb77f6446ed04f95645b3bc605ef2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  particleSystem: {fileID: 0}
   trailRenderer: {fileID: 0}
-  amountToEmit: 0
+  amountToEmit: 10
+  particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
+  poolSize: 15
   grm: {fileID: 0}
   floatingTextSpawner: {fileID: 0}
   textOffset: {x: 0, y: -2, z: 0}

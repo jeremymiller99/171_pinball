@@ -258,9 +258,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 266556b076f51354d9655ad3a1b6d6db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  particleSystem: {fileID: 0}
   trailRenderer: {fileID: 0}
-  amountToEmit: 0
+  amountToEmit: 10
+  particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
+  poolSize: 15
 --- !u!96 &4070781534835327072
 TrailRenderer:
   serializedVersion: 3

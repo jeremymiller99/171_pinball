@@ -289,4 +289,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   trailRenderer: {fileID: 0}
   amountToEmit: 10
-  baseSizeVector: {x: 2.5, y: 1, z: 0.4}
+  particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
+  poolSize: 15

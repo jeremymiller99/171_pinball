@@ -169,9 +169,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5811b677f21c2b428cf29e60d0cf630, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  particleSystem: {fileID: 0}
   trailRenderer: {fileID: 0}
-  amountToEmit: 0
+  amountToEmit: 10
+  particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
+  poolSize: 15
   wallMaterial: {fileID: 13400000, guid: 2538733681627dc44ab2109ad5e3bdcb, type: 2}
   pa: {fileID: -5737138886917130576}
   camShake: {fileID: 0}

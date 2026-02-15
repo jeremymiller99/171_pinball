@@ -1,5 +1,7 @@
+// Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
 using UnityEngine;
 using FMODUnity;
+using System.Globalization;
 
 public class MultAdder : MonoBehaviour
 {
@@ -55,7 +57,10 @@ public class MultAdder : MonoBehaviour
             float applied = GetEffectiveMultToAdd();
             scoreManager?.AddMult(applied);
             // Spawn red mult text at the ball's position
-            floatingTextSpawner?.SpawnMultText(collision.collider.transform.position, "x" + applied, applied);
+            floatingTextSpawner?.SpawnMultText(
+                collision.collider.transform.position,
+                "x" + FormatMultiplier(applied),
+                applied);
         }
     }
 
@@ -67,8 +72,14 @@ public class MultAdder : MonoBehaviour
             float applied = GetEffectiveMultToAdd();
             scoreManager?.AddMult(applied);
             // Spawn red mult text at the ball's position
-            floatingTextSpawner?.SpawnMultText(col.transform.position, "x" + applied, applied);
+            floatingTextSpawner?.SpawnMultText(col.transform.position, "x" + FormatMultiplier(applied), applied);
         }
+    }
+
+    private static string FormatMultiplier(float value)
+    {
+        float rounded = Mathf.Round(value * 100f) / 100f;
+        return rounded.ToString("0.##", CultureInfo.InvariantCulture);
     }
 
     public void multiplyMultToAdd(float mult)

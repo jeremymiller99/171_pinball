@@ -1,7 +1,9 @@
+// Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
 using UnityEngine;
 using TMPro;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine.SceneManagement;
 
 public class ScoreManager : MonoBehaviour
@@ -211,6 +213,37 @@ public class ScoreManager : MonoBehaviour
     private const string BallsRemainingObjectName = "Balls Remaining";
     private const string CoinsObjectName = "Coins";
 
+    private static string FormatPointsCompact(float value)
+    {
+        // Keep 1-999 as-is, abbreviate at 4+ digits: 1k, 1.1k, ... 10k, 10.1k, ... 100k.
+        float abs = Mathf.Abs(value);
+        if (abs < 1000f)
+        {
+            return Mathf.RoundToInt(value).ToString(CultureInfo.InvariantCulture);
+        }
+
+        float k = abs / 1000f;
+        float kRounded1 = Mathf.Round(k * 10f) / 10f;
+
+        // At 100k+ show no decimal: 100k, 101k, ...
+        if (kRounded1 >= 100f)
+        {
+            string s = Mathf.RoundToInt(kRounded1).ToString(CultureInfo.InvariantCulture) + "k";
+            return value < 0f ? "-" + s : s;
+        }
+
+        // Under 100k show up to 1 decimal, dropping trailing .0: 1k, 1.1k, 10k, 10.1k, ...
+        string core = kRounded1.ToString("0.#", CultureInfo.InvariantCulture) + "k";
+        return value < 0f ? "-" + core : core;
+    }
+
+    private static string FormatMultiplier(float value)
+    {
+        // Prevent float artifacts like 2.9999999 in UI.
+        float rounded = Mathf.Round(value * 100f) / 100f;
+        return rounded.ToString("0.##", CultureInfo.InvariantCulture);
+    }
+
     private void OnEnable()
     {
         SceneManager.sceneLoaded += HandleSceneLoaded;
@@ -292,7 +325,7 @@ public class ScoreManager : MonoBehaviour
         UpdateGoalTierAndApplySpeed();
 
         if (pointsText != null)
-            pointsText.text = points.ToString();
+            pointsText.text = FormatPointsCompact(points);
 
         ScoreChanged?.Invoke();
         return applied;
@@ -354,7 +387,7 @@ public class ScoreManager : MonoBehaviour
 
         UpdateGoalTierAndApplySpeed();
         if (multText != null)
-            multText.text = mult.ToString();
+            multText.text = FormatMultiplier(mult);
         ScoreChanged?.Invoke();
     }
 
@@ -527,9 +560,9 @@ public class ScoreManager : MonoBehaviour
     {
         EnsureCoreScoreTextBindings();
         if (pointsText != null)
-            pointsText.text = points.ToString();
+            pointsText.text = FormatPointsCompact(points);
         if (multText != null)
-            multText.text = mult.ToString();
+            multText.text = FormatMultiplier(mult);
         if (roundTotalText != null)
             roundTotalText.text = roundTotal.ToString();
         if (goalText != null)

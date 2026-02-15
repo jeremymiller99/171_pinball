@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -45,6 +46,27 @@ public class ScoreTallyAnimator : MonoBehaviour
     private const string MultObjectName = "Mult";
     private const string XObjectName = "X";
     private const string RoundTotalObjectName = "RoundTotal";
+
+    private static string FormatPointsCompact(float value)
+    {
+        float abs = Mathf.Abs(value);
+        if (abs < 1000f)
+        {
+            return Mathf.RoundToInt(value).ToString(CultureInfo.InvariantCulture);
+        }
+
+        float k = abs / 1000f;
+        float kRounded1 = Mathf.Round(k * 10f) / 10f;
+
+        if (kRounded1 >= 100f)
+        {
+            string s = Mathf.RoundToInt(kRounded1).ToString(CultureInfo.InvariantCulture) + "k";
+            return value < 0f ? "-" + s : s;
+        }
+
+        string core = kRounded1.ToString("0.#", CultureInfo.InvariantCulture) + "k";
+        return value < 0f ? "-" + core : core;
+    }
 
     private void OnEnable()
     {
@@ -146,7 +168,7 @@ public class ScoreTallyAnimator : MonoBehaviour
         if (m <= 0f) m = 1f;
 
         float banked = scoreManager.points * scoreManager.mult * m;
-        xText.text = banked.ToString();
+        xText.text = FormatPointsCompact(banked);
 
         if (holdAtXDuration > 0f)
             yield return new WaitForSeconds(holdAtXDuration);

@@ -1,3 +1,4 @@
+// Updated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
 using UnityEngine;
 
 /// <summary>
@@ -16,45 +17,88 @@ public sealed class CubeShardAutoDestroy : MonoBehaviour
     [Min(0f)]
     [SerializeField] private float shrinkDurationSeconds = 0.35f;
 
-    private float _t0;
     private Vector3 _initialScale;
+
+    private Coroutine _lifetimeRoutine;
 
     private void Awake()
     {
-        _t0 = Time.unscaledTime;
         _initialScale = transform.localScale;
+    }
+
+    private void Start()
+    {
+        RestartRoutine();
     }
 
     public void SetLifetime(float seconds)
     {
         lifetimeSeconds = Mathf.Max(0f, seconds);
+
+        // If configured after Start (rare), restart so the new value applies.
+        if (_lifetimeRoutine != null)
+        {
+            RestartRoutine();
+        }
     }
 
-    private void Update()
+    public void SetShrink(bool shrink, float durationSeconds)
     {
-        float age = Time.unscaledTime - _t0;
-        float life = Mathf.Max(0f, lifetimeSeconds);
+        shrinkBeforeDestroy = shrink;
+        shrinkDurationSeconds = Mathf.Max(0f, durationSeconds);
 
+        if (_lifetimeRoutine != null)
+        {
+            RestartRoutine();
+        }
+    }
+
+    private void RestartRoutine()
+    {
+        if (_lifetimeRoutine != null)
+        {
+            StopCoroutine(_lifetimeRoutine);
+            _lifetimeRoutine = null;
+        }
+
+        _lifetimeRoutine = StartCoroutine(LifetimeRoutine());
+    }
+
+    private System.Collections.IEnumerator LifetimeRoutine()
+    {
+        float life = Mathf.Max(0f, lifetimeSeconds);
         if (life <= 0f)
         {
             Destroy(gameObject);
-            return;
+            yield break;
         }
 
-        float remaining = life - age;
-        if (shrinkBeforeDestroy && remaining <= Mathf.Max(0f, shrinkDurationSeconds))
+        bool doShrink = shrinkBeforeDestroy && shrinkDurationSeconds > 0.0001f;
+        float shrinkDur = Mathf.Max(0f, shrinkDurationSeconds);
+
+        float wait = doShrink ? Mathf.Max(0f, life - shrinkDur) : life;
+        if (wait > 0f)
         {
-            float d = Mathf.Max(0.0001f, shrinkDurationSeconds);
-            float u = Mathf.Clamp01(1f - (remaining / d));
-            // Ease-out to 0
-            float s = 1f - (u * u * (3f - 2f * u));
-            transform.localScale = _initialScale * Mathf.Max(0f, s);
+            yield return new WaitForSecondsRealtime(wait);
         }
 
-        if (age >= life)
+        if (doShrink && shrinkDur > 0f)
         {
-            Destroy(gameObject);
+            float t = 0f;
+            while (t < shrinkDur)
+            {
+                t += Time.unscaledDeltaTime;
+                float u = Mathf.Clamp01(t / shrinkDur);
+
+                // Ease-out to 0 (SmoothStep).
+                float s = 1f - (u * u * (3f - 2f * u));
+                transform.localScale = _initialScale * Mathf.Max(0f, s);
+
+                yield return null;
+            }
         }
+
+        Destroy(gameObject);
     }
 }
 

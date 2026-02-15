@@ -3921,7 +3921,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1896921312}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
@@ -4318,15 +4318,15 @@ MonoBehaviour:
   canvas: {fileID: 912259833}
   targetCamera: {fileID: 248943762}
   spawnOffset: {x: 100, y: 0}
-  pointsFontAsset: {fileID: 11400000, guid: d58a353ed7431b940a08824b02c7af05, type: 2}
+  pointsFontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
   pointsScaleMin: 0.6
   pointsScaleMax: 1.2
   pointsMaxValue: 100
-  multFontAsset: {fileID: 11400000, guid: 247f814cefeaec743a15406dbb427857, type: 2}
+  multFontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
   multScaleMin: 0.6
   multScaleMax: 1.3
   multMaxValue: 3
-  goldFontAsset: {fileID: 11400000, guid: c61f1867c77b09d45a87f58ae70d10c0, type: 2}
+  goldFontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
   goldScaleMin: 0.6
   goldScaleMax: 1.1
   goldMaxValue: 5

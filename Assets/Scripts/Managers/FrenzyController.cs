@@ -1,3 +1,4 @@
+// Updated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
 using System;
 using System.Collections;
 using UnityEngine;
@@ -257,8 +258,10 @@ public sealed class FrenzyController : MonoBehaviour
 
             var rb = shard.AddComponent<Rigidbody>();
             rb.mass = 0.06f;
-            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            rb.interpolation = RigidbodyInterpolation.Interpolate;
+            // These shards are purely visual flair. Use cheap physics settings to avoid
+            // frame drops that can feel like "slow motion" after goal reached.
+            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            rb.interpolation = RigidbodyInterpolation.None;
 
             rb.AddExplosionForce(force, origin, radius * 2f, goalBurstUpwardsModifier, ForceMode.Impulse);
             rb.AddTorque(UnityEngine.Random.insideUnitSphere * torque, ForceMode.Impulse);

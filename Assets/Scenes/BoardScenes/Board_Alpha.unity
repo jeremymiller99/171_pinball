@@ -148,8 +148,8 @@ Transform:
   m_GameObject: {fileID: 30575251}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.13, y: 0.83, z: -17.38}
-  m_LocalScale: {x: 18.148306, y: 1.8838, z: 2.570883}
+  m_LocalPosition: {x: -2.34, y: 0.83, z: -17.38}
+  m_LocalScale: {x: 22.456715, y: 1.8838, z: 2.570883}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 854561775}
@@ -10575,6 +10575,8 @@ GameObject:
   - component: {fileID: 2114677307}
   - component: {fileID: 2114677306}
   - component: {fileID: 2114677305}
+  - component: {fileID: 2114677308}
+  - component: {fileID: 2114677309}
   m_Layer: 0
   m_Name: BG
   m_TagString: Untagged
@@ -10675,6 +10677,41 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2114677303}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2114677308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2114677303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d2e501dbd78e374e9e87f52992d89b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ParentToCamera
+  cameraTransform: {fileID: 0}
+  worldPositionStays: 1
+  snapToCameraLocalTransform: 0
+  retrySeconds: 0.1
+--- !u!114 &2114677309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2114677303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f46dbb18724b7e4a8c73698f333e7cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardBackgroundMaterialSwitcher
+  targetRenderer: {fileID: 2114677306}
+  materialSlotIndex: 0
+  useSharedMaterials: 1
+  normalMaterial: {fileID: 2100000, guid: cb73eeb574cf855478b600cca5e41bf8, type: 2}
+  angelMaterial: {fileID: 2100000, guid: 9788ac1a6fcb62f47afc3bfcaab3c545, type: 2}
+  devilMaterial: {fileID: 2100000, guid: 1e34657d59d1f5e468b351ae8ab28ec8, type: 2}
+  pollContinuouslyInPlayMode: 1
 --- !u!4 &2145936060 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6128317739597231693, guid: e63e99e8f4dffeb44b47e111ac9a8e6b, type: 3}

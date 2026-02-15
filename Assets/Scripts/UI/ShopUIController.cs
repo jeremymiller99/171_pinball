@@ -321,7 +321,7 @@ public sealed class ShopUIController : MonoBehaviour
     {
         if (coinsText != null && rulesManager != null)
         {
-            coinsText.text = rulesManager.Coins.ToString();
+            coinsText.text = $"${rulesManager.Coins}";
         }
     }
 

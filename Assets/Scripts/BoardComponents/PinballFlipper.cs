@@ -1,3 +1,6 @@
+// Modified by Cursor AI (GPT-5.2) for jjmil on 2026-02-15.
+// Fix: flipper up/down SFX now triggers for centralized bindings + new input system.
+
 using UnityEngine;
 using FMODUnity;
 
@@ -54,15 +57,15 @@ public class PinballFlipper : MonoBehaviour
     private Quaternion _baseLocalRotation;
     private float _currentOffset;
     private bool _pressed;
+    private bool _previousPressed;
     private Rigidbody _rb;
-    private bool _upSFXPlayed = false;
-    private bool _downSFXPlayed = true;
 
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
         _baseLocalRotation = transform.localRotation;
         _currentOffset = 0f;
+        _previousPressed = false;
     }
 
     private void Update()
@@ -72,6 +75,8 @@ public class PinballFlipper : MonoBehaviour
 #else
         _pressed = useCentralBindings ? GetPressed_Centralized() : GetPressed_LegacyInput();
 #endif
+
+        HandleFlipperSfx();
     }
 
     private bool GetPressed_Centralized()
@@ -136,18 +141,6 @@ public class PinballFlipper : MonoBehaviour
                 else if (useMouseMiddleButton && mouse.middleButton.isPressed) pressed = true;
             }
         }
-        if (pressed && !_upSFXPlayed)
-        {
-            FMODUnity.RuntimeManager.PlayOneShot("event:/flipper_up");
-            _upSFXPlayed = true;
-            _downSFXPlayed = false;
-        }
-        if (!pressed && !_downSFXPlayed)
-        {
-            FMODUnity.RuntimeManager.PlayOneShot("event:/flipper_down");
-            _downSFXPlayed = true;
-            _upSFXPlayed = false;
-        }
         return pressed;
     }
 #else
@@ -172,6 +165,19 @@ public class PinballFlipper : MonoBehaviour
         return false;
     }
 #endif
+
+    private void HandleFlipperSfx()
+    {
+        if (_pressed == _previousPressed)
+            return;
+
+        if (_pressed)
+            RuntimeManager.PlayOneShot("event:/flipper_up");
+        else
+            RuntimeManager.PlayOneShot("event:/flipper_down");
+
+        _previousPressed = _pressed;
+    }
 
     private void FixedUpdate()
     {

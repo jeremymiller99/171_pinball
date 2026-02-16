@@ -55,16 +55,46 @@ public class ScoreTallyAnimator : MonoBehaviour
             return Mathf.RoundToInt(value).ToString(CultureInfo.InvariantCulture);
         }
 
-        float k = abs / 1000f;
-        float kRounded1 = Mathf.Round(k * 10f) / 10f;
-
-        if (kRounded1 >= 100f)
+        float scale = 1000f;
+        string suffix = "K";
+        if (abs >= 1000000000f)
         {
-            string s = Mathf.RoundToInt(kRounded1).ToString(CultureInfo.InvariantCulture) + "k";
+            scale = 1000000000f;
+            suffix = "B";
+        }
+        else if (abs >= 1000000f)
+        {
+            scale = 1000000f;
+            suffix = "M";
+        }
+
+        float scaled = abs / scale;
+        float scaledRounded1 = Mathf.Round(scaled * 10f) / 10f;
+
+        if (scaledRounded1 >= 1000f)
+        {
+            if (suffix == "K")
+            {
+                scale = 1000000f;
+                suffix = "M";
+            }
+            else if (suffix == "M")
+            {
+                scale = 1000000000f;
+                suffix = "B";
+            }
+
+            scaled = abs / scale;
+            scaledRounded1 = Mathf.Round(scaled * 10f) / 10f;
+        }
+
+        if (scaledRounded1 >= 100f)
+        {
+            string s = Mathf.RoundToInt(scaledRounded1).ToString(CultureInfo.InvariantCulture) + suffix;
             return value < 0f ? "-" + s : s;
         }
 
-        string core = kRounded1.ToString("0.#", CultureInfo.InvariantCulture) + "k";
+        string core = scaledRounded1.ToString("0.#", CultureInfo.InvariantCulture) + suffix;
         return value < 0f ? "-" + core : core;
     }
 

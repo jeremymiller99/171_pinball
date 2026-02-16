@@ -339,6 +339,21 @@ public class GameRulesManager : MonoBehaviour
         ResolveScoreManager(logIfMissing: false);
         ResolveScoreTallyAnimator(logIfMissing: false);
 
+        // Capture the banked score for this drain so we can persist totalPointsScored.
+        // For the animated path, the coroutine itself commits the bank and resets points/mult.
+        // For the instant path, BankCurrentBallIntoRoundTotal returns the banked amount.
+        double bankedPoints = 0d;
+        if (scoreManager != null)
+        {
+            float m = bankMultiplier;
+            if (m <= 0f)
+            {
+                m = 1f;
+            }
+
+            bankedPoints = scoreManager.points * scoreManager.mult * m;
+        }
+
         Vector3 drainedBallWorldPos = ball != null ? ball.transform.position : Vector3.zero;
         DespawnBall(ball);
 
@@ -355,8 +370,10 @@ public class GameRulesManager : MonoBehaviour
         }
         else
         {
-            BankCurrentBallIntoRoundTotal(bankMultiplier);
+            bankedPoints = BankCurrentBallIntoRoundTotal(bankMultiplier);
         }
+
+        ProfileService.AddBankedPoints(bankedPoints);
 
         ballsRemaining = Mathf.Max(0, ballsRemaining - 1);
         if (scoreManager != null)

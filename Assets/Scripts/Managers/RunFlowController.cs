@@ -117,8 +117,10 @@ public sealed class RunFlowController : MonoBehaviour
             session.GenerateRounds(totalRounds);
         }
 
+        bool skipInitialPreview = ProfileService.ConsumeCleanFirstRunSkipIfNeeded();
+
         // Show round preview panel if enabled and rounds were generated
-        if (showRoundPreview && session.HasGeneratedRounds)
+        if (showRoundPreview && session.HasGeneratedRounds && !skipInitialPreview)
         {
             yield return StartCoroutine(ShowRoundPreviewAndWait(session));
         }
@@ -251,6 +253,7 @@ public sealed class RunFlowController : MonoBehaviour
         if (next == null)
         {
             // Run complete. Return to main menu.
+            ProfileService.RecordRunCompleted();
             session.ResetSession();
             SceneManager.LoadScene(mainMenuSceneName);
             yield break;

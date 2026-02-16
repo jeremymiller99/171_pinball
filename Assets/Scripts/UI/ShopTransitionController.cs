@@ -27,13 +27,36 @@ public sealed class ShopTransitionController : MonoBehaviour
     [Tooltip("Root GameObject to enable/disable for the shop. Usually the same object that GameRulesManager toggles.")]
     [SerializeField] private GameObject shopCanvasRoot;
 
-    [Tooltip("The RectTransform that slides. If omitted, we will try to find it from a ShopUIController on the shopCanvasRoot.")]
+    [Tooltip("Root RectTransform of the shop UI. Used for layout/offscreen calculations.")]
     [SerializeField] private RectTransform shopPanelRect;
+
+    [Header("Shop panels (animated)")]
+    [Tooltip("Slides from top.")]
+    [SerializeField] private RectTransform panelTitle;
+    [Tooltip("Slides from top.")]
+    [SerializeField] private RectTransform panelTabs;
+    [Tooltip("Slides from top.")]
+    [SerializeField] private RectTransform panelMoney;
+    [Tooltip("Slides from left.")]
+    [SerializeField] private RectTransform panelGumball;
+    [Tooltip("Slides from right.")]
+    [SerializeField] private RectTransform panelBalls;
+    [Tooltip("Slides from right.")]
+    [SerializeField] private RectTransform panelDone;
 
     [Tooltip("Extra padding beyond the panel width when hiding off-screen.")]
     [SerializeField] private float uiOffscreenPadding = 80f;
 
     [SerializeField] private float uiSlideDuration = 0.45f;
+    [Tooltip("Total time for Phase 1 (Title -> Tabs -> Money). If <= 0, falls back to Ui Slide Duration.")]
+    [SerializeField] private float phase1TotalDuration = 0f;
+
+    [Tooltip("Total time for Phase 2 (Gumball -> Balls). If <= 0, falls back to Ui Slide Duration.")]
+    [SerializeField] private float phase2TotalDuration = 0f;
+
+    [Tooltip("Time for Phase 3 (Done panel). If <= 0, falls back to Ui Slide Duration.")]
+    [SerializeField] private float phase3Duration = 0f;
+
     [SerializeField] private AnimationCurve uiEase = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     [Header("Board UI")]
@@ -51,11 +74,23 @@ public sealed class ShopTransitionController : MonoBehaviour
     // "Home" == gameplay view (board centered). We cache it once and only refresh it while not in-shop.
     private bool _hasCachedHome;
     private Vector3 _cameraHomeLocalPos;
-    private bool _hasCachedUiHome;
-    private Vector2 _uiHomeAnchoredPos;
 
     private Vector3 _cameraShopLocalPos;
-    private Vector2 _uiHiddenAnchoredPos;
+
+    private bool _hasCachedPanelHomes;
+    private Vector2 _panelTitleHome;
+    private Vector2 _panelTabsHome;
+    private Vector2 _panelMoneyHome;
+    private Vector2 _panelGumballHome;
+    private Vector2 _panelBallsHome;
+    private Vector2 _panelDoneHome;
+
+    private Vector2 _panelTitleHidden;
+    private Vector2 _panelTabsHidden;
+    private Vector2 _panelMoneyHidden;
+    private Vector2 _panelGumballHidden;
+    private Vector2 _panelBallsHidden;
+    private Vector2 _panelDoneHidden;
 
     private bool _isOpen;
     private bool _isTransitioning;
@@ -69,8 +104,8 @@ public sealed class ShopTransitionController : MonoBehaviour
     {
         AutoResolveRefs();
         CacheHomeIfNeeded(force: true);
-        CacheUiHomeIfNeeded(force: true);
-        RecomputeUiHiddenPos();
+        CachePanelHomesIfNeeded(force: true);
+        RecomputePanelHiddenPositions();
     }
 
     private void OnEnable()
@@ -78,8 +113,8 @@ public sealed class ShopTransitionController : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
         AutoResolveRefs();
         CacheHomeIfNeeded(force: false);
-        CacheUiHomeIfNeeded(force: false);
-        RecomputeUiHiddenPos();
+        CachePanelHomesIfNeeded(force: false);
+        RecomputePanelHiddenPositions();
     }
 
     private void OnDisable()
@@ -124,14 +159,10 @@ public sealed class ShopTransitionController : MonoBehaviour
         if (shopCanvasRoot != null && !shopCanvasRoot.activeSelf)
             shopCanvasRoot.SetActive(true);
 
-        // Ensure layout has a chance to update so rect sizes are correct for offscreen positioning.
-        Canvas.ForceUpdateCanvases();
-        CacheUiHomeIfNeeded(force: false);
-        RecomputeUiHiddenPos();
-
-        // Start with the panel hidden off-screen.
-        if (shopPanelRect != null)
-            shopPanelRect.anchoredPosition = _uiHiddenAnchoredPos;
+        EnsureShopLayout();
+        CachePanelHomesIfNeeded(force: false);
+        RecomputePanelHiddenPositions();
+        SnapPanelsToHidden();
 
         StartTransition(OpenRoutine());
     }
@@ -145,8 +176,9 @@ public sealed class ShopTransitionController : MonoBehaviour
         AutoResolveRefs();
         // Do NOT recache home here; we want to return to the gameplay-home pose.
         CacheHomeIfNeeded(force: false);
-        CacheUiHomeIfNeeded(force: false);
-        RecomputeUiHiddenPos();
+        EnsureShopLayout();
+        CachePanelHomesIfNeeded(force: false);
+        RecomputePanelHiddenPositions();
 
         if (_isTransitioning)
             return;
@@ -215,13 +247,15 @@ public sealed class ShopTransitionController : MonoBehaviour
     {
         _isTransitioning = true;
 
-        yield return Animate(
+        // Camera pans first while the shop panels remain hidden.
+        yield return AnimateCamera(
             fromCam: _cameraHomeLocalPos,
             toCam: _cameraShopLocalPos,
-            fromUI: _uiHiddenAnchoredPos,
-            toUI: _uiHomeAnchoredPos,
-            duration: Mathf.Max(0.001f, Mathf.Max(panDuration, uiSlideDuration))
+            duration: Mathf.Max(0.001f, panDuration)
         );
+
+        // Then panels slide in, in the requested order.
+        yield return SlidePanelsInSequence();
 
         _isTransitioning = false;
     }
@@ -230,17 +264,14 @@ public sealed class ShopTransitionController : MonoBehaviour
     {
         _isTransitioning = true;
 
-        yield return Animate(
+        // Panels exit first (opposite direction of their entry), then camera pans back to the board.
+        yield return SlidePanelsOutAll();
+
+        yield return AnimateCamera(
             fromCam: cameraRig != null ? cameraRig.localPosition : _cameraShopLocalPos,
             toCam: _cameraHomeLocalPos,
-            fromUI: shopPanelRect != null ? shopPanelRect.anchoredPosition : _uiHomeAnchoredPos,
-            toUI: _uiHiddenAnchoredPos,
-            duration: Mathf.Max(0.001f, Mathf.Max(panDuration, uiSlideDuration))
+            duration: Mathf.Max(0.001f, panDuration)
         );
-
-        // Snap to hidden so the next open always starts from a known state.
-        if (shopPanelRect != null)
-            shopPanelRect.anchoredPosition = _uiHiddenAnchoredPos;
 
         if (shopCanvasRoot != null)
             shopCanvasRoot.SetActive(false);
@@ -251,7 +282,7 @@ public sealed class ShopTransitionController : MonoBehaviour
         afterClosed?.Invoke();
     }
 
-    private IEnumerator Animate(Vector3 fromCam, Vector3 toCam, Vector2 fromUI, Vector2 toUI, float duration)
+    private IEnumerator AnimateCamera(Vector3 fromCam, Vector3 toCam, float duration)
     {
         float t = 0f;
         while (t < duration)
@@ -261,22 +292,102 @@ public sealed class ShopTransitionController : MonoBehaviour
             float n = Mathf.Clamp01(t / duration);
 
             float camN = panEase != null ? panEase.Evaluate(n) : n;
-            float uiN = uiEase != null ? uiEase.Evaluate(n) : n;
 
             if (cameraRig != null)
                 cameraRig.localPosition = Vector3.LerpUnclamped(fromCam, toCam, camN);
-
-            if (shopPanelRect != null)
-                shopPanelRect.anchoredPosition = Vector2.LerpUnclamped(fromUI, toUI, uiN);
 
             yield return null;
         }
 
         if (cameraRig != null)
             cameraRig.localPosition = toCam;
+    }
 
-        if (shopPanelRect != null)
-            shopPanelRect.anchoredPosition = toUI;
+    private IEnumerator AnimatePanel(RectTransform panel, Vector2 from, Vector2 to, float duration)
+    {
+        if (panel == null)
+            yield break;
+
+        float d = Mathf.Max(0.001f, duration);
+        float t = 0f;
+        while (t < d)
+        {
+            float dt = Time.unscaledDeltaTime;
+            t += dt;
+            float n = Mathf.Clamp01(t / d);
+
+            float uiN = uiEase != null ? uiEase.Evaluate(n) : n;
+            panel.anchoredPosition = Vector2.LerpUnclamped(from, to, uiN);
+
+            yield return null;
+        }
+
+        panel.anchoredPosition = to;
+    }
+
+    private IEnumerator SlidePanelsInSequence()
+    {
+        const int phase1PanelCount = 3;
+        const int phase2PanelCount = 2;
+
+        float fallback = Mathf.Max(0.001f, uiSlideDuration);
+
+        float p1Total = phase1TotalDuration > 0f ? phase1TotalDuration : fallback;
+        float p2Total = phase2TotalDuration > 0f ? phase2TotalDuration : fallback;
+        float p3 = phase3Duration > 0f ? phase3Duration : fallback;
+
+        float phase1 = Mathf.Max(0.001f, p1Total / phase1PanelCount);
+        float phase2 = Mathf.Max(0.001f, p2Total / phase2PanelCount);
+        float final = Mathf.Max(0.001f, p3);
+
+        yield return AnimatePanel(panelTitle, _panelTitleHidden, _panelTitleHome, phase1);
+        yield return AnimatePanel(panelTabs, _panelTabsHidden, _panelTabsHome, phase1);
+        yield return AnimatePanel(panelMoney, _panelMoneyHidden, _panelMoneyHome, phase1);
+
+        yield return AnimatePanel(panelGumball, _panelGumballHidden, _panelGumballHome, phase2);
+        yield return AnimatePanel(panelBalls, _panelBallsHidden, _panelBallsHome, phase2);
+
+        yield return AnimatePanel(panelDone, _panelDoneHidden, _panelDoneHome, final);
+    }
+
+    private IEnumerator SlidePanelsOutAll()
+    {
+        const int phase1PanelCount = 3;
+        const int phase2PanelCount = 2;
+
+        float fallback = Mathf.Max(0.001f, uiSlideDuration);
+
+        float p1Total = phase1TotalDuration > 0f ? phase1TotalDuration : fallback;
+        float p2Total = phase2TotalDuration > 0f ? phase2TotalDuration : fallback;
+        float p3 = phase3Duration > 0f ? phase3Duration : fallback;
+
+        float phase1 = Mathf.Max(0.001f, p1Total / phase1PanelCount);
+        float phase2 = Mathf.Max(0.001f, p2Total / phase2PanelCount);
+        float final = Mathf.Max(0.001f, p3);
+
+        Vector2 titleFrom = panelTitle != null ? panelTitle.anchoredPosition : _panelTitleHome;
+        Vector2 tabsFrom = panelTabs != null ? panelTabs.anchoredPosition : _panelTabsHome;
+        Vector2 moneyFrom = panelMoney != null ? panelMoney.anchoredPosition : _panelMoneyHome;
+        Vector2 gumballFrom = panelGumball != null ? panelGumball.anchoredPosition : _panelGumballHome;
+        Vector2 ballsFrom = panelBalls != null ? panelBalls.anchoredPosition : _panelBallsHome;
+        Vector2 doneFrom = panelDone != null ? panelDone.anchoredPosition : _panelDoneHome;
+
+        if (panelTitle != null) StartCoroutine(AnimatePanel(panelTitle, titleFrom, _panelTitleHidden, phase1));
+        if (panelTabs != null) StartCoroutine(AnimatePanel(panelTabs, tabsFrom, _panelTabsHidden, phase1));
+        if (panelMoney != null) StartCoroutine(AnimatePanel(panelMoney, moneyFrom, _panelMoneyHidden, phase1));
+        if (panelGumball != null) StartCoroutine(AnimatePanel(panelGumball, gumballFrom, _panelGumballHidden, phase2));
+        if (panelBalls != null) StartCoroutine(AnimatePanel(panelBalls, ballsFrom, _panelBallsHidden, phase2));
+        if (panelDone != null) StartCoroutine(AnimatePanel(panelDone, doneFrom, _panelDoneHidden, final));
+
+        float maxDuration = Mathf.Max(phase1, Mathf.Max(phase2, final));
+        float t = 0f;
+        while (t < maxDuration)
+        {
+            t += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        SnapPanelsToHidden();
     }
 
     private void LockGameplayInput()
@@ -347,7 +458,7 @@ public sealed class ShopTransitionController : MonoBehaviour
     {
         if (shopCanvasRoot == null)
         {
-            var shop = FindFirstObjectByTypeCompat<ShopUIController>();
+            var shop = FindFirstObjectByTypeCompat<ShopUIController>(includeInactive: true);
             if (shop != null)
             {
                 shopCanvasRoot = shop.gameObject;
@@ -358,6 +469,17 @@ public sealed class ShopTransitionController : MonoBehaviour
         {
             // Prefer the root RectTransform on the shop canvas root.
             shopPanelRect = shopCanvasRoot.GetComponent<RectTransform>();
+        }
+
+        if (shopCanvasRoot != null)
+        {
+            Transform root = shopCanvasRoot.transform;
+            if (panelTitle == null) panelTitle = FindRectTransformByName(root, "Panel_Title");
+            if (panelTabs == null) panelTabs = FindRectTransformByName(root, "Panel_Tabs");
+            if (panelMoney == null) panelMoney = FindRectTransformByName(root, "Panel_Money");
+            if (panelGumball == null) panelGumball = FindRectTransformByName(root, "Panel_Gumball");
+            if (panelBalls == null) panelBalls = FindRectTransformByName(root, "Panel_Balls");
+            if (panelDone == null) panelDone = FindRectTransformByName(root, "Panel_Done");
         }
 
         if (cameraRig == null)
@@ -405,49 +527,151 @@ public sealed class ShopTransitionController : MonoBehaviour
         _hasCachedHome = true;
     }
 
-    private void CacheUiHomeIfNeeded(bool force)
+    private void CachePanelHomesIfNeeded(bool force)
     {
-        if (shopPanelRect == null)
+        AutoResolveRefs();
+
+        if (!force && _hasCachedPanelHomes)
             return;
 
-        if (!force && _hasCachedUiHome)
-            return;
+        if (panelTitle != null) _panelTitleHome = panelTitle.anchoredPosition;
+        if (panelTabs != null) _panelTabsHome = panelTabs.anchoredPosition;
+        if (panelMoney != null) _panelMoneyHome = panelMoney.anchoredPosition;
+        if (panelGumball != null) _panelGumballHome = panelGumball.anchoredPosition;
+        if (panelBalls != null) _panelBallsHome = panelBalls.anchoredPosition;
+        if (panelDone != null) _panelDoneHome = panelDone.anchoredPosition;
 
-        // Capture the "open" position ONCE (typically its design-time anchoredPosition in the scene).
-        // Important: do NOT keep re-caching this at runtime because after we close we park the panel off-screen.
-        _uiHomeAnchoredPos = shopPanelRect.anchoredPosition;
-        _hasCachedUiHome = true;
+        _hasCachedPanelHomes =
+            panelTitle != null &&
+            panelTabs != null &&
+            panelMoney != null &&
+            panelGumball != null &&
+            panelBalls != null &&
+            panelDone != null;
     }
 
-    private void RecomputeUiHiddenPos()
+    private void RecomputePanelHiddenPositions()
     {
-        if (shopPanelRect == null)
-            return;
+        AutoResolveRefs();
+        EnsureShopLayout();
 
-        float width = shopPanelRect.rect.width;
-        if (width <= 0.01f)
+        RectTransform boundsRect = shopPanelRect != null ? shopPanelRect : (panelTitle != null ? panelTitle.parent as RectTransform : null);
+        float boundsWidth = GetSafeRectWidth(boundsRect);
+        float boundsHeight = GetSafeRectHeight(boundsRect);
+
+        float pad = Mathf.Max(0f, uiOffscreenPadding);
+
+        float titleUp = GetHiddenOffsetY(boundsHeight, GetSafeRectHeight(panelTitle), pad);
+        float tabsUp = GetHiddenOffsetY(boundsHeight, GetSafeRectHeight(panelTabs), pad);
+        float moneyUp = GetHiddenOffsetY(boundsHeight, GetSafeRectHeight(panelMoney), pad);
+
+        float gumballLeft = GetHiddenOffsetX(boundsWidth, GetSafeRectWidth(panelGumball), pad);
+        float ballsRight = GetHiddenOffsetX(boundsWidth, GetSafeRectWidth(panelBalls), pad);
+        float doneRight = GetHiddenOffsetX(boundsWidth, GetSafeRectWidth(panelDone), pad);
+
+        _panelTitleHidden = _panelTitleHome + Vector2.up * titleUp;
+        _panelTabsHidden = _panelTabsHome + Vector2.up * tabsUp;
+        _panelMoneyHidden = _panelMoneyHome + Vector2.up * moneyUp;
+
+        _panelGumballHidden = _panelGumballHome + Vector2.left * gumballLeft;
+        _panelBallsHidden = _panelBallsHome + Vector2.right * ballsRight;
+        _panelDoneHidden = _panelDoneHome + Vector2.right * doneRight;
+    }
+
+    private void SnapPanelsToHidden()
+    {
+        if (panelTitle != null) panelTitle.anchoredPosition = _panelTitleHidden;
+        if (panelTabs != null) panelTabs.anchoredPosition = _panelTabsHidden;
+        if (panelMoney != null) panelMoney.anchoredPosition = _panelMoneyHidden;
+        if (panelGumball != null) panelGumball.anchoredPosition = _panelGumballHidden;
+        if (panelBalls != null) panelBalls.anchoredPosition = _panelBallsHidden;
+        if (panelDone != null) panelDone.anchoredPosition = _panelDoneHidden;
+    }
+
+    private void EnsureShopLayout()
+    {
+        if (shopPanelRect != null)
         {
-            // Try to force layout, then re-read.
             LayoutRebuilder.ForceRebuildLayoutImmediate(shopPanelRect);
-            Canvas.ForceUpdateCanvases();
-            width = shopPanelRect.rect.width;
         }
-        if (width <= 0.01f)
-        {
-            // Fallback: approximate using screen width in canvas units.
-            width = Mathf.Max(800f, Screen.width);
-        }
-
-        float hiddenX = width + Mathf.Max(0f, uiOffscreenPadding);
-        _uiHiddenAnchoredPos = _uiHomeAnchoredPos + Vector2.right * hiddenX;
+        Canvas.ForceUpdateCanvases();
     }
 
-    private static T FindFirstObjectByTypeCompat<T>() where T : UnityEngine.Object
+    private static float GetSafeRectWidth(RectTransform rt)
+    {
+        if (rt == null)
+        {
+            return Mathf.Max(800f, Screen.width);
+        }
+
+        float w = rt.rect.width;
+        if (w > 0.01f)
+        {
+            return w;
+        }
+
+        return Mathf.Max(800f, Screen.width);
+    }
+
+    private static float GetSafeRectHeight(RectTransform rt)
+    {
+        if (rt == null)
+        {
+            return Mathf.Max(600f, Screen.height);
+        }
+
+        float h = rt.rect.height;
+        if (h > 0.01f)
+        {
+            return h;
+        }
+
+        return Mathf.Max(600f, Screen.height);
+    }
+
+    private static float GetHiddenOffsetX(float boundsWidth, float panelWidth, float padding)
+    {
+        float w = boundsWidth > 0.01f ? boundsWidth : Mathf.Max(800f, Screen.width);
+        float p = panelWidth > 0.01f ? panelWidth : w * 0.5f;
+        return (w * 0.5f) + (p * 0.5f) + padding;
+    }
+
+    private static float GetHiddenOffsetY(float boundsHeight, float panelHeight, float padding)
+    {
+        float h = boundsHeight > 0.01f ? boundsHeight : Mathf.Max(600f, Screen.height);
+        float p = panelHeight > 0.01f ? panelHeight : h * 0.5f;
+        return (h * 0.5f) + (p * 0.5f) + padding;
+    }
+
+    private static RectTransform FindRectTransformByName(Transform root, string targetName)
+    {
+        if (root == null || string.IsNullOrEmpty(targetName))
+            return null;
+
+        RectTransform[] all = root.GetComponentsInChildren<RectTransform>(includeInactive: true);
+        for (int i = 0; i < all.Length; i++)
+        {
+            RectTransform rt = all[i];
+            if (rt != null && rt.name == targetName)
+            {
+                return rt;
+            }
+        }
+
+        return null;
+    }
+
+    private static T FindFirstObjectByTypeCompat<T>(bool includeInactive) where T : UnityEngine.Object
     {
 #if UNITY_2022_2_OR_NEWER
+        if (includeInactive)
+        {
+            return UnityEngine.Object.FindFirstObjectByType<T>(FindObjectsInactive.Include);
+        }
+
         return UnityEngine.Object.FindFirstObjectByType<T>();
 #else
-        return UnityEngine.Object.FindObjectOfType<T>();
+        return UnityEngine.Object.FindObjectOfType<T>(includeInactive: includeInactive);
 #endif
     }
 }

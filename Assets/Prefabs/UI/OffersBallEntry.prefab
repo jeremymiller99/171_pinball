@@ -623,4 +623,6 @@ MonoBehaviour:
   button: {fileID: 3936180641411483420}
   titleText: {fileID: 7546910652928778831}
   costText: {fileID: 7242929393551125548}
-  iconImage: {fileID: 5931973368544776772}
+  iconImage: {fileID: 2432358046985973618}
+  raiseTarget: {fileID: 5510877759924045676}
+  selectedRaiseY: 12

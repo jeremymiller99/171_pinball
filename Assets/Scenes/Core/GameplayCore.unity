@@ -5174,6 +5174,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: Shop Panel
       objectReference: {fileID: 0}
+    - target: {fileID: 411292097836914733, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1567203987517115847, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1567203987517115847, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1567203987517115847, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 338.33334
+      objectReference: {fileID: 0}
+    - target: {fileID: 1567203987517115847, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -50
+      objectReference: {fileID: 0}
     - target: {fileID: 3348201016743018332, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -5270,6 +5290,38 @@ PrefabInstance:
       propertyPath: shopTransitionController
       value: 
       objectReference: {fileID: 987650103}
+    - target: {fileID: 6846932041654222304, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6846932041654222304, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6846932041654222304, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 200.00002
+      objectReference: {fileID: 0}
+    - target: {fileID: 6846932041654222304, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -50
+      objectReference: {fileID: 0}
+    - target: {fileID: 7212899036295995080, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7212899036295995080, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7212899036295995080, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 61.666668
+      objectReference: {fileID: 0}
+    - target: {fileID: 7212899036295995080, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -50
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

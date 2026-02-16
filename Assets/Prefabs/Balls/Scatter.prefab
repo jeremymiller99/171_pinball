@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 1682731018784348660}
   - component: {fileID: 4058802016084885643}
   - component: {fileID: 4631388011694291341}
+  - component: {fileID: 7957608162571326216}
   m_Layer: 0
   m_Name: Scatter
   m_TagString: Ball
@@ -173,6 +174,7 @@ MonoBehaviour:
   particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
   poolSize: 15
   prefab: {fileID: 5723297401256486482}
+  ballSpawner: {fileID: 0}
   readyToSplit: 1
 --- !u!96 &4631388011694291341
 TrailRenderer:
@@ -293,3 +295,16 @@ TrailRenderer:
   m_Autodestruct: 0
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
+--- !u!114 &7957608162571326216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01885ebeb25ac6d4d8363e996aa00dbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BallDefinitionLink
+  definition: {fileID: 11400000, guid: 3831bb0ffd737894da5e6bb0fdeb873a, type: 2}

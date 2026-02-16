@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 1682731018784348660}
   - component: {fileID: 5996511875002658216}
   - component: {fileID: -6465046838061284915}
+  - component: {fileID: 4450916361603209073}
   m_Layer: 0
   m_Name: Leprechaun
   m_TagString: Ball
@@ -172,7 +173,7 @@ MonoBehaviour:
   amountToEmit: 10
   particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
   poolSize: 15
-  grm: {fileID: 0}
+  gameRulesManager: {fileID: 0}
   floatingTextSpawner: {fileID: 0}
   textOffset: {x: 0, y: -2, z: 0}
   coinsToAdd: 1
@@ -295,3 +296,16 @@ TrailRenderer:
   m_Autodestruct: 0
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
+--- !u!114 &4450916361603209073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01885ebeb25ac6d4d8363e996aa00dbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BallDefinitionLink
+  definition: {fileID: 11400000, guid: bc5c7467f0bb6f64f988fb888cbecd97, type: 2}

@@ -105,6 +105,7 @@ GameObject:
   - component: {fileID: 1682731018784348660}
   - component: {fileID: 7121942170096085295}
   - component: {fileID: 4070781534835327072}
+  - component: {fileID: 2097964190323927660}
   m_Layer: 0
   m_Name: Blue Two
   m_TagString: Ball
@@ -262,6 +263,7 @@ MonoBehaviour:
   amountToEmit: 10
   particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
   poolSize: 15
+  amountToMultiply: 0
 --- !u!96 &4070781534835327072
 TrailRenderer:
   serializedVersion: 3
@@ -381,3 +383,16 @@ TrailRenderer:
   m_Autodestruct: 0
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
+--- !u!114 &2097964190323927660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01885ebeb25ac6d4d8363e996aa00dbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BallDefinitionLink
+  definition: {fileID: 11400000, guid: 4b14eb5ea0e14ea469f9dc777aade6eb, type: 2}

@@ -23,6 +23,9 @@ public class GameRulesManager : MonoBehaviour
     [Tooltip("Optional: starting ball prefabs for the player's hand/loadout. If empty, falls back to repeating Ball Prefab.")]
     [SerializeField] private List<GameObject> startingBallLoadout = new List<GameObject>();
 
+    [Tooltip("Preferred: starting ball definitions for the player's hand/loadout.")]
+    [SerializeField] private List<BallDefinition> startingBallLoadoutDefinitions = new List<BallDefinition>();
+
     [Header("UI (optional)")]
     [SerializeField] private GameObject shopCanvasRoot;
     [SerializeField] private GameObject roundFailedUIRoot;
@@ -43,8 +46,8 @@ public class GameRulesManager : MonoBehaviour
     private bool shopOpen;
     private bool _drainProcessing;
 
-    // Which prefabs will be used for the next round's hand (size == maxBalls).
-    private readonly List<GameObject> _ballLoadout = new List<GameObject>();
+    // Which definitions will be used for the next round's hand (size == maxBalls).
+    private readonly List<BallDefinition> _ballLoadout = new List<BallDefinition>();
 
     // Active round modifier (from GameSession's generated rounds)
     private RoundModifierDefinition _activeModifier;
@@ -181,10 +184,27 @@ public class GameRulesManager : MonoBehaviour
     /// Returns a snapshot copy of the current ball loadout (one prefab per hand slot).
     /// Safe to enumerate without risking external mutation.
     /// </summary>
-    public List<GameObject> GetBallLoadoutSnapshot()
+    public List<BallDefinition> GetBallLoadoutSnapshot()
     {
         EnsureLoadoutWithinCapacity();
-        return new List<GameObject>(_ballLoadout);
+        return new List<BallDefinition>(_ballLoadout);
+    }
+
+    private List<GameObject> GetBallLoadoutPrefabSnapshot()
+    {
+        EnsureLoadoutWithinCapacity();
+
+        var prefabs = new List<GameObject>(_ballLoadout.Count);
+        for (int i = 0; i < _ballLoadout.Count; i++)
+        {
+            BallDefinition def = _ballLoadout[i];
+            if (def != null && def.Prefab != null)
+            {
+                prefabs.Add(def.Prefab);
+            }
+        }
+
+        return prefabs;
     }
 
     private void Awake()
@@ -275,7 +295,7 @@ public class GameRulesManager : MonoBehaviour
         RoundStarted?.Invoke();
 
         ballSpawner.ClearAll();
-        ballSpawner.BuildHandFromPrefabs(_ballLoadout);
+        ballSpawner.BuildHandFromPrefabs(GetBallLoadoutPrefabSnapshot());
 
         if (ballsRemaining > 0)
         {
@@ -445,31 +465,95 @@ public class GameRulesManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Adds a new ball prefab into the loadout if there is an open slot (i.e. loadoutCount &lt; MaxBalls).
+    /// Adds a new ball definition into the loadout if there is an open slot (i.e. loadoutCount &lt; MaxBalls).
     /// Returns true if added.
     /// </summary>
-    public bool AddBallToLoadout(GameObject prefab)
+    public bool AddBallToLoadout(BallDefinition def)
     {
-        if (prefab == null) return false;
+        if (def == null || def.Prefab == null) return false;
         EnsureLoadoutWithinCapacity();
         if (_ballLoadout.Count >= maxBalls)
         {
             return false;
         }
-        _ballLoadout.Add(prefab);
+        _ballLoadout.Add(def);
         return true;
     }
 
     /// <summary>
-    /// Replaces a ball in the loadout at <paramref name="slotIndex"/> with <paramref name="newPrefab"/>.
+    /// Legacy helper: adds a ball prefab by mapping it to a BallDefinitionLink if present.
+    /// </summary>
+    public bool AddBallToLoadout(GameObject prefab)
+    {
+        if (prefab == null) return false;
+
+        BallDefinition def = BallDefinitionUtilities.TryGetDefinitionFromPrefab(prefab);
+        if (def == null)
+        {
+            def = BallDefinition.CreateRuntime(
+                runtimeId: prefab.name,
+                runtimeDisplayName: prefab.name,
+                runtimeDescription: "",
+                runtimeRarity: BallRarity.Common,
+                runtimeIcon: BallDefinitionUtilities.TryGetPrefabSpriteIcon(prefab),
+                runtimePrefab: prefab,
+                runtimePrice: 0);
+        }
+
+        return AddBallToLoadout(def);
+    }
+
+    /// <summary>
+    /// Replaces a ball in the loadout at <paramref name="slotIndex"/> with <paramref name="newDef"/>.
     /// Returns true if successful.
+    /// </summary>
+    public bool ReplaceBallInLoadout(int slotIndex, BallDefinition newDef)
+    {
+        if (newDef == null || newDef.Prefab == null) return false;
+        EnsureLoadoutWithinCapacity();
+        if (slotIndex < 0 || slotIndex >= _ballLoadout.Count) return false;
+        _ballLoadout[slotIndex] = newDef;
+        return true;
+    }
+
+    /// <summary>
+    /// Legacy helper: replaces a prefab by mapping it to a BallDefinitionLink if present.
     /// </summary>
     public bool ReplaceBallInLoadout(int slotIndex, GameObject newPrefab)
     {
         if (newPrefab == null) return false;
+
+        BallDefinition def = BallDefinitionUtilities.TryGetDefinitionFromPrefab(newPrefab);
+        if (def == null)
+        {
+            def = BallDefinition.CreateRuntime(
+                runtimeId: newPrefab.name,
+                runtimeDisplayName: newPrefab.name,
+                runtimeDescription: "",
+                runtimeRarity: BallRarity.Common,
+                runtimeIcon: BallDefinitionUtilities.TryGetPrefabSpriteIcon(newPrefab),
+                runtimePrefab: newPrefab,
+                runtimePrice: 0);
+        }
+
+        return ReplaceBallInLoadout(slotIndex, def);
+    }
+
+    public bool SwapBallLoadoutSlots(int a, int b)
+    {
         EnsureLoadoutWithinCapacity();
-        if (slotIndex < 0 || slotIndex >= _ballLoadout.Count) return false;
-        _ballLoadout[slotIndex] = newPrefab;
+
+        if (a < 0 || b < 0 || a >= _ballLoadout.Count || b >= _ballLoadout.Count)
+        {
+            return false;
+        }
+
+        if (a == b)
+        {
+            return true;
+        }
+
+        (_ballLoadout[a], _ballLoadout[b]) = (_ballLoadout[b], _ballLoadout[a]);
         return true;
     }
 
@@ -692,10 +776,10 @@ public class GameRulesManager : MonoBehaviour
     {
         int cap = Mathf.Max(1, maxBalls);
 
-        // Remove nulls (treat them as "no ball in inventory").
+        // Remove nulls/invalids (treat them as "no ball in inventory").
         for (int i = _ballLoadout.Count - 1; i >= 0; i--)
         {
-            if (_ballLoadout[i] == null)
+            if (_ballLoadout[i] == null || _ballLoadout[i].Prefab == null)
             {
                 _ballLoadout.RemoveAt(i);
             }
@@ -716,14 +800,41 @@ public class GameRulesManager : MonoBehaviour
 
         int cap = Mathf.Max(1, maxBalls);
 
-        if (startingBallLoadout != null && startingBallLoadout.Count > 0)
+        if (startingBallLoadoutDefinitions != null && startingBallLoadoutDefinitions.Count > 0)
+        {
+            for (int i = 0; i < startingBallLoadoutDefinitions.Count && _ballLoadout.Count < cap; i++)
+            {
+                BallDefinition def = startingBallLoadoutDefinitions[i];
+                if (def != null && def.Prefab != null)
+                {
+                    _ballLoadout.Add(def);
+                }
+            }
+        }
+        else if (startingBallLoadout != null && startingBallLoadout.Count > 0)
         {
             for (int i = 0; i < startingBallLoadout.Count && _ballLoadout.Count < cap; i++)
             {
-                if (startingBallLoadout[i] != null)
+                GameObject prefab = startingBallLoadout[i];
+                if (prefab == null)
                 {
-                    _ballLoadout.Add(startingBallLoadout[i]);
+                    continue;
                 }
+
+                BallDefinition def = BallDefinitionUtilities.TryGetDefinitionFromPrefab(prefab);
+                if (def == null)
+                {
+                    def = BallDefinition.CreateRuntime(
+                        runtimeId: prefab.name,
+                        runtimeDisplayName: prefab.name,
+                        runtimeDescription: "",
+                        runtimeRarity: BallRarity.Common,
+                        runtimeIcon: BallDefinitionUtilities.TryGetPrefabSpriteIcon(prefab),
+                        runtimePrefab: prefab,
+                        runtimePrice: 0);
+                }
+
+                _ballLoadout.Add(def);
             }
         }
 
@@ -732,7 +843,20 @@ public class GameRulesManager : MonoBehaviour
         GameObject fallback = ballSpawner != null ? ballSpawner.DefaultBallPrefab : null;
         while (_ballLoadout.Count < cap && fallback != null)
         {
-            _ballLoadout.Add(fallback);
+            BallDefinition def = BallDefinitionUtilities.TryGetDefinitionFromPrefab(fallback);
+            if (def == null)
+            {
+                def = BallDefinition.CreateRuntime(
+                    runtimeId: fallback.name,
+                    runtimeDisplayName: fallback.name,
+                    runtimeDescription: "",
+                    runtimeRarity: BallRarity.Common,
+                    runtimeIcon: BallDefinitionUtilities.TryGetPrefabSpriteIcon(fallback),
+                    runtimePrefab: fallback,
+                    runtimePrice: 0);
+            }
+
+            _ballLoadout.Add(def);
         }
 
         EnsureLoadoutWithinCapacity();

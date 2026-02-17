@@ -1,3 +1,4 @@
+// Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-17.
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -80,6 +81,9 @@ public class MainMenuUI : MonoBehaviour
 
     [Tooltip("Main Menu 'Collection' button (opens Collection panel).")]
     [SerializeField] private Button collectionButton;
+
+    [Tooltip("Main Menu 'Quit' button (quits the application).")]
+    [SerializeField] private Button quitButton;
 
     [Tooltip("Parent transform to place challenge buttons under. If not set, one will be created under the first Canvas.")]
     [SerializeField] private RectTransform challengeButtonsRoot;
@@ -230,6 +234,8 @@ public class MainMenuUI : MonoBehaviour
             profileButton = FindButtonUnder(mainMenuPanel, "Profile");
         if (collectionButton == null)
             collectionButton = FindButtonUnder(mainMenuPanel, "Collection");
+        if (quitButton == null)
+            quitButton = FindButtonUnder(mainMenuPanel, "Quit");
 
         if (settingsButton != null)
         {
@@ -247,6 +253,12 @@ public class MainMenuUI : MonoBehaviour
         {
             collectionButton.onClick = new Button.ButtonClickedEvent();
             collectionButton.onClick.AddListener(OpenCollectionPanel);
+        }
+
+        if (quitButton != null)
+        {
+            quitButton.onClick = new Button.ButtonClickedEvent();
+            quitButton.onClick.AddListener(QuitGame);
         }
     }
 
@@ -649,6 +661,15 @@ public class MainMenuUI : MonoBehaviour
     public void OpenCollectionPanel()
     {
         SetPanel(MenuPanel.Collection);
+    }
+
+    public void QuitGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
     /// <summary>

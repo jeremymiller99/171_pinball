@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Scatter
   displayName: Scatter
-  description: Splits into two balls on 5th component hit. Split balls score 50%
-    of points.
+  description: Splits into two balls on 5th component hit. Split balls score -50%
+    points.
   rarity: 0
   icon: {fileID: 21300000, guid: e33ce551098a8524f8527918a2b8520b, type: 3}
   prefab: {fileID: 5723297401256486482, guid: a01593e6a666487488d83ad40c8160a4, type: 3}

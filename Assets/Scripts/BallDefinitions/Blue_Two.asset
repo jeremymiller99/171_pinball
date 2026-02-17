@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Blue Two
   displayName: Blue Two
-  description: broken pls fix
+  description: Scores 2x points.
   rarity: 0
   icon: {fileID: 21300000, guid: d6446dfab816d2645bd7c36766fd66eb, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 0b2f4077d0fca1b438e6fa6723996428, type: 3}

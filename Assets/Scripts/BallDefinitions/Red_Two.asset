@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Red Two
   displayName: Red Two
-  description: broken also
+  description: Scores 2x multiplier.
   rarity: 0
   icon: {fileID: 21300000, guid: c941b29440f3015468184454e92a2d4a, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 8f14b359d9507704a87dbcbf1f1289c3, type: 3}

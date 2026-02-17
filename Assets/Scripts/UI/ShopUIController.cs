@@ -67,6 +67,12 @@ public sealed class ShopUIController : MonoBehaviour
     [SerializeField] private TMP_Text coinsText;
     [SerializeField] private TMP_Text promptText;
 
+    [Header("Reroll (optional)")]
+    [Tooltip("Optional button to reroll the shop offers (costs coins). If not set, will auto-find a Button named 'Reroll Shop'.")]
+    [SerializeField] private Button rerollButton;
+    [SerializeField] private int rerollCost = 2;
+    [SerializeField] private string rerollButtonObjectName = "Reroll Shop";
+
     [Header("Selected ball panel (optional)")]
     [SerializeField] private GameObject selectedEmptyStateRoot;
     [SerializeField] private GameObject selectedDetailsRoot;
@@ -95,6 +101,7 @@ public sealed class ShopUIController : MonoBehaviour
     private readonly List<BallDefinition> _legacyRuntimeDefinitions = new List<BallDefinition>();
     private bool _legacyRuntimeDefinitionsBuilt;
     private int _selectedHandSlotIndex = -1;
+    private int _pendingOfferIndex = -1;
 
     private void Awake()
     {
@@ -136,6 +143,7 @@ public sealed class ShopUIController : MonoBehaviour
         }
 
         ResolveReplacePanelIconImagesIfNeeded();
+        HookRerollButton();
     }
 
     public void TrySwapHandSlots(int a, int b)
@@ -209,6 +217,7 @@ public sealed class ShopUIController : MonoBehaviour
 
         _pendingItem = offer;
         _pendingReplaceSlotIndex = slotIndex;
+        _pendingOfferIndex = offerIndex;
 
         // Drag-drop should not permanently select the offer card.
         _selectedOfferIndex = -1;
@@ -228,6 +237,7 @@ public sealed class ShopUIController : MonoBehaviour
 
         DisableBuyButtonIfPresent();
         ResolveReplacePanelIconImagesIfNeeded();
+        HookRerollButton();
 
         // Canvas enabled by GameRulesManager; treat that as "open".
         HookTabs();
@@ -240,6 +250,7 @@ public sealed class ShopUIController : MonoBehaviour
         SetReplacePanelOpen(false);
         _pendingItem = null;
         _pendingReplaceSlotIndex = -1;
+        _pendingOfferIndex = -1;
         ClearReplaceConfirmationVisuals();
         RebuildReplaceSlots();
         RebuildOffers();
@@ -287,6 +298,7 @@ public sealed class ShopUIController : MonoBehaviour
         _selectedOfferIndex = offerIndex;
         _pendingItem = null;
         _pendingReplaceSlotIndex = -1;
+        _pendingOfferIndex = -1;
         _selectedHandSlotIndex = -1;
         SetReplacePanelOpen(false);
 
@@ -384,6 +396,8 @@ public sealed class ShopUIController : MonoBehaviour
             return;
         }
 
+        _pendingOfferIndex = offerIndex;
+
         // Check money first (do NOT spend until we know whether we're replacing or adding).
         if (rulesManager.Coins < item.Price)
         {
@@ -417,8 +431,10 @@ public sealed class ShopUIController : MonoBehaviour
             SetPrompt($"Purchased {item.GetSafeDisplayName()}.");
             SetReplacePanelOpen(false);
             _pendingItem = null;
+            int purchasedOfferIndex = _pendingOfferIndex;
+            _pendingOfferIndex = -1;
             RebuildReplaceSlots();
-            RebuildOffers();
+            ConsumeOfferByIndex(purchasedOfferIndex);
             RefreshUI();
             return;
         }
@@ -462,6 +478,7 @@ public sealed class ShopUIController : MonoBehaviour
         {
             _pendingItem = null;
             _pendingReplaceSlotIndex = -1;
+            _pendingOfferIndex = -1;
             SetReplacePanelOpen(false);
             if (replaceConfirmText != null)
             {
@@ -489,8 +506,10 @@ public sealed class ShopUIController : MonoBehaviour
             return;
         }
 
+        int offerIndex = _selectedOfferIndex;
         _pendingItem = selectedOffer;
         _pendingReplaceSlotIndex = slotIndex;
+        _pendingOfferIndex = offerIndex;
 
         // Selecting a hand ball overrides the selected panel and deselects the offer.
         _selectedOfferIndex = -1;
@@ -508,12 +527,13 @@ public sealed class ShopUIController : MonoBehaviour
     {
         _pendingItem = null;
         _pendingReplaceSlotIndex = -1;
+        _pendingOfferIndex = -1;
         FMODUnity.RuntimeManager.PlayOneShot("event:/button_click");
         SetReplacePanelOpen(false);
         SetPrompt(string.Empty);
         ClearReplaceConfirmationVisuals();
         RebuildReplaceSlots();
-        RebuildOffers();
+        ClearSelectedSelection();
         RefreshUI();
     }
 
@@ -534,6 +554,11 @@ public sealed class ShopUIController : MonoBehaviour
         if (coinsText != null && rulesManager != null)
         {
             coinsText.text = $"${rulesManager.Coins}";
+        }
+
+        if (rerollButton != null && rulesManager != null)
+        {
+            rerollButton.interactable = rulesManager.Coins >= rerollCost;
         }
     }
 
@@ -573,6 +598,7 @@ public sealed class ShopUIController : MonoBehaviour
     {
         _pendingItem = null;
         _pendingReplaceSlotIndex = -1;
+        _pendingOfferIndex = -1;
         SetReplacePanelOpen(false);
         SetPrompt(string.Empty);
         ClearReplaceConfirmationVisuals();
@@ -621,7 +647,9 @@ public sealed class ShopUIController : MonoBehaviour
         SetReplacePanelOpen(false);
         ClearReplaceConfirmationVisuals();
         RebuildReplaceSlots();
-        RebuildOffers();
+        int purchasedOfferIndex = _pendingOfferIndex;
+        _pendingOfferIndex = -1;
+        ConsumeOfferByIndex(purchasedOfferIndex);
         RefreshUI();
     }
 
@@ -982,7 +1010,7 @@ public sealed class ShopUIController : MonoBehaviour
                 continue;
             }
 
-            entry.SetSelected(i == _selectedOfferIndex);
+            entry.SetSelected(entry.OfferIndex == _selectedOfferIndex);
         }
     }
 
@@ -1054,6 +1082,111 @@ public sealed class ShopUIController : MonoBehaviour
         }
         if (selectedDescriptionText != null) selectedDescriptionText.text = item.Description ?? string.Empty;
         if (selectedRarityText != null) selectedRarityText.text = item.Rarity.ToString();
+    }
+
+    public void RerollOffers()
+    {
+        if (rulesManager == null)
+        {
+            return;
+        }
+
+        HookRerollButton();
+
+        if (rulesManager.Coins < rerollCost)
+        {
+            SetPrompt($"Not enough coins to reroll (${rerollCost}).");
+            RefreshUI();
+            return;
+        }
+
+        if (!rulesManager.TrySpendCoins(rerollCost))
+        {
+            SetPrompt($"Not enough coins to reroll (${rerollCost}).");
+            RefreshUI();
+            return;
+        }
+
+        ClearPendingReplaceFlow();
+        ClearSelectedSelection();
+        ClearReplaceConfirmationVisuals();
+        RebuildOffers();
+        SetPrompt("Rerolled shop.");
+        FMODUnity.RuntimeManager.PlayOneShot("event:/button_click");
+        RefreshUI();
+    }
+
+    private void HookRerollButton()
+    {
+        if (rerollButton == null)
+        {
+            Transform root = shopCanvasRoot != null ? shopCanvasRoot.transform : transform;
+            rerollButton = FindButtonUnder(root, rerollButtonObjectName);
+        }
+
+        if (rerollButton == null)
+        {
+            return;
+        }
+
+        rerollButton.onClick.RemoveListener(RerollOffers);
+        rerollButton.onClick.AddListener(RerollOffers);
+    }
+
+    private static Button FindButtonUnder(Transform root, string objectName)
+    {
+        if (root == null || string.IsNullOrWhiteSpace(objectName))
+        {
+            return null;
+        }
+
+        Button[] buttons = root.GetComponentsInChildren<Button>(includeInactive: true);
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            Button b = buttons[i];
+            if (b == null)
+            {
+                continue;
+            }
+
+            if (b.gameObject.name == objectName)
+            {
+                return b;
+            }
+        }
+
+        return null;
+    }
+
+    private void ConsumeOfferByIndex(int offerIndex)
+    {
+        if (offerIndex < 0 || offerIndex >= _currentOffers.Count)
+        {
+            return;
+        }
+
+        _currentOffers[offerIndex] = null;
+
+        for (int i = _offerEntries.Count - 1; i >= 0; i--)
+        {
+            ShopBallOfferEntryUI entry = _offerEntries[i];
+            if (entry == null)
+            {
+                _offerEntries.RemoveAt(i);
+                continue;
+            }
+
+            if (entry.OfferIndex != offerIndex)
+            {
+                continue;
+            }
+
+            _offerEntries.RemoveAt(i);
+            Destroy(entry.gameObject);
+            break;
+        }
+
+        ClearSelectedSelection();
     }
 }
 

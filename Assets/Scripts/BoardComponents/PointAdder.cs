@@ -170,7 +170,8 @@ public class PointAdder : MonoBehaviour
         if (scoreManager == null) EnsureRefs();
         float ballMult = GetBallPointsAwardMultiplier(pos);
         float applied = scoreManager != null ? scoreManager.AddPointsScaled(GetEffectivePointsToAdd() * ballMult) : 0f;
-        // Spawn text at the ball's position
-        floatingTextSpawner?.SpawnText(pos.position, "+" + applied);
+        // Spawn text at the ball's position.
+        // Use SpawnPointsText so values compact/round consistently with score UI.
+        floatingTextSpawner?.SpawnPointsText(pos.position, "+" + applied, applied);
     }
 }

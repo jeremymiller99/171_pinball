@@ -154,7 +154,7 @@ public class LockedTarget : MonoBehaviour
             float ballMult = GetBallPointsAwardMultiplier(collision.collider);
             float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd * ballMult) : 0f;
             Vector3 pos = collision.collider.transform.position;
-            floatingTextSpawner?.SpawnText(pos, "+" + applied);
+            floatingTextSpawner?.SpawnPointsText(pos, "+" + applied, applied);
         }
     }
 
@@ -177,7 +177,7 @@ public class LockedTarget : MonoBehaviour
             if (scoreManager == null) EnsureRefs();
             float ballMult = GetBallPointsAwardMultiplier(col);
             float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd * ballMult) : 0f;
-            floatingTextSpawner?.SpawnText(col.transform.position, "+" + applied);
+            floatingTextSpawner?.SpawnPointsText(col.transform.position, "+" + applied, applied);
         }
     }
 }

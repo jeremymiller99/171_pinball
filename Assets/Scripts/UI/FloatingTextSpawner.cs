@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -16,6 +17,10 @@ public class FloatingTextSpawner : MonoBehaviour
     [Header("Fly To Score UI")]
     [SerializeField] private bool enableFlyToScoreUi = true;
     [SerializeField] private Vector2 flyToOffset = Vector2.zero;
+
+    [Header("Number Display")]
+    [Tooltip("When enabled, attempts to compact numeric popup text (e.g. 1234 -> 1.2K).")]
+    [SerializeField] private bool enableCompactNumbers = true;
 
     [Header("Arrival Juice")]
     [SerializeField] private bool juiceOnArrival = true;
@@ -145,9 +150,10 @@ public class FloatingTextSpawner : MonoBehaviour
     /// </summary>
     public void SpawnPointsText(Vector3 worldPosition, string text, float pointsValue, Action onArrive)
     {
+        string display = BuildCompactFromTemplate(text, pointsValue);
         float t = Mathf.Clamp01(pointsValue / pointsMaxValue);
         float scale = Mathf.Lerp(pointsScaleMin, pointsScaleMax, t);
-        SpawnTextInternal(worldPosition, text, pointsFontAsset, scale, FlyToTarget.Points, onArrive);
+        SpawnTextInternal(worldPosition, display, pointsFontAsset, scale, FlyToTarget.Points, onArrive);
     }
 
     /// <summary>
@@ -165,7 +171,7 @@ public class FloatingTextSpawner : MonoBehaviour
     {
         float t = Mathf.Clamp01(multValue / multMaxValue);
         float scale = Mathf.Lerp(multScaleMin, multScaleMax, t);
-        SpawnTextInternal(worldPosition, text, multFontAsset, scale, FlyToTarget.Mult, onArrive);
+        SpawnTextInternal(worldPosition, MaybeCompact(text), multFontAsset, scale, FlyToTarget.Mult, onArrive);
     }
 
     /// <summary>
@@ -175,7 +181,8 @@ public class FloatingTextSpawner : MonoBehaviour
     {
         float t = Mathf.Clamp01(goldValue / goldMaxValue);
         float scale = Mathf.Lerp(goldScaleMin, goldScaleMax, t);
-        SpawnTextInternal(worldPosition, text, goldFontAsset, scale, FlyToTarget.Coins);
+        string display = BuildCompactFromTemplate(text, goldValue);
+        SpawnTextInternal(worldPosition, display, goldFontAsset, scale, FlyToTarget.Coins);
     }
 
     /// <summary>
@@ -186,7 +193,8 @@ public class FloatingTextSpawner : MonoBehaviour
     {
         float t = Mathf.Clamp01(goldValue / goldMaxValue);
         float scale = Mathf.Lerp(goldScaleMin, goldScaleMax, t);
-        SpawnTextInternal(worldPosition, text, goldFontAsset, scale, FlyToTarget.Coins, onArrive);
+        string display = BuildCompactFromTemplate(text, goldValue);
+        SpawnTextInternal(worldPosition, display, goldFontAsset, scale, FlyToTarget.Coins, onArrive);
     }
 
     public void SpawnGoalTierMultPopup(int multiplierNumber)
@@ -253,7 +261,7 @@ public class FloatingTextSpawner : MonoBehaviour
             out Vector2 anchoredPos);
 
         rt.anchoredPosition = anchoredPos + spawnOffset;
-        ft.SetText(text);
+        ft.SetText(MaybeCompact(text));
         
         if (fontAsset != null)
         {
@@ -724,5 +732,152 @@ public class FloatingTextSpawner : MonoBehaviour
     private static float Smooth01(float u)
     {
         return u * u * (3f - 2f * u);
+    }
+
+    private string MaybeCompact(string text)
+    {
+        if (!enableCompactNumbers)
+        {
+            return text;
+        }
+
+        if (TryCompactNumericText(text, out string compact))
+        {
+            return compact;
+        }
+
+        return text;
+    }
+
+    private static string BuildCompactFromTemplate(string template, float value)
+    {
+        ExtractTemplatePrefix(template, out bool showPlus, out bool showDollar);
+
+        string core = FormatNumberCompactCore(Mathf.Abs(value));
+        string sign = value < 0f ? "-" : (showPlus ? "+" : string.Empty);
+        string dollar = showDollar ? "$" : string.Empty;
+        return sign + dollar + core;
+    }
+
+    private static void ExtractTemplatePrefix(string template, out bool showPlus, out bool showDollar)
+    {
+        showPlus = false;
+        showDollar = false;
+
+        if (string.IsNullOrWhiteSpace(template))
+        {
+            return;
+        }
+
+        string s = template.TrimStart();
+        int i = 0;
+
+        if (i < s.Length && s[i] == '+')
+        {
+            showPlus = true;
+            i++;
+        }
+        else if (i < s.Length && s[i] == '-')
+        {
+            i++;
+        }
+
+        if (i < s.Length && s[i] == '$')
+        {
+            showDollar = true;
+        }
+    }
+
+    private static bool TryCompactNumericText(string raw, out string compact)
+    {
+        compact = raw;
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return false;
+        }
+
+        string s = raw.Trim();
+        int i = 0;
+        bool showPlus = false;
+        bool showDollar = false;
+        bool isNegative = false;
+
+        if (i < s.Length && s[i] == '+')
+        {
+            showPlus = true;
+            i++;
+        }
+        else if (i < s.Length && s[i] == '-')
+        {
+            isNegative = true;
+            i++;
+        }
+
+        if (i < s.Length && s[i] == '$')
+        {
+            showDollar = true;
+            i++;
+        }
+
+        string numberPart = s.Substring(i);
+        if (!float.TryParse(numberPart, NumberStyles.Float, CultureInfo.InvariantCulture, out float parsed))
+        {
+            return false;
+        }
+
+        float value = isNegative ? -Mathf.Abs(parsed) : Mathf.Abs(parsed);
+        string core = FormatNumberCompactCore(Mathf.Abs(value));
+        string sign = value < 0f ? "-" : (showPlus ? "+" : string.Empty);
+        string dollar = showDollar ? "$" : string.Empty;
+        compact = sign + dollar + core;
+        return true;
+    }
+
+    private static string FormatNumberCompactCore(float abs)
+    {
+        if (abs < 1000f)
+        {
+            return Mathf.RoundToInt(abs).ToString(CultureInfo.InvariantCulture);
+        }
+
+        float scale = 1000f;
+        string suffix = "K";
+        if (abs >= 1000000000f)
+        {
+            scale = 1000000000f;
+            suffix = "B";
+        }
+        else if (abs >= 1000000f)
+        {
+            scale = 1000000f;
+            suffix = "M";
+        }
+
+        float scaled = abs / scale;
+        float scaledRounded1 = Mathf.Round(scaled * 10f) / 10f;
+
+        if (scaledRounded1 >= 1000f)
+        {
+            if (suffix == "K")
+            {
+                scale = 1000000f;
+                suffix = "M";
+            }
+            else if (suffix == "M")
+            {
+                scale = 1000000000f;
+                suffix = "B";
+            }
+
+            scaled = abs / scale;
+            scaledRounded1 = Mathf.Round(scaled * 10f) / 10f;
+        }
+
+        if (scaledRounded1 >= 100f)
+        {
+            return Mathf.RoundToInt(scaledRounded1).ToString(CultureInfo.InvariantCulture) + suffix;
+        }
+
+        return scaledRounded1.ToString("0.#", CultureInfo.InvariantCulture) + suffix;
     }
 }

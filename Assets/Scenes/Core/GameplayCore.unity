@@ -3142,6 +3142,7 @@ MonoBehaviour:
   - 250000
   - 1000000
   pointsPerCoin: 100
+  maxCoinsFromRoundTotal: 10
   startingMaxBalls: 5
   autoStartOnPlay: 0
   ballSpawner: {fileID: 0}

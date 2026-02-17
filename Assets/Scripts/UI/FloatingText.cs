@@ -38,6 +38,11 @@ public class FloatingText : MonoBehaviour
     [SerializeField] private float flyFadeStartNormalized = 0.75f;
     [SerializeField] private bool destroyOnFlyComplete = true;
 
+    [Header("Readability Caps")]
+    [SerializeField] private bool clampFontSize = true;
+    [SerializeField] private float maxFontSize = 64f;
+    [SerializeField] private float maxScale = 1.35f;
+
     private TMP_Text text;
     private RectTransform rectTransform;
     private Color startColor;
@@ -68,6 +73,8 @@ public class FloatingText : MonoBehaviour
         rectTransform = GetComponent<RectTransform>();
         startColor = text.color;
         ageSeconds = 0f;
+
+        ApplyReadabilityCaps();
     }
 
     private void Update()
@@ -87,6 +94,8 @@ public class FloatingText : MonoBehaviour
     {
         if (text == null) text = GetComponent<TMP_Text>();
         text.text = value;
+
+        ApplyReadabilityCaps();
     }
 
     public void SetFontAsset(TMP_FontAsset fontAsset)
@@ -95,12 +104,16 @@ public class FloatingText : MonoBehaviour
         if (text == null) text = GetComponent<TMP_Text>();
         text.font = fontAsset;
         startColor = text.color;
+
+        ApplyReadabilityCaps();
     }
 
     public void SetScale(float scale)
     {
         if (rectTransform == null) rectTransform = GetComponent<RectTransform>();
-        rectTransform.localScale = Vector3.one * scale;
+        float safe = Mathf.Max(0.0001f, scale);
+        float cap = Mathf.Max(0.0001f, maxScale);
+        rectTransform.localScale = Vector3.one * Mathf.Min(safe, cap);
     }
 
     public void SetLifetime(float seconds)
@@ -260,6 +273,32 @@ public class FloatingText : MonoBehaviour
         float cos = Mathf.Cos(rad);
         float sin = Mathf.Sin(rad);
         return new Vector2((v.x * cos) - (v.y * sin), (v.x * sin) + (v.y * cos));
+    }
+
+    private void ApplyReadabilityCaps()
+    {
+        if (!clampFontSize)
+        {
+            return;
+        }
+
+        if (text == null)
+        {
+            text = GetComponent<TMP_Text>();
+        }
+
+        if (text == null)
+        {
+            return;
+        }
+
+        float cap = Mathf.Max(1f, maxFontSize);
+        if (text.enableAutoSizing)
+        {
+            text.fontSizeMax = Mathf.Min(text.fontSizeMax, cap);
+        }
+
+        text.fontSize = Mathf.Min(text.fontSize, cap);
     }
 }
 

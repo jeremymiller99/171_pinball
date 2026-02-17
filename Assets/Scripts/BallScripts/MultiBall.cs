@@ -97,6 +97,7 @@ public class MultiBall : Ball
 
     void OnCollisionEnter(Collision collision)
     {
+        base.OnCollisionEnter(collision);
         if (collision == null || collision.collider == null) return;
         if (!CountsAsComponentHit(collision.collider)) return;
         RegisterComponentHitAndMaybeSplit();

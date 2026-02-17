@@ -40,6 +40,7 @@ public class LeprechaunBall : Ball
 
     void OnCollisionEnter(Collision collision)
     {
+        base.OnCollisionEnter(collision);
         if (collision.collider.GetComponent<PointAdder>() || collision.collider.GetComponent<MultAdder>())
         {
             _componentHitsSinceLastDollar++;

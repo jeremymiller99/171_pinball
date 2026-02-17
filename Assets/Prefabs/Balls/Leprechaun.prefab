@@ -170,13 +170,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   trailRenderer: {fileID: 0}
-  amountToEmit: 10
+  amountToEmit: 50
   particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
   poolSize: 15
   gameRulesManager: {fileID: 0}
   floatingTextSpawner: {fileID: 0}
   textOffset: {x: 0, y: -2, z: 0}
   coinsToAdd: 1
+  componentHitsPerDollar: 5
 --- !u!96 &-6465046838061284915
 TrailRenderer:
   serializedVersion: 3

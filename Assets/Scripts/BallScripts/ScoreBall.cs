@@ -27,6 +27,7 @@ public class ScoreBall : Ball
 
     void OnCollisionEnter(Collision collision)
     {
+        base.OnCollisionEnter(collision);
         if (collision == null || collision.collider == null)
         {
             return;

@@ -51,6 +51,7 @@ public class WallBall : Ball
 
     void OnCollisionEnter(Collision collision)
     {
+        base.OnCollisionEnter(collision);
         if (collision.collider.sharedMaterial == wallMaterial)
         {
             FMODUnity.RuntimeManager.PlayOneShot("event:/collide_points");

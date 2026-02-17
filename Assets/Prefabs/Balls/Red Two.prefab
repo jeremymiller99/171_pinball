@@ -172,7 +172,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   trailRenderer: {fileID: 0}
-  amountToEmit: 50
+  amountToEmit: 28
   particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
   poolSize: 15
   amountToMultiply: 2

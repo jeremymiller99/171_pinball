@@ -5,28 +5,11 @@ using UnityEngine.TestTools;
 using Unity.PerformanceTesting;
 using UnityEngine.SceneManagement;
 
-public class FirstTest
+public class PlayTest
 {
 
     // Tests are based on examples from: 
     // https://docs.unity3d.com/Packages/com.unity.test-framework.performance@3.2/manual/writing-tests.html
-
-    [Test]
-    public void FirstTestSimplePasses()
-    {
-        Measure_Empty();
-    }
-
-    // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
-    // `yield return null;` to skip a frame.
-    [UnityTest]
-    public IEnumerator FirstTestWithEnumeratorPasses()
-    {
-        MainSceneFrameTime_StartPosition();
-        GameSceneFrameTime_StartPosition();
-        BoardSceneFrameTime_StartPosition();
-        yield return null;
-    }
 
     [Test, Performance, Version("1")]
     public void Measure_Empty()

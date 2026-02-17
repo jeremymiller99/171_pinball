@@ -263,7 +263,7 @@ MonoBehaviour:
   amountToEmit: 10
   particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
   poolSize: 15
-  amountToMultiply: 0
+  amountToMultiply: 2
 --- !u!96 &4070781534835327072
 TrailRenderer:
   serializedVersion: 3

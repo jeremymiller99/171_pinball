@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Leprechaun
   displayName: Leprechaun
-  description: Give +$1 for every component hit.
+  description: Give +$1 for every 5 components hit.
   rarity: 1
   icon: {fileID: 21300000, guid: 3c315c4339a295849a5c19d31e9fb519, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 7ed9408449ec9ff4bb8710c09c4a0141, type: 3}

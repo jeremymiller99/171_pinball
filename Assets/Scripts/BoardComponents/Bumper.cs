@@ -5,10 +5,16 @@ public class Bumper : MonoBehaviour
 {
     [SerializeField] private CameraShake camShake;
     [SerializeField] private float bounceForce = 10f;
+    private float baseBounceForce;
+
+    [Header("FX")]
+    [SerializeField] private float shakeDuration = 0.22f;
+    [SerializeField] private float shakeMagnitude = 0.16f;
 
     private void Awake()
     {
         ResolveCameraShake();
+        baseBounceForce = bounceForce;
     }
 
     private void ResolveCameraShake()
@@ -33,18 +39,24 @@ public class Bumper : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.collider.CompareTag("Ball")){
+        if (collision.collider.CompareTag("Ball"))
+        {
             Rigidbody rb = collision.rigidbody;
             FMODUnity.RuntimeManager.PlayOneShot("event:/collide_points");
 
             Vector3 forceDir = (collision.transform.position - transform.position).normalized;
-            rb.AddForce(forceDir * bounceForce, ForceMode.Impulse);
+            rb.AddForce(forceDir * baseBounceForce, ForceMode.Impulse);
 
             if (camShake == null || !camShake.isActiveAndEnabled)
             {
                 ResolveCameraShake();
             }
-            camShake?.Shake(0.2f, 0.1f);
+            camShake?.Shake(shakeDuration, shakeMagnitude);
         }
     }   
+
+    public void MultiplyBounceForce(float multiplier)
+    {
+        // Intentionally a no-op: bumper upgrades should not change bounce strength.
+    }
 }

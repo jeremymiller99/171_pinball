@@ -45,8 +45,18 @@ public class CoinAdder : MonoBehaviour
         if (!collision.collider.CompareTag("Ball")) return;
 
         if (gameRulesManager == null) EnsureRefs();
-        gameRulesManager?.AddCoins(CoinsToAdd);
-        floatingTextSpawner?.SpawnText(collision.collider.transform.position, "+$" + CoinsToAdd);
+        int token = 0;
+        int applied = gameRulesManager != null
+            ? gameRulesManager.AddCoinsScaledDeferredUi(CoinsToAdd, out token)
+            : 0;
+        if (applied > 0)
+        {
+            floatingTextSpawner?.SpawnGoldText(
+                collision.collider.transform.position,
+                "+$" + applied,
+                applied,
+                () => gameRulesManager.ApplyDeferredCoinsUi(applied, token));
+        }
         _hasAwarded = true;
     }
 
@@ -56,8 +66,18 @@ public class CoinAdder : MonoBehaviour
         if (!col.CompareTag("Ball")) return;
 
         if (gameRulesManager == null) EnsureRefs();
-        gameRulesManager?.AddCoins(CoinsToAdd);
-        floatingTextSpawner?.SpawnText(col.transform.position, "+$" + CoinsToAdd);
+        int token = 0;
+        int applied = gameRulesManager != null
+            ? gameRulesManager.AddCoinsScaledDeferredUi(CoinsToAdd, out token)
+            : 0;
+        if (applied > 0)
+        {
+            floatingTextSpawner?.SpawnGoldText(
+                col.transform.position,
+                "+$" + applied,
+                applied,
+                () => gameRulesManager.ApplyDeferredCoinsUi(applied, token));
+        }
         _hasAwarded = true;
     }
 }

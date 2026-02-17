@@ -152,3 +152,18 @@ MonoBehaviour:
   moveSpeed: 100
   fadeSpeed: 1
   lifetime: 1
+  flyDuration: 0.7
+  flyUseSpeed: 1
+  flySpeed: 800
+  flyDurationMin: 0.75
+  flyDurationMax: 1.5
+  flyEaseInExponent: 2.6
+  flyPreRiseDuration: 0.2
+  flyPreRiseDistance: 10
+  flyUseRandomKick: 1
+  flyKickAngleMaxDegrees: 35
+  flyKickDistanceMin: 0
+  flyKickDistanceMax: 120
+  flyArcHeight: 40
+  flyFadeStartNormalized: 0.75
+  destroyOnFlyComplete: 1

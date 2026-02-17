@@ -54,13 +54,27 @@ public class MultAdder : MonoBehaviour
         {
             if (scoreManager == null) EnsureRefs();
             FMODUnity.RuntimeManager.PlayOneShot("event:/collide_mult");
-            float applied = GetEffectiveMultToAdd();
-            scoreManager?.AddMult(applied);
-            // Spawn red mult text at the ball's position
-            floatingTextSpawner?.SpawnMultText(
-                collision.collider.transform.position,
-                "x" + FormatMultiplier(applied),
-                applied);
+            if (scoreManager == null)
+                return;
+
+            int token = scoreManager.PointsAndMultUiToken;
+            float applied = scoreManager.AddMultDeferredUi(GetEffectiveMultToAdd());
+            if (applied <= 0f)
+                return;
+
+            // Spawn red mult text at the ball's position; only increment HUD when the popup arrives.
+            if (floatingTextSpawner != null)
+            {
+                floatingTextSpawner.SpawnMultText(
+                    collision.collider.transform.position,
+                    "x" + FormatMultiplier(applied),
+                    applied,
+                    () => scoreManager.ApplyDeferredMultUi(applied, token));
+            }
+            else
+            {
+                scoreManager.ApplyDeferredMultUi(applied, token);
+            }
         }
     }
 
@@ -69,10 +83,27 @@ public class MultAdder : MonoBehaviour
         if (col.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
-            float applied = GetEffectiveMultToAdd();
-            scoreManager?.AddMult(applied);
-            // Spawn red mult text at the ball's position
-            floatingTextSpawner?.SpawnMultText(col.transform.position, "x" + FormatMultiplier(applied), applied);
+            if (scoreManager == null)
+                return;
+
+            int token = scoreManager.PointsAndMultUiToken;
+            float applied = scoreManager.AddMultDeferredUi(GetEffectiveMultToAdd());
+            if (applied <= 0f)
+                return;
+
+            // Spawn red mult text at the ball's position; only increment HUD when the popup arrives.
+            if (floatingTextSpawner != null)
+            {
+                floatingTextSpawner.SpawnMultText(
+                    col.transform.position,
+                    "x" + FormatMultiplier(applied),
+                    applied,
+                    () => scoreManager.ApplyDeferredMultUi(applied, token));
+            }
+            else
+            {
+                scoreManager.ApplyDeferredMultUi(applied, token);
+            }
         }
     }
 

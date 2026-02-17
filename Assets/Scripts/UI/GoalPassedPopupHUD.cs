@@ -1,12 +1,13 @@
-using System.Collections;
+// Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-17.
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// Shows a popup when the round goal is passed in multiples:
-/// "Goal Passed xN! +10% game speed +50% score" (values pulled from ScoreManager per-tier settings).
+/// When the round goal is passed in multiples (GoalTier increases), updates a persistent multiplier text
+/// (e.g. "x2", "x3", ...) and spawns a centered praise popup ("Nice!", "Great!", ...).
 ///
 /// This auto-installs itself into the GameplayCore scene at runtime (no manual scene wiring required).
 /// </summary>
@@ -16,182 +17,246 @@ public sealed class GoalPassedPopupHUD : MonoBehaviour
     [Tooltip("Scene name that should own this popup HUD.")]
     [SerializeField] private string gameplayCoreSceneName = "GameplayCore";
 
-    [Header("Auto-find / Auto-create")]
-    [Tooltip("If a TMP object with this name exists in GameplayCore, it will be used. Otherwise one will be created.")]
-    [SerializeField] private string popupTextObjectName = "GoalPassedPopupText";
+    [Header("Multiplier")]
+    [Tooltip("Displayed multiplier number = GoalTier + this offset.\n" +
+             "Example: if GoalTier becomes 1 at the first goal, set this to 1 to display x2.")]
+    [SerializeField] private int tierToMultiplierNumberOffset = 1;
 
-    [Header("Font (optional override)")]
-    [Tooltip("If set, forces this popup to use the specified TMP font asset. " +
-             "Leave null to auto-adopt from existing UI text in the scene.")]
-    [SerializeField] private TMP_FontAsset fontOverride;
+    [Tooltip("Name of the TMP text object used for the persistent multiplier display.\n" +
+             "Create and position this yourself in the UI, or let this script auto-create it.")]
+    [SerializeField] private string multiplierTextObjectName = "GoalMultiplierText";
 
-    [Tooltip("If Font Override is null, tries to find a TMP font asset loaded whose name contains this string (case-insensitive).")]
-    [SerializeField] private string fallbackFontNameContains = "Early GameBoy";
+    [Tooltip("If true, this script will SetActive(true/false) on the multiplier text object\n" +
+             "when showing/hiding (recommended if you keep it disabled in the scene by default).")]
+    [SerializeField] private bool toggleMultiplierObjectActive = true;
 
-    [Header("Layout")]
-    [SerializeField] private Vector2 anchor = new Vector2(0.5f, 0.5f);
-    [SerializeField] private Vector2 size = new Vector2(900f, 140f);
-    [SerializeField] private float fontSize = 15f;
-    [SerializeField] private Color textColor = Color.white;
+    [SerializeField] private bool autoCreateMultiplierTextIfMissing = false;
 
-    [Header("Animation (unscaled time)")]
-    [Min(0f)] [SerializeField] private float popInDuration = 0.15f;
-    [Min(0f)] [SerializeField] private float holdDuration = 1.00f;
-    [Min(0f)] [SerializeField] private float fadeOutDuration = 0.35f;
-    [Min(0f)] [SerializeField] private float popScale = 1.08f;
+    [Header("Multiplier Text Style (used only when auto-creating)")]
+    [SerializeField] private Vector2 multiplierAnchor = new Vector2(0.5f, 0.5f);
+    [SerializeField] private Vector2 multiplierPivot = new Vector2(0.5f, 0.5f);
+    [SerializeField] private Vector2 multiplierAnchoredPosition = Vector2.zero;
+    [SerializeField] private Vector2 multiplierSize = new Vector2(200f, 60f);
+    [SerializeField] private float multiplierFontSize = 22f;
+    [SerializeField] private Color multiplierTextColor = Color.white;
+    [SerializeField] private TMP_FontAsset multiplierFontOverride;
 
-    private ScoreManager _score;
-    private TMP_Text _popupText;
-    private CanvasGroup _canvasGroup;
-    private Coroutine _routine;
-    private int _lastShownTier;
+    [Header("Praise")]
+    [SerializeField] private bool spawnPraise = true;
+    [SerializeField] private string[] praiseMessages =
+    {
+        "Nice!",
+        "Great!",
+        "Amazing!",
+        "Perfect!",
+        "Clean!",
+        "Let’s go!",
+    };
+
+    [Tooltip("If true, hides the old center-screen TMP object if it exists in the scene.")]
+    [SerializeField] private bool hideLegacyCenterPopupIfPresent = true;
+
+    [SerializeField] private string legacyPopupTextObjectName = "GoalPassedPopupText";
+
+    private ScoreManager score;
+    private FloatingTextSpawner spawner;
+    private GameRulesManager rules;
+    private TMP_Text multiplierText;
+    private CanvasGroup multiplierCanvasGroup;
+    private int lastShownTier;
 
     private void Awake()
     {
-        // This component is expected to live in GameplayCore (we move it there in the bootstrapper).
-        // If it somehow ends up elsewhere, it will simply no-op.
         if (!string.IsNullOrWhiteSpace(gameplayCoreSceneName) &&
             gameObject.scene.IsValid() &&
-            !string.Equals(gameObject.scene.name, gameplayCoreSceneName, System.StringComparison.OrdinalIgnoreCase))
+            !string.Equals(
+                gameObject.scene.name,
+                gameplayCoreSceneName,
+                StringComparison.OrdinalIgnoreCase))
         {
             enabled = false;
             return;
         }
 
-        ResolveScoreManager();
-        EnsurePopupText();
-        HideImmediate();
+        ResolveRefs();
+        EnsureMultiplierText();
+        HideMultiplierImmediate();
+
+        if (hideLegacyCenterPopupIfPresent)
+        {
+            HideLegacyPopupIfPresent();
+        }
     }
 
     private void OnEnable()
     {
-        ResolveScoreManager();
-        if (_score != null)
-            _score.GoalTierChanged += OnGoalTierChanged;
+        ResolveRefs();
+        EnsureMultiplierText();
+        if (score != null)
+        {
+            score.GoalTierChanged += OnGoalTierChanged;
+        }
+
+        if (rules != null)
+        {
+            rules.RoundStarted += OnRoundStarted;
+            rules.ShopOpened += OnShopOpened;
+        }
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
-        if (_score != null)
-            _score.GoalTierChanged -= OnGoalTierChanged;
+        if (score != null)
+        {
+            score.GoalTierChanged -= OnGoalTierChanged;
+        }
+
+        if (rules != null)
+        {
+            rules.RoundStarted -= OnRoundStarted;
+            rules.ShopOpened -= OnShopOpened;
+        }
+
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void ResolveRefs()
+    {
+        ResolveScoreManager();
+        ResolveSpawner();
+        ResolveRulesManager();
     }
 
     private void ResolveScoreManager()
     {
-        if (_score != null) return;
+        if (score != null) return;
 
 #if UNITY_2022_2_OR_NEWER
-        _score = FindFirstObjectByType<ScoreManager>();
+        score = FindFirstObjectByType<ScoreManager>();
 #else
-        _score = FindObjectOfType<ScoreManager>();
+        score = FindObjectOfType<ScoreManager>();
 #endif
+    }
+
+    private void ResolveSpawner()
+    {
+        if (spawner != null) return;
+
+#if UNITY_2022_2_OR_NEWER
+        spawner = FindFirstObjectByType<FloatingTextSpawner>();
+#else
+        spawner = FindObjectOfType<FloatingTextSpawner>();
+#endif
+    }
+
+    private void ResolveRulesManager()
+    {
+        if (rules != null) return;
+
+#if UNITY_2022_2_OR_NEWER
+        rules = FindFirstObjectByType<GameRulesManager>();
+#else
+        rules = FindObjectOfType<GameRulesManager>();
+#endif
+    }
+
+    private void OnRoundStarted()
+    {
+        lastShownTier = 0;
+        HideMultiplierImmediate();
+    }
+
+    private void OnShopOpened()
+    {
+        HideMultiplierImmediate();
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        EnsureMultiplierText();
     }
 
     private void OnGoalTierChanged(int tier)
     {
-        // Only show when tier increases (not on resets or goal changes that might drop tier).
-        if (tier <= 0 || tier <= _lastShownTier)
+        if (tier <= 0)
         {
-            _lastShownTier = Mathf.Max(_lastShownTier, tier);
+            lastShownTier = Mathf.Max(lastShownTier, tier);
+            HideMultiplierImmediate();
             return;
         }
 
-        _lastShownTier = tier;
-
-        EnsurePopupText();
-        if (_popupText == null) return;
-        EnsurePopupFont();
-        ApplyPopupStyle();
-
-        float speedPct = _score != null ? (_score.SpeedIncreasePerGoalTier * 100f) : 10f;
-        float scorePct = _score != null ? (_score.ScoreIncreasePerGoalTier * 100f) : 50f;
-
-        // Match the requested phrasing, but with the "Goal Passed xN!" on its own line.
-        _popupText.text =
-            $"Goal Passed x{tier}!\n" +
-            $"+{speedPct:0}% game speed   +{scorePct:0}% score";
-
-        if (_routine != null)
-            StopCoroutine(_routine);
-        _routine = StartCoroutine(ShowRoutine());
-    }
-
-    private IEnumerator ShowRoutine()
-    {
-        if (_popupText == null) yield break;
-
-        var rt = _popupText.rectTransform;
-        EnsureCanvasGroup();
-
-        rt.localScale = Vector3.one * Mathf.Max(0.01f, popScale);
-        _canvasGroup.alpha = 1f;
-
-        // Pop-in
-        float inDur = Mathf.Max(0f, popInDuration);
-        if (inDur > 0f)
+        if (tier <= lastShownTier)
         {
-            float t = 0f;
-            while (t < 1f)
-            {
-                t += Time.unscaledDeltaTime / inDur;
-                float u = Mathf.Clamp01(t);
-                rt.localScale = Vector3.one * Mathf.Lerp(popScale, 1f, Smooth01(u));
-                yield return null;
-            }
-        }
-        rt.localScale = Vector3.one;
-
-        // Hold
-        float hold = Mathf.Max(0f, holdDuration);
-        if (hold > 0f)
-        {
-            float elapsed = 0f;
-            while (elapsed < hold)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                yield return null;
-            }
-        }
-
-        // Fade out
-        float outDur = Mathf.Max(0f, fadeOutDuration);
-        if (outDur > 0f)
-        {
-            float t = 0f;
-            while (t < 1f)
-            {
-                t += Time.unscaledDeltaTime / outDur;
-                float u = Mathf.Clamp01(t);
-                _canvasGroup.alpha = Mathf.Lerp(1f, 0f, Smooth01(u));
-                yield return null;
-            }
-        }
-
-        HideImmediate();
-        _routine = null;
-    }
-
-    private void EnsurePopupText()
-    {
-        if (_popupText != null && _popupText.gameObject.scene == gameObject.scene)
-        {
-            // Re-apply style in case the object existed already (or settings changed in inspector).
-            EnsureCanvasGroup();
-            EnsurePopupFont();
-            ApplyPopupStyle();
+            lastShownTier = Mathf.Max(lastShownTier, tier);
             return;
         }
 
-        // Prefer an existing TMP in this scene by name.
-        _popupText = FindTextInThisSceneByName(popupTextObjectName);
+        lastShownTier = tier;
+        ResolveSpawner();
+        EnsureMultiplierText();
 
-        if (_popupText == null)
+        int multiplierNumber = Mathf.Max(0, tier + tierToMultiplierNumberOffset);
+        SetMultiplierText(multiplierNumber);
+
+        if (spawnPraise && spawner != null)
         {
-            // Create under a canvas in this scene (or create one if none exist).
+            string praise = PickPraiseMessage();
+            if (!string.IsNullOrWhiteSpace(praise))
+            {
+                spawner.SpawnGoalPraisePopup(praise);
+            }
+        }
+    }
+
+    private string PickPraiseMessage()
+    {
+        if (praiseMessages == null || praiseMessages.Length <= 0)
+            return null;
+
+        int index = UnityEngine.Random.Range(0, praiseMessages.Length);
+        return praiseMessages[index];
+    }
+
+    private void HideLegacyPopupIfPresent()
+    {
+        if (string.IsNullOrWhiteSpace(legacyPopupTextObjectName))
+            return;
+
+        TMP_Text legacy = FindTextInThisSceneByName(legacyPopupTextObjectName.Trim());
+        if (legacy == null) return;
+
+        legacy.text = "";
+
+        CanvasGroup cg = legacy.GetComponent<CanvasGroup>();
+        if (cg == null)
+        {
+            cg = legacy.gameObject.AddComponent<CanvasGroup>();
+        }
+
+        cg.alpha = 0f;
+        legacy.rectTransform.localScale = Vector3.one;
+    }
+
+    private void EnsureMultiplierText()
+    {
+        if (multiplierText != null && IsLiveSceneObject(multiplierText.gameObject))
+        {
+            EnsureMultiplierCanvasGroup();
+            return;
+        }
+
+        multiplierText = FindTextInLoadedScenesByName(multiplierTextObjectName);
+        if (multiplierText == null)
+        {
+            if (!autoCreateMultiplierTextIfMissing)
+                return;
+
             Canvas canvas = FindCanvasInThisScene();
             if (canvas == null)
             {
-                var canvasGO = new GameObject("GoalPassedPopupCanvas");
+                var canvasGO = new GameObject("GoalMultiplierCanvas");
                 SceneManager.MoveGameObjectToScene(canvasGO, gameObject.scene);
                 canvas = canvasGO.AddComponent<Canvas>();
                 canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -200,137 +265,144 @@ public sealed class GoalPassedPopupHUD : MonoBehaviour
                 canvasGO.AddComponent<GraphicRaycaster>();
             }
 
-            var textGO = new GameObject(popupTextObjectName);
+            string n = string.IsNullOrWhiteSpace(multiplierTextObjectName)
+                ? "GoalMultiplierText"
+                : multiplierTextObjectName.Trim();
+
+            var textGO = new GameObject(n);
             SceneManager.MoveGameObjectToScene(textGO, gameObject.scene);
             textGO.transform.SetParent(canvas.transform, worldPositionStays: false);
 
             var rt = textGO.AddComponent<RectTransform>();
-            rt.anchorMin = anchor;
-            rt.anchorMax = anchor;
-            rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.anchoredPosition = Vector2.zero;
-            rt.sizeDelta = size;
+            rt.anchorMin = multiplierAnchor;
+            rt.anchorMax = multiplierAnchor;
+            rt.pivot = multiplierPivot;
+            rt.anchoredPosition = multiplierAnchoredPosition;
+            rt.sizeDelta = multiplierSize;
 
-            _canvasGroup = textGO.AddComponent<CanvasGroup>();
+            multiplierCanvasGroup = textGO.AddComponent<CanvasGroup>();
 
             var tmp = textGO.AddComponent<TextMeshProUGUI>();
             tmp.raycastTarget = false;
             tmp.alignment = TextAlignmentOptions.Center;
-            tmp.fontSize = fontSize;
-            tmp.color = textColor;
+            tmp.fontSize = multiplierFontSize;
+            tmp.color = multiplierTextColor;
             tmp.text = "";
 
-            _popupText = tmp;
+            if (multiplierFontOverride != null)
+            {
+                tmp.font = multiplierFontOverride;
+            }
+
+            multiplierText = tmp;
         }
 
-        EnsureCanvasGroup();
-        EnsurePopupFont();
-        ApplyPopupStyle();
+        EnsureMultiplierCanvasGroup();
     }
 
-    private void ApplyPopupStyle()
+    private void EnsureMultiplierCanvasGroup()
     {
-        if (_popupText == null) return;
-        _popupText.fontSize = fontSize;
-        _popupText.color = textColor;
-        _popupText.alignment = TextAlignmentOptions.Center;
-    }
+        if (multiplierText == null) return;
 
-    private void EnsurePopupFont()
-    {
-        if (_popupText == null) return;
-
-        // Explicit override if provided.
-        if (fontOverride != null)
+        if (multiplierCanvasGroup == null)
         {
-            _popupText.font = fontOverride;
-            return;
+            multiplierCanvasGroup = multiplierText.GetComponent<CanvasGroup>();
         }
 
-        // First choice: adopt the font from an existing HUD text in this scene (matches "other UI assets").
-        TMP_Text donor = FindAnyOtherTextInThisScene();
-        if (donor != null && donor.font != null)
+        if (multiplierCanvasGroup == null)
         {
-            _popupText.font = donor.font;
-            return;
-        }
-
-        // Fallback: try to find a loaded font asset by name fragment.
-        TMP_FontAsset fallback = FindLoadedFontAssetByNameContains(fallbackFontNameContains);
-        if (fallback != null)
-        {
-            _popupText.font = fallback;
+            multiplierCanvasGroup = multiplierText.gameObject.AddComponent<CanvasGroup>();
         }
     }
 
-    private TMP_Text FindAnyOtherTextInThisScene()
+    private void HideMultiplierImmediate()
     {
-        var all = Resources.FindObjectsOfTypeAll<TMP_Text>();
-        for (int i = 0; i < all.Length; i++)
+        if (multiplierText == null) return;
+        EnsureMultiplierCanvasGroup();
+
+        multiplierText.text = "";
+        multiplierCanvasGroup.alpha = 0f;
+
+        if (toggleMultiplierObjectActive)
         {
-            var t = all[i];
-            if (t == null) continue;
-            if (t == _popupText) continue;
-            if (!t.gameObject.scene.IsValid()) continue;
-            if (t.gameObject.scene != gameObject.scene) continue;
-            if (t.font == null) continue;
-            return t;
+            multiplierText.gameObject.SetActive(false);
         }
-        return null;
     }
 
-    private static TMP_FontAsset FindLoadedFontAssetByNameContains(string nameContains)
+    private void SetMultiplierText(int multiplierNumber)
     {
-        if (string.IsNullOrWhiteSpace(nameContains))
-            return null;
+        if (multiplierText == null) return;
+        EnsureMultiplierCanvasGroup();
 
-        string needle = nameContains.Trim();
-        var all = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
-        for (int i = 0; i < all.Length; i++)
+        int n = Mathf.Max(0, multiplierNumber);
+        multiplierText.text = "x" + n;
+        multiplierCanvasGroup.alpha = 1f;
+
+        if (toggleMultiplierObjectActive)
         {
-            var f = all[i];
-            if (f == null) continue;
-            if (string.IsNullOrWhiteSpace(f.name)) continue;
-            if (f.name.IndexOf(needle, System.StringComparison.OrdinalIgnoreCase) >= 0)
-                return f;
+            multiplierText.gameObject.SetActive(true);
         }
-        return null;
-    }
-
-    private void EnsureCanvasGroup()
-    {
-        if (_popupText == null) return;
-        if (_canvasGroup == null)
-            _canvasGroup = _popupText.GetComponent<CanvasGroup>();
-        if (_canvasGroup == null)
-            _canvasGroup = _popupText.gameObject.AddComponent<CanvasGroup>();
-    }
-
-    private void HideImmediate()
-    {
-        if (_popupText == null) return;
-        EnsureCanvasGroup();
-        _popupText.text = "";
-        _canvasGroup.alpha = 0f;
-        _popupText.rectTransform.localScale = Vector3.one;
     }
 
     private TMP_Text FindTextInThisSceneByName(string name)
     {
-        if (string.IsNullOrWhiteSpace(name)) return null;
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
 
         var all = Resources.FindObjectsOfTypeAll<TMP_Text>();
         for (int i = 0; i < all.Length; i++)
         {
-            var t = all[i];
+            TMP_Text t = all[i];
             if (t == null) continue;
             if (!t.gameObject.scene.IsValid()) continue;
             if (t.gameObject.scene != gameObject.scene) continue;
             if (!t.gameObject.activeInHierarchy) continue;
-            if (string.Equals(t.gameObject.name, name, System.StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(t.gameObject.name, name, StringComparison.OrdinalIgnoreCase))
                 return t;
         }
+
         return null;
+    }
+
+    private TMP_Text FindTextInLoadedScenesByName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
+
+        string n = name.Trim();
+        TMP_Text bestAny = null;
+        TMP_Text bestNotGameplayCore = null;
+
+        var all = Resources.FindObjectsOfTypeAll<TMP_Text>();
+        for (int i = 0; i < all.Length; i++)
+        {
+            TMP_Text t = all[i];
+            if (t == null) continue;
+            if (!IsLiveSceneObject(t.gameObject)) continue;
+            if (!string.Equals(t.gameObject.name, n, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            bestAny = t;
+
+            if (t.gameObject.scene.IsValid()
+                && !string.Equals(
+                    t.gameObject.scene.name,
+                    gameplayCoreSceneName,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                bestNotGameplayCore = t;
+                break;
+            }
+        }
+
+        return bestNotGameplayCore != null ? bestNotGameplayCore : bestAny;
+    }
+
+    private static bool IsLiveSceneObject(GameObject go)
+    {
+        if (go == null) return false;
+        if (!go.scene.IsValid()) return false;
+        return true;
     }
 
     private Canvas FindCanvasInThisScene()
@@ -338,20 +410,15 @@ public sealed class GoalPassedPopupHUD : MonoBehaviour
         var all = Resources.FindObjectsOfTypeAll<Canvas>();
         for (int i = 0; i < all.Length; i++)
         {
-            var c = all[i];
+            Canvas c = all[i];
             if (c == null) continue;
             if (!c.gameObject.scene.IsValid()) continue;
             if (c.gameObject.scene != gameObject.scene) continue;
             if (!c.gameObject.activeInHierarchy) continue;
             return c;
         }
-        return null;
-    }
 
-    private static float Smooth01(float u)
-    {
-        // SmoothStep
-        return u * u * (3f - 2f * u);
+        return null;
     }
 }
 
@@ -391,7 +458,8 @@ internal sealed class GoalPassedPopupBootstrapper : MonoBehaviour
             return;
 
         // Already installed?
-        var existing = Object.FindObjectsByType<GoalPassedPopupHUD>(FindObjectsSortMode.None);
+        var existing = UnityEngine.Object
+            .FindObjectsByType<GoalPassedPopupHUD>(FindObjectsSortMode.None);
         for (int i = 0; i < existing.Length; i++)
         {
             if (existing[i] != null && existing[i].gameObject.scene == scene)
@@ -399,6 +467,7 @@ internal sealed class GoalPassedPopupBootstrapper : MonoBehaviour
         }
 
         var go = new GameObject(nameof(GoalPassedPopupHUD));
+        go.hideFlags = HideFlags.HideInHierarchy;
         SceneManager.MoveGameObjectToScene(go, scene);
         go.AddComponent<GoalPassedPopupHUD>();
     }
@@ -411,15 +480,16 @@ internal static class GoalPassedPopupBootstrap
     {
         // Avoid duplicates across domain reloads / scene reloads.
 #if UNITY_2022_2_OR_NEWER
-        if (Object.FindFirstObjectByType<GoalPassedPopupBootstrapper>() != null)
+        if (UnityEngine.Object.FindFirstObjectByType<GoalPassedPopupBootstrapper>() != null)
             return;
 #else
-        if (Object.FindObjectOfType<GoalPassedPopupBootstrapper>() != null)
+        if (UnityEngine.Object.FindObjectOfType<GoalPassedPopupBootstrapper>() != null)
             return;
 #endif
 
         var go = new GameObject(nameof(GoalPassedPopupBootstrapper));
-        Object.DontDestroyOnLoad(go);
+        go.hideFlags = HideFlags.HideInHierarchy;
+        UnityEngine.Object.DontDestroyOnLoad(go);
         go.AddComponent<GoalPassedPopupBootstrapper>();
     }
 }

@@ -11,6 +11,13 @@ public class GameRulesManager : MonoBehaviour
     [SerializeField] private List<float> goalByRound = new List<float> { 500f, 800f, 1200f, 1700f, 2300f, 3000f, 4000f };
     [SerializeField] private float pointsPerCoin = 100f;
 
+    // Generated with Cursor (GPT-5.2) by OpenAI assistant for jjmil on 2026-02-17.
+    [Header("Coins (score conversion cap)")]
+    [Tooltip("Hard cap on coins awarded from round score when clearing the goal.\n" +
+             "0 or less means no cap.")]
+    [Min(0)]
+    [SerializeField] private int maxCoinsFromRoundTotal = 20;
+
     [Header("Balls / Rounds")]
     [SerializeField] private int startingMaxBalls = 5;
     [SerializeField] private bool autoStartOnPlay = true;
@@ -59,6 +66,16 @@ public class GameRulesManager : MonoBehaviour
     /// </summary>
     public event Action RoundStarted;
 
+    /// <summary>
+    /// Fired when the shop is opened for the current round.
+    /// </summary>
+    public event Action ShopOpened;
+
+    /// <summary>
+    /// Fired when the shop is closed.
+    /// </summary>
+    public event Action ShopClosed;
+
     public int RoundIndex => roundIndex;
     public int MaxBalls => maxBalls;
     public int BallsRemaining => ballsRemaining;
@@ -67,6 +84,7 @@ public class GameRulesManager : MonoBehaviour
     public float CurrentGoal => GetGoalForRound(roundIndex);
     public int BallLoadoutCount => _ballLoadout.Count;
     public List<GameObject> ActiveBalls => ballSpawner != null ? ballSpawner.ActiveBalls : null;
+    public bool IsShopOpen => shopOpen;
 
     /// <summary>
     /// The currently active round modifier, if any.
@@ -447,6 +465,7 @@ public class GameRulesManager : MonoBehaviour
 
         SetShopOpen(false);
         shopOpen = false;
+        ShopClosed?.Invoke();
         roundIndex = Mathf.Max(0, roundIndex + 1);
     }
 
@@ -585,11 +604,61 @@ public class GameRulesManager : MonoBehaviour
     /// </summary>
     public void AddCoins(int amount)
     {
-        coins += amount;
+        AddCoinsScaled(amount);
+    }
+
+    /// <summary>
+    /// Adds coins and returns the APPLIED amount after the active modifier's coin multiplier.
+    /// Intended for coin drops/popups so the text matches what the player actually received.
+    /// </summary>
+    public int AddCoinsScaled(int amount)
+    {
+        int applied = amount;
+        if (amount > 0)
+        {
+            float coinMultiplier = GetModifierCoinMultiplier();
+            if (!Mathf.Approximately(coinMultiplier, 1f))
+            {
+                applied = Mathf.FloorToInt(applied * coinMultiplier);
+            }
+        }
+
+        coins += applied;
         if (scoreManager != null)
         {
             scoreManager.SetCoins(coins);
         }
+
+        return applied;
+    }
+
+    public int AddCoinsScaledDeferredUi(int amount, out int uiToken)
+    {
+        ResolveScoreManager(logIfMissing: false);
+        uiToken = scoreManager != null ? scoreManager.CoinsUiToken : 0;
+
+        int applied = amount;
+        if (amount > 0)
+        {
+            float coinMultiplier = GetModifierCoinMultiplier();
+            if (!Mathf.Approximately(coinMultiplier, 1f))
+            {
+                applied = Mathf.FloorToInt(applied * coinMultiplier);
+            }
+        }
+
+        coins += applied;
+        return applied;
+    }
+
+    public void ApplyDeferredCoinsUi(int applied, int token)
+    {
+        if (scoreManager == null)
+        {
+            ResolveScoreManager(logIfMissing: false);
+        }
+
+        scoreManager?.ApplyDeferredCoinsUi(applied, token);
     }
 
     public void RetryRound()
@@ -696,6 +765,11 @@ public class GameRulesManager : MonoBehaviour
             award = Mathf.FloorToInt(award * coinMultiplier);
         }
 
+        if (maxCoinsFromRoundTotal > 0)
+        {
+            award = Mathf.Min(award, maxCoinsFromRoundTotal);
+        }
+
         if (award > 0)
         {
             coins += award;
@@ -710,6 +784,7 @@ public class GameRulesManager : MonoBehaviour
     {
         shopOpen = true;
         ClearAllBalls();
+        ShopOpened?.Invoke();
 
         // Prefer the animated transition controller if present.
         if (shopTransitionController != null)

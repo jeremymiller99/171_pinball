@@ -17,6 +17,10 @@ public class LockedTarget : MonoBehaviour
     [SerializeField] private float bounceForce = 10f;
     [SerializeField] private CameraShake camShake;
 
+    [Header("FX")]
+    [SerializeField] private float shakeDuration = 0.22f;
+    [SerializeField] private float shakeMagnitude = 0.16f;
+
     [Header("Locked look")]
     [Tooltip("Material used when locked (e.g. black). Assign a black material. On first hit, the object restores its regular material.")]
     [SerializeField] private Material lockedMaterial;
@@ -100,7 +104,7 @@ public class LockedTarget : MonoBehaviour
         if (rb == null) return;
         Vector3 forceDir = (collision.transform.position - transform.position).normalized;
         rb.AddForce(forceDir * bounceForce, ForceMode.Impulse);
-        camShake?.Shake(0.2f, 0.1f);
+        camShake?.Shake(shakeDuration, shakeMagnitude);
     }
 
     private void ApplyBounce(Collider col)
@@ -110,7 +114,24 @@ public class LockedTarget : MonoBehaviour
         if (rb == null) return;
         Vector3 forceDir = (col.transform.position - transform.position).normalized;
         rb.AddForce(forceDir * bounceForce, ForceMode.Impulse);
-        camShake?.Shake(0.2f, 0.1f);
+        camShake?.Shake(shakeDuration, shakeMagnitude);
+    }
+
+    private static float GetBallPointsAwardMultiplier(Component ballCollider)
+    {
+        if (ballCollider == null) return 1f;
+
+        Ball ball = ballCollider.GetComponent<Ball>();
+        if (ball == null)
+        {
+            ball = ballCollider.GetComponentInParent<Ball>();
+        }
+
+        if (ball == null) return 1f;
+
+        float m = ball.PointsAwardMultiplier;
+        if (m <= 0f) return 0f;
+        return m;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -130,9 +151,10 @@ public class LockedTarget : MonoBehaviour
         {
             _hitCount = 2;
             if (scoreManager == null) EnsureRefs();
-            scoreManager?.AddPoints(pointsToAdd);
+            float ballMult = GetBallPointsAwardMultiplier(collision.collider);
+            float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd * ballMult) : 0f;
             Vector3 pos = collision.collider.transform.position;
-            floatingTextSpawner?.SpawnText(pos, "+" + pointsToAdd);
+            floatingTextSpawner?.SpawnText(pos, "+" + applied);
         }
     }
 
@@ -153,8 +175,9 @@ public class LockedTarget : MonoBehaviour
         {
             _hitCount = 2;
             if (scoreManager == null) EnsureRefs();
-            scoreManager?.AddPoints(pointsToAdd);
-            floatingTextSpawner?.SpawnText(col.transform.position, "+" + pointsToAdd);
+            float ballMult = GetBallPointsAwardMultiplier(col);
+            float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd * ballMult) : 0f;
+            floatingTextSpawner?.SpawnText(col.transform.position, "+" + applied);
         }
     }
 }

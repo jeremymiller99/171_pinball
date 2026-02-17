@@ -1015,18 +1015,20 @@ MonoBehaviour:
   pointsText: {fileID: 0}
   multText: {fileID: 0}
   cameraShake: {fileID: 0}
-  shakeBaseDuration: 0.2
-  shakeDurationPerPoint: 0.004
-  shakeMaxDuration: 0.5
-  shakeBaseMagnitude: 0.18
-  shakeMagnitudePerPoint: 0.008
-  shakeMaxMagnitude: 0.8
-  multShakeBaseDuration: 0.25
-  multShakeDurationPerMult: 0.15
-  multShakeMaxDuration: 0.6
-  multShakeBaseMagnitude: 0.22
-  multShakeMagnitudePerMult: 0.25
-  multShakeMaxMagnitude: 0.7
+  shakeBaseDuration: 0.22
+  shakePointsExponent: 0.75
+  shakeDurationPerPoint: 0.01
+  shakeMaxDuration: 0.65
+  shakeBaseMagnitude: 0.24
+  shakeMagnitudePerPoint: 0.02
+  shakeMaxMagnitude: 1
+  multShakeBaseDuration: 0.28
+  multShakeExponent: 0.75
+  multShakeDurationPerMult: 0.22
+  multShakeMaxDuration: 0.75
+  multShakeBaseMagnitude: 0.26
+  multShakeMagnitudePerMult: 0.28
+  multShakeMaxMagnitude: 0.85
   roundIndexText: {fileID: 0}
   roundTotalText: {fileID: 0}
   goalText: {fileID: 0}
@@ -1636,17 +1638,17 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Start Round
+  m_text: Start
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281479730
-  m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1663,8 +1665,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1959,8 +1961,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -224}
-  m_SizeDelta: {x: 400, y: 75}
+  m_AnchoredPosition: {x: 0, y: -193.1}
+  m_SizeDelta: {x: 100, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &621555611
 MonoBehaviour:
@@ -2026,8 +2028,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 36b81587536e1e64ab9a12f1d3ade2a0, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -2078,7 +2080,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 243}
+  m_AnchoredPosition: {x: 0, y: 204.39}
   m_SizeDelta: {x: 599, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &633711454
@@ -2103,8 +2105,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Round Info
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2351,10 +2353,10 @@ RectTransform:
   - {fileID: 621555610}
   m_Father: {fileID: 912259834}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 1000, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &724694937
 MonoBehaviour:
@@ -2363,21 +2365,21 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 724694935}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.509434, g: 0.509434, b: 0.509434, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 970278523ed72ab408a72573ae186a33, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -2630,8 +2632,8 @@ MonoBehaviour:
   minScale: 0.5
   cardsOffset: {x: 0, y: 0}
   autoCenter: 0
-  manualStartX: 100
-  cardsY: 300
+  manualStartX: 50
+  cardsY: 250
 --- !u!1 &987650001
 GameObject:
   m_ObjectHideFlags: 0
@@ -3129,16 +3131,16 @@ MonoBehaviour:
   scoreManager: {fileID: 349540274}
   scoreTallyAnimator: {fileID: 0}
   goalByRound:
-  - 300
   - 500
   - 1000
   - 2000
-  - 4000
-  - 8000
-  - 16000
-  - 32000
-  - 64000
-  - 128000
+  - 5000
+  - 10000
+  - 20000
+  - 50000
+  - 100000
+  - 250000
+  - 1000000
   pointsPerCoin: 100
   startingMaxBalls: 5
   autoStartOnPlay: 0
@@ -4047,7 +4049,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1951998749
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4335,6 +4337,13 @@ MonoBehaviour:
   canvas: {fileID: 912259833}
   targetCamera: {fileID: 248943762}
   spawnOffset: {x: 100, y: 0}
+  enableFlyToScoreUi: 1
+  flyToOffset: {x: 0, y: 0}
+  juiceOnArrival: 1
+  juiceScaleMultiplier: 1.25
+  juiceScaleDuration: 0.12
+  juiceRotationDegreesMax: 10
+  juiceRotationDuration: 0.1
   pointsFontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
   pointsScaleMin: 0.6
   pointsScaleMax: 1.2
@@ -4347,6 +4356,16 @@ MonoBehaviour:
   goldScaleMin: 0.6
   goldScaleMax: 1.1
   goldMaxValue: 5
+  goalMultPopupOffset: {x: -800, y: 18}
+  goalMultPopupScale: 1.1
+  goalMultPopupLifetime: 0.85
+  goalPraisePopupOffset: {x: 0, y: 0}
+  goalPraiseFontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  goalPraisePopupScale: 0.7
+  goalPraisePopupLifetime: 1.2
+  goalPopupEnablePopIn: 1
+  goalPopupPopInStartScaleMultiplier: 1.18
+  goalPopupPopInDuration: 0.12
 --- !u!4 &1995152005
 Transform:
   m_ObjectHideFlags: 0
@@ -5425,11 +5444,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7212899036295995080, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 61.666668
+      value: 61.66667
       objectReference: {fileID: 0}
     - target: {fileID: 7212899036295995080, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -50
+      objectReference: {fileID: 0}
+    - target: {fileID: 9100000000000000042, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 46.300003
+      objectReference: {fileID: 0}
+    - target: {fileID: 9100000000000000052, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -56.399994
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

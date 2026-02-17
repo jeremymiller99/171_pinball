@@ -1,3 +1,4 @@
+// Updated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-17.
 using System.Collections.Generic;
 using System.Collections;
 using System.Drawing;
@@ -8,6 +9,12 @@ using System;
 
 public class Ball : MonoBehaviour
 {
+    /// <summary>
+    /// Per-ball multiplier applied to point awards triggered by this ball.
+    /// Default is 1. Override in specific ball types (e.g. split-scatter children).
+    /// </summary>
+    public virtual float PointsAwardMultiplier => 1f;
+
     [SerializeField] private TrailRenderer trailRenderer;
     [SerializeField] private int amountToEmit;
     [SerializeField] private GameObject particleObject;

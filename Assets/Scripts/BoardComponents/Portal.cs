@@ -18,6 +18,10 @@ public class Portal : MonoBehaviour
     [Tooltip("Speed to use when overrideExitSpeed is true.")]
     public float exitSpeed = 10f;
 
+    [Header("FX")]
+    [SerializeField] private float shakeDuration = 0.22f;
+    [SerializeField] private float shakeMagnitude = 0.16f;
+
     private void Awake()
     {
         ResolveCameraShake();
@@ -102,6 +106,16 @@ public class Portal : MonoBehaviour
         {
             ResolveCameraShake();
         }
-        camShake?.Shake(0.2f, 0.1f);
+        camShake?.Shake(shakeDuration, shakeMagnitude);
+    }
+
+    public void MultiplyExitSpeed(float multiplier)
+    {
+        if (multiplier <= 0f)
+        {
+            return;
+        }
+
+        exitSpeed = Mathf.Max(0f, exitSpeed * multiplier);
     }
 }

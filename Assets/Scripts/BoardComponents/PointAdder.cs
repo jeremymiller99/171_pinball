@@ -1,3 +1,4 @@
+// Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-17.
 using UnityEngine;
 
 public class PointAdder : MonoBehaviour
@@ -45,14 +46,48 @@ public class PointAdder : MonoBehaviour
         }
     }
 
+    private static float GetBallPointsAwardMultiplier(Component ballCollider)
+    {
+        if (ballCollider == null) return 1f;
+
+        Ball ball = ballCollider.GetComponent<Ball>();
+        if (ball == null)
+        {
+            ball = ballCollider.GetComponentInParent<Ball>();
+        }
+
+        if (ball == null) return 1f;
+
+        float m = ball.PointsAwardMultiplier;
+        if (m <= 0f) return 0f;
+        return m;
+    }
+
     void OnCollisionEnter(Collision collision)
     {
         if (collision.collider.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
-            float applied = scoreManager != null ? scoreManager.AddPointsScaled(GetEffectivePointsToAdd()) : 0f;
-            // Spawn blue points text at the ball's position
-            floatingTextSpawner?.SpawnPointsText(collision.collider.transform.position, "+" + applied, applied);
+            if (scoreManager == null)
+                return;
+
+            int token = scoreManager.PointsAndMultUiToken;
+            float ballMult = GetBallPointsAwardMultiplier(collision.collider);
+            float applied = scoreManager.AddPointsScaledDeferredUi(GetEffectivePointsToAdd() * ballMult);
+
+            // Spawn blue points text at the ball's position; only increment HUD when the popup arrives.
+            if (floatingTextSpawner != null)
+            {
+                floatingTextSpawner.SpawnPointsText(
+                    collision.collider.transform.position,
+                    "+" + applied,
+                    applied,
+                    () => scoreManager.ApplyDeferredPointsUi(applied, token));
+            }
+            else
+            {
+                scoreManager.ApplyDeferredPointsUi(applied, token);
+            }
         }
     }
 
@@ -61,9 +96,26 @@ public class PointAdder : MonoBehaviour
         if (col.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
-            float applied = scoreManager != null ? scoreManager.AddPointsScaled(GetEffectivePointsToAdd()) : 0f;
-            // Spawn blue points text at the ball's position
-            floatingTextSpawner?.SpawnPointsText(col.transform.position, "+" + applied, applied);
+            if (scoreManager == null)
+                return;
+
+            int token = scoreManager.PointsAndMultUiToken;
+            float ballMult = GetBallPointsAwardMultiplier(col);
+            float applied = scoreManager.AddPointsScaledDeferredUi(GetEffectivePointsToAdd() * ballMult);
+
+            // Spawn blue points text at the ball's position; only increment HUD when the popup arrives.
+            if (floatingTextSpawner != null)
+            {
+                floatingTextSpawner.SpawnPointsText(
+                    col.transform.position,
+                    "+" + applied,
+                    applied,
+                    () => scoreManager.ApplyDeferredPointsUi(applied, token));
+            }
+            else
+            {
+                scoreManager.ApplyDeferredPointsUi(applied, token);
+            }
         }
     }
 
@@ -83,8 +135,24 @@ public class PointAdder : MonoBehaviour
     public void AddPoints(Vector3 spawnPosition)
     {
         if (scoreManager == null) EnsureRefs();
-        float applied = scoreManager != null ? scoreManager.AddPointsScaled(GetEffectivePointsToAdd()) : 0f;
-        floatingTextSpawner?.SpawnPointsText(spawnPosition, "+" + applied, applied);
+        if (scoreManager == null)
+            return;
+
+        int token = scoreManager.PointsAndMultUiToken;
+        float applied = scoreManager.AddPointsScaledDeferredUi(GetEffectivePointsToAdd());
+
+        if (floatingTextSpawner != null)
+        {
+            floatingTextSpawner.SpawnPointsText(
+                spawnPosition,
+                "+" + applied,
+                applied,
+                () => scoreManager.ApplyDeferredPointsUi(applied, token));
+        }
+        else
+        {
+            scoreManager.ApplyDeferredPointsUi(applied, token);
+        }
     }
 
     public void multiplyPointsToAdd(float mult)
@@ -100,7 +168,8 @@ public class PointAdder : MonoBehaviour
     public void AddScore(Transform pos)
     {
         if (scoreManager == null) EnsureRefs();
-        float applied = scoreManager != null ? scoreManager.AddPointsScaled(GetEffectivePointsToAdd()) : 0f;
+        float ballMult = GetBallPointsAwardMultiplier(pos);
+        float applied = scoreManager != null ? scoreManager.AddPointsScaled(GetEffectivePointsToAdd() * ballMult) : 0f;
         // Spawn text at the ball's position
         floatingTextSpawner?.SpawnText(pos.position, "+" + applied);
     }

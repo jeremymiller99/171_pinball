@@ -19,37 +19,63 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private TMP_Text pointsText;
     [SerializeField] private TMP_Text multText;
 
+    private float pointsUiDisplayed;
+    private float multUiDisplayed;
+    private bool deferPointsAndMultUiUpdates;
+    private int pointsAndMultUiToken;
+
+    public int PointsAndMultUiToken => pointsAndMultUiToken;
+
+    private int coinsUiDisplayed;
+    private int coinsUiToken;
+
+    public int CoinsUiToken => coinsUiToken;
+
     [Header("Camera Shake on Score")]
     [Tooltip("Reference to CameraShake. Auto-resolved if not set.")]
     [SerializeField] private CameraShake cameraShake;
     
     [Header("Points Shake Settings")]
     [Tooltip("Base duration of camera shake when earning points.")]
-    [SerializeField] private float shakeBaseDuration = 0.2f;
-    [Tooltip("How much to increase duration per point earned. E.g., 0.004 means +100 points adds 0.4s.")]
-    [SerializeField] private float shakeDurationPerPoint = 0.004f;
+    [SerializeField] private float shakeBaseDuration = 0.22f;
+
+    [Tooltip("Exponent applied to points before converting to shake. Lower (< 1) ramps sooner.")]
+    [Range(0.25f, 1.5f)]
+    [SerializeField] private float shakePointsExponent = 0.75f;
+
+    [Tooltip("How much to increase duration per shaped points. Shaped = points ^ exponent.")]
+    [SerializeField] private float shakeDurationPerPoint = 0.01f;
+
     [Tooltip("Maximum shake duration cap for points.")]
-    [SerializeField] private float shakeMaxDuration = 0.5f;
+    [SerializeField] private float shakeMaxDuration = 0.65f;
     [Tooltip("Base magnitude of camera shake when earning points.")]
-    [SerializeField] private float shakeBaseMagnitude = 0.18f;
-    [Tooltip("How much to scale shake magnitude per point earned. E.g., 0.008 means +100 points adds 0.8 to magnitude.")]
-    [SerializeField] private float shakeMagnitudePerPoint = 0.008f;
+    [SerializeField] private float shakeBaseMagnitude = 0.24f;
+
+    [Tooltip("How much to scale shake magnitude per shaped points. Shaped = points ^ exponent.")]
+    [SerializeField] private float shakeMagnitudePerPoint = 0.02f;
     [Tooltip("Maximum shake magnitude cap for points.")]
-    [SerializeField] private float shakeMaxMagnitude = 0.8f;
+    [SerializeField] private float shakeMaxMagnitude = 1.0f;
     
     [Header("Multiplier Shake Settings")]
     [Tooltip("Base duration of camera shake when gaining multiplier.")]
-    [SerializeField] private float multShakeBaseDuration = 0.25f;
-    [Tooltip("How much to increase duration per multiplier gained. E.g., 0.15 means +1x adds 0.15s.")]
-    [SerializeField] private float multShakeDurationPerMult = 0.15f;
+    [SerializeField] private float multShakeBaseDuration = 0.28f;
+
+    [Tooltip("Exponent applied to mult gain before converting to shake. Lower (< 1) ramps sooner.")]
+    [Range(0.25f, 1.5f)]
+    [SerializeField] private float multShakeExponent = 0.75f;
+
+    [Tooltip("How much to increase duration per shaped mult gain. Shaped = multGain ^ exponent.")]
+    [SerializeField] private float multShakeDurationPerMult = 0.22f;
+
     [Tooltip("Maximum shake duration cap for multiplier.")]
-    [SerializeField] private float multShakeMaxDuration = 0.6f;
+    [SerializeField] private float multShakeMaxDuration = 0.75f;
     [Tooltip("Base magnitude of camera shake when gaining multiplier.")]
-    [SerializeField] private float multShakeBaseMagnitude = 0.22f;
-    [Tooltip("How much to scale shake magnitude per multiplier gained. E.g., 0.25 means +1x adds 0.25 to magnitude.")]
-    [SerializeField] private float multShakeMagnitudePerMult = 0.25f;
+    [SerializeField] private float multShakeBaseMagnitude = 0.26f;
+
+    [Tooltip("How much to scale shake magnitude per shaped mult gain. Shaped = multGain ^ exponent.")]
+    [SerializeField] private float multShakeMagnitudePerMult = 0.28f;
     [Tooltip("Maximum shake magnitude cap for multiplier.")]
-    [SerializeField] private float multShakeMaxMagnitude = 0.7f;
+    [SerializeField] private float multShakeMaxMagnitude = 0.85f;
 
     // Optional UI hooks (wire in inspector if you have these labels).
     [Header("Optional extra UI")]
@@ -300,6 +326,7 @@ public class ScoreManager : MonoBehaviour
 
         EnsureCoreScoreTextBindings();
         ResolveCameraShake();
+        pointsAndMultUiToken = 0;
         RefreshScoreUI();
         ScoreChanged?.Invoke();
     }
@@ -355,11 +382,50 @@ public class ScoreManager : MonoBehaviour
         // Recompute tier and apply speed when crossing Goal * N thresholds.
         UpdateGoalTierAndApplySpeed();
 
-        if (pointsText != null)
-            pointsText.text = FormatPointsCompact(points);
+        if (deferPointsAndMultUiUpdates)
+        {
+            // Defer HUD update; popup arrival should call ApplyDeferredPointsUi.
+        }
+        else
+        {
+            pointsUiDisplayed = points;
+            if (pointsText != null)
+                pointsText.text = FormatPointsCompact(pointsUiDisplayed);
+        }
 
         ScoreChanged?.Invoke();
         return applied;
+    }
+
+    /// <summary>
+    /// Adds points (same scaling rules as AddPointsScaled) but does NOT update the Points HUD label.
+    /// Intended for popup-driven scoring where the HUD should only increment on popup arrival.
+    /// Returns the applied points amount (after multipliers).
+    /// </summary>
+    public float AddPointsScaledDeferredUi(float p)
+    {
+        bool prev = deferPointsAndMultUiUpdates;
+        deferPointsAndMultUiUpdates = true;
+        try
+        {
+            return AddPointsScaled(p);
+        }
+        finally
+        {
+            deferPointsAndMultUiUpdates = prev;
+        }
+    }
+
+    public void ApplyDeferredPointsUi(float applied, int token)
+    {
+        if (token != pointsAndMultUiToken)
+            return;
+
+        EnsureCoreScoreTextBindings();
+
+        pointsUiDisplayed += applied;
+        if (pointsText != null)
+            pointsText.text = FormatPointsCompact(pointsUiDisplayed);
     }
 
     /// <summary>
@@ -417,9 +483,54 @@ public class ScoreManager : MonoBehaviour
         }
 
         UpdateGoalTierAndApplySpeed();
-        if (multText != null)
-            multText.text = FormatMultiplier(mult);
+        if (deferPointsAndMultUiUpdates)
+        {
+            // Defer HUD update; popup arrival should call ApplyDeferredMultUi.
+        }
+        else
+        {
+            multUiDisplayed = mult;
+            if (multText != null)
+                multText.text = FormatMultiplier(multUiDisplayed);
+        }
         ScoreChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Adds multiplier but does NOT update the Mult HUD label.
+    /// Returns the applied mult gain (0 if blocked by modifier rules).
+    /// </summary>
+    public float AddMultDeferredUi(float m)
+    {
+        if (scoringLocked) return 0f;
+        EnsureCoreScoreTextBindings();
+
+        if (m > 0f && IsModifierMultiplierDisabled())
+            return 0f;
+
+        bool prev = deferPointsAndMultUiUpdates;
+        deferPointsAndMultUiUpdates = true;
+        try
+        {
+            AddMult(m);
+            return m;
+        }
+        finally
+        {
+            deferPointsAndMultUiUpdates = prev;
+        }
+    }
+
+    public void ApplyDeferredMultUi(float applied, int token)
+    {
+        if (token != pointsAndMultUiToken)
+            return;
+
+        EnsureCoreScoreTextBindings();
+
+        multUiDisplayed += applied;
+        if (multText != null)
+            multText.text = FormatMultiplier(multUiDisplayed);
     }
 
     public void SetScoringLocked(bool locked)
@@ -452,6 +563,7 @@ public class ScoreManager : MonoBehaviour
         // Reset for next ball.
         points = 0f;
         mult = 1f;
+        pointsAndMultUiToken++;
 
         UpdateGoalTierAndApplySpeed();
         RefreshScoreUI();
@@ -468,6 +580,7 @@ public class ScoreManager : MonoBehaviour
         points = 0f;
         mult = 1f;
         _goalTier = 0;
+        pointsAndMultUiToken++;
 
         // Reset game speed back to baseline at the start of each round.
         ApplySpeedFromTier(force: true);
@@ -584,16 +697,33 @@ public class ScoreManager : MonoBehaviour
     {
         EnsureCoreScoreTextBindings();
         if (coinsText != null)
-            coinsText.text = coins.ToString();
+            coinsText.text = $"${coins}";
+
+        coinsUiDisplayed = coins;
+        coinsUiToken++;
+    }
+
+    public void ApplyDeferredCoinsUi(int applied, int token)
+    {
+        if (token != coinsUiToken)
+            return;
+
+        EnsureCoreScoreTextBindings();
+
+        coinsUiDisplayed += applied;
+        if (coinsText != null)
+            coinsText.text = $"${coinsUiDisplayed}";
     }
 
     private void RefreshScoreUI()
     {
         EnsureCoreScoreTextBindings();
+        pointsUiDisplayed = points;
+        multUiDisplayed = mult;
         if (pointsText != null)
-            pointsText.text = FormatPointsCompact(points);
+            pointsText.text = FormatPointsCompact(pointsUiDisplayed);
         if (multText != null)
-            multText.text = FormatMultiplier(mult);
+            multText.text = FormatMultiplier(multUiDisplayed);
         if (roundTotalText != null)
             roundTotalText.text = roundTotal.ToString();
         if (goalText != null)
@@ -700,12 +830,14 @@ public class ScoreManager : MonoBehaviour
         if (cameraShake == null || !cameraShake.isActiveAndEnabled)
             return;
 
+        float shaped = ShapeShakeInput(pointsEarned, shakePointsExponent);
+
         // Calculate duration based on points earned.
-        float duration = shakeBaseDuration + (pointsEarned * shakeDurationPerPoint);
+        float duration = shakeBaseDuration + (shaped * shakeDurationPerPoint);
         duration = Mathf.Clamp(duration, shakeBaseDuration, shakeMaxDuration);
 
         // Calculate magnitude based on points earned.
-        float magnitude = shakeBaseMagnitude + (pointsEarned * shakeMagnitudePerPoint);
+        float magnitude = shakeBaseMagnitude + (shaped * shakeMagnitudePerPoint);
         magnitude = Mathf.Clamp(magnitude, shakeBaseMagnitude, shakeMaxMagnitude);
 
         cameraShake.Shake(duration, magnitude);
@@ -721,15 +853,28 @@ public class ScoreManager : MonoBehaviour
         if (cameraShake == null || !cameraShake.isActiveAndEnabled)
             return;
 
+        float shaped = ShapeShakeInput(multGained, multShakeExponent);
+
         // Calculate duration based on multiplier gained.
-        float duration = multShakeBaseDuration + (multGained * multShakeDurationPerMult);
+        float duration = multShakeBaseDuration + (shaped * multShakeDurationPerMult);
         duration = Mathf.Clamp(duration, multShakeBaseDuration, multShakeMaxDuration);
 
         // Calculate magnitude based on multiplier gained.
-        float magnitude = multShakeBaseMagnitude + (multGained * multShakeMagnitudePerMult);
+        float magnitude = multShakeBaseMagnitude + (shaped * multShakeMagnitudePerMult);
         magnitude = Mathf.Clamp(magnitude, multShakeBaseMagnitude, multShakeMaxMagnitude);
 
         cameraShake.Shake(duration, magnitude);
+    }
+
+    private static float ShapeShakeInput(float value, float exponent)
+    {
+        if (value <= 0f)
+        {
+            return 0f;
+        }
+
+        float safeExponent = Mathf.Max(0.0001f, exponent);
+        return Mathf.Pow(value, safeExponent);
     }
 
     private void EnsureCoreScoreTextBindings()

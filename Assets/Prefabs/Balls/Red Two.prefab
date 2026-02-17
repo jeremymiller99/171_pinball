@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 1976190117028334336}
   - component: {fileID: -5927464745616923939}
   - component: {fileID: 7218764734407977045}
+  - component: {fileID: 8123456789012345674}
   m_Layer: 0
   m_Name: Red Two
   m_TagString: Ball
@@ -307,6 +308,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinitionLink
   definition: {fileID: 11400000, guid: c1d8ad878e4616b4bbd42ef637c67545, type: 2}
+--- !u!114 &8123456789012345674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e0b5fd4d6b04c4ab1f6bb7c78db23e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BallAntiStallAssist
+  maxAssistAcceleration: 20
+  minAssistAcceleration: 5
+  speedForMaxAssistMps: 0.5
+  speedForMinAssistMps: 20
+  boardRoot: {fileID: 0}
 --- !u!1 &6285238752131022734
 GameObject:
   m_ObjectHideFlags: 0

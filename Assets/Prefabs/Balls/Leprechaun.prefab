@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 5996511875002658216}
   - component: {fileID: -6465046838061284915}
   - component: {fileID: 4450916361603209073}
+  - component: {fileID: 8123456789012345673}
   m_Layer: 0
   m_Name: Leprechaun
   m_TagString: Ball
@@ -177,6 +178,7 @@ MonoBehaviour:
   floatingTextSpawner: {fileID: 0}
   textOffset: {x: 0, y: -2, z: 0}
   coinsToAdd: 1
+  componentHitsPerDollar: 5
 --- !u!96 &-6465046838061284915
 TrailRenderer:
   serializedVersion: 3
@@ -309,3 +311,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinitionLink
   definition: {fileID: 11400000, guid: bc5c7467f0bb6f64f988fb888cbecd97, type: 2}
+--- !u!114 &8123456789012345673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e0b5fd4d6b04c4ab1f6bb7c78db23e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BallAntiStallAssist
+  maxAssistAcceleration: 20
+  minAssistAcceleration: 5
+  speedForMaxAssistMps: 0.5
+  speedForMinAssistMps: 20
+  boardRoot: {fileID: 0}

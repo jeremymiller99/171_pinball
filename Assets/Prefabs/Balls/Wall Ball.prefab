@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: -5737138886917130576}
   - component: {fileID: 1528819917220394611}
   - component: {fileID: 5990331924858334550}
+  - component: {fileID: 8123456789012345671}
   m_Layer: 0
   m_Name: Wall Ball
   m_TagString: Ball
@@ -176,8 +177,12 @@ MonoBehaviour:
   poolSize: 15
   wallMaterial: {fileID: 13400000, guid: 2538733681627dc44ab2109ad5e3bdcb, type: 2}
   pointAdder: {fileID: 0}
+  scoreManager: {fileID: 0}
+  floatingTextSpawner: {fileID: 0}
   camShake: {fileID: 0}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!114 &-5737138886917130576
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -325,3 +330,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinitionLink
   definition: {fileID: 11400000, guid: d0595fc864dad404d8c3c89b73f794b7, type: 2}
+--- !u!114 &8123456789012345671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e0b5fd4d6b04c4ab1f6bb7c78db23e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BallAntiStallAssist
+  maxAssistAcceleration: 20
+  minAssistAcceleration: 5
+  speedForMaxAssistMps: 0.5
+  speedForMinAssistMps: 20
+  boardRoot: {fileID: 0}

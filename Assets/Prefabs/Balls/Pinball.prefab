@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 402034757328592053}
   - component: {fileID: 8538372598524585986}
   - component: {fileID: 7213457856092857174}
+  - component: {fileID: 8123456789012345670}
   m_Layer: 0
   m_Name: Pinball
   m_TagString: Ball
@@ -305,3 +306,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinitionLink
   definition: {fileID: 11400000, guid: def7cfab5eaa89b4f94ba76799b74244, type: 2}
+--- !u!114 &8123456789012345670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e0b5fd4d6b04c4ab1f6bb7c78db23e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BallAntiStallAssist
+  maxAssistAcceleration: 20
+  minAssistAcceleration: 5
+  speedForMaxAssistMps: 0.5
+  speedForMinAssistMps: 20
+  boardRoot: {fileID: 0}

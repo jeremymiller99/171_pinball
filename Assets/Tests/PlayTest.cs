@@ -18,6 +18,7 @@ public class PlayTest
         var reserved = new SampleGroup("TotalReservedMemory", SampleUnit.Megabyte);
         Measure.Custom(allocated, UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() / 1048576f);
         Measure.Custom(reserved, UnityEngine.Profiling.Profiler.GetTotalReservedMemoryLong() / 1048576f);
+        Assert.Equals(allocated,reserved);
     }
 
     [UnityTest, Performance, Version("4")]

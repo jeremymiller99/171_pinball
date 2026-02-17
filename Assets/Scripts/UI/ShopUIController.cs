@@ -82,6 +82,9 @@ public sealed class ShopUIController : MonoBehaviour
     [SerializeField] private TMP_Text selectedDescriptionText;
     [SerializeField] private TMP_Text selectedRarityText;
     [SerializeField] private Button selectedBuyButton;
+    [SerializeField] private Button selectedSellButton;
+
+    private TMP_Text _selectedSellButtonLabel;
 
     [Header("Catalog (all possible balls)")]
     [Tooltip("Preferred: centralized ball definitions (icon/name/rarity/description/price/prefab).")]
@@ -205,12 +208,7 @@ public sealed class ShopUIController : MonoBehaviour
         }
 
         List<BallDefinition> loadout = rulesManager.GetBallLoadoutSnapshot();
-        int count = loadout.Count;
-        int cap = Mathf.Max(1, rulesManager.MaxBalls);
-
-        bool isReplaceSlot = slotIndex >= 0 && slotIndex < count;
-        bool isAddSlot = slotIndex == count && count < cap;
-        if (!isReplaceSlot && !isAddSlot)
+        if (slotIndex < 0 || slotIndex >= loadout.Count)
         {
             return;
         }
@@ -221,7 +219,7 @@ public sealed class ShopUIController : MonoBehaviour
 
         // Drag-drop should not permanently select the offer card.
         _selectedOfferIndex = -1;
-        _selectedHandSlotIndex = isReplaceSlot ? slotIndex : -1;
+        _selectedHandSlotIndex = loadout[slotIndex] != null ? slotIndex : -1;
         RefreshOfferEntrySelectionVisuals();
         RefreshSelectedPanel();
 
@@ -270,6 +268,7 @@ public sealed class ShopUIController : MonoBehaviour
         }
 
         DisableBuyButtonIfPresent();
+        DisableSellButtonIfPresent();
 
         if (tabsController != null)
         {
@@ -316,6 +315,59 @@ public sealed class ShopUIController : MonoBehaviour
     {
         // Legacy entry point; new flow purchases by clicking a slot.
         SetPrompt("Select an offer, then click a slot to replace.");
+        RefreshUI();
+    }
+
+    public void SellSelectedOwnedBall()
+    {
+        if (rulesManager == null)
+        {
+            return;
+        }
+
+        // Selling should only happen in the "inspect my hand" state, not during a pending purchase/replace flow.
+        if (_pendingItem != null)
+        {
+            return;
+        }
+
+        List<BallDefinition> loadout = rulesManager.GetBallLoadoutSnapshot();
+        if (_selectedHandSlotIndex < 0 || _selectedHandSlotIndex >= loadout.Count)
+        {
+            return;
+        }
+
+        BallDefinition def = loadout[_selectedHandSlotIndex];
+        if (def == null)
+        {
+            return;
+        }
+
+        int buyPrice = Mathf.Max(0, def.Price);
+        int sellPrice = (buyPrice + 1) / 2;
+
+        if (!rulesManager.TryRemoveBallFromLoadoutAt(_selectedHandSlotIndex, out BallDefinition removed))
+        {
+            SetPrompt("Nothing to sell in that slot.");
+            RefreshSelectedPanel();
+            RefreshUI();
+            return;
+        }
+
+        rulesManager.AddCoinsUnscaled(sellPrice);
+
+        SetPrompt($"Sold {removed.GetSafeDisplayName()} for ${sellPrice}.");
+        FMODUnity.RuntimeManager.PlayOneShot("event:/button_click");
+
+        _selectedOfferIndex = -1;
+        _selectedHandSlotIndex = -1;
+        _pendingReplaceSlotIndex = -1;
+        _pendingOfferIndex = -1;
+        SetReplacePanelOpen(false);
+        ClearReplaceConfirmationVisuals();
+
+        RebuildReplaceSlots();
+        RefreshSelectedPanel();
         RefreshUI();
     }
 
@@ -463,12 +515,7 @@ public sealed class ShopUIController : MonoBehaviour
         }
 
         List<BallDefinition> loadout = rulesManager.GetBallLoadoutSnapshot();
-        int count = loadout.Count;
-        int cap = Mathf.Max(1, rulesManager.MaxBalls);
-
-        bool isReplaceSlot = slotIndex >= 0 && slotIndex < count;
-        bool isAddSlot = slotIndex == count && count < cap;
-        if (!isReplaceSlot && !isAddSlot)
+        if (slotIndex < 0 || slotIndex >= loadout.Count)
         {
             return;
         }
@@ -486,7 +533,7 @@ public sealed class ShopUIController : MonoBehaviour
             }
 
             _selectedOfferIndex = -1;
-            _selectedHandSlotIndex = isReplaceSlot ? slotIndex : -1;
+            _selectedHandSlotIndex = slotIndex;
             RefreshOfferEntrySelectionVisuals();
             RefreshSelectedPanel();
             RefreshUI();
@@ -513,7 +560,7 @@ public sealed class ShopUIController : MonoBehaviour
 
         // Selecting a hand ball overrides the selected panel and deselects the offer.
         _selectedOfferIndex = -1;
-        _selectedHandSlotIndex = isReplaceSlot ? slotIndex : -1;
+        _selectedHandSlotIndex = loadout[slotIndex] != null ? slotIndex : -1;
         RefreshOfferEntrySelectionVisuals();
         RefreshSelectedPanel();
 
@@ -612,13 +659,9 @@ public sealed class ShopUIController : MonoBehaviour
             return;
         }
 
-        int currentCount = rulesManager.BallLoadoutCount;
         int cap = Mathf.Max(1, rulesManager.MaxBalls);
 
-        bool isReplaceSlot = _pendingReplaceSlotIndex >= 0 && _pendingReplaceSlotIndex < currentCount;
-        bool isAddSlot = _pendingReplaceSlotIndex == currentCount && currentCount < cap;
-
-        if (!isReplaceSlot && !isAddSlot)
+        if (_pendingReplaceSlotIndex < 0 || _pendingReplaceSlotIndex >= cap)
         {
             return;
         }
@@ -631,14 +674,7 @@ public sealed class ShopUIController : MonoBehaviour
             return;
         }
 
-        if (isReplaceSlot)
-        {
-            rulesManager.ReplaceBallInLoadout(_pendingReplaceSlotIndex, _pendingItem);
-        }
-        else if (isAddSlot)
-        {
-            rulesManager.AddBallToLoadout(_pendingItem);
-        }
+        rulesManager.ReplaceBallInLoadout(_pendingReplaceSlotIndex, _pendingItem);
 
         SetPrompt($"Purchased {_pendingItem.GetSafeDisplayName()}.");
         FMODUnity.RuntimeManager.PlayOneShot("event:/button_click");
@@ -685,13 +721,12 @@ public sealed class ShopUIController : MonoBehaviour
         }
 
         List<BallDefinition> loadout = rulesManager.GetBallLoadoutSnapshot();
-        int count = loadout.Count;
         int cap = Mathf.Max(1, rulesManager.MaxBalls);
 
         string newName = _pendingItem.GetSafeDisplayName();
         Sprite incomingIcon = _pendingItem.Icon;
 
-        if (_pendingReplaceSlotIndex < count)
+        if (_pendingReplaceSlotIndex >= 0 && _pendingReplaceSlotIndex < loadout.Count)
         {
             Sprite currentIcon = loadout[_pendingReplaceSlotIndex] != null
                 ? loadout[_pendingReplaceSlotIndex].Icon
@@ -699,13 +734,16 @@ public sealed class ShopUIController : MonoBehaviour
             string oldName = loadout[_pendingReplaceSlotIndex] != null
                 ? loadout[_pendingReplaceSlotIndex].GetSafeDisplayName()
                 : "(None)";
-            replaceConfirmText.text = $"Replace {oldName} with {newName} for ${_pendingItem.Price}?";
-            SetReplaceConfirmationIcons(currentBallIcon: currentIcon, incomingBallIcon: incomingIcon);
-        }
-        else if (_pendingReplaceSlotIndex == count && count < cap)
-        {
-            replaceConfirmText.text = $"Add {newName} to Slot {_pendingReplaceSlotIndex + 1} for ${_pendingItem.Price}?";
-            SetReplaceConfirmationIcons(currentBallIcon: null, incomingBallIcon: incomingIcon);
+            if (loadout[_pendingReplaceSlotIndex] != null)
+            {
+                replaceConfirmText.text = $"Replace {oldName} with {newName} for ${_pendingItem.Price}?";
+                SetReplaceConfirmationIcons(currentBallIcon: currentIcon, incomingBallIcon: incomingIcon);
+            }
+            else
+            {
+                replaceConfirmText.text = $"Add {newName} to Slot {_pendingReplaceSlotIndex + 1} for ${_pendingItem.Price}?";
+                SetReplaceConfirmationIcons(currentBallIcon: null, incomingBallIcon: incomingIcon);
+            }
         }
         else
         {
@@ -724,22 +762,15 @@ public sealed class ShopUIController : MonoBehaviour
         ClearReplaceSlots();
 
         List<BallDefinition> loadout = rulesManager.GetBallLoadoutSnapshot();
-        for (int i = 0; i < loadout.Count; i++)
+        int cap = Mathf.Max(1, rulesManager.MaxBalls);
+        for (int i = 0; i < cap && i < loadout.Count; i++)
         {
             BallDefinition def = loadout[i];
-            string ballName = def != null ? def.GetSafeDisplayName() : "(None)";
+            string ballName = def != null ? def.GetSafeDisplayName() : "Empty";
             Sprite icon = def != null ? def.Icon : null;
 
             BallReplaceSlotEntryUI entry = Instantiate(replaceSlotEntryPrefab, replaceSlotsContainer);
             entry.Init(this, i, $"Slot {i + 1}: {ballName}", icon);
-        }
-
-        int cap = Mathf.Max(1, rulesManager.MaxBalls);
-        if (loadout.Count < cap)
-        {
-            int slotIndex = loadout.Count;
-            BallReplaceSlotEntryUI entry = Instantiate(replaceSlotEntryPrefab, replaceSlotsContainer);
-            entry.Init(this, slotIndex, $"Slot {slotIndex + 1}: Empty", icon: null);
         }
     }
 
@@ -992,6 +1023,33 @@ public sealed class ShopUIController : MonoBehaviour
         selectedBuyButton.gameObject.SetActive(false);
     }
 
+    private void DisableSellButtonIfPresent()
+    {
+        if (selectedSellButton == null)
+        {
+            return;
+        }
+
+        selectedSellButton.onClick.RemoveListener(SellSelectedOwnedBall);
+        selectedSellButton.interactable = false;
+        selectedSellButton.gameObject.SetActive(false);
+    }
+
+    private void ResolveSellButtonLabelIfNeeded()
+    {
+        if (_selectedSellButtonLabel != null)
+        {
+            return;
+        }
+
+        if (selectedSellButton == null)
+        {
+            return;
+        }
+
+        _selectedSellButtonLabel = selectedSellButton.GetComponentInChildren<TMP_Text>(includeInactive: true);
+    }
+
     private void ClearSelectedSelection()
     {
         _selectedOfferIndex = -1;
@@ -1029,7 +1087,7 @@ public sealed class ShopUIController : MonoBehaviour
             if (_selectedHandSlotIndex >= 0 && _selectedHandSlotIndex < loadout.Count)
             {
                 item = loadout[_selectedHandSlotIndex];
-                showOwnedBall = true;
+                showOwnedBall = item != null;
             }
         }
 
@@ -1057,6 +1115,8 @@ public sealed class ShopUIController : MonoBehaviour
             if (selectedPriceText != null) selectedPriceText.text = string.Empty;
             if (selectedDescriptionText != null) selectedDescriptionText.text = string.Empty;
             if (selectedRarityText != null) selectedRarityText.text = string.Empty;
+
+            DisableSellButtonIfPresent();
             return;
         }
 
@@ -1082,6 +1142,25 @@ public sealed class ShopUIController : MonoBehaviour
         }
         if (selectedDescriptionText != null) selectedDescriptionText.text = item.Description ?? string.Empty;
         if (selectedRarityText != null) selectedRarityText.text = item.Rarity.ToString();
+
+        bool canShowSell = showOwnedBall && _pendingItem == null;
+        if (!canShowSell || selectedSellButton == null || rulesManager == null || _selectedHandSlotIndex < 0)
+        {
+            DisableSellButtonIfPresent();
+            return;
+        }
+
+        int sellPrice = (Mathf.Max(0, item.Price) + 1) / 2;
+        ResolveSellButtonLabelIfNeeded();
+
+        selectedSellButton.onClick.RemoveListener(SellSelectedOwnedBall);
+        selectedSellButton.onClick.AddListener(SellSelectedOwnedBall);
+        selectedSellButton.gameObject.SetActive(true);
+        selectedSellButton.interactable = true;
+        if (_selectedSellButtonLabel != null)
+        {
+            _selectedSellButtonLabel.text = $"Sell for ${sellPrice}";
+        }
     }
 
     public void RerollOffers()

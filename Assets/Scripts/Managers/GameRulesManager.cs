@@ -82,7 +82,25 @@ public class GameRulesManager : MonoBehaviour
     public int Coins => coins;
     public float RoundTotal => roundTotal;
     public float CurrentGoal => GetGoalForRound(roundIndex);
-    public int BallLoadoutCount => _ballLoadout.Count;
+    public int BallLoadoutCount
+    {
+        get
+        {
+            EnsureLoadoutWithinCapacity();
+
+            int count = 0;
+            for (int i = 0; i < _ballLoadout.Count; i++)
+            {
+                BallDefinition def = _ballLoadout[i];
+                if (def != null && def.Prefab != null)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+    }
     public List<GameObject> ActiveBalls => ballSpawner != null ? ballSpawner.ActiveBalls : null;
     public bool IsShopOpen => shopOpen;
 
@@ -216,10 +234,7 @@ public class GameRulesManager : MonoBehaviour
         for (int i = 0; i < _ballLoadout.Count; i++)
         {
             BallDefinition def = _ballLoadout[i];
-            if (def != null && def.Prefab != null)
-            {
-                prefabs.Add(def.Prefab);
-            }
+            prefabs.Add(def != null ? def.Prefab : null);
         }
 
         return prefabs;
@@ -292,7 +307,7 @@ public class GameRulesManager : MonoBehaviour
 
         roundTotal = 0f;
         EnsureLoadoutWithinCapacity();
-        ballsRemaining = _ballLoadout.Count;
+        ballsRemaining = BallLoadoutCount;
 
         // Apply ball modifier from active modifier
         if (_activeModifier != null && _activeModifier.ballModifier != 0)
@@ -318,7 +333,11 @@ public class GameRulesManager : MonoBehaviour
         if (ballsRemaining > 0)
         {
             SpawnBall();
+            return;
         }
+
+        // If the player has no balls to start the round, they immediately lose the round.
+        ShowRoundFailed();
     }
 
     /// <summary>
@@ -475,8 +494,8 @@ public class GameRulesManager : MonoBehaviour
     public void AddMaxBalls(int delta)
     {
         maxBalls = Mathf.Max(1, maxBalls + delta);
-        ballsRemaining = Mathf.Max(0, Mathf.Min(ballsRemaining, _ballLoadout.Count));
         EnsureLoadoutWithinCapacity();
+        ballsRemaining = Mathf.Max(0, Mathf.Min(ballsRemaining, BallLoadoutCount));
         if (scoreManager != null)
         {
             scoreManager.SetBallsRemaining(ballsRemaining);
@@ -491,12 +510,17 @@ public class GameRulesManager : MonoBehaviour
     {
         if (def == null || def.Prefab == null) return false;
         EnsureLoadoutWithinCapacity();
-        if (_ballLoadout.Count >= maxBalls)
+
+        for (int i = 0; i < _ballLoadout.Count; i++)
         {
-            return false;
+            if (_ballLoadout[i] == null || _ballLoadout[i].Prefab == null)
+            {
+                _ballLoadout[i] = def;
+                return true;
+            }
         }
-        _ballLoadout.Add(def);
-        return true;
+
+        return false;
     }
 
     /// <summary>
@@ -533,6 +557,40 @@ public class GameRulesManager : MonoBehaviour
         if (slotIndex < 0 || slotIndex >= _ballLoadout.Count) return false;
         _ballLoadout[slotIndex] = newDef;
         return true;
+    }
+
+    /// <summary>
+    /// Removes a ball from the loadout at <paramref name="slotIndex"/>.
+    /// Returns true if a ball was removed.
+    /// </summary>
+    public bool TryRemoveBallFromLoadoutAt(int slotIndex, out BallDefinition removed)
+    {
+        removed = null;
+        EnsureLoadoutWithinCapacity();
+
+        if (slotIndex < 0 || slotIndex >= _ballLoadout.Count)
+        {
+            return false;
+        }
+
+        removed = _ballLoadout[slotIndex];
+        if (removed == null || removed.Prefab == null)
+        {
+            removed = null;
+            return false;
+        }
+
+        // Clear the ball but keep the slot.
+        _ballLoadout[slotIndex] = null;
+
+        // Keep state consistent in case callers query ballsRemaining while the shop is open.
+        ballsRemaining = Mathf.Max(0, Mathf.Min(ballsRemaining, BallLoadoutCount));
+        if (scoreManager != null)
+        {
+            scoreManager.SetBallsRemaining(ballsRemaining);
+        }
+
+        return removed != null;
     }
 
     /// <summary>
@@ -597,6 +655,24 @@ public class GameRulesManager : MonoBehaviour
             scoreManager.SetCoins(coins);
         }
         return true;
+    }
+
+    /// <summary>
+    /// Adds coins to the player WITHOUT applying the active modifier's coin multiplier.
+    /// Intended for shop transactions like selling.
+    /// </summary>
+    public void AddCoinsUnscaled(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        coins += amount;
+        if (scoreManager != null)
+        {
+            scoreManager.SetCoins(coins);
+        }
     }
 
     /// <summary>
@@ -851,19 +927,24 @@ public class GameRulesManager : MonoBehaviour
     {
         int cap = Mathf.Max(1, maxBalls);
 
-        // Remove nulls/invalids (treat them as "no ball in inventory").
-        for (int i = _ballLoadout.Count - 1; i >= 0; i--)
+        // Normalize size to fixed "slot count" == cap.
+        if (_ballLoadout.Count > cap)
         {
-            if (_ballLoadout[i] == null || _ballLoadout[i].Prefab == null)
-            {
-                _ballLoadout.RemoveAt(i);
-            }
+            _ballLoadout.RemoveRange(cap, _ballLoadout.Count - cap);
+        }
+        while (_ballLoadout.Count < cap)
+        {
+            _ballLoadout.Add(null);
         }
 
-        // Trim to capacity.
-        while (_ballLoadout.Count > cap)
+        // Sanitize invalid entries to empty slots.
+        for (int i = 0; i < _ballLoadout.Count; i++)
         {
-            _ballLoadout.RemoveAt(_ballLoadout.Count - 1);
+            BallDefinition def = _ballLoadout[i];
+            if (def == null || def.Prefab == null)
+            {
+                _ballLoadout[i] = null;
+            }
         }
     }
 
@@ -874,21 +955,25 @@ public class GameRulesManager : MonoBehaviour
         _ballLoadout.Clear();
 
         int cap = Mathf.Max(1, maxBalls);
+        for (int i = 0; i < cap; i++)
+        {
+            _ballLoadout.Add(null);
+        }
 
         if (startingBallLoadoutDefinitions != null && startingBallLoadoutDefinitions.Count > 0)
         {
-            for (int i = 0; i < startingBallLoadoutDefinitions.Count && _ballLoadout.Count < cap; i++)
+            for (int i = 0; i < startingBallLoadoutDefinitions.Count && i < cap; i++)
             {
                 BallDefinition def = startingBallLoadoutDefinitions[i];
                 if (def != null && def.Prefab != null)
                 {
-                    _ballLoadout.Add(def);
+                    _ballLoadout[i] = def;
                 }
             }
         }
         else if (startingBallLoadout != null && startingBallLoadout.Count > 0)
         {
-            for (int i = 0; i < startingBallLoadout.Count && _ballLoadout.Count < cap; i++)
+            for (int i = 0; i < startingBallLoadout.Count && i < cap; i++)
             {
                 GameObject prefab = startingBallLoadout[i];
                 if (prefab == null)
@@ -909,29 +994,37 @@ public class GameRulesManager : MonoBehaviour
                         runtimePrice: 0);
                 }
 
-                _ballLoadout.Add(def);
+                _ballLoadout[i] = def;
             }
         }
 
         // If the starting list doesn't fill the hand, fill the remainder with the spawner's default prefab
         // so you start with a full hand by default.
         GameObject fallback = ballSpawner != null ? ballSpawner.DefaultBallPrefab : null;
-        while (_ballLoadout.Count < cap && fallback != null)
+        if (fallback != null)
         {
-            BallDefinition def = BallDefinitionUtilities.TryGetDefinitionFromPrefab(fallback);
-            if (def == null)
+            for (int i = 0; i < _ballLoadout.Count; i++)
             {
-                def = BallDefinition.CreateRuntime(
-                    runtimeId: fallback.name,
-                    runtimeDisplayName: fallback.name,
-                    runtimeDescription: "",
-                    runtimeRarity: BallRarity.Common,
-                    runtimeIcon: BallDefinitionUtilities.TryGetPrefabSpriteIcon(fallback),
-                    runtimePrefab: fallback,
-                    runtimePrice: 0);
-            }
+                if (_ballLoadout[i] != null && _ballLoadout[i].Prefab != null)
+                {
+                    continue;
+                }
 
-            _ballLoadout.Add(def);
+                BallDefinition def = BallDefinitionUtilities.TryGetDefinitionFromPrefab(fallback);
+                if (def == null)
+                {
+                    def = BallDefinition.CreateRuntime(
+                        runtimeId: fallback.name,
+                        runtimeDisplayName: fallback.name,
+                        runtimeDescription: "",
+                        runtimeRarity: BallRarity.Common,
+                        runtimeIcon: BallDefinitionUtilities.TryGetPrefabSpriteIcon(fallback),
+                        runtimePrefab: fallback,
+                        runtimePrice: 0);
+                }
+
+                _ballLoadout[i] = def;
+            }
         }
 
         EnsureLoadoutWithinCapacity();

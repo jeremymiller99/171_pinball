@@ -1,3 +1,5 @@
+// Generated with Cursor AI (GPT-5.2), by OpenAI, 2026-02-17.
+// Change: add configurable portal exit speed boost.
 using UnityEngine;
 
 public class Portal : MonoBehaviour
@@ -17,6 +19,9 @@ public class Portal : MonoBehaviour
 
     [Tooltip("Speed to use when overrideExitSpeed is true.")]
     public float exitSpeed = 10f;
+
+    [Tooltip("Additional speed added when exiting the portal.")]
+    [SerializeField] private float extraExitSpeed = 5f;
 
     [Header("FX")]
     [SerializeField] private float shakeDuration = 0.22f;
@@ -80,6 +85,8 @@ public class Portal : MonoBehaviour
         {
             currentSpeed = exitSpeed;
         }
+
+        currentSpeed = Mathf.Max(0f, currentSpeed + extraExitSpeed);
 
         // Base direction is straight out of the exit portal
         Vector3 baseDir = portalExit.forward;

@@ -104,6 +104,12 @@ public class ScoreManager : MonoBehaviour
     [Tooltip("If true, applies speed-up via Time.timeScale (and scales fixedDeltaTime accordingly).")]
     [SerializeField] private bool applySpeedToTimeScale = true;
 
+    [Header("Global Baseline Speed")]
+    [Tooltip("Baseline game speed applied via Time.timeScale before any tier or external multipliers.\n" +
+             "Set to 1.05 to make the whole game run 5% faster.")]
+    [Min(0f)]
+    [SerializeField] private float baselineTimeScale = 1.05f;
+
     [Header("External Multipliers (runtime)")]
     [Tooltip("Additional multiplier applied on top of tier-based SpeedMultiplier when writing Time.timeScale.\n" +
              "Used by cinematic systems (e.g., slow-mo) without fighting tier speed-up.")]
@@ -762,7 +768,7 @@ public class ScoreManager : MonoBehaviour
     {
         if (_timeBaseCaptured) return;
         _timeBaseCaptured = true;
-        _baseTimeScale = Mathf.Max(0f, Time.timeScale);
+        _baseTimeScale = Mathf.Max(0f, baselineTimeScale);
         _baseFixedDeltaTime = Mathf.Max(0.0001f, Time.fixedDeltaTime);
     }
 

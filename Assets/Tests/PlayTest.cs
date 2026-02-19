@@ -18,14 +18,11 @@ public class PlayTest
         var reserved = new SampleGroup("TotalReservedMemory", SampleUnit.Megabyte);
         Measure.Custom(allocated, UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() / 1048576f);
         Measure.Custom(reserved, UnityEngine.Profiling.Profiler.GetTotalReservedMemoryLong() / 1048576f);
-        LogAssert.Expect(LogType.Log, "Allocated memory: " + allocated + "\nReserved memory: " + reserved);
-        Debug.Log("Allocated memory: " + allocated + "\nReserved memory: " + reserved);
     }
 
     [UnityTest, Performance, Version("4")]
     public IEnumerator MainSceneFrameTime_StartPosition()
     {
-        float time1 = Time.time;
         SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
 
         // Measure initial time of first 25 frames after loading the scene
@@ -37,21 +34,18 @@ public class PlayTest
             }
         }
 
-        float newTime = Time.time - time1;
-        LogAssert.Expect(LogType.Log, "First 25 frames from MainMenu take: " + newTime + " seconds");
-        Debug.Log("First 25 frames from MainMenu take: " + newTime + " seconds");
-
         using (Measure.Frames().Scope("FrameTime.Main"))
         {
             yield return new WaitForSeconds(10);
         }
+
+        SceneManager.UnloadSceneAsync("MainMenu");
     }
 
     [UnityTest, Performance, Version("4")]
     public IEnumerator GameSceneFrameTime_StartPosition()
     {
         SceneManager.LoadScene("GameplayCore", LoadSceneMode.Single);
-        float time1 = Time.time;
 
         // Measure initial time of first 25 frames after loading the scene
         using(Measure.Frames().Scope("FrameTime.FirstFramesAfterLoadingScene"))
@@ -62,21 +56,18 @@ public class PlayTest
             }
         }
 
-        float newTime = Time.time - time1;
-        LogAssert.Expect(LogType.Log, "First 25 frames from GameplayCore take: " + newTime + " seconds");
-        Debug.Log("First 25 frames from GameplayCore take: " + newTime + " seconds");
-
         using (Measure.Frames().Scope("FrameTime.Main"))
         {
             yield return new WaitForSeconds(10);
         }
+
+        SceneManager.UnloadSceneAsync("GameplayCore");
     }
 
     [UnityTest, Performance, Version("4")]
     public IEnumerator BoardSceneFrameTime_StartPosition()
     {
         SceneManager.LoadScene("Board_Alpha", LoadSceneMode.Single);
-        float time1 = Time.time;
 
         // Measure initial time of first 25 frames after loading the scene
         using(Measure.Frames().Scope("FrameTime.FirstFramesAfterLoadingScene"))
@@ -87,14 +78,12 @@ public class PlayTest
             }
         }
 
-        float newTime = Time.time - time1;
-        LogAssert.Expect(LogType.Log, "First 25 frames from Board_Alpha take: " + newTime + " seconds");
-        Debug.Log("First 25 frames from Board_Alpha take: " + newTime + " seconds");
-
         using (Measure.Frames().Scope("FrameTime.Main"))
         {
             yield return new WaitForSeconds(10);
         }
+
+        SceneManager.UnloadSceneAsync("Board_Alpha");
     }
 
 }

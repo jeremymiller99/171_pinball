@@ -237,6 +237,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc5299dc26faf25438106c6f5f7280a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinballFlipper
+  useCentralBindings: 1
+  flipperAction: 0
   key: 62
   extraKeys: 
   useMouseLeftButton: 0

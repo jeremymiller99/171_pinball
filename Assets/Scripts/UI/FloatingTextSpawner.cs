@@ -277,6 +277,11 @@ public class FloatingTextSpawner : MonoBehaviour
             return;
         }
 
+        if (floatingTextPrefab == null || canvas == null)
+        {
+            return;
+        }
+
         if (!TryGetCanvasCenterAnchoredPosition(out Vector2 anchoredOnCanvas))
         {
             return;
@@ -284,17 +289,53 @@ public class FloatingTextSpawner : MonoBehaviour
 
         string text = "+$" + amount;
         Vector2 anchoredPos = anchoredOnCanvas + levelUpCoinsPopupOffset;
-        SpawnAnchoredTextBounceInternal(
-            anchoredPos,
-            text,
-            goldFontAsset,
-            levelUpCoinsPopupScale,
-            levelUpCoinsPopupLifetime,
-            enablePopIn: true,
-            goalPraisePopStartScaleMultiplier,
-            goalPraisePopPeakScaleMultiplier,
-            goalPraisePopRisePortion,
-            goalPraisePopDuration);
+
+        FloatingText ft = Instantiate(floatingTextPrefab, canvas.transform);
+        ft.gameObject.hideFlags = HideFlags.HideInHierarchy;
+
+        RectTransform rt = ft.GetComponent<RectTransform>();
+        if (rt == null)
+        {
+            Destroy(ft.gameObject);
+            return;
+        }
+
+        rt.anchoredPosition = anchoredPos;
+        ft.SetText(text);
+
+        if (goldFontAsset != null)
+        {
+            ft.SetFontAsset(goldFontAsset);
+        }
+
+        float safeScale = Mathf.Max(0.0001f, levelUpCoinsPopupScale);
+        ft.SetScale(safeScale);
+        ft.SetLifetime(levelUpCoinsPopupLifetime);
+        ft.SetFadeOutDuration(levelUpCoinsPopupLifetime);
+
+        if (goalPopupEnablePopIn)
+        {
+            float startMult = Mathf.Max(0.0001f, goalPraisePopStartScaleMultiplier);
+            float peakMult = Mathf.Max(0.0001f, goalPraisePopPeakScaleMultiplier);
+            rt.localScale = Vector3.one * (safeScale * startMult);
+            StartCoroutine(PopBounceRoutine(
+                rt,
+                safeScale,
+                startMult,
+                peakMult,
+                goalPraisePopRisePortion,
+                goalPraisePopDuration));
+        }
+
+        if (enableFlyToScoreUi
+            && TryGetFlyToAnchoredPosition(FlyToTarget.Coins, out Vector2 destAnchored))
+        {
+            ft.PlayFlyTo(destAnchored);
+            ft.SetOnFlyComplete(() =>
+            {
+                TriggerJuiceForTarget(FlyToTarget.Coins);
+            });
+        }
     }
 
     private void SpawnTextInternal(

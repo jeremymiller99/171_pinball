@@ -69,6 +69,20 @@ public class FloatingTextSpawner : MonoBehaviour
     [SerializeField] private float goalPopupPopInStartScaleMultiplier = 1.18f;
     [SerializeField] private float goalPopupPopInDuration = 0.12f;
 
+    [Header("Goal Praise Popup - Pop Bounce (unscaled time)")]
+    [SerializeField] private bool goalPraiseUseBouncePop = true;
+    [SerializeField] private float goalPraisePopStartScaleMultiplier = 0.65f;
+    [SerializeField] private float goalPraisePopPeakScaleMultiplier = 1.12f;
+    [Range(0.05f, 0.95f)]
+    [SerializeField] private float goalPraisePopRisePortion = 0.45f;
+    [SerializeField] private float goalPraisePopDuration = 0.22f;
+
+    [Header("Level Up Coins Popup (centered)")]
+    [SerializeField] private bool levelUpCoinsPopupEnabled = true;
+    [SerializeField] private Vector2 levelUpCoinsPopupOffset = new Vector2(0f, -60f);
+    [SerializeField] private float levelUpCoinsPopupScale = 0.95f;
+    [SerializeField] private float levelUpCoinsPopupLifetime = 0.85f;
+
     private RectTransform pointsTarget;
     private RectTransform multTarget;
     private RectTransform coinsTarget;
@@ -222,15 +236,65 @@ public class FloatingTextSpawner : MonoBehaviour
         if (!TryGetCanvasCenterAnchoredPosition(out Vector2 anchoredOnCanvas))
             return;
 
-        SpawnAnchoredTextInternal(
-            anchoredOnCanvas + goalPraisePopupOffset,
-            praise.Trim(),
-            goalPraiseFontAsset,
-            goalPraisePopupScale,
-            goalPraisePopupLifetime,
-            goalPopupEnablePopIn,
-            goalPopupPopInStartScaleMultiplier,
-            goalPopupPopInDuration);
+        Vector2 anchoredPos = anchoredOnCanvas + goalPraisePopupOffset;
+        if (goalPraiseUseBouncePop)
+        {
+            SpawnAnchoredTextBounceInternal(
+                anchoredPos,
+                praise.Trim(),
+                goalPraiseFontAsset,
+                goalPraisePopupScale,
+                goalPraisePopupLifetime,
+                goalPopupEnablePopIn,
+                goalPraisePopStartScaleMultiplier,
+                goalPraisePopPeakScaleMultiplier,
+                goalPraisePopRisePortion,
+                goalPraisePopDuration);
+        }
+        else
+        {
+            SpawnAnchoredTextInternal(
+                anchoredPos,
+                praise.Trim(),
+                goalPraiseFontAsset,
+                goalPraisePopupScale,
+                goalPraisePopupLifetime,
+                goalPopupEnablePopIn,
+                goalPopupPopInStartScaleMultiplier,
+                goalPopupPopInDuration);
+        }
+    }
+
+    public void SpawnLevelUpCoinsPopup(int amount)
+    {
+        if (!levelUpCoinsPopupEnabled)
+        {
+            return;
+        }
+
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        if (!TryGetCanvasCenterAnchoredPosition(out Vector2 anchoredOnCanvas))
+        {
+            return;
+        }
+
+        string text = "+$" + amount;
+        Vector2 anchoredPos = anchoredOnCanvas + levelUpCoinsPopupOffset;
+        SpawnAnchoredTextBounceInternal(
+            anchoredPos,
+            text,
+            goldFontAsset,
+            levelUpCoinsPopupScale,
+            levelUpCoinsPopupLifetime,
+            enablePopIn: true,
+            goalPraisePopStartScaleMultiplier,
+            goalPraisePopPeakScaleMultiplier,
+            goalPraisePopRisePortion,
+            goalPraisePopDuration);
     }
 
     private void SpawnTextInternal(
@@ -342,12 +406,60 @@ public class FloatingTextSpawner : MonoBehaviour
         float safeScale = Mathf.Max(0.0001f, scale);
         ft.SetScale(safeScale);
         ft.SetLifetime(lifetime);
+        ft.SetFadeOutDuration(lifetime);
 
         if (enablePopIn)
         {
             float startMult = Mathf.Max(0.0001f, popInStartScaleMultiplier);
             rt.localScale = Vector3.one * (safeScale * startMult);
             StartCoroutine(PopInScaleRoutine(rt, safeScale, popInStartScaleMultiplier, popInDurationSeconds));
+        }
+    }
+
+    private void SpawnAnchoredTextBounceInternal(
+        Vector2 anchoredPosition,
+        string text,
+        TMP_FontAsset fontAsset,
+        float scale,
+        float lifetime,
+        bool enablePopIn,
+        float popStartScaleMultiplier,
+        float popPeakScaleMultiplier,
+        float popRisePortion,
+        float popDurationSeconds)
+    {
+        if (floatingTextPrefab == null || canvas == null) return;
+
+        FloatingText ft = Instantiate(floatingTextPrefab, canvas.transform);
+        ft.gameObject.hideFlags = HideFlags.HideInHierarchy;
+        RectTransform rt = ft.GetComponent<RectTransform>();
+        if (rt == null) return;
+
+        rt.anchoredPosition = anchoredPosition;
+        ft.SetText(text);
+
+        if (fontAsset != null)
+        {
+            ft.SetFontAsset(fontAsset);
+        }
+
+        float safeScale = Mathf.Max(0.0001f, scale);
+        ft.SetScale(safeScale);
+        ft.SetLifetime(lifetime);
+        ft.SetFadeOutDuration(lifetime);
+
+        if (enablePopIn)
+        {
+            float startMult = Mathf.Max(0.0001f, popStartScaleMultiplier);
+            float peakMult = Mathf.Max(0.0001f, popPeakScaleMultiplier);
+            rt.localScale = Vector3.one * (safeScale * startMult);
+            StartCoroutine(PopBounceRoutine(
+                rt,
+                safeScale,
+                startMult,
+                peakMult,
+                popRisePortion,
+                popDurationSeconds));
         }
     }
 
@@ -732,6 +844,74 @@ public class FloatingTextSpawner : MonoBehaviour
     private static float Smooth01(float u)
     {
         return u * u * (3f - 2f * u);
+    }
+
+    private IEnumerator PopBounceRoutine(
+        RectTransform rt,
+        float baseScale,
+        float startScaleMultiplier,
+        float peakScaleMultiplier,
+        float risePortion,
+        float durationSeconds)
+    {
+        if (rt == null) yield break;
+
+        float dur = Mathf.Max(0f, durationSeconds);
+        float safeBase = Mathf.Max(0.0001f, baseScale);
+        float start = safeBase * Mathf.Max(0.0001f, startScaleMultiplier);
+        float peak = safeBase * Mathf.Max(0.0001f, peakScaleMultiplier);
+        float end = safeBase;
+
+        if (dur <= 0f)
+        {
+            rt.localScale = Vector3.one * end;
+            yield break;
+        }
+
+        float rise = Mathf.Clamp01(risePortion);
+        float riseDur = dur * rise;
+        float fallDur = dur - riseDur;
+
+        if (riseDur > 0f)
+        {
+            float t0 = 0f;
+            while (t0 < 1f)
+            {
+                if (rt == null) yield break;
+
+                t0 += Time.unscaledDeltaTime / riseDur;
+                float u0 = Mathf.Clamp01(t0);
+                float s0 = Smooth01(u0);
+                float sc0 = Mathf.Lerp(start, peak, s0);
+                rt.localScale = Vector3.one * sc0;
+                yield return null;
+            }
+        }
+        else
+        {
+            rt.localScale = Vector3.one * peak;
+        }
+
+        if (fallDur > 0f)
+        {
+            float t1 = 0f;
+            while (t1 < 1f)
+            {
+                if (rt == null) yield break;
+
+                t1 += Time.unscaledDeltaTime / fallDur;
+                float u1 = Mathf.Clamp01(t1);
+                float s1 = Smooth01(u1);
+                float sc1 = Mathf.Lerp(peak, end, s1);
+                rt.localScale = Vector3.one * sc1;
+                yield return null;
+            }
+        }
+
+        if (rt != null)
+        {
+            rt.localScale = Vector3.one * end;
+        }
     }
 
     private string MaybeCompact(string text)

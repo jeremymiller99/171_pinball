@@ -277,7 +277,7 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
             InitMeterIfNeeded();
 
         float goal = scoreManager != null ? scoreManager.Goal : 0f;
-        float live = scoreManager != null ? scoreManager.LiveRoundTotal : 0f;
+        float live = scoreManager != null ? scoreManager.LiveLevelProgress : 0f;
 
         if (roundTotalText)
         {

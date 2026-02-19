@@ -16,6 +16,10 @@ public class ScoreManager : MonoBehaviour
     // Total banked score across the current round (sum of each drained ball's banked score).
     public float roundTotal;
 
+    [Header("Level Progress (runtime)")]
+    [SerializeField, Tooltip("Read-only at runtime. Tracks how much cumulative score has been consumed by level-ups.")]
+    private float levelProgressOffset;
+
     [SerializeField] private TMP_Text pointsText;
     [SerializeField] private TMP_Text multText;
 
@@ -85,6 +89,29 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private TMP_Text ballsRemainingText;
     [SerializeField] private TMP_Text coinsText;
 
+    [Header("Round Index Juice (optional)")]
+    [Tooltip("If enabled, plays a 'pop' animation when the displayed round/level index increases.")]
+    [SerializeField] private bool enableRoundIndexPop = true;
+
+    [Min(0f)]
+    [SerializeField] private float roundIndexPopDuration = 0.22f;
+
+    [Min(1f)]
+    [SerializeField] private float roundIndexPopPeakScale = 1.35f;
+
+    [Tooltip("Optional vertical offset (anchoredPosition Y) applied during the pop.")]
+    [SerializeField] private float roundIndexPopYOffset = 12f;
+
+    [SerializeField] private bool roundIndexPopFlashColor = true;
+    [SerializeField] private Color roundIndexPopFlashTargetColor = new Color(1f, 0.85f, 0.2f, 1f);
+
+    [SerializeField] private AnimationCurve roundIndexPopCurve = new AnimationCurve(
+        new Keyframe(0f, 0f),
+        new Keyframe(0.22f, 1f),
+        new Keyframe(0.52f, -0.18f),
+        new Keyframe(0.78f, 0.12f),
+        new Keyframe(1f, 0f));
+
     [Header("Scoring Control")]
     [SerializeField] private bool scoringLocked;
 
@@ -133,6 +160,14 @@ public class ScoreManager : MonoBehaviour
 
     // Stored goal value for the current round (set via SetGoal).
     private float _goal;
+
+    private int _roundIndexUiLast = -1;
+    private int _roundIndexJuiceTextInstanceId;
+    private bool _roundIndexJuiceBaselineCaptured;
+    private Vector3 _roundIndexBaseLocalScale;
+    private Vector2 _roundIndexBaseAnchoredPos;
+    private Color _roundIndexBaseColor;
+    private Coroutine _roundIndexPopRoutine;
 
     // Tier is floor(LiveRoundTotal / Goal). Tier 0 means "not yet reached the goal".
     [SerializeField, Tooltip("Read-only at runtime. Increments at Goal * N.")]
@@ -189,6 +224,12 @@ public class ScoreManager : MonoBehaviour
     /// Live round progress total: banked round total plus current ball's (points * mult).
     /// </summary>
     public float LiveRoundTotal => roundTotal + (points * mult);
+
+    /// <summary>
+    /// Live progress toward the current level goal.
+    /// Computed as LiveRoundTotal minus the consumed progress offset from previous level-ups.
+    /// </summary>
+    public float LiveLevelProgress => Mathf.Max(0f, LiveRoundTotal - levelProgressOffset);
 
     /// <summary>
     /// Additional multiplier applied on top of tier-based SpeedMultiplier when writing Time.timeScale.
@@ -582,6 +623,7 @@ public class ScoreManager : MonoBehaviour
     /// </summary>
     public void ResetForNewRound()
     {
+        levelProgressOffset = 0f;
         roundTotal = 0f;
         points = 0f;
         mult = 1f;
@@ -593,6 +635,34 @@ public class ScoreManager : MonoBehaviour
 
         RefreshScoreUI();
         ScoreChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Consumes level progress by advancing the internal offset.
+    /// Use this when a level goal is reached so overflow score continues into the next level.
+    /// This does NOT change points/mult or the banked total.
+    /// </summary>
+    public void ConsumeLevelProgress(float amount)
+    {
+        float a = Mathf.Max(0f, amount);
+        if (a <= 0.0001f)
+        {
+            return;
+        }
+
+        levelProgressOffset = Mathf.Max(0f, levelProgressOffset + a);
+        UpdateGoalTierAndApplySpeed();
+        RefreshScoreUI();
+        ScoreChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Resets all score state, including level progress offset.
+    /// Intended for starting a new run.
+    /// </summary>
+    public void ResetForNewRun()
+    {
+        ResetForNewRound();
     }
 
     /// <summary>
@@ -688,8 +758,24 @@ public class ScoreManager : MonoBehaviour
     public void SetRoundIndex(int roundIndex)
     {
         EnsureCoreScoreTextBindings();
-        if (roundIndexText != null)
-            roundIndexText.text = (roundIndex + 1).ToString();
+        if (roundIndexText == null)
+            return;
+
+        int prev = _roundIndexUiLast;
+        _roundIndexUiLast = roundIndex;
+
+        roundIndexText.text = (roundIndex + 1).ToString();
+
+        bool shouldAnimate =
+            enableRoundIndexPop &&
+            prev >= 0 &&
+            roundIndex > prev;
+
+        if (shouldAnimate)
+        {
+            CaptureRoundIndexJuiceBaselineIfNeeded();
+            PlayRoundIndexPop();
+        }
     }
 
     public void SetBallsRemaining(int ballsRemaining)
@@ -736,6 +822,94 @@ public class ScoreManager : MonoBehaviour
             goalText.text = _goal.ToString();
     }
 
+    private void CaptureRoundIndexJuiceBaselineIfNeeded()
+    {
+        if (roundIndexText == null)
+            return;
+
+        int id = roundIndexText.GetInstanceID();
+        if (_roundIndexJuiceBaselineCaptured && id == _roundIndexJuiceTextInstanceId)
+            return;
+
+        _roundIndexJuiceTextInstanceId = id;
+        _roundIndexJuiceBaselineCaptured = true;
+
+        RectTransform rt = roundIndexText.rectTransform;
+        _roundIndexBaseLocalScale = rt.localScale;
+        _roundIndexBaseAnchoredPos = rt.anchoredPosition;
+        _roundIndexBaseColor = roundIndexText.color;
+    }
+
+    private void PlayRoundIndexPop()
+    {
+        if (roundIndexText == null)
+            return;
+
+        if (!_roundIndexJuiceBaselineCaptured)
+        {
+            CaptureRoundIndexJuiceBaselineIfNeeded();
+            if (!_roundIndexJuiceBaselineCaptured)
+                return;
+        }
+
+        if (_roundIndexPopRoutine != null)
+            StopCoroutine(_roundIndexPopRoutine);
+
+        _roundIndexPopRoutine = StartCoroutine(RoundIndexPopRoutine());
+    }
+
+    private System.Collections.IEnumerator RoundIndexPopRoutine()
+    {
+        TMP_Text text = roundIndexText;
+        if (text == null)
+            yield break;
+
+        RectTransform rt = text.rectTransform;
+        Vector3 baseScale = _roundIndexBaseLocalScale;
+        Vector2 basePos = _roundIndexBaseAnchoredPos;
+        Color baseColor = _roundIndexBaseColor;
+
+        float duration = Mathf.Max(0.01f, roundIndexPopDuration);
+        float amp = Mathf.Max(0f, roundIndexPopPeakScale - 1f);
+
+        float t = 0f;
+        while (t < duration)
+        {
+            if (text == null)
+                yield break;
+
+            float n = Mathf.Clamp01(t / duration);
+
+            float k = roundIndexPopCurve != null ? roundIndexPopCurve.Evaluate(n) : Mathf.Sin(n * Mathf.PI);
+            float scaleMul = 1f + (k * amp);
+
+            rt.localScale = baseScale * scaleMul;
+
+            if (!Mathf.Approximately(roundIndexPopYOffset, 0f))
+            {
+                rt.anchoredPosition = basePos + new Vector2(0f, roundIndexPopYOffset * k);
+            }
+
+            if (roundIndexPopFlashColor)
+            {
+                float flashT = Mathf.Clamp01(n / 0.35f);
+                text.color = Color.Lerp(roundIndexPopFlashTargetColor, baseColor, flashT);
+            }
+
+            t += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        if (text != null)
+        {
+            rt.localScale = baseScale;
+            rt.anchoredPosition = basePos;
+            text.color = baseColor;
+        }
+
+        _roundIndexPopRoutine = null;
+    }
+
     private void UpdateGoalTierAndApplySpeed()
     {
         int newTier = ComputeGoalTier();
@@ -757,7 +931,7 @@ public class ScoreManager : MonoBehaviour
         if (!enableGoalTierScaling) return 0;
         if (_goal <= 0f) return 0;
 
-        float live = LiveRoundTotal;
+        float live = LiveLevelProgress;
         if (live <= 0f) return 0;
 
         int tier = Mathf.FloorToInt(live / _goal);

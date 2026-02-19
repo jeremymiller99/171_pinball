@@ -132,6 +132,9 @@ internal static class BoardRoundResetterBootstrap
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Init()
     {
+        // Per-round reset is not compatible with the cumulative level system.
+        return;
+
 #if UNITY_2022_2_OR_NEWER
         if (UnityEngine.Object.FindFirstObjectByType<BoardRoundResetterBootstrapper>() != null)
             return;

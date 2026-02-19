@@ -754,12 +754,12 @@ public class MainMenuUI : MonoBehaviour
 
         switch (board.clearCondition)
         {
-            case BoardDefinition.ClearConditionKind.RoundIndexAtLeast:
-                return $"Reach round {board.targetRoundIndex}";
+            case BoardDefinition.ClearConditionKind.LevelIndexAtLeast:
+                return $"Reach level {board.targetRoundIndex}";
             case BoardDefinition.ClearConditionKind.CoinsAtLeast:
                 return $"Collect {board.targetCoins} coins";
-            case BoardDefinition.ClearConditionKind.RoundTotalAtLeast:
-                return $"Score {board.targetRoundTotal:N0} points in a round";
+            case BoardDefinition.ClearConditionKind.TotalScoreAtLeast:
+                return $"Reach {board.targetRoundTotal:N0} total score";
             case BoardDefinition.ClearConditionKind.None:
             default:
                 return "Complete the board!";

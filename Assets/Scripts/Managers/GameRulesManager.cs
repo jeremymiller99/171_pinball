@@ -1,3 +1,4 @@
+// Updated with Cursor (GPT-5.2) by OpenAI assistant for jjmil on 2026-02-19.
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -8,8 +9,33 @@ public class GameRulesManager : MonoBehaviour
     [Header("Scoring")]
     [SerializeField] private ScoreManager scoreManager;
     [SerializeField] private ScoreTallyAnimator scoreTallyAnimator;
-    [SerializeField] private List<float> goalByRound = new List<float> { 500f, 800f, 1200f, 1700f, 2300f, 3000f, 4000f };
     [SerializeField] private float pointsPerCoin = 100f;
+
+    [Header("Popups (optional)")]
+    [SerializeField] private FloatingTextSpawner floatingTextSpawner;
+    [SerializeField] private bool showLevelUpCoinsPopup = true;
+
+    public enum GoalScalingMode
+    {
+        LegacyList = 0,
+        Exponential = 1
+    }
+
+    [Header("Level Goal Scaling")]
+    [SerializeField] private GoalScalingMode goalScalingMode = GoalScalingMode.Exponential;
+
+    [Min(0f)]
+    [SerializeField] private float baseGoal = 500f;
+
+    [Min(1f)]
+    [SerializeField] private float goalGrowthPerLevel = 1.35f;
+
+    [Tooltip("0 means no rounding. Otherwise, rounds the computed exponential goal to nearest step.")]
+    [Min(0f)]
+    [SerializeField] private float goalRoundingStep = 100f;
+
+    [Header("Legacy level goals (optional)")]
+    [SerializeField] private List<float> goalByRound = new List<float> { 500f, 800f, 1200f, 1700f, 2300f, 3000f, 4000f };
 
     // Generated with Cursor (GPT-5.2) by OpenAI assistant for jjmil on 2026-02-17.
     [Header("Coins (score conversion cap)")]
@@ -21,6 +47,10 @@ public class GameRulesManager : MonoBehaviour
     [Header("Balls / Rounds")]
     [SerializeField] private int startingMaxBalls = 5;
     [SerializeField] private bool autoStartOnPlay = true;
+
+    [Header("Levels")]
+    [Min(0)]
+    [SerializeField] private int coinsPerLevelUp = 10;
 
     [Header("Ball Spawning")]
     [Tooltip("Required: BallSpawner pre-spawns a hand of balls and lerps the next ball to spawnPoint.")]
@@ -52,19 +82,39 @@ public class GameRulesManager : MonoBehaviour
     private bool runActive;
     private bool shopOpen;
     private bool _drainProcessing;
+    private bool _levelUpProcessing;
+
+    // If true, the NEXT drain after at least one level-up will not consume the ball from the loadout.
+    private bool _shopBallSaveAvailable;
+
+    // Tracks which loadout slot the currently-active ball came from (set when spawning).
+    private int _activeBallSlotIndex = -1;
 
     // Which definitions will be used for the next round's hand (size == maxBalls).
     private readonly List<BallDefinition> _ballLoadout = new List<BallDefinition>();
 
-    // Active round modifier (from GameSession's generated rounds)
+    // Active level modifier (rolled per level).
     private RoundModifierDefinition _activeModifier;
     private RoundData _currentRoundData;
+
+    [Header("Level Modifiers (runtime)")]
+    [Min(1)]
+    [SerializeField] private int guaranteedBagSizeFallback = 7;
+
+    private System.Random _levelModifierRng;
+    private readonly List<RoundType> _guaranteedTypeBag = new List<RoundType>();
+    private int _guaranteedTypeBagPos;
 
     /// <summary>
     /// Fired whenever a new round is started (after goal/round UI is reset).
     /// Useful for per-round systems like Frenzy.
     /// </summary>
     public event Action RoundStarted;
+
+    /// <summary>
+    /// Fired whenever the current level changes (level-up), after the modifier is rolled/applied.
+    /// </summary>
+    public event Action LevelChanged;
 
     /// <summary>
     /// Fired when the shop is opened for the current round.
@@ -75,6 +125,9 @@ public class GameRulesManager : MonoBehaviour
     /// Fired when the shop is closed.
     /// </summary>
     public event Action ShopClosed;
+
+    public int LevelIndex => roundIndex;
+    public float TotalScore => roundTotal;
 
     public int RoundIndex => roundIndex;
     public int MaxBalls => maxBalls;
@@ -216,6 +269,49 @@ public class GameRulesManager : MonoBehaviour
             Debug.LogWarning($"{nameof(GameRulesManager)} found multiple {nameof(ScoreTallyAnimator)} instances; using '{scoreTallyAnimator.name}'. Remove duplicates for a single source of truth.", scoreTallyAnimator);
     }
 
+    private void ResolveFloatingTextSpawner(bool logIfMissing)
+    {
+        if (floatingTextSpawner != null)
+        {
+            return;
+        }
+
+        FloatingTextSpawner[] found;
+        found = FindObjectsByType<FloatingTextSpawner>(FindObjectsSortMode.None);
+
+        if (found == null || found.Length == 0)
+        {
+            if (logIfMissing)
+            {
+                Debug.LogError($"{nameof(GameRulesManager)} could not find any {nameof(FloatingTextSpawner)} in loaded scenes.", this);
+            }
+
+            return;
+        }
+
+        if (found.Length == 1)
+        {
+            floatingTextSpawner = found[0];
+            return;
+        }
+
+        for (int i = 0; i < found.Length; i++)
+        {
+            if (found[i] != null && found[i].gameObject.scene == gameObject.scene)
+            {
+                floatingTextSpawner = found[i];
+                break;
+            }
+        }
+
+        if (floatingTextSpawner == null)
+        {
+            floatingTextSpawner = found[0];
+        }
+
+        Debug.LogWarning($"{nameof(GameRulesManager)} found multiple {nameof(FloatingTextSpawner)} instances; using '{floatingTextSpawner.name}'. Remove duplicates for a single source of truth.", floatingTextSpawner);
+    }
+
     /// <summary>
     /// Returns a snapshot copy of the current ball loadout (one prefab per hand slot).
     /// Safe to enumerate without risking external mutation.
@@ -244,6 +340,7 @@ public class GameRulesManager : MonoBehaviour
     {
         ResolveScoreManager(logIfMissing: false);
         ResolveScoreTallyAnimator(logIfMissing: false);
+        ResolveFloatingTextSpawner(logIfMissing: false);
 
         if (goalByRound == null || goalByRound.Count == 0)
         {
@@ -263,6 +360,7 @@ public class GameRulesManager : MonoBehaviour
     {
         ResolveScoreManager(logIfMissing: false);
         ResolveScoreTallyAnimator(logIfMissing: false);
+        ResolveFloatingTextSpawner(logIfMissing: false);
 
         // In the additive-board architecture, the board (containing the BallSpawner) is loaded 
         // after GameplayCore, then StartRun() is called by RunFlowController.
@@ -282,10 +380,37 @@ public class GameRulesManager : MonoBehaviour
             return;
 
         runActive = true;
+        shopOpen = false;
+        _drainProcessing = false;
+        _levelUpProcessing = false;
+        _shopBallSaveAvailable = false;
+        _activeBallSlotIndex = -1;
         roundIndex = 0;
         coins = 0;
         maxBalls = Mathf.Max(1, startingMaxBalls);
         InitializeLoadoutForNewRun();
+
+        ResolveScoreManager(logIfMissing: false);
+        ResolveScoreTallyAnimator(logIfMissing: false);
+
+        roundTotal = 0f;
+        ballsRemaining = BallLoadoutCount;
+
+        InitLevelModifierRolling();
+        ApplyLevelModifier();
+
+        if (scoreManager != null)
+        {
+            scoreManager.ResetForNewRun();
+            scoreManager.SetRoundIndex(roundIndex);
+            scoreManager.SetGoal(CurrentGoal);
+            scoreManager.SetBallsRemaining(ballsRemaining);
+            scoreManager.SetCoins(coins);
+
+            scoreManager.ScoreChanged -= OnScoreChanged;
+            scoreManager.ScoreChanged += OnScoreChanged;
+        }
+
         StartRound();
     }
 
@@ -302,23 +427,12 @@ public class GameRulesManager : MonoBehaviour
         SetShopOpen(false);
         SetRoundFailedOpen(false);
 
-        // Apply round modifier from GameSession
-        ApplyRoundModifier();
-
-        roundTotal = 0f;
         EnsureLoadoutWithinCapacity();
         ballsRemaining = BallLoadoutCount;
 
-        // Apply ball modifier from active modifier
-        if (_activeModifier != null && _activeModifier.ballModifier != 0)
-        {
-            ballsRemaining = Mathf.Max(1, ballsRemaining + _activeModifier.ballModifier);
-        }
-
         if (scoreManager != null)
         {
-            // Keep the ScoreManager's UI and state aligned with the rules state for the new round.
-            scoreManager.ResetForNewRound();
+            // Do NOT reset totals here; levels are cumulative.
             scoreManager.SetRoundIndex(roundIndex);
             scoreManager.SetGoal(CurrentGoal);
             scoreManager.SetBallsRemaining(ballsRemaining);
@@ -332,6 +446,7 @@ public class GameRulesManager : MonoBehaviour
 
         if (ballsRemaining > 0)
         {
+            _activeBallSlotIndex = -1;
             SpawnBall();
             return;
         }
@@ -340,24 +455,304 @@ public class GameRulesManager : MonoBehaviour
         ShowRoundFailed();
     }
 
-    /// <summary>
-    /// Applies the round modifier from GameSession for the current round.
-    /// </summary>
-    private void ApplyRoundModifier()
+    private void InitLevelModifierRolling()
+    {
+        var session = GameSession.Instance;
+        int seed = session != null ? session.Seed : Environment.TickCount;
+        _levelModifierRng = new System.Random(seed);
+
+        _guaranteedTypeBag.Clear();
+        _guaranteedTypeBagPos = 0;
+    }
+
+    private void ApplyLevelModifier()
     {
         _activeModifier = null;
-        _currentRoundData = null;
+
+        RoundType type = RoundType.Normal;
+        RoundModifierDefinition modifier = null;
 
         var session = GameSession.Instance;
-        if (session == null || !session.HasGeneratedRounds)
+        ChallengeModeDefinition challenge = session != null ? session.ActiveChallenge : null;
+        if (challenge != null && challenge.HasModifierPools)
+        {
+            type = RollModifierType(challenge);
+            modifier = RollModifierFromPool(challenge, type);
+        }
+
+        _activeModifier = modifier;
+        _currentRoundData = new RoundData(roundIndex, type, modifier);
+
+        ApplyBallModifierFromActiveModifier();
+        LevelChanged?.Invoke();
+    }
+
+    private RoundType RollModifierType(ChallengeModeDefinition challenge)
+    {
+        if (challenge == null)
+        {
+            return RoundType.Normal;
+        }
+
+        if (challenge.distributionMode == RoundDistributionMode.Guaranteed)
+        {
+            EnsureGuaranteedTypeBag(challenge);
+            if (_guaranteedTypeBag.Count == 0)
+            {
+                return RoundType.Normal;
+            }
+
+            int i = Mathf.Clamp(_guaranteedTypeBagPos, 0, _guaranteedTypeBag.Count - 1);
+            RoundType t = _guaranteedTypeBag[i];
+            _guaranteedTypeBagPos = Mathf.Max(0, _guaranteedTypeBagPos + 1);
+            return t;
+        }
+
+        if (_levelModifierRng == null)
+        {
+            _levelModifierRng = new System.Random(Environment.TickCount);
+        }
+
+        float angelChance = Mathf.Clamp01(challenge.angelChance);
+        float devilChance = Mathf.Clamp01(challenge.devilChance);
+        double roll = _levelModifierRng.NextDouble();
+
+        if (roll < angelChance)
+        {
+            return RoundType.Angel;
+        }
+
+        if (roll < (angelChance + devilChance))
+        {
+            return RoundType.Devil;
+        }
+
+        return RoundType.Normal;
+    }
+
+    private RoundModifierDefinition RollModifierFromPool(ChallengeModeDefinition challenge, RoundType type)
+    {
+        if (challenge == null)
+        {
+            return null;
+        }
+
+        if (_levelModifierRng == null)
+        {
+            _levelModifierRng = new System.Random(Environment.TickCount);
+        }
+
+        switch (type)
+        {
+            case RoundType.Angel:
+                return challenge.angelPool != null ? challenge.angelPool.GetRandomModifier(_levelModifierRng) : null;
+            case RoundType.Devil:
+                return challenge.devilPool != null ? challenge.devilPool.GetRandomModifier(_levelModifierRng) : null;
+            default:
+                return null;
+        }
+    }
+
+    private void EnsureGuaranteedTypeBag(ChallengeModeDefinition challenge)
+    {
+        if (challenge == null)
         {
             return;
         }
 
-        _currentRoundData = session.GetRoundData(roundIndex);
-        if (_currentRoundData != null)
+        if (_levelModifierRng == null)
         {
-            _activeModifier = _currentRoundData.modifier;
+            _levelModifierRng = new System.Random(Environment.TickCount);
+        }
+
+        if (_guaranteedTypeBagPos < _guaranteedTypeBag.Count)
+        {
+            return;
+        }
+
+        _guaranteedTypeBag.Clear();
+        _guaranteedTypeBagPos = 0;
+
+        int bagSize = challenge.totalRounds > 0 ? challenge.totalRounds : guaranteedBagSizeFallback;
+        bagSize = Mathf.Max(1, bagSize);
+
+        int angels = Mathf.Clamp(challenge.guaranteedAngels, 0, bagSize);
+        int devils = Mathf.Clamp(challenge.guaranteedDevils, 0, bagSize - angels);
+
+        for (int i = 0; i < bagSize; i++)
+        {
+            _guaranteedTypeBag.Add(RoundType.Normal);
+        }
+
+        for (int i = 0; i < angels; i++)
+        {
+            _guaranteedTypeBag[i] = RoundType.Angel;
+        }
+
+        for (int i = 0; i < devils; i++)
+        {
+            _guaranteedTypeBag[angels + i] = RoundType.Devil;
+        }
+
+        for (int i = _guaranteedTypeBag.Count - 1; i > 0; i--)
+        {
+            int j = _levelModifierRng.Next(i + 1);
+            (_guaranteedTypeBag[i], _guaranteedTypeBag[j]) = (_guaranteedTypeBag[j], _guaranteedTypeBag[i]);
+        }
+    }
+
+    private void ApplyBallModifierFromActiveModifier()
+    {
+        if (_activeModifier == null || _activeModifier.ballModifier == 0)
+        {
+            return;
+        }
+
+        ResolveBallSpawner(logIfMissing: false);
+
+        int delta = _activeModifier.ballModifier;
+        if (delta > 0)
+        {
+            TryAddFallbackBallsToLoadout(delta);
+        }
+        else
+        {
+            RemoveBallsFromLoadout(-delta);
+        }
+
+        ballsRemaining = BallLoadoutCount;
+        if (scoreManager != null)
+        {
+            scoreManager.SetBallsRemaining(ballsRemaining);
+        }
+    }
+
+    private void TryAddFallbackBallsToLoadout(int count)
+    {
+        if (count <= 0)
+        {
+            return;
+        }
+
+        GameObject fallbackPrefab = ballSpawner != null ? ballSpawner.DefaultBallPrefab : null;
+        if (fallbackPrefab == null)
+        {
+            return;
+        }
+
+        BallDefinition def = BallDefinitionUtilities.TryGetDefinitionFromPrefab(fallbackPrefab);
+        if (def == null)
+        {
+            def = BallDefinition.CreateRuntime(
+                runtimeId: fallbackPrefab.name,
+                runtimeDisplayName: fallbackPrefab.name,
+                runtimeDescription: "",
+                runtimeRarity: BallRarity.Common,
+                runtimeIcon: BallDefinitionUtilities.TryGetPrefabSpriteIcon(fallbackPrefab),
+                runtimePrefab: fallbackPrefab,
+                runtimePrice: 0);
+        }
+
+        int remaining = count;
+        for (int i = 0; i < _ballLoadout.Count && remaining > 0; i++)
+        {
+            if (_ballLoadout[i] == null || _ballLoadout[i].Prefab == null)
+            {
+                _ballLoadout[i] = def;
+                remaining--;
+            }
+        }
+    }
+
+    private void RemoveBallsFromLoadout(int count)
+    {
+        if (count <= 0)
+        {
+            return;
+        }
+
+        EnsureLoadoutWithinCapacity();
+
+        int remaining = count;
+        for (int i = _ballLoadout.Count - 1; i >= 0 && remaining > 0; i--)
+        {
+            BallDefinition def = _ballLoadout[i];
+            if (def != null && def.Prefab != null)
+            {
+                _ballLoadout[i] = null;
+                remaining--;
+            }
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (scoreManager != null)
+        {
+            scoreManager.ScoreChanged -= OnScoreChanged;
+        }
+    }
+
+    private void OnScoreChanged()
+    {
+        if (!runActive || shopOpen || _drainProcessing)
+        {
+            return;
+        }
+
+        TryProcessLevelUps();
+    }
+
+    private void TryProcessLevelUps()
+    {
+        if (_levelUpProcessing)
+        {
+            return;
+        }
+
+        _levelUpProcessing = true;
+        try
+        {
+            ResolveScoreManager(logIfMissing: false);
+            if (scoreManager == null)
+            {
+                return;
+            }
+
+            int safety = 0;
+            while (CurrentGoal > 0f && scoreManager.LiveLevelProgress >= CurrentGoal)
+            {
+                float prevGoal = CurrentGoal;
+
+                AddCoinsUnscaled(coinsPerLevelUp);
+
+                if (showLevelUpCoinsPopup)
+                {
+                    ResolveFloatingTextSpawner(logIfMissing: false);
+                    floatingTextSpawner?.SpawnLevelUpCoinsPopup(coinsPerLevelUp);
+                }
+
+                scoreManager.ConsumeLevelProgress(prevGoal);
+
+                roundIndex = Mathf.Max(0, roundIndex + 1);
+                ApplyLevelModifier();
+
+                scoreManager.SetRoundIndex(roundIndex);
+                scoreManager.SetGoal(CurrentGoal);
+
+                _shopBallSaveAvailable = true;
+
+                safety++;
+                if (safety > 100)
+                {
+                    Debug.LogWarning($"{nameof(GameRulesManager)}: Level-up loop safety break.", this);
+                    break;
+                }
+            }
+        }
+        finally
+        {
+            _levelUpProcessing = false;
         }
     }
 
@@ -432,22 +827,38 @@ public class GameRulesManager : MonoBehaviour
 
         ProfileService.AddBankedPoints(bankedPoints);
 
-        ballsRemaining = Mathf.Max(0, ballsRemaining - 1);
-        if (scoreManager != null)
-        {
-            scoreManager.SetBallsRemaining(ballsRemaining);
-        }
+        // Ensure immediate level-ups are processed even if scoring was deferred until banking.
+        TryProcessLevelUps();
 
-        if (roundTotal >= CurrentGoal)
+        if (_shopBallSaveAvailable)
         {
-            AwardCoinsFromRoundTotal();
+            // A level-up has happened since the last shop; this drain triggers the shop and the ball is saved.
+            _shopBallSaveAvailable = false;
+
+            ballsRemaining = BallLoadoutCount;
+            if (scoreManager != null)
+            {
+                scoreManager.SetBallsRemaining(ballsRemaining);
+            }
+
+            _activeBallSlotIndex = -1;
             OpenShop();
             _drainProcessing = false;
             yield break;
         }
 
+        // No level-up since the last shop: consume the ball permanently and continue playing.
+        ConsumeActiveBallFromLoadout();
+
+        ballsRemaining = BallLoadoutCount;
+        if (scoreManager != null)
+        {
+            scoreManager.SetBallsRemaining(ballsRemaining);
+        }
+
         if (ballsRemaining > 0)
         {
+            _activeBallSlotIndex = -1;
             SpawnBall();
             _drainProcessing = false;
             yield break;
@@ -455,6 +866,29 @@ public class GameRulesManager : MonoBehaviour
 
         ShowRoundFailed();
         _drainProcessing = false;
+        yield break;
+    }
+
+    private void ConsumeActiveBallFromLoadout()
+    {
+        EnsureLoadoutWithinCapacity();
+
+        int slotIndex = _activeBallSlotIndex;
+        if (slotIndex >= 0 && slotIndex < _ballLoadout.Count)
+        {
+            TryRemoveBallFromLoadoutAt(slotIndex, out _);
+            return;
+        }
+
+        for (int i = 0; i < _ballLoadout.Count; i++)
+        {
+            BallDefinition def = _ballLoadout[i];
+            if (def != null && def.Prefab != null)
+            {
+                TryRemoveBallFromLoadoutAt(i, out _);
+                return;
+            }
+        }
     }
 
     /// <summary>
@@ -485,7 +919,6 @@ public class GameRulesManager : MonoBehaviour
         SetShopOpen(false);
         shopOpen = false;
         ShopClosed?.Invoke();
-        roundIndex = Mathf.Max(0, roundIndex + 1);
     }
 
     /// <summary>
@@ -493,13 +926,20 @@ public class GameRulesManager : MonoBehaviour
     /// </summary>
     public void AddMaxBalls(int delta)
     {
-        maxBalls = Mathf.Max(1, maxBalls + delta);
-        EnsureLoadoutWithinCapacity();
-        ballsRemaining = Mathf.Max(0, Mathf.Min(ballsRemaining, BallLoadoutCount));
-        if (scoreManager != null)
+        // Slot count is fixed; interpret this as adding/removing balls within the fixed slots.
+        ResolveBallSpawner(logIfMissing: false);
+
+        if (delta > 0)
         {
-            scoreManager.SetBallsRemaining(ballsRemaining);
+            TryAddFallbackBallsToLoadout(delta);
         }
+        else if (delta < 0)
+        {
+            RemoveBallsFromLoadout(-delta);
+        }
+
+        ballsRemaining = BallLoadoutCount;
+        scoreManager?.SetBallsRemaining(ballsRemaining);
     }
 
     /// <summary>
@@ -744,38 +1184,80 @@ public class GameRulesManager : MonoBehaviour
             return;
         }
 
-        StartRound();
+        StartRun();
     }
 
     private float GetGoalForRound(int index)
+    {
+        if (index < 0)
+        {
+            index = 0;
+        }
+
+        float baseGoalForRound = GetBaseGoalForRound(index);
+
+        // Apply goal modifier from active modifier
+        if (_activeModifier != null && !Mathf.Approximately(_activeModifier.goalModifier, 0f))
+        {
+            baseGoalForRound = Mathf.Max(0f, baseGoalForRound + _activeModifier.goalModifier);
+        }
+
+        return baseGoalForRound;
+    }
+
+    private float GetBaseGoalForRound(int index)
+    {
+        switch (goalScalingMode)
+        {
+            case GoalScalingMode.Exponential:
+                return GetExponentialGoalForRound(index);
+            case GoalScalingMode.LegacyList:
+            default:
+                return GetLegacyListGoalForRound(index);
+        }
+    }
+
+    private float GetExponentialGoalForRound(int index)
+    {
+        float goal = Mathf.Max(0f, baseGoal);
+        float growth = Mathf.Max(1f, goalGrowthPerLevel);
+
+        goal *= Mathf.Pow(growth, index);
+
+        goal = RoundToStep(goal, goalRoundingStep);
+
+        return Mathf.Max(0f, goal);
+    }
+
+    private float GetLegacyListGoalForRound(int index)
     {
         if (goalByRound == null || goalByRound.Count == 0)
         {
             return 0f;
         }
 
-        if (index < 0)
-        {
-            index = 0;
-        }
-
-        float baseGoal;
         if (index >= goalByRound.Count)
         {
-            baseGoal = goalByRound[goalByRound.Count - 1];
-        }
-        else
-        {
-            baseGoal = goalByRound[index];
+            return goalByRound[goalByRound.Count - 1];
         }
 
-        // Apply goal modifier from active modifier
-        if (_activeModifier != null && !Mathf.Approximately(_activeModifier.goalModifier, 0f))
+        return goalByRound[index];
+    }
+
+    private static float RoundToStep(float value, float step)
+    {
+        if (step <= 0f)
         {
-            baseGoal = Mathf.Max(0f, baseGoal + _activeModifier.goalModifier);
+            return value;
         }
 
-        return baseGoal;
+        if (Mathf.Approximately(step, 1f))
+        {
+            return Mathf.Round(value);
+        }
+
+        float scaled = value / step;
+        return Mathf.Round(scaled) * step;
     }
 
     private float BankCurrentBallIntoRoundTotal()
@@ -900,7 +1382,18 @@ public class GameRulesManager : MonoBehaviour
         if (ballSpawner == null)
             return null;
 
-        return ballSpawner.ActivateNextBall();
+        GameObject ball = ballSpawner.ActivateNextBall();
+        _activeBallSlotIndex = -1;
+        if (ball != null)
+        {
+            var marker = ball.GetComponent<BallHandSlotMarker>();
+            if (marker != null)
+            {
+                _activeBallSlotIndex = marker.SlotIndex;
+            }
+        }
+
+        return ball;
     }
 
     private void DespawnBall(GameObject ball)
@@ -925,7 +1418,8 @@ public class GameRulesManager : MonoBehaviour
 
     private void EnsureLoadoutWithinCapacity()
     {
-        int cap = Mathf.Max(1, maxBalls);
+        int cap = Mathf.Max(1, startingMaxBalls);
+        maxBalls = cap;
 
         // Normalize size to fixed "slot count" == cap.
         if (_ballLoadout.Count > cap)

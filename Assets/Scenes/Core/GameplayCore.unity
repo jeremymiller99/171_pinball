@@ -1012,6 +1012,7 @@ MonoBehaviour:
   points: 0
   mult: 0
   roundTotal: 0
+  levelProgressOffset: 0
   pointsText: {fileID: 0}
   multText: {fileID: 0}
   cameraShake: {fileID: 0}
@@ -1039,6 +1040,7 @@ MonoBehaviour:
   speedIncreasePerGoalTier: 0.1
   scoreIncreasePerGoalTier: 0.5
   applySpeedToTimeScale: 1
+  baselineTimeScale: 1.05
   externalTimeScaleMultiplier: 1
   externalScoreAwardMultiplier: 1
   maxTimeScale: 1
@@ -2590,6 +2592,7 @@ MonoBehaviour:
   settingsButton: {fileID: 0}
   profileButton: {fileID: 0}
   collectionButton: {fileID: 0}
+  quitButton: {fileID: 0}
   challengeButtonsRoot: {fileID: 0}
   challengeButtonTemplate: {fileID: 0}
   returnToMainMenuButton: {fileID: 0}
@@ -3145,6 +3148,7 @@ MonoBehaviour:
   maxCoinsFromRoundTotal: 10
   startingMaxBalls: 5
   autoStartOnPlay: 0
+  coinsPerLevelUp: 10
   ballSpawner: {fileID: 0}
   startingBallLoadout: []
   startingBallLoadoutDefinitions: []
@@ -3158,6 +3162,7 @@ MonoBehaviour:
   ballsRemaining: 0
   coins: 0
   roundTotal: 0
+  guaranteedBagSizeFallback: 7
 --- !u!4 &1398822446
 Transform:
   m_ObjectHideFlags: 0
@@ -4340,6 +4345,7 @@ MonoBehaviour:
   spawnOffset: {x: 100, y: 0}
   enableFlyToScoreUi: 1
   flyToOffset: {x: 0, y: 0}
+  enableCompactNumbers: 1
   juiceOnArrival: 1
   juiceScaleMultiplier: 1.25
   juiceScaleDuration: 0.12

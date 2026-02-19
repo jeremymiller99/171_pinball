@@ -22,9 +22,9 @@ public sealed class RunFlowController : MonoBehaviour
     [SerializeField] private string mainMenuSceneName = "MainMenu";
 
     [Header("Round Preview")]
-    [Tooltip("If true, shows the round preview panel before starting the run.")]
-    [SerializeField] private bool showRoundPreview = true;
-    [Tooltip("Default number of rounds if not specified by the challenge.")]
+    [Tooltip("Legacy: round preview is no longer used (levels are infinite).")]
+    [SerializeField] private bool showRoundPreview = false;
+    [Tooltip("Legacy: unused when round preview is disabled.")]
     [SerializeField] private int defaultTotalRounds = 7;
 
     [Header("Runtime (debug)")]
@@ -106,25 +106,6 @@ public sealed class RunFlowController : MonoBehaviour
             yield break;
         }
 
-        // Generate rounds if not already generated
-        if (!session.HasGeneratedRounds)
-        {
-            int totalRounds = defaultTotalRounds;
-            if (session.ActiveChallenge != null)
-            {
-                totalRounds = session.ActiveChallenge.GetTotalRounds(defaultTotalRounds);
-            }
-            session.GenerateRounds(totalRounds);
-        }
-
-        bool skipInitialPreview = ProfileService.ConsumeCleanFirstRunSkipIfNeeded();
-
-        // Show round preview panel if enabled and rounds were generated
-        if (showRoundPreview && session.HasGeneratedRounds && !skipInitialPreview)
-        {
-            yield return StartCoroutine(ShowRoundPreviewAndWait(session));
-        }
-
         if (boardLoader != null)
         {
             yield return StartCoroutine(boardLoader.LoadBoard(first));
@@ -179,7 +160,7 @@ public sealed class RunFlowController : MonoBehaviour
         if (roundPreviewPanel == null)
             return;
 
-        int currentRound = rulesManager != null ? rulesManager.RoundIndex : 0;
+        int currentRound = rulesManager != null ? rulesManager.LevelIndex : 0;
         roundPreviewPanel.Show(session.GeneratedRounds, currentRound, null);
     }
 
@@ -200,14 +181,6 @@ public sealed class RunFlowController : MonoBehaviour
         }
 
         var session = GameSession.Instance;
-        // Preview the NEXT round (current + 1) while still in shop
-        int nextRoundIndex = rulesManager.RoundIndex + 1;
-
-        // Show round preview OVER the shop (before closing)
-        if (showRoundPreview && session != null && session.HasGeneratedRounds)
-        {
-            yield return StartCoroutine(ShowRoundPreviewAndWait(session, nextRoundIndex));
-        }
 
         // NOW close shop and advance round index
         rulesManager.CloseShopAndAdvanceIndexOnly();

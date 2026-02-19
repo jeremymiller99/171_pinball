@@ -326,6 +326,9 @@ internal static class FrenzyControllerBootstrap
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Init()
     {
+        // Frenzy has been retired in the level-based system.
+        return;
+
 #if UNITY_2022_2_OR_NEWER
         if (UnityEngine.Object.FindFirstObjectByType<FrenzyControllerBootstrapper>() != null)
             return;

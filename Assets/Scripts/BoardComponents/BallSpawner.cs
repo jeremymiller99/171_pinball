@@ -283,6 +283,7 @@ public sealed class BallSpawner : MonoBehaviour
         GameObject b = Instantiate(ballPrefab, pos, rot);
         b.name = $"{ballPrefab.name}_HandBall_{_handBalls.Count + 1}";
 
+        TrySetHandSlotIndex(b, index);
         CacheAndConfigureAsHandBall(b);
         return b;
     }
@@ -301,8 +302,25 @@ public sealed class BallSpawner : MonoBehaviour
         GameObject b = Instantiate(prefab, pos, rot);
         b.name = $"{prefab.name}_HandBall_{index + 1}";
 
+        TrySetHandSlotIndex(b, index);
         CacheAndConfigureAsHandBall(b);
         return b;
+    }
+
+    private static void TrySetHandSlotIndex(GameObject ball, int slotIndex)
+    {
+        if (ball == null)
+        {
+            return;
+        }
+
+        var marker = ball.GetComponent<BallHandSlotMarker>();
+        if (marker == null)
+        {
+            marker = ball.AddComponent<BallHandSlotMarker>();
+        }
+
+        marker.SetSlotIndex(slotIndex);
     }
 
     private GameObject SpawnBallAtSpawnPoint()

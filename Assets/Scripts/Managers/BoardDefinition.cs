@@ -10,9 +10,9 @@ public sealed class BoardDefinition : ScriptableObject
     public enum ClearConditionKind
     {
         None = 0,
-        RoundIndexAtLeast = 1,
+        LevelIndexAtLeast = 1,
         CoinsAtLeast = 2,
-        RoundTotalAtLeast = 3
+        TotalScoreAtLeast = 3
     }
 
     [Header("Identity")]
@@ -24,13 +24,13 @@ public sealed class BoardDefinition : ScriptableObject
     [Header("Board clear objective (checked when closing the shop)")]
     public ClearConditionKind clearCondition = ClearConditionKind.None;
 
-    [Tooltip("Board is cleared when GameRulesManager.RoundIndex >= this value.")]
+    [Tooltip("Board is cleared when GameRulesManager.LevelIndex >= this value.")]
     public int targetRoundIndex = 3;
 
     [Tooltip("Board is cleared when GameRulesManager.Coins >= this value.")]
     public int targetCoins = 10;
 
-    [Tooltip("Board is cleared when GameRulesManager.RoundTotal >= this value.")]
+    [Tooltip("Board is cleared when GameRulesManager.TotalScore >= this value.")]
     public float targetRoundTotal = 2000f;
 }
 

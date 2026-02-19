@@ -105,7 +105,7 @@ public sealed class BasicTutorialPanelController : MonoBehaviour
             return;
         }
 
-        if (rulesManager.RoundIndex != 0)
+        if (rulesManager.LevelIndex != 0)
         {
             return;
         }

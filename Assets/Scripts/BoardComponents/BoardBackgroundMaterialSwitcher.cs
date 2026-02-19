@@ -86,6 +86,9 @@ public sealed class BoardBackgroundMaterialSwitcher : MonoBehaviour
 
         rules.RoundStarted -= OnRoundStarted;
         rules.RoundStarted += OnRoundStarted;
+
+        rules.LevelChanged -= OnLevelChanged;
+        rules.LevelChanged += OnLevelChanged;
     }
 
     private void Unhook()
@@ -93,9 +96,15 @@ public sealed class BoardBackgroundMaterialSwitcher : MonoBehaviour
         if (rules == null) return;
 
         rules.RoundStarted -= OnRoundStarted;
+        rules.LevelChanged -= OnLevelChanged;
     }
 
     private void OnRoundStarted()
+    {
+        RefreshNow(force: true);
+    }
+
+    private void OnLevelChanged()
     {
         RefreshNow(force: true);
     }

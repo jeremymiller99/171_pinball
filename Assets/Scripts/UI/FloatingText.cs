@@ -121,6 +121,12 @@ public class FloatingText : MonoBehaviour
         lifetime = Mathf.Max(0.01f, seconds);
     }
 
+    public void SetFadeOutDuration(float seconds)
+    {
+        float dur = Mathf.Max(0.01f, seconds);
+        fadeSpeed = Mathf.Max(0.0001f, startColor.a / dur);
+    }
+
     public void SetOnFlyComplete(Action callback)
     {
         onFlyComplete = callback;

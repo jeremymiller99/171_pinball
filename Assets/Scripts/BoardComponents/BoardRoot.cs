@@ -38,12 +38,12 @@ public sealed class BoardRoot : MonoBehaviour
         {
             case BoardDefinition.ClearConditionKind.None:
                 return false;
-            case BoardDefinition.ClearConditionKind.RoundIndexAtLeast:
-                return rules.RoundIndex >= _definition.targetRoundIndex;
+            case BoardDefinition.ClearConditionKind.LevelIndexAtLeast:
+                return rules.LevelIndex >= _definition.targetRoundIndex;
             case BoardDefinition.ClearConditionKind.CoinsAtLeast:
                 return rules.Coins >= _definition.targetCoins;
-            case BoardDefinition.ClearConditionKind.RoundTotalAtLeast:
-                return rules.RoundTotal >= _definition.targetRoundTotal;
+            case BoardDefinition.ClearConditionKind.TotalScoreAtLeast:
+                return rules.TotalScore >= _definition.targetRoundTotal;
             default:
                 return false;
         }

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// When the round goal is passed in multiples (GoalTier increases), updates a persistent multiplier text
-/// (e.g. "x2", "x3", ...) and spawns a centered praise popup ("Nice!", "Great!", ...).
+/// (e.g. "x2", "x3", ...) and spawns a centered "Level Up" popup.
 ///
 /// This auto-installs itself into the GameplayCore scene at runtime (no manual scene wiring required).
 /// </summary>
@@ -41,17 +41,9 @@ public sealed class GoalPassedPopupHUD : MonoBehaviour
     [SerializeField] private Color multiplierTextColor = Color.white;
     [SerializeField] private TMP_FontAsset multiplierFontOverride;
 
-    [Header("Praise")]
+    [Header("Level Up Popup")]
     [SerializeField] private bool spawnPraise = true;
-    [SerializeField] private string[] praiseMessages =
-    {
-        "Nice!",
-        "Great!",
-        "Amazing!",
-        "Perfect!",
-        "Clean!",
-        "Let’s go!",
-    };
+    [SerializeField] private string levelUpPopupText = "Level Up";
 
     [Tooltip("If true, hides the old center-screen TMP object if it exists in the scene.")]
     [SerializeField] private bool hideLegacyCenterPopupIfPresent = true;
@@ -63,7 +55,7 @@ public sealed class GoalPassedPopupHUD : MonoBehaviour
     private GameRulesManager rules;
     private TMP_Text multiplierText;
     private CanvasGroup multiplierCanvasGroup;
-    private int lastShownTier;
+    private int lastSeenTier;
 
     private void Awake()
     {
@@ -164,7 +156,7 @@ public sealed class GoalPassedPopupHUD : MonoBehaviour
 
     private void OnRoundStarted()
     {
-        lastShownTier = 0;
+        lastSeenTier = 0;
         HideMultiplierImmediate();
     }
 
@@ -182,18 +174,18 @@ public sealed class GoalPassedPopupHUD : MonoBehaviour
     {
         if (tier <= 0)
         {
-            lastShownTier = Mathf.Max(lastShownTier, tier);
+            lastSeenTier = tier;
             HideMultiplierImmediate();
             return;
         }
 
-        if (tier <= lastShownTier)
+        if (tier <= lastSeenTier)
         {
-            lastShownTier = Mathf.Max(lastShownTier, tier);
+            lastSeenTier = tier;
             return;
         }
 
-        lastShownTier = tier;
+        lastSeenTier = tier;
         ResolveSpawner();
         EnsureMultiplierText();
 
@@ -202,21 +194,11 @@ public sealed class GoalPassedPopupHUD : MonoBehaviour
 
         if (spawnPraise && spawner != null)
         {
-            string praise = PickPraiseMessage();
-            if (!string.IsNullOrWhiteSpace(praise))
+            if (!string.IsNullOrWhiteSpace(levelUpPopupText))
             {
-                spawner.SpawnGoalPraisePopup(praise);
+                spawner.SpawnGoalPraisePopup(levelUpPopupText);
             }
         }
-    }
-
-    private string PickPraiseMessage()
-    {
-        if (praiseMessages == null || praiseMessages.Length <= 0)
-            return null;
-
-        int index = UnityEngine.Random.Range(0, praiseMessages.Length);
-        return praiseMessages[index];
     }
 
     private void HideLegacyPopupIfPresent()

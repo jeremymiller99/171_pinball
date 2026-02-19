@@ -76,6 +76,13 @@ MonoBehaviour:
   bounceForce: 50
   shakeDuration: 0.22
   shakeMagnitude: 0.16
+  hitSound:
+    Guid:
+      Data1: 1449137371
+      Data2: 1333712520
+      Data3: -1154293597
+      Data4: -2036301457
+    Path: event:/collide_points
 --- !u!114 &4966027531198756717
 MonoBehaviour:
   m_ObjectHideFlags: 0

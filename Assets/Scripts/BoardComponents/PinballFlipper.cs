@@ -54,6 +54,10 @@ public class PinballFlipper : MonoBehaviour
     public float flipAngle = 45f;
     public float rotateSpeed = 900f;
 
+    [Header("Audio")]
+    [SerializeField] private EventReference flipperUpSound;
+    [SerializeField] private EventReference flipperDownSound;
+
     private Quaternion _baseLocalRotation;
     private float _currentOffset;
     private bool _pressed;
@@ -172,9 +176,9 @@ public class PinballFlipper : MonoBehaviour
             return;
 
         if (_pressed)
-            RuntimeManager.PlayOneShot("event:/flipper_up");
+            AudioManager.Instance.PlayOneShot(flipperUpSound, transform.position);
         else
-            RuntimeManager.PlayOneShot("event:/flipper_down");
+            AudioManager.Instance.PlayOneShot(flipperDownSound, transform.position);
 
         _previousPressed = _pressed;
     }
@@ -199,4 +203,3 @@ public class PinballFlipper : MonoBehaviour
         _rb.MoveRotation(desiredWorld);
     }
 }
-

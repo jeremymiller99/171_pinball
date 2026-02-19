@@ -21,6 +21,9 @@ public class Ball : MonoBehaviour
     [SerializeField] private Stack<GameObject> pool;
     [SerializeField] private int poolSize;
 
+    [Header("Audio")]
+    [SerializeField] private EventReference wallHitSound;
+
     void Awake()
     {
         trailRenderer = GetComponent<TrailRenderer>();
@@ -44,7 +47,6 @@ public class Ball : MonoBehaviour
             return;
         }
 
-
         if (collision.collider.GetComponent<PointAdder>() || collision.collider.GetComponent<MultAdder>())
         {
             GameObject emitterObj = pool.Pop();
@@ -61,7 +63,10 @@ public class Ball : MonoBehaviour
             emitter.Emit(amountToEmit);
             pool.Push(emitterObj);
         }
-
+        else if (!collision.collider.CompareTag("Floor") && !collision.collider.CompareTag("Ceiling"))
+        {
+            AudioManager.Instance.PlayOneShot(wallHitSound, transform.position);
+        }
     }
 
     void OnCollisionExit(Collision collision)

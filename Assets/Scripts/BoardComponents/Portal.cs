@@ -1,7 +1,7 @@
 // Generated with Cursor AI (GPT-5.2), by OpenAI, 2026-02-17.
 // Change: add configurable portal exit speed boost.
 using UnityEngine;
-
+using FMODUnity;
 public class Portal : MonoBehaviour
 {
     [SerializeField] private CameraShake camShake;
@@ -26,6 +26,9 @@ public class Portal : MonoBehaviour
     [Header("FX")]
     [SerializeField] private float shakeDuration = 0.22f;
     [SerializeField] private float shakeMagnitude = 0.16f;
+
+    [Header("Audio")]
+    [SerializeField] private EventReference portalSound; // Added EventReference for the sound
 
     private void Awake()
     {
@@ -70,11 +73,11 @@ public class Portal : MonoBehaviour
         newWorldPos += portalExit.forward * exitOffset;
         if (other.transform.position != newWorldPos)
         {
-            FMODUnity.RuntimeManager.PlayOneShot("event:/effect_portal");
+            AudioManager.Instance.PlayOneShot(portalSound, transform.position);
         }
         other.transform.position = newWorldPos;
 
-        // --- ROTATION (optional � keeps orientation relative to portals) ---
+        // --- ROTATION (optional  keeps orientation relative to portals) ---
         Quaternion portalDeltaRot = portalExit.rotation * Quaternion.Inverse(transform.rotation);
         other.transform.rotation = portalDeltaRot * other.transform.rotation;
 

@@ -245,6 +245,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
   rulesManager: {fileID: 0}
   outsideBounds: 0
+  ballLostSound:
+    Guid:
+      Data1: -1893509061
+      Data2: 1112773022
+      Data3: -1794802512
+      Data4: -929301267
+    Path: event:/ball_lost
 --- !u!1001 &53043955
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -358,6 +365,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
   rulesManager: {fileID: 0}
   outsideBounds: 1
+  ballLostSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!65 &61075975
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -493,7 +507,7 @@ GameObject:
   - component: {fileID: 175576355}
   m_Layer: 0
   m_Name: Ceiling
-  m_TagString: Untagged
+  m_TagString: Ceiling
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4484,6 +4498,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
   rulesManager: {fileID: 0}
   outsideBounds: 1
+  ballLostSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!65 &765148992
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5541,6 +5562,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
   rulesManager: {fileID: 0}
   outsideBounds: 1
+  ballLostSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!1 &910000010
 GameObject:
   m_ObjectHideFlags: 0
@@ -5609,6 +5637,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
   rulesManager: {fileID: 0}
   outsideBounds: 1
+  ballLostSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!1 &910000020
 GameObject:
   m_ObjectHideFlags: 0
@@ -5677,6 +5712,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
   rulesManager: {fileID: 0}
   outsideBounds: 1
+  ballLostSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!1 &910000030
 GameObject:
   m_ObjectHideFlags: 0
@@ -5745,6 +5787,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
   rulesManager: {fileID: 0}
   outsideBounds: 1
+  ballLostSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!1 &924146523
 GameObject:
   m_ObjectHideFlags: 0
@@ -6239,7 +6288,7 @@ GameObject:
   - component: {fileID: 1018781274}
   m_Layer: 0
   m_Name: Floor
-  m_TagString: Untagged
+  m_TagString: Floor
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -8194,6 +8243,13 @@ MonoBehaviour:
   chargePerSecond: 200
   plungerVisual: {fileID: 610932213}
   visualPullDistance: 0.3
+  launchSound:
+    Guid:
+      Data1: -1376618757
+      Data2: 1299550731
+      Data3: 1672712324
+      Data4: -809238670
+    Path: event:/ball_launched
 --- !u!65 &1521149805
 BoxCollider:
   m_ObjectHideFlags: 0

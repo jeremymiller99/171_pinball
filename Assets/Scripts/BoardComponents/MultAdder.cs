@@ -9,6 +9,9 @@ public class MultAdder : MonoBehaviour
     [SerializeField] private float multToAdd;
     [SerializeField] private FloatingTextSpawner floatingTextSpawner;
 
+    [Header("Audio")]
+    [SerializeField] private EventReference multSound;
+
     private float baseMultToAdd;
     private int upgradeCount;
     private float multMultiplier = 1f;
@@ -53,7 +56,9 @@ public class MultAdder : MonoBehaviour
         if (collision.collider.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
-            FMODUnity.RuntimeManager.PlayOneShot("event:/collide_mult");
+            
+            AudioManager.Instance.PlayOneShot(multSound, transform.position);
+            
             if (scoreManager == null)
                 return;
 
@@ -83,6 +88,9 @@ public class MultAdder : MonoBehaviour
         if (col.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
+            
+            AudioManager.Instance.PlayOneShot(multSound, transform.position);
+            
             if (scoreManager == null)
                 return;
 

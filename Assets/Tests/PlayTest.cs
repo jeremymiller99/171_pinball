@@ -61,7 +61,6 @@ public class PlayTest
             yield return new WaitForSeconds(10);
         }
 
-        SceneManager.UnloadSceneAsync("GameplayCore");
     }
 
     [UnityTest, Performance, Version("4")]

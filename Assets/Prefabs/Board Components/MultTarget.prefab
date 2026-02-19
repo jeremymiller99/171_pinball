@@ -74,6 +74,13 @@ MonoBehaviour:
   bounceForce: 25
   shakeDuration: 0.22
   shakeMagnitude: 0.16
+  hitSound:
+    Guid:
+      Data1: 641298852
+      Data2: 1192604421
+      Data3: 1548426920
+      Data4: 137299680
+    Path: event:/collide_wall
 --- !u!114 &4691959183965765713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -89,6 +96,13 @@ MonoBehaviour:
   scoreManager: {fileID: 0}
   multToAdd: 0.1
   floatingTextSpawner: {fileID: 0}
+  multSound:
+    Guid:
+      Data1: 52175844
+      Data2: 1280125249
+      Data3: -157741152
+      Data4: 1337080504
+    Path: event:/collide_mult
 --- !u!114 &2884579813490541706
 MonoBehaviour:
   m_ObjectHideFlags: 0

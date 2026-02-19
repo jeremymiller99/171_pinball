@@ -73,11 +73,18 @@ MonoBehaviour:
   portalExit: {fileID: 0}
   exitOffset: 0
   exitRandomAngle: 0
-  minExitSpeed: 10
   overrideExitSpeed: 1
   exitSpeed: 10
+  extraExitSpeed: 5
   shakeDuration: 0.22
   shakeMagnitude: 0.16
+  portalSound:
+    Guid:
+      Data1: -452830574
+      Data2: 1287721858
+      Data3: 1479539585
+      Data4: -1925869889
+    Path: event:/effect_portal
 --- !u!114 &139554945093747444
 MonoBehaviour:
   m_ObjectHideFlags: 0

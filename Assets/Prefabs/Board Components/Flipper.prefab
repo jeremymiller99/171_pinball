@@ -247,6 +247,20 @@ MonoBehaviour:
   invertDirection: 0
   flipAngle: 45
   rotateSpeed: 900
+  flipperUpSound:
+    Guid:
+      Data1: -1860561248
+      Data2: 1169797383
+      Data3: 1350184087
+      Data4: 206532917
+    Path: event:/flipper_up
+  flipperDownSound:
+    Guid:
+      Data1: -2137675161
+      Data2: 1216462387
+      Data3: 341324723
+      Data4: -1274449514
+    Path: event:/flipper_down
 --- !u!54 &8154719291560654655
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
 using UnityEngine;
+using FMODUnity;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -55,6 +56,9 @@ public sealed class PinballLauncher : MonoBehaviour
 
     [Tooltip("How far (units) the visual pulls back at full charge.")]
     public float visualPullDistance = 0.15f;
+
+    [Header("Audio")]
+    [SerializeField] private EventReference launchSound;
 
     private Rigidbody _ballRb;
     private float _charge;
@@ -267,7 +271,8 @@ public sealed class PinballLauncher : MonoBehaviour
 
         Vector3 dir = launchDirection.forward.normalized;
         _ballRb.AddForce(dir * _charge, ForceMode.Impulse);
-        FMODUnity.RuntimeManager.PlayOneShot("event:/ball_launched");
+        
+        AudioManager.Instance.PlayOneShot(launchSound, transform.position);
 
         _charge = 0f;
         UpdateVisual(0f);
@@ -305,5 +310,3 @@ public sealed class PinballLauncher : MonoBehaviour
         }
     }
 }
-
-

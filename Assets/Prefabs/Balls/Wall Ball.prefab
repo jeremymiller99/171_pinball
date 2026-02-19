@@ -175,6 +175,13 @@ MonoBehaviour:
   amountToEmit: 28
   particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
   poolSize: 15
+  wallHitSound:
+    Guid:
+      Data1: 641298852
+      Data2: 1192604421
+      Data3: 1548426920
+      Data4: 137299680
+    Path: event:/collide_wall
   wallMaterial: {fileID: 13400000, guid: 2538733681627dc44ab2109ad5e3bdcb, type: 2}
   pointAdder: {fileID: 0}
   scoreManager: {fileID: 0}

@@ -9211,7 +9211,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4691959183965765713, guid: 3f89df3362741d64e809018a4b0f5e3e, type: 3}
       propertyPath: multToAdd
-      value: 0.25
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7346497609318563937, guid: 3f89df3362741d64e809018a4b0f5e3e, type: 3}
       propertyPath: m_LocalScale.x

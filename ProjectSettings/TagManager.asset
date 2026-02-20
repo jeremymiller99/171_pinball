@@ -8,6 +8,8 @@ TagManager:
   - Target
   - Portal
   - Bumper
+  - Floor
+  - Ceiling
   layers:
   - Default
   - TransparentFX

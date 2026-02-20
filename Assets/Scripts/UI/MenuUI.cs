@@ -8,7 +8,6 @@ using TMPro;
 using UnityEngine.InputSystem;
 #endif
 
-
 public class MainMenuUI : MonoBehaviour
 {
     private enum MenuPanel
@@ -105,6 +104,9 @@ public class MainMenuUI : MonoBehaviour
     // Stores the full challenge mode definition for round modifier generation.
     private ChallengeModeDefinition _pendingChallengeMode;
 
+    // Global audio reference
+    private ButtonSound _globalButtonSound;
+
     public void LoadGameScene()
     {
         // Backwards-compatible entry point for the existing MainMenu button wiring.
@@ -158,6 +160,13 @@ public class MainMenuUI : MonoBehaviour
         if (_built) return;
         _built = true;
 
+        // Find the global button sound component (attached to AudioManager)
+#if UNITY_2022_2_OR_NEWER
+        _globalButtonSound = FindFirstObjectByType<ButtonSound>();
+#else
+        _globalButtonSound = FindObjectOfType<ButtonSound>();
+#endif
+
         AutoWirePanels();
         InstallControlsMenuIfPossible();
         AutoWireMainMenuButtons();
@@ -169,6 +178,14 @@ public class MainMenuUI : MonoBehaviour
 
         // Ensure a consistent initial panel state at runtime.
         OpenMainMenuPanel();
+    }
+
+    private void AttachSoundToButton(Button btn)
+    {
+        if (btn != null && _globalButtonSound != null)
+        {
+            btn.onClick.AddListener(_globalButtonSound.PlaySound);
+        }
     }
 
     private void InstallControlsMenuIfPossible()
@@ -197,21 +214,18 @@ public class MainMenuUI : MonoBehaviour
 
         if (settingsPanel == null)
         {
-            // Note: there is also usually a main menu button named "Settings". We prefer the panel-like object.
             var go = FindPanelLikeObject("Settings") ?? FindPanelLikeObject("Settings Panel");
             if (go != null) settingsPanel = go;
         }
 
         if (profilePanel == null)
         {
-            // Note: there is also usually a main menu button named "Profile". We prefer the panel-like object.
             var go = FindPanelLikeObject("Profile") ?? FindPanelLikeObject("Profile Panel");
             if (go != null) profilePanel = go;
         }
 
         if (collectionPanel == null)
         {
-            // Note: there is also usually a main menu button named "Collection". We prefer the panel-like object.
             var go = FindPanelLikeObject("Collection") ?? FindPanelLikeObject("Collection Panel");
             if (go != null) collectionPanel = go;
         }
@@ -241,24 +255,28 @@ public class MainMenuUI : MonoBehaviour
         {
             settingsButton.onClick = new Button.ButtonClickedEvent();
             settingsButton.onClick.AddListener(OpenSettingsPanel);
+            AttachSoundToButton(settingsButton);
         }
 
         if (profileButton != null)
         {
             profileButton.onClick = new Button.ButtonClickedEvent();
             profileButton.onClick.AddListener(OpenProfilePanel);
+            AttachSoundToButton(profileButton);
         }
 
         if (collectionButton != null)
         {
             collectionButton.onClick = new Button.ButtonClickedEvent();
             collectionButton.onClick.AddListener(OpenCollectionPanel);
+            AttachSoundToButton(collectionButton);
         }
 
         if (quitButton != null)
         {
             quitButton.onClick = new Button.ButtonClickedEvent();
             quitButton.onClick.AddListener(QuitGame);
+            AttachSoundToButton(quitButton);
         }
     }
 
@@ -271,9 +289,9 @@ public class MainMenuUI : MonoBehaviour
 
         if (startRunButton != null)
         {
-            // Ensure the Play button opens the Run Selector panel (even if the scene has stale wiring).
             startRunButton.onClick = new Button.ButtonClickedEvent();
             startRunButton.onClick.AddListener(OpenRunSelectorPanel);
+            AttachSoundToButton(startRunButton);
         }
     }
 
@@ -281,7 +299,6 @@ public class MainMenuUI : MonoBehaviour
     {
         if (challengeButtonsRoot != null) return;
 
-        // Try to find an existing container by name first.
         var existing = FindAnyGameObjectByNameIncludingInactive("Challenges");
         if (existing != null)
         {
@@ -330,8 +347,6 @@ public class MainMenuUI : MonoBehaviour
 
     private void AutoWireOrCreateRunSelectorButtons()
     {
-        // We prefer to find the Return button under the same root used for challenge buttons,
-        // since it already exists inside the Run Selector panel in the scene.
         if (challengeButtonsRoot == null)
         {
             return;
@@ -350,6 +365,8 @@ public class MainMenuUI : MonoBehaviour
         {
             returnToMainMenuButton.onClick = new Button.ButtonClickedEvent();
             returnToMainMenuButton.onClick.AddListener(OpenMainMenuPanel);
+            AttachSoundToButton(returnToMainMenuButton);
+            
             var text = returnToMainMenuButton.GetComponentInChildren<TMP_Text>(true);
             if (text != null) text.text = "Return";
         }
@@ -357,7 +374,6 @@ public class MainMenuUI : MonoBehaviour
 
     private void AutoWireOrCreateModeInfoPanel()
     {
-        // If no panel assigned, try to create one programmatically.
         if (modeInfoPanel == null)
         {
             Canvas canvas;
@@ -372,10 +388,8 @@ public class MainMenuUI : MonoBehaviour
             }
         }
 
-        // Wire up buttons if panel exists.
         if (modeInfoPanel != null)
         {
-            // Try to find UI elements if not assigned.
             if (modeInfoTitleText == null)
                 modeInfoTitleText = FindTextUnder(modeInfoPanel, "ModeInfo_Title");
             if (modeInfoDescriptionText == null)
@@ -387,25 +401,24 @@ public class MainMenuUI : MonoBehaviour
             if (modeInfoCloseButton == null)
                 modeInfoCloseButton = FindButtonUnder(modeInfoPanel, "ModeInfo_Close");
 
-            // Wire play button.
             if (modeInfoPlayButton != null)
             {
                 modeInfoPlayButton.onClick = new Button.ButtonClickedEvent();
                 modeInfoPlayButton.onClick.AddListener(OnModeInfoPlayClicked);
+                AttachSoundToButton(modeInfoPlayButton);
             }
 
-            // Wire close button.
             if (modeInfoCloseButton != null)
             {
                 modeInfoCloseButton.onClick = new Button.ButtonClickedEvent();
                 modeInfoCloseButton.onClick.AddListener(CloseModeInfoPanel);
+                AttachSoundToButton(modeInfoCloseButton);
             }
         }
     }
 
     private GameObject CreateModeInfoPanelUI(Transform parent)
     {
-        // Create the panel container.
         var panelGo = new GameObject("Mode Info Panel", typeof(RectTransform), typeof(CanvasGroup), typeof(Image));
         panelGo.transform.SetParent(parent, false);
 
@@ -415,11 +428,9 @@ public class MainMenuUI : MonoBehaviour
         panelRect.offsetMin = Vector2.zero;
         panelRect.offsetMax = Vector2.zero;
 
-        // Semi-transparent dark background.
         var bgImage = panelGo.GetComponent<Image>();
         bgImage.color = new Color(0f, 0f, 0f, 0.85f);
 
-        // Create content container (centered).
         var contentGo = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
         contentGo.transform.SetParent(panelGo.transform, false);
 
@@ -442,21 +453,14 @@ public class MainMenuUI : MonoBehaviour
         fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
         fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-        // Title text.
         modeInfoTitleText = CreateTextElement(contentGo.transform, "ModeInfo_Title", "Mode Title", 42, FontStyles.Bold, TextAlignmentOptions.Center);
-
-        // Description text.
         modeInfoDescriptionText = CreateTextElement(contentGo.transform, "ModeInfo_Description", "Description goes here.", 24, FontStyles.Normal, TextAlignmentOptions.Center);
-
-        // Win condition text.
         modeInfoWinConditionText = CreateTextElement(contentGo.transform, "ModeInfo_WinCondition", "Win Condition: ...", 22, FontStyles.Italic, TextAlignmentOptions.Center);
 
-        // Spacer.
         var spacer = new GameObject("Spacer", typeof(RectTransform), typeof(LayoutElement));
         spacer.transform.SetParent(contentGo.transform, false);
         spacer.GetComponent<LayoutElement>().minHeight = 30f;
 
-        // Buttons container.
         var buttonsGo = new GameObject("Buttons", typeof(RectTransform), typeof(HorizontalLayoutGroup));
         buttonsGo.transform.SetParent(contentGo.transform, false);
 
@@ -466,10 +470,7 @@ public class MainMenuUI : MonoBehaviour
         btnLayout.childControlHeight = false;
         btnLayout.spacing = 40f;
 
-        // Play button.
         modeInfoPlayButton = CreateButton(buttonsGo.transform, "ModeInfo_Play", "PLAY", new Color(0.2f, 0.7f, 0.3f, 1f));
-
-        // Close button.
         modeInfoCloseButton = CreateButton(buttonsGo.transform, "ModeInfo_Close", "BACK", new Color(0.5f, 0.5f, 0.5f, 1f));
 
         panelGo.SetActive(false);
@@ -508,7 +509,6 @@ public class MainMenuUI : MonoBehaviour
 
         var btn = go.GetComponent<Button>();
 
-        // Button label.
         var labelGo = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
         labelGo.transform.SetParent(go.transform, false);
 
@@ -550,7 +550,6 @@ public class MainMenuUI : MonoBehaviour
             return;
         }
 
-        // Clear previously generated buttons (keep any existing non-generated children).
         for (int i = challengeButtonsRoot.childCount - 1; i >= 0; i--)
         {
             var child = challengeButtonsRoot.GetChild(i);
@@ -562,7 +561,6 @@ public class MainMenuUI : MonoBehaviour
 
         int created = 0;
 
-        // Preferred: ChallengeMode assets.
         if (challengeModes != null && challengeModes.Length > 0)
         {
             for (int i = 0; i < challengeModes.Length; i++)
@@ -573,14 +571,12 @@ public class MainMenuUI : MonoBehaviour
                 var boards = mode.boards;
                 if (boards == null || boards.Length == 0) continue;
 
-                // Capture the mode reference for the lambda.
                 var capturedMode = mode;
                 CreateChallengeButton(mode.displayName, () => ShowModeInfoPanel(capturedMode));
                 created++;
             }
         }
 
-        // Fallback: per-board single challenges.
         if (created == 0 && challengeBoards != null && challengeBoards.Length > 0)
         {
             for (int i = 0; i < challengeBoards.Length; i++)
@@ -588,7 +584,6 @@ public class MainMenuUI : MonoBehaviour
                 var board = challengeBoards[i];
                 if (board == null) continue;
                 string label = string.IsNullOrWhiteSpace(board.displayName) ? "Challenge" : board.displayName;
-                // Capture the board reference for the lambda.
                 var capturedBoard = board;
                 CreateChallengeButton(label, () => ShowModeInfoPanelForBoard(capturedBoard));
             }
@@ -600,12 +595,12 @@ public class MainMenuUI : MonoBehaviour
         var btn = Instantiate(challengeButtonTemplate, challengeButtonsRoot);
         btn.name = $"ChallengeButton_{label}";
 
-        // Clear template wiring.
         btn.onClick = new Button.ButtonClickedEvent();
         if (onClick != null)
         {
             btn.onClick.AddListener(onClick);
         }
+        AttachSoundToButton(btn);
 
         var text = btn.GetComponentInChildren<TMP_Text>(true);
         if (text != null)
@@ -625,7 +620,6 @@ public class MainMenuUI : MonoBehaviour
     {
         int seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
 
-        // Use the full challenge mode if available (for round modifier support)
         if (_pendingChallengeMode != null)
         {
             GameSession.Instance.ConfigureChallenge(_pendingChallengeMode, seed);
@@ -672,18 +666,13 @@ public class MainMenuUI : MonoBehaviour
 #endif
     }
 
-    /// <summary>
-    /// Shows the mode info panel with details from the given challenge mode definition.
-    /// </summary>
     public void ShowModeInfoPanel(ChallengeModeDefinition mode)
     {
         if (mode == null) return;
 
-        // Store the challenge mode and boards for when the user clicks Play.
         _pendingChallengeMode = mode;
         _pendingChallengeBoards = mode.boards;
 
-        // Populate the panel UI.
         if (modeInfoTitleText != null)
             modeInfoTitleText.text = mode.displayName;
 
@@ -694,7 +683,6 @@ public class MainMenuUI : MonoBehaviour
         {
             if (string.IsNullOrWhiteSpace(mode.winConditionDescription))
             {
-                // Generate a default win condition from the board definitions if not specified.
                 modeInfoWinConditionText.text = GenerateDefaultWinCondition(mode.boards);
             }
             else
@@ -703,19 +691,15 @@ public class MainMenuUI : MonoBehaviour
             }
         }
 
-        // Show as overlay on top of current panel.
         if (modeInfoPanel != null)
             modeInfoPanel.SetActive(true);
     }
 
-    /// <summary>
-    /// Shows the mode info panel for a single board (used for fallback challenge boards).
-    /// </summary>
     public void ShowModeInfoPanelForBoard(BoardDefinition board)
     {
         if (board == null) return;
 
-        _pendingChallengeMode = null; // No challenge mode for single board
+        _pendingChallengeMode = null; 
         _pendingChallengeBoards = new[] { board };
 
         if (modeInfoTitleText != null)
@@ -727,7 +711,6 @@ public class MainMenuUI : MonoBehaviour
         if (modeInfoWinConditionText != null)
             modeInfoWinConditionText.text = GenerateDefaultWinCondition(new[] { board });
 
-        // Show as overlay on top of current panel.
         if (modeInfoPanel != null)
             modeInfoPanel.SetActive(true);
     }
@@ -737,14 +720,12 @@ public class MainMenuUI : MonoBehaviour
         if (boards == null || boards.Length == 0)
             return "Complete the challenge!";
 
-        // If there's a single board, show its specific condition.
         if (boards.Length == 1)
         {
             var board = boards[0];
             return GetBoardClearConditionText(board);
         }
 
-        // Multiple boards - summarize.
         return $"Complete all {boards.Length} boards to win!";
     }
 
@@ -786,16 +767,13 @@ public class MainMenuUI : MonoBehaviour
     {
         currentPanel = panel;
 
-        // Main menu
         if (mainMenuPanel != null) mainMenuPanel.SetActive(panel == MenuPanel.MainMenu);
 
-        // Sub-panels
         if (runSelectorPanel != null) runSelectorPanel.SetActive(panel == MenuPanel.RunSelector);
         if (settingsPanel != null) settingsPanel.SetActive(panel == MenuPanel.Settings);
         if (profilePanel != null) profilePanel.SetActive(panel == MenuPanel.Profile);
         if (collectionPanel != null) collectionPanel.SetActive(panel == MenuPanel.Collection);
 
-        // Close the mode info overlay when switching panels.
         if (modeInfoPanel != null) modeInfoPanel.SetActive(false);
     }
 
@@ -828,7 +806,6 @@ public class MainMenuUI : MonoBehaviour
 
     private static GameObject FindPanelLikeObject(string name)
     {
-        // Prefer an inactive, fullscreen-ish RectTransform (a "panel") over a small active button with the same name.
         var transforms = FindAllTransformsInLoadedScenes(includeInactive: true);
 
         GameObject best = null;
@@ -866,7 +843,6 @@ public class MainMenuUI : MonoBehaviour
             includeInactive ? FindObjectsInactive.Include : FindObjectsInactive.Exclude,
             FindObjectsSortMode.None);
 #else
-        // Resources.FindObjectsOfTypeAll includes inactive, but also includes assets/prefabs.
         all = Resources.FindObjectsOfTypeAll<Transform>();
 #endif
 
@@ -877,7 +853,6 @@ public class MainMenuUI : MonoBehaviour
             if (t == null) continue;
             if (!t.gameObject.scene.IsValid() || !t.gameObject.scene.isLoaded) continue;
 #if !UNITY_2022_2_OR_NEWER
-            // Filter out non-scene objects when using Resources.FindObjectsOfTypeAll.
             if ((t.hideFlags & HideFlags.NotEditable) != 0) continue;
             if ((t.hideFlags & HideFlags.HideAndDontSave) != 0) continue;
 #endif

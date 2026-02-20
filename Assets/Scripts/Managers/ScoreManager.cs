@@ -410,7 +410,7 @@ public class ScoreManager : MonoBehaviour
 
     private void AddPoints(float applied, Transform pos)
     {
-        if (scoringLocked) return;
+        if (scoringLocked || applied <= 0) return;
 
         EnsureCoreScoreTextBindings();
 
@@ -433,7 +433,7 @@ public class ScoreManager : MonoBehaviour
 
     private void AddMult(float applied, Transform pos)
     {
-        if (scoringLocked) return;
+        if (scoringLocked || applied <= 0) return;
 
         EnsureCoreScoreTextBindings();
 
@@ -456,7 +456,7 @@ public class ScoreManager : MonoBehaviour
 
     private void AddCoins(int applied, Transform pos)
     {
-        if (scoringLocked) return;
+        if (scoringLocked || applied <= 0) return;
 
         EnsureCoreScoreTextBindings();
 

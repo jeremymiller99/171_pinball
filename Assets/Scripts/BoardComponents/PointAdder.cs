@@ -58,9 +58,7 @@ public class PointAdder : MonoBehaviour
 
         if (ball == null) return 1f;
 
-        float m = ball.PointsAwardMultiplier;
-        if (m <= 0f) return 0f;
-        return m;
+        return ball.PointsAwardMultiplier;
     }
 
     void OnCollisionEnter(Collision collision)
@@ -78,9 +76,10 @@ public class PointAdder : MonoBehaviour
             // Spawn blue points text at the ball's position; only increment HUD when the popup arrives.
             if (floatingTextSpawner != null)
             {
+                string pointsLabel = applied >= 0f ? "+" + applied : applied.ToString();
                 floatingTextSpawner.SpawnPointsText(
                     collision.collider.transform.position,
-                    "+" + applied,
+                    pointsLabel,
                     applied,
                     () => scoreManager.ApplyDeferredPointsUi(applied, token));
             }
@@ -106,9 +105,10 @@ public class PointAdder : MonoBehaviour
             // Spawn blue points text at the ball's position; only increment HUD when the popup arrives.
             if (floatingTextSpawner != null)
             {
+                string pointsLabel = applied >= 0f ? "+" + applied : applied.ToString();
                 floatingTextSpawner.SpawnPointsText(
                     col.transform.position,
-                    "+" + applied,
+                    pointsLabel,
                     applied,
                     () => scoreManager.ApplyDeferredPointsUi(applied, token));
             }
@@ -143,9 +143,10 @@ public class PointAdder : MonoBehaviour
 
         if (floatingTextSpawner != null)
         {
+            string pointsLabel = applied >= 0f ? "+" + applied : applied.ToString();
             floatingTextSpawner.SpawnPointsText(
                 spawnPosition,
-                "+" + applied,
+                pointsLabel,
                 applied,
                 () => scoreManager.ApplyDeferredPointsUi(applied, token));
         }
@@ -172,6 +173,7 @@ public class PointAdder : MonoBehaviour
         float applied = scoreManager != null ? scoreManager.AddPointsScaled(GetEffectivePointsToAdd() * ballMult) : 0f;
         // Spawn text at the ball's position.
         // Use SpawnPointsText so values compact/round consistently with score UI.
-        floatingTextSpawner?.SpawnPointsText(pos.position, "+" + applied, applied);
+        string pointsLabel = applied >= 0f ? "+" + applied : applied.ToString();
+        floatingTextSpawner?.SpawnPointsText(pos.position, pointsLabel, applied);
     }
 }

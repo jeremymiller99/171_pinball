@@ -147,13 +147,18 @@ public class FloatingTextSpawner : MonoBehaviour
 
     /// <summary>
     /// Spawns points text and invokes <paramref name="onArrive"/> when the text finishes flying (or immediately if it can't fly).
+    /// When <paramref name="useRedForNegative"/> is true and <paramref name="pointsValue"/> is negative, text is shown in red (e.g. BOML penalty).
     /// </summary>
-    public void SpawnPointsText(Vector3 worldPosition, string text, float pointsValue, Action onArrive)
+    public void SpawnPointsText(Vector3 worldPosition, string text, float pointsValue, Action onArrive, bool useRedForNegative = true)
     {
         string display = BuildCompactFromTemplate(text, pointsValue);
-        float t = Mathf.Clamp01(pointsValue / pointsMaxValue);
+        bool isNegative = pointsValue < 0f;
+        if (useRedForNegative && isNegative)
+            display = "<color=#FF0000>" + display + "</color>";
+        float t = Mathf.Clamp01(Mathf.Abs(pointsValue) / pointsMaxValue);
         float scale = Mathf.Lerp(pointsScaleMin, pointsScaleMax, t);
-        SpawnTextInternal(worldPosition, display, pointsFontAsset, scale, FlyToTarget.Points, onArrive);
+        Color? colorOverride = (useRedForNegative && isNegative) ? (Color?)Color.red : null;
+        SpawnTextInternal(worldPosition, display, pointsFontAsset, scale, FlyToTarget.Points, onArrive, colorOverride);
     }
 
     /// <summary>
@@ -239,7 +244,8 @@ public class FloatingTextSpawner : MonoBehaviour
         TMP_FontAsset fontAsset,
         float scale,
         FlyToTarget flyToTarget,
-        Action onArrive = null)
+        Action onArrive = null,
+        Color? colorOverride = null)
     {
         if (floatingTextPrefab == null || canvas == null) return;
 
@@ -267,6 +273,9 @@ public class FloatingTextSpawner : MonoBehaviour
         {
             ft.SetFontAsset(fontAsset);
         }
+
+        if (colorOverride.HasValue)
+            ft.SetColor(colorOverride.Value);
         
         ft.SetScale(scale);
 

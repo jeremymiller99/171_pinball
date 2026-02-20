@@ -29,7 +29,9 @@ public class Ball : MonoBehaviour
     void Start()
     {
         pool = new Stack<GameObject>();
-        for (int i = 0; i < poolSize; i++)
+        if (particleObject == null) return;
+        int safeCount = Mathf.Clamp(poolSize, 0, 64);
+        for (int i = 0; i < safeCount; i++)
         {
             pool.Push(Instantiate(particleObject, Vector3.zero, quaternion.identity));
         }
@@ -47,8 +49,15 @@ public class Ball : MonoBehaviour
 
         if (collision.collider.GetComponent<PointAdder>() || collision.collider.GetComponent<MultAdder>())
         {
+            if (pool == null || pool.Count == 0)
+                return;
             GameObject emitterObj = pool.Pop();
-            ParticleSystem emitter = emitterObj.GetComponent<ParticleSystem>();
+            ParticleSystem emitter = emitterObj != null ? emitterObj.GetComponent<ParticleSystem>() : null;
+            if (emitter == null)
+            {
+                pool.Push(emitterObj);
+                return;
+            }
             emitter.transform.position = transform.position;
             var emitterShape = emitter.shape;
             if (transform.position.x < collision.transform.position.x)
@@ -74,9 +83,11 @@ public class Ball : MonoBehaviour
 
     void OnDestroy()
     {
-        for (int i = 0; i < poolSize; i++)
+        if (pool == null) return;
+        while (pool.Count > 0)
         {
-            Destroy(pool.Pop());
+            var obj = pool.Pop();
+            if (obj != null) Destroy(obj);
         }
     }
 }

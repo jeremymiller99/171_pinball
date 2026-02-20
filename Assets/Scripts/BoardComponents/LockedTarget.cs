@@ -129,9 +129,7 @@ public class LockedTarget : MonoBehaviour
 
         if (ball == null) return 1f;
 
-        float m = ball.PointsAwardMultiplier;
-        if (m <= 0f) return 0f;
-        return m;
+        return ball.PointsAwardMultiplier;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -154,7 +152,8 @@ public class LockedTarget : MonoBehaviour
             float ballMult = GetBallPointsAwardMultiplier(collision.collider);
             float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd * ballMult) : 0f;
             Vector3 pos = collision.collider.transform.position;
-            floatingTextSpawner?.SpawnPointsText(pos, "+" + applied, applied);
+            string pointsLabel = applied >= 0f ? "+" + applied : applied.ToString();
+            floatingTextSpawner?.SpawnPointsText(pos, pointsLabel, applied);
         }
     }
 
@@ -177,7 +176,8 @@ public class LockedTarget : MonoBehaviour
             if (scoreManager == null) EnsureRefs();
             float ballMult = GetBallPointsAwardMultiplier(col);
             float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd * ballMult) : 0f;
-            floatingTextSpawner?.SpawnPointsText(col.transform.position, "+" + applied, applied);
+            string pointsLabel = applied >= 0f ? "+" + applied : applied.ToString();
+            floatingTextSpawner?.SpawnPointsText(col.transform.position, pointsLabel, applied);
         }
     }
 }

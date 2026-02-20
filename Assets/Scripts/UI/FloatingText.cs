@@ -93,6 +93,9 @@ public class FloatingText : MonoBehaviour
     public void SetText(string value)
     {
         if (text == null) text = GetComponent<TMP_Text>();
+        if (text == null) return;
+        if (value != null && value.IndexOf("<color", StringComparison.OrdinalIgnoreCase) >= 0)
+            text.richText = true;
         text.text = value;
 
         ApplyReadabilityCaps();
@@ -114,6 +117,15 @@ public class FloatingText : MonoBehaviour
         float safe = Mathf.Max(0.0001f, scale);
         float cap = Mathf.Max(0.0001f, maxScale);
         rectTransform.localScale = Vector3.one * Mathf.Min(safe, cap);
+    }
+
+    /// <summary>Override text color (e.g. red for penalty points).</summary>
+    public void SetColor(Color c)
+    {
+        if (text == null) text = GetComponent<TMP_Text>();
+        if (text == null) return;
+        text.color = c;
+        startColor = c;
     }
 
     public void SetLifetime(float seconds)

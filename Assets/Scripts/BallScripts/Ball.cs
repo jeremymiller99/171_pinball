@@ -15,15 +15,18 @@ public class Ball : MonoBehaviour
     /// </summary>
     public virtual float PointsAwardMultiplier => 1f;
 
+    public ScoreManager scoreManager;
+
     [SerializeField] private TrailRenderer trailRenderer;
     [SerializeField] private int amountToEmit;
     [SerializeField] private GameObject particleObject;
     [SerializeField] private Stack<GameObject> pool;
     [SerializeField] private int poolSize;
 
-    void Awake()
+    protected void Awake()
     {
         trailRenderer = GetComponent<TrailRenderer>();
+        scoreManager = FindFirstObjectByType<ScoreManager>();
     }
 
     void Start()
@@ -35,41 +38,59 @@ public class Ball : MonoBehaviour
         }
     }
 
-    public void OnCollisionEnter(Collision collision)
-    {
-        
-        if (collision.collider.GetComponent<Portal>())
+    protected void OnCollisionEnter(Collision collision)
+    {   
+        BoardComponent component = collision.collider.GetComponent<BoardComponent>();
+        if (component)
         {
-            trailRenderer.enabled = false;
-            return;
-        }
-
-
-        if (collision.collider.GetComponent<PointAdder>() || collision.collider.GetComponent<MultAdder>())
-        {
-            GameObject emitterObj = pool.Pop();
-            ParticleSystem emitter = emitterObj.GetComponent<ParticleSystem>();
-            emitter.transform.position = transform.position;
-            var emitterShape = emitter.shape;
-            if (transform.position.x < collision.transform.position.x)
-            {
-                emitterShape.rotation = Vector3.down * Vector3.Angle(transform.position - collision.transform.position, Vector3.forward);
-            } else {
-                emitterShape.rotation = Vector3.up * Vector3.Angle(transform.position - collision.transform.position, Vector3.forward);
-            }
-
-            emitter.Emit(amountToEmit);
-            pool.Push(emitterObj);
+            AddScore(component.amountToScore, component.typeOfScore, transform);
+            HandleParticles(collision);
         }
 
     }
 
-    void OnCollisionExit(Collision collision)
+    void OnTriggerEnter(Collider collider)
     {
-        if (collision.collider.GetComponent<Portal>())
+        BoardComponent component = collider.GetComponent<BoardComponent>();
+        if (component)
+        {
+            AddScore(component.amountToScore, component.typeOfScore, transform);
+        }
+        
+    }
+
+    void OnTriggerExit(Collider collider)
+    {
+        if (collider.GetComponent<Portal>())
         {
             trailRenderer.enabled = true;
         }
+    }
+
+    
+
+    protected void HandleParticles(Collision collision)
+    {
+        if (!collision.collider.GetComponent<Component>()) return;
+
+        if (collision.collider.GetComponent<Portal>())
+        {
+            trailRenderer.enabled = false;
+            return;            
+        }
+        GameObject emitterObj = pool.Pop();
+        ParticleSystem emitter = emitterObj.GetComponent<ParticleSystem>();
+        emitter.transform.position = transform.position;
+        var emitterShape = emitter.shape;
+        if (transform.position.x < collision.transform.position.x)
+        {
+            emitterShape.rotation = Vector3.down * Vector3.Angle(transform.position - collision.transform.position, Vector3.forward);
+        } else {
+            emitterShape.rotation = Vector3.up * Vector3.Angle(transform.position - collision.transform.position, Vector3.forward);
+        }
+
+        emitter.Emit(amountToEmit);
+        pool.Push(emitterObj);
     }
 
     void OnDestroy()
@@ -78,5 +99,10 @@ public class Ball : MonoBehaviour
         {
             Destroy(pool.Pop());
         }
+    }
+
+    protected void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)
+    {
+        scoreManager.AddScore(amount, typeOfScore, pos);
     }
 }

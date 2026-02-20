@@ -15,67 +15,28 @@ public sealed class BoardRoundResetter : MonoBehaviour
     private void OnEnable()
     {
         ResolveRules();
-        Hook();
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
-        Unhook();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         ResolveRules();
-        Hook();
     }
 
     private void ResolveRules()
     {
         if (_rules != null) return;
 
-#if UNITY_2022_2_OR_NEWER
         _rules = FindFirstObjectByType<GameRulesManager>();
-#else
-        _rules = FindObjectOfType<GameRulesManager>();
-#endif
     }
 
-    private void Hook()
-    {
-        if (_rules == null) return;
-        _rules.RoundStarted -= OnRoundStarted;
-        _rules.RoundStarted += OnRoundStarted;
-    }
 
-    private void Unhook()
-    {
-        if (_rules == null) return;
-        _rules.RoundStarted -= OnRoundStarted;
-    }
 
-    private void OnRoundStarted()
-    {
-        ResetAllExplodablesInLoadedScenes();
-    }
-
-    private static void ResetAllExplodablesInLoadedScenes()
-    {
-        // Includes inactive objects, which we need because FrenzyExplodable often deactivates the target.
-        var all = Resources.FindObjectsOfTypeAll<FrenzyExplodable>();
-        for (int i = 0; i < all.Length; i++)
-        {
-            var e = all[i];
-            if (e == null) continue;
-
-            // Ignore prefab assets.
-            if (!e.gameObject.scene.IsValid()) continue;
-            if (!e.gameObject.scene.isLoaded) continue;
-
-            e.ResetToDefaultState();
-        }
-    }
 }
 
 internal sealed class BoardRoundResetterBootstrapper : MonoBehaviour
@@ -124,28 +85,6 @@ internal sealed class BoardRoundResetterBootstrapper : MonoBehaviour
         var go = new GameObject(nameof(BoardRoundResetter));
         SceneManager.MoveGameObjectToScene(go, scene);
         go.AddComponent<BoardRoundResetter>();
-    }
-}
-
-internal static class BoardRoundResetterBootstrap
-{
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void Init()
-    {
-        // Per-round reset is not compatible with the cumulative level system.
-        return;
-
-#if UNITY_2022_2_OR_NEWER
-        if (UnityEngine.Object.FindFirstObjectByType<BoardRoundResetterBootstrapper>() != null)
-            return;
-#else
-        if (UnityEngine.Object.FindObjectOfType<BoardRoundResetterBootstrapper>() != null)
-            return;
-#endif
-
-        var go = new GameObject(nameof(BoardRoundResetterBootstrapper));
-        UnityEngine.Object.DontDestroyOnLoad(go);
-        go.AddComponent<BoardRoundResetterBootstrapper>();
     }
 }
 

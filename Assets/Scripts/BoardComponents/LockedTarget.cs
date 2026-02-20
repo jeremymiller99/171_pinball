@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -151,8 +152,8 @@ public class LockedTarget : MonoBehaviour
         {
             _hitCount = 2;
             if (scoreManager == null) EnsureRefs();
-            float ballMult = GetBallPointsAwardMultiplier(collision.collider);
-            float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd * ballMult) : 0f;
+            float applied = pointsToAdd;
+            scoreManager.AddScore(applied, TypeOfScore.points, transform);
             Vector3 pos = collision.collider.transform.position;
             floatingTextSpawner?.SpawnPointsText(pos, "+" + applied, applied);
         }
@@ -175,8 +176,8 @@ public class LockedTarget : MonoBehaviour
         {
             _hitCount = 2;
             if (scoreManager == null) EnsureRefs();
-            float ballMult = GetBallPointsAwardMultiplier(col);
-            float applied = scoreManager != null ? scoreManager.AddPointsScaled(pointsToAdd * ballMult) : 0f;
+            float applied = pointsToAdd;
+            scoreManager.AddScore(applied, TypeOfScore.points, transform);
             floatingTextSpawner?.SpawnPointsText(col.transform.position, "+" + applied, applied);
         }
     }

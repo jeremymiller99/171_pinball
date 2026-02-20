@@ -1015,6 +1015,8 @@ MonoBehaviour:
   levelProgressOffset: 0
   pointsText: {fileID: 0}
   multText: {fileID: 0}
+  gameRulesManager: {fileID: 0}
+  floatingTextSpawner: {fileID: 0}
   cameraShake: {fileID: 0}
   shakeBaseDuration: 0.22
   shakePointsExponent: 0.75
@@ -1035,6 +1037,63 @@ MonoBehaviour:
   goalText: {fileID: 0}
   ballsRemainingText: {fileID: 0}
   coinsText: {fileID: 0}
+  enableRoundIndexPop: 1
+  roundIndexPopDuration: 0.22
+  roundIndexPopPeakScale: 1.35
+  roundIndexPopYOffset: 12
+  roundIndexPopFlashColor: 1
+  roundIndexPopFlashTargetColor: {r: 1, g: 0.85, b: 0.2, a: 1}
+  roundIndexPopCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.22
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.52
+      value: -0.18
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.78
+      value: 0.12
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   scoringLocked: 0
   enableGoalTierScaling: 1
   speedIncreasePerGoalTier: 0.1
@@ -1046,6 +1105,14 @@ MonoBehaviour:
   maxTimeScale: 1
   maxFixedDeltaTime: 0.1
   _goalTier: 0
+  pointMultiplier: 1
+  pointsModifierMultiplier: 1
+  multMultiplier: 1
+  multModifierMultiplier: 1
+  coinMultiplier: 1
+  coinModifierMultiplier: 1
+  roundsToAddToMultipliers: 5
+  amountToAddToMultipliers: 0.25
 --- !u!4 &349540275
 Transform:
   m_ObjectHideFlags: 0
@@ -3133,6 +3200,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameRulesManager
   scoreManager: {fileID: 349540274}
   scoreTallyAnimator: {fileID: 0}
+  pointsPerCoin: 100
+  floatingTextSpawner: {fileID: 0}
+  showLevelUpCoinsPopup: 1
+  goalScalingMode: 1
+  baseGoal: 500
+  goalGrowthPerLevel: 1.35
+  goalRoundingStep: 100
   goalByRound:
   - 500
   - 1000
@@ -3144,7 +3218,6 @@ MonoBehaviour:
   - 100000
   - 250000
   - 1000000
-  pointsPerCoin: 100
   maxCoinsFromRoundTotal: 10
   startingMaxBalls: 5
   autoStartOnPlay: 0
@@ -4373,6 +4446,15 @@ MonoBehaviour:
   goalPopupEnablePopIn: 1
   goalPopupPopInStartScaleMultiplier: 1.18
   goalPopupPopInDuration: 0.12
+  goalPraiseUseBouncePop: 1
+  goalPraisePopStartScaleMultiplier: 0.65
+  goalPraisePopPeakScaleMultiplier: 1.12
+  goalPraisePopRisePortion: 0.45
+  goalPraisePopDuration: 0.22
+  levelUpCoinsPopupEnabled: 1
+  levelUpCoinsPopupOffset: {x: 0, y: -60}
+  levelUpCoinsPopupScale: 0.95
+  levelUpCoinsPopupLifetime: 0.85
 --- !u!4 &1995152005
 Transform:
   m_ObjectHideFlags: 0

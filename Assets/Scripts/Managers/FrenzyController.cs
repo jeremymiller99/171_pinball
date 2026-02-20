@@ -155,7 +155,7 @@ public sealed class FrenzyController : MonoBehaviour
         if (_score != null)
         {
             // Apply frenzy scoring.
-            _score.SetExternalScoreAwardMultiplier(frenzyScoreAwardMultiplier);
+            //_score.SetExternalScoreAwardMultiplier(frenzyScoreAwardMultiplier);
         }
 
         Vector3 origin = ResolveGoalBurstOrigin();
@@ -320,26 +320,3 @@ internal sealed class FrenzyControllerBootstrapper : MonoBehaviour
         go.AddComponent<FrenzyController>();
     }
 }
-
-internal static class FrenzyControllerBootstrap
-{
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void Init()
-    {
-        // Frenzy has been retired in the level-based system.
-        return;
-
-#if UNITY_2022_2_OR_NEWER
-        if (UnityEngine.Object.FindFirstObjectByType<FrenzyControllerBootstrapper>() != null)
-            return;
-#else
-        if (UnityEngine.Object.FindObjectOfType<FrenzyControllerBootstrapper>() != null)
-            return;
-#endif
-
-        var go = new GameObject(nameof(FrenzyControllerBootstrapper));
-        UnityEngine.Object.DontDestroyOnLoad(go);
-        go.AddComponent<FrenzyControllerBootstrapper>();
-    }
-}
-

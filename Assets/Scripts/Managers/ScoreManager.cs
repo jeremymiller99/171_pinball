@@ -6,6 +6,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine.SceneManagement;
 
+public enum TypeOfScore
+{
+    points,
+    mult,
+    coins
+}
+
+
 public class ScoreManager : MonoBehaviour
 {
     // NOTE: Keep these names/public fields so existing scripts (PointAdder/MultAdder)
@@ -26,14 +34,10 @@ public class ScoreManager : MonoBehaviour
     private float pointsUiDisplayed;
     private float multUiDisplayed;
     private bool deferPointsAndMultUiUpdates;
-    private int pointsAndMultUiToken;
-
-    public int PointsAndMultUiToken => pointsAndMultUiToken;
-
     private int coinsUiDisplayed;
-    private int coinsUiToken;
 
-    public int CoinsUiToken => coinsUiToken;
+    [SerializeField] private GameRulesManager gameRulesManager;
+    [SerializeField] private FloatingTextSpawner floatingTextSpawner;
 
     [Header("Camera Shake on Score")]
     [Tooltip("Reference to CameraShake. Auto-resolved if not set.")]
@@ -244,38 +248,65 @@ public class ScoreManager : MonoBehaviour
     // Multiple systems can request slow-mo. Effective request is the MIN of active requests.
     private readonly Dictionary<int, float> _timeScaleRequestBySourceId = new Dictionary<int, float>();
     private float _timeScaleRequestMin = 1f;
-
+ 
     /// <summary>
     /// Current effective requested time scale multiplier (min across active requests).
     /// </summary>
     public float TimeScaleRequestMultiplier => _timeScaleRequestMin;
 
-    /// <summary>
-    /// Returns the effective multiplier applied to POSITIVE point awards (as used by AddPointsScaled),
-    /// including tier scaling (if enabled), active round modifier multiplier, and external award multiplier.
-    /// </summary>
-    public float GetEffectivePositivePointAwardMultiplier()
+    //multipliers for point, mult, and coins for the AddScore() function
+    //use the modifier multiplier SPECIFICALLY for modifiers.
+
+    [SerializeField] private float pointMultiplier;
+    public float pointsModifierMultiplier;
+    [SerializeField] private float multMultiplier;
+    public float multModifierMultiplier;
+    [SerializeField] private int coinMultiplier;
+    public int coinModifierMultiplier;
+
+    [SerializeField] private int roundsToAddToMultipliers;
+    [SerializeField] private float amountToAddToMultipliers;
+
+    private Queue<float> pointQueue = new Queue<float>();
+    private Queue<float> multQueue = new Queue<float>();
+    private Queue<int> coinQueue = new Queue<int>();
+
+    void Awake()
     {
-        float m = 1f;
-        if (enableGoalTierScaling)
-        {
-            m *= Mathf.Max(0f, ScoreAwardMultiplier);
-        }
+        EnsureRefs();
+    }  
 
-        float modifierMult = GetModifierScoreMultiplier();
-        if (!Mathf.Approximately(modifierMult, 1f))
-        {
-            m *= Mathf.Max(0f, modifierMult);
-        }
-
-        if (!Mathf.Approximately(externalScoreAwardMultiplier, 1f))
-        {
-            m *= Mathf.Max(0f, externalScoreAwardMultiplier);
-        }
-
-        return m;
+    void EnsureRefs()
+    {
+        gameRulesManager = FindFirstObjectByType<GameRulesManager>();
+        floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
     }
 
+    public void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)
+    {
+        switch(typeOfScore)
+        {
+            case TypeOfScore.points:
+                AddPoints(amount * pointMultiplier * pointsModifierMultiplier, pos);
+                break;
+            case TypeOfScore.mult:
+                AddMult(amount * multMultiplier * multModifierMultiplier, pos);
+                break;
+            case TypeOfScore.coins:
+                AddCoins((int)amount * coinMultiplier* coinModifierMultiplier, pos);
+                break;
+        }
+    }
+
+    public void OnNewRound(int round)
+    {   
+        if (round % roundsToAddToMultipliers == 0)
+        {
+            pointMultiplier += amountToAddToMultipliers;
+            multMultiplier += amountToAddToMultipliers;
+        }
+    }
+    
     private const string ScorePanelRootName = "Score Panel";
     private const string RoundInfoPanelRootName = "Round Info Panel";
     private const string PointsObjectName = "Points";
@@ -373,52 +404,19 @@ public class ScoreManager : MonoBehaviour
 
         EnsureCoreScoreTextBindings();
         ResolveCameraShake();
-        pointsAndMultUiToken = 0;
         RefreshScoreUI();
         ScoreChanged?.Invoke();
     }
 
-    public void AddPoints(float p)
+    private void AddPoints(float applied, Transform pos)
     {
-        AddPointsScaled(p);
-    }
-
-    /// <summary>
-    /// Adds points, applying the current tier-based award multiplier to positive values.
-    /// Also applies the round modifier score multiplier if one is active.
-    /// Also applies the external (runtime) score award multiplier if set (e.g. Frenzy).
-    /// Returns the applied points amount (after multiplier).
-    /// </summary>
-    public float AddPointsScaled(float p)
-    {
-        if (scoringLocked) return 0f;
+        if (scoringLocked) return;
 
         EnsureCoreScoreTextBindings();
 
-        // Only scale positive awards. Negative values are used by some reset/undo paths.
-        float applied = p;
-        if (enableGoalTierScaling && p > 0f)
-        {
-            applied *= Mathf.Max(0f, ScoreAwardMultiplier);
-        }
-
-        // Apply round modifier score multiplier if active
-        if (p > 0f)
-        {
-            float modifierMult = GetModifierScoreMultiplier();
-            if (!Mathf.Approximately(modifierMult, 1f))
-            {
-                applied *= Mathf.Max(0f, modifierMult);
-            }
-        }
-
-        // Apply external (runtime) score award multiplier last.
-        if (p > 0f && !Mathf.Approximately(externalScoreAwardMultiplier, 1f))
-        {
-            applied *= Mathf.Max(0f, externalScoreAwardMultiplier);
-        }
-
         points += applied;
+        UpdateStoredScores();
+        floatingTextSpawner.SpawnPointsText(pos.position, "+" + applied, applied);
 
         // Trigger camera shake scaled by the points earned (only for positive scores).
         if (applied > 0f)
@@ -429,161 +427,64 @@ public class ScoreManager : MonoBehaviour
         // Recompute tier and apply speed when crossing Goal * N thresholds.
         UpdateGoalTierAndApplySpeed();
 
-        if (deferPointsAndMultUiUpdates)
-        {
-            // Defer HUD update; popup arrival should call ApplyDeferredPointsUi.
-        }
-        else
-        {
-            pointsUiDisplayed = points;
-            if (pointsText != null)
-                pointsText.text = FormatPointsCompact(pointsUiDisplayed);
-        }
 
         ScoreChanged?.Invoke();
-        return applied;
     }
 
-    /// <summary>
-    /// Adds points (same scaling rules as AddPointsScaled) but does NOT update the Points HUD label.
-    /// Intended for popup-driven scoring where the HUD should only increment on popup arrival.
-    /// Returns the applied points amount (after multipliers).
-    /// </summary>
-    public float AddPointsScaledDeferredUi(float p)
-    {
-        bool prev = deferPointsAndMultUiUpdates;
-        deferPointsAndMultUiUpdates = true;
-        try
-        {
-            return AddPointsScaled(p);
-        }
-        finally
-        {
-            deferPointsAndMultUiUpdates = prev;
-        }
-    }
-
-    public void ApplyDeferredPointsUi(float applied, int token)
-    {
-        if (token != pointsAndMultUiToken)
-            return;
-
-        EnsureCoreScoreTextBindings();
-
-        pointsUiDisplayed += applied;
-        if (pointsText != null)
-            pointsText.text = FormatPointsCompact(pointsUiDisplayed);
-    }
-
-    /// <summary>
-    /// Gets the score multiplier from the active round modifier via GameRulesManager.
-    /// Returns 1.0 if no modifier is active or GameRulesManager is not found.
-    /// </summary>
-    private float GetModifierScoreMultiplier()
-    {
-        GameRulesManager rulesManager = FindRulesManager();
-        return rulesManager != null ? rulesManager.GetModifierScoreMultiplier() : 1f;
-    }
-
-    /// <summary>
-    /// Returns true if the multiplier is disabled by an active round modifier.
-    /// </summary>
-    private bool IsModifierMultiplierDisabled()
-    {
-        GameRulesManager rulesManager = FindRulesManager();
-        return rulesManager != null && rulesManager.IsMultiplierDisabled();
-    }
-
-    private GameRulesManager _cachedRulesManager;
-
-    private GameRulesManager FindRulesManager()
-    {
-        if (_cachedRulesManager != null)
-            return _cachedRulesManager;
-
-#if UNITY_2022_2_OR_NEWER
-        _cachedRulesManager = UnityEngine.Object.FindFirstObjectByType<GameRulesManager>();
-#else
-        _cachedRulesManager = UnityEngine.Object.FindObjectOfType<GameRulesManager>();
-#endif
-        return _cachedRulesManager;
-    }
-
-    public void AddMult(float m)
+    private void AddMult(float applied, Transform pos)
     {
         if (scoringLocked) return;
+
         EnsureCoreScoreTextBindings();
 
-        // If multiplier is disabled by round modifier, prevent positive mult gains
-        if (m > 0f && IsModifierMultiplierDisabled())
+        mult += applied;
+        UpdateStoredScores();
+        floatingTextSpawner.SpawnMultText(pos.position, "x" + FormatMultiplier(applied), applied);
+
+        // Trigger camera shake scaled by the mult earned (only for positive scores).
+        if (applied > 0f)
         {
-            // Still trigger a small effect to show something happened, but don't increase mult
-            return;
+            TriggerMultShake(applied);
         }
 
-        mult += m;
-
-        // Trigger camera shake scaled by multiplier gained (only for positive gains).
-        if (m > 0f)
-        {
-            TriggerMultShake(m);
-        }
-
+        // Recompute tier and apply speed when crossing Goal * N thresholds.
         UpdateGoalTierAndApplySpeed();
-        if (deferPointsAndMultUiUpdates)
-        {
-            // Defer HUD update; popup arrival should call ApplyDeferredMultUi.
-        }
-        else
-        {
-            multUiDisplayed = mult;
-            if (multText != null)
-                multText.text = FormatMultiplier(multUiDisplayed);
-        }
+
+
         ScoreChanged?.Invoke();
     }
 
-    /// <summary>
-    /// Adds multiplier but does NOT update the Mult HUD label.
-    /// Returns the applied mult gain (0 if blocked by modifier rules).
-    /// </summary>
-    public float AddMultDeferredUi(float m)
+    private void AddCoins(int applied, Transform pos)
     {
-        if (scoringLocked) return 0f;
-        EnsureCoreScoreTextBindings();
-
-        if (m > 0f && IsModifierMultiplierDisabled())
-            return 0f;
-
-        bool prev = deferPointsAndMultUiUpdates;
-        deferPointsAndMultUiUpdates = true;
-        try
-        {
-            AddMult(m);
-            return m;
-        }
-        finally
-        {
-            deferPointsAndMultUiUpdates = prev;
-        }
-    }
-
-    public void ApplyDeferredMultUi(float applied, int token)
-    {
-        if (token != pointsAndMultUiToken)
-            return;
+        if (scoringLocked) return;
 
         EnsureCoreScoreTextBindings();
 
-        multUiDisplayed += applied;
-        if (multText != null)
-            multText.text = FormatMultiplier(multUiDisplayed);
+        gameRulesManager.AddCoinsUnscaled(applied);
+        UpdateStoredScores();
+        floatingTextSpawner?.SpawnGoldText(pos.position, "+$" + applied, applied);
     }
 
     public void SetScoringLocked(bool locked)
     {
         scoringLocked = locked;
     }
+
+    private void UpdateStoredScores()
+    {
+        pointQueue.Enqueue(points);
+        multQueue.Enqueue(mult);
+        coinQueue.Enqueue(gameRulesManager.Coins);
+    }
+
+    public void UpdateScoreText()
+    {
+        if (pointQueue.Count == 0) return;
+        pointsText.text = FormatPointsCompact(pointQueue.Dequeue());
+        multText.text = FormatMultiplier(multQueue.Dequeue());
+        coinsText.text = "$" + coinQueue.Dequeue().ToString();
+    }
+
 
     /// <summary>
     /// Bank the current ball score into the round total and reset the per-ball score state.
@@ -610,7 +511,6 @@ public class ScoreManager : MonoBehaviour
         // Reset for next ball.
         points = 0f;
         mult = 1f;
-        pointsAndMultUiToken++;
 
         UpdateGoalTierAndApplySpeed();
         RefreshScoreUI();
@@ -628,7 +528,6 @@ public class ScoreManager : MonoBehaviour
         points = 0f;
         mult = 1f;
         _goalTier = 0;
-        pointsAndMultUiToken++;
 
         // Reset game speed back to baseline at the start of each round.
         ApplySpeedFromTier(force: true);
@@ -678,16 +577,6 @@ public class ScoreManager : MonoBehaviour
         ScoreChanged?.Invoke();
     }
 
-    /// <summary>
-    /// Sets an external multiplier for time scaling (multiplies with tier-based SpeedMultiplier).
-    /// Useful for goal cinematics / slow motion.
-    /// </summary>
-    public void SetExternalTimeScaleMultiplier(float multiplier)
-    {
-        // Slow-mo removed: never allow multipliers below 1.
-        externalTimeScaleMultiplier = Mathf.Max(1f, multiplier);
-        ApplySpeedFromTier(force: true);
-    }
 
     /// <summary>
     /// Registers/updates a time-scale request from a specific source (e.g. a ball proximity trigger).
@@ -735,14 +624,6 @@ public class ScoreManager : MonoBehaviour
         _timeScaleRequestMin = min;
     }
 
-    /// <summary>
-    /// Sets an external multiplier for point awards (applied to positive awards only).
-    /// Useful for Frenzy mode.
-    /// </summary>
-    public void SetExternalScoreAwardMultiplier(float multiplier)
-    {
-        externalScoreAwardMultiplier = Mathf.Max(0f, multiplier);
-    }
 
     /// <summary>
     /// Resets external (runtime) multipliers back to defaults.
@@ -792,14 +673,10 @@ public class ScoreManager : MonoBehaviour
             coinsText.text = $"${coins}";
 
         coinsUiDisplayed = coins;
-        coinsUiToken++;
     }
 
-    public void ApplyDeferredCoinsUi(int applied, int token)
+    public void ApplyDeferredCoinsUi(int applied)
     {
-        if (token != coinsUiToken)
-            return;
-
         EnsureCoreScoreTextBindings();
 
         coinsUiDisplayed += applied;
@@ -986,18 +863,17 @@ public class ScoreManager : MonoBehaviour
 
     private void ResolveCameraShake()
     {
-        if (cameraShake != null && cameraShake.isActiveAndEnabled)
+        if (cameraShake != null && cameraShake.isActiveAndEnabled){
             return;
+        }
 
         cameraShake = CameraShake.Instance;
-        if (cameraShake != null && cameraShake.isActiveAndEnabled)
+        if (cameraShake != null && cameraShake.isActiveAndEnabled){
             return;
+        }
 
-#if UNITY_2022_2_OR_NEWER
         cameraShake = FindFirstObjectByType<CameraShake>();
-#else
-        cameraShake = FindObjectOfType<CameraShake>();
-#endif
+
     }
 
     private void TriggerScoreShake(float pointsEarned)
@@ -1006,9 +882,6 @@ public class ScoreManager : MonoBehaviour
         {
             ResolveCameraShake();
         }
-
-        if (cameraShake == null || !cameraShake.isActiveAndEnabled)
-            return;
 
         float shaped = ShapeShakeInput(pointsEarned, shakePointsExponent);
 

@@ -1,4 +1,5 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-17.
+/*
 using UnityEngine;
 
 public class PointAdder : MonoBehaviour
@@ -71,7 +72,6 @@ public class PointAdder : MonoBehaviour
             if (scoreManager == null)
                 return;
 
-            int token = scoreManager.PointsAndMultUiToken;
             float ballMult = GetBallPointsAwardMultiplier(collision.collider);
             float applied = scoreManager.AddPointsScaledDeferredUi(GetEffectivePointsToAdd() * ballMult);
 
@@ -82,11 +82,11 @@ public class PointAdder : MonoBehaviour
                     collision.collider.transform.position,
                     "+" + applied,
                     applied,
-                    () => scoreManager.ApplyDeferredPointsUi(applied, token));
+                    () => scoreManager.ApplyDeferredPointsUi(applied));
             }
             else
             {
-                scoreManager.ApplyDeferredPointsUi(applied, token);
+                scoreManager.ApplyDeferredPointsUi(applied);
             }
         }
     }
@@ -96,10 +96,7 @@ public class PointAdder : MonoBehaviour
         if (col.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
-            if (scoreManager == null)
-                return;
 
-            int token = scoreManager.PointsAndMultUiToken;
             float ballMult = GetBallPointsAwardMultiplier(col);
             float applied = scoreManager.AddPointsScaledDeferredUi(GetEffectivePointsToAdd() * ballMult);
 
@@ -110,11 +107,11 @@ public class PointAdder : MonoBehaviour
                     col.transform.position,
                     "+" + applied,
                     applied,
-                    () => scoreManager.ApplyDeferredPointsUi(applied, token));
+                    () => scoreManager.ApplyDeferredPointsUi(applied));
             }
             else
             {
-                scoreManager.ApplyDeferredPointsUi(applied, token);
+                scoreManager.ApplyDeferredPointsUi(applied);
             }
         }
     }
@@ -135,10 +132,6 @@ public class PointAdder : MonoBehaviour
     public void AddPoints(Vector3 spawnPosition)
     {
         if (scoreManager == null) EnsureRefs();
-        if (scoreManager == null)
-            return;
-
-        int token = scoreManager.PointsAndMultUiToken;
         float applied = scoreManager.AddPointsScaledDeferredUi(GetEffectivePointsToAdd());
 
         if (floatingTextSpawner != null)
@@ -147,11 +140,11 @@ public class PointAdder : MonoBehaviour
                 spawnPosition,
                 "+" + applied,
                 applied,
-                () => scoreManager.ApplyDeferredPointsUi(applied, token));
+                () => scoreManager.ApplyDeferredPointsUi(applied));
         }
         else
         {
-            scoreManager.ApplyDeferredPointsUi(applied, token);
+            scoreManager.ApplyDeferredPointsUi(applied);
         }
     }
 
@@ -175,3 +168,4 @@ public class PointAdder : MonoBehaviour
         floatingTextSpawner?.SpawnPointsText(pos.position, "+" + applied, applied);
     }
 }
+*/

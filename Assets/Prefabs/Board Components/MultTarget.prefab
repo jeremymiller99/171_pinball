@@ -11,9 +11,8 @@ GameObject:
   - component: {fileID: 7346497609318563937}
   - component: {fileID: 3160601111383161207}
   - component: {fileID: 5248252707988328218}
-  - component: {fileID: 4691959183965765713}
-  - component: {fileID: 2884579813490541706}
   - component: {fileID: 9000000000000000005}
+  - component: {fileID: 3605252038188508271}
   m_Layer: 0
   m_Name: MultTarget
   m_TagString: Target
@@ -74,46 +73,6 @@ MonoBehaviour:
   bounceForce: 25
   shakeDuration: 0.22
   shakeMagnitude: 0.16
---- !u!114 &4691959183965765713
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8767137395333737936}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29238535f1c1e944fb99ddae01c82c32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MultAdder
-  scoreManager: {fileID: 0}
-  multToAdd: 0.1
-  floatingTextSpawner: {fileID: 0}
---- !u!114 &2884579813490541706
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8767137395333737936}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c5d7e9f1a2b4c6d8e0f1a2b3c4d5e6f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FrenzyExplodable
-  ballTag: Ball
-  triggerOnCollision: 1
-  triggerOnTrigger: 1
-  shardCount: 18
-  shardForce: 9
-  shardRadius: 0.55
-  shardUpwardsModifier: 0.15
-  shardTorque: 10
-  shardSizeRange: {x: 0.08, y: 0.16}
-  shardLifetime: 3
-  destructionBonusPoints: 250
-  disableGameObjectOnExplode: 1
-  destroyGameObjectOnExplode: 0
 --- !u!114 &9000000000000000005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,6 +91,20 @@ MonoBehaviour:
   popUpDurationSeconds: 0.06
   popDownDurationSeconds: 0.08
   minTriggerIntervalSeconds: 0.04
+--- !u!114 &3605252038188508271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8767137395333737936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f38538901152edf4a8496ca54bbca874, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IComponent
+  typeOfScore: 1
+  amountToScore: 0.1
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

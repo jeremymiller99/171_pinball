@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 4874044247651623106}
   - component: {fileID: 267340859354076959}
   - component: {fileID: 182646593369703677}
-  - component: {fileID: 5254693936379387366}
-  - component: {fileID: 3181587427890112253}
   - component: {fileID: 9000000000000000005}
+  - component: {fileID: 3563750106111119054}
+  - component: {fileID: 4136708968412221863}
   m_Layer: 0
   m_Name: Coin Adder Target
   m_TagString: Target
@@ -74,35 +74,6 @@ MonoBehaviour:
   bounceForce: 25
   shakeDuration: 0.22
   shakeMagnitude: 0.16
---- !u!114 &5254693936379387366
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6042743914119355436}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29238535f1c1e944fb99ddae01c82c32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MultAdder
-  scoreManager: {fileID: 0}
-  multToAdd: 0.1
-  floatingTextSpawner: {fileID: 0}
---- !u!114 &3181587427890112253
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6042743914119355436}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 37052b6a60a8e4b83998cd1ec5ca4a48, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CoinAdder
-  gameRulesManager: {fileID: 0}
-  floatingTextSpawner: {fileID: 0}
 --- !u!114 &9000000000000000005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,6 +92,34 @@ MonoBehaviour:
   popUpDurationSeconds: 0.06
   popDownDurationSeconds: 0.08
   minTriggerIntervalSeconds: 0.04
+--- !u!114 &3563750106111119054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6042743914119355436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f38538901152edf4a8496ca54bbca874, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IComponent
+  typeOfScore: 2
+  amountToScore: 1
+--- !u!114 &4136708968412221863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6042743914119355436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f38538901152edf4a8496ca54bbca874, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IComponent
+  typeOfScore: 1
+  amountToScore: 0.1
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

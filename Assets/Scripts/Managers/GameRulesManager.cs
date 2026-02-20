@@ -738,6 +738,7 @@ public class GameRulesManager : MonoBehaviour
                 ApplyLevelModifier();
 
                 scoreManager.SetRoundIndex(roundIndex);
+                scoreManager.OnNewRound(roundIndex); 
                 scoreManager.SetGoal(CurrentGoal);
 
                 _shopBallSaveAvailable = true;
@@ -1148,10 +1149,9 @@ public class GameRulesManager : MonoBehaviour
         return applied;
     }
 
-    public int AddCoinsScaledDeferredUi(int amount, out int uiToken)
+    public int AddCoinsScaledDeferredUi(int amount)
     {
         ResolveScoreManager(logIfMissing: false);
-        uiToken = scoreManager != null ? scoreManager.CoinsUiToken : 0;
 
         int applied = amount;
         if (amount > 0)
@@ -1167,14 +1167,14 @@ public class GameRulesManager : MonoBehaviour
         return applied;
     }
 
-    public void ApplyDeferredCoinsUi(int applied, int token)
+    public void ApplyDeferredCoinsUi(int applied)
     {
         if (scoreManager == null)
         {
             ResolveScoreManager(logIfMissing: false);
         }
 
-        scoreManager?.ApplyDeferredCoinsUi(applied, token);
+        scoreManager?.ApplyDeferredCoinsUi(applied);
     }
 
     public void RetryRound()
@@ -1293,18 +1293,6 @@ public class GameRulesManager : MonoBehaviour
         {
             homeRunUIRoot.SetActive(false);
         }
-    }
-
-    private void ResetCurrentBallScoreVisuals()
-    {
-        if (scoreManager == null)
-        {
-            return;
-        }
-
-        // Legacy fallback: prefer BankCurrentBallScore/ResetForNewRound, but keep this safe no-op reset.
-        scoreManager.AddPoints(-scoreManager.points);
-        scoreManager.AddMult(1f - scoreManager.mult);
     }
 
     private void AwardCoinsFromRoundTotal()

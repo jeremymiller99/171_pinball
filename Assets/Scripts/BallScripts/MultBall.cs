@@ -19,125 +19,22 @@ public class MultBall : Ball
         }
     }
 
-    private float GetSafeInverseMultiplier()
-    {
-        float safe = Mathf.Max(0.01f, amountToMultiply);
-        return 1f / safe;
-    }
-
     void OnCollisionEnter(Collision collision)
     {
-        base.OnCollisionEnter(collision);
-        if (collision == null || collision.collider == null)
-        {
-            return;
-        }
 
-        MultAdder adder = collision.collider.GetComponent<MultAdder>();
-        if (adder != null)
-        {
-            ApplyToAdderIfNeeded(adder);
-        }
-    }
+        BoardComponent component = collision.collider.GetComponent<BoardComponent>();
+        if (!component) return;
 
-    void OnCollisionExit(Collision collision)
-    {
-        if (collision == null || collision.collider == null)
-        {
-            return;
-        }
+        
+        HandleParticles(collision);
 
-        MultAdder adder = collision.collider.GetComponent<MultAdder>();
-        if (adder != null)
+        if (component.typeOfScore == TypeOfScore.mult)
         {
-            RemoveFromAdderIfNeeded(adder);
+            AddScore(component.amountToScore * amountToMultiply, TypeOfScore.mult, transform);
+        } else
+        {
+            AddScore(component.amountToScore, component.typeOfScore, transform);
         }
     }
 
-    void OnTriggerEnter(Collider collider)
-    {
-        if (collider == null)
-        {
-            return;
-        }
-
-        MultAdder adder = collider.GetComponent<MultAdder>();
-        if (adder != null)
-        {
-            ApplyToAdderIfNeeded(adder);
-        }
-    }
-
-    void OnTriggerExit(Collider collider)
-    {
-        if (collider == null)
-        {
-            return;
-        }
-
-        MultAdder adder = collider.GetComponent<MultAdder>();
-        if (adder != null)
-        {
-            RemoveFromAdderIfNeeded(adder);
-        }
-    }
-
-    private void OnDisable()
-    {
-        ClearAllAppliedAdders();
-    }
-
-    private void OnDestroy()
-    {
-        ClearAllAppliedAdders();
-    }
-
-    private void ApplyToAdderIfNeeded(MultAdder adder)
-    {
-        if (adder == null)
-        {
-            return;
-        }
-
-        if (!activeAdders.Add(adder))
-        {
-            return;
-        }
-
-        adder.multiplyMultToAdd(amountToMultiply);
-    }
-
-    private void RemoveFromAdderIfNeeded(MultAdder adder)
-    {
-        if (adder == null)
-        {
-            return;
-        }
-
-        if (!activeAdders.Remove(adder))
-        {
-            return;
-        }
-
-        adder.multiplyMultToAdd(GetSafeInverseMultiplier());
-    }
-
-    private void ClearAllAppliedAdders()
-    {
-        if (activeAdders.Count == 0)
-        {
-            return;
-        }
-
-        float inverse = GetSafeInverseMultiplier();
-        foreach (MultAdder adder in activeAdders)
-        {
-            if (adder != null)
-            {
-                adder.multiplyMultToAdd(inverse);
-            }
-        }
-
-        activeAdders.Clear();
-    }
 }

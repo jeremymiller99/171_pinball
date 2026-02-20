@@ -45,11 +45,7 @@ public class Portal : MonoBehaviour
             return;
         }
 
-#if UNITY_2022_2_OR_NEWER
         camShake = FindFirstObjectByType<CameraShake>();
-#else
-        camShake = FindObjectOfType<CameraShake>();
-#endif
     }
 
     private void OnTriggerEnter(Collider other)

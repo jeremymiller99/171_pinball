@@ -83,6 +83,7 @@ public class FloatingTextSpawner : MonoBehaviour
     [SerializeField] private float levelUpCoinsPopupScale = 0.95f;
     [SerializeField] private float levelUpCoinsPopupLifetime = 0.85f;
 
+
     private RectTransform pointsTarget;
     private RectTransform multTarget;
     private RectTransform coinsTarget;

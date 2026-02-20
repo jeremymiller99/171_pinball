@@ -50,14 +50,12 @@ public class MultAdder : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        /*
         if (collision.collider.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
             FMODUnity.RuntimeManager.PlayOneShot("event:/collide_mult");
-            if (scoreManager == null)
-                return;
 
-            int token = scoreManager.PointsAndMultUiToken;
             float applied = scoreManager.AddMultDeferredUi(GetEffectiveMultToAdd());
             if (applied <= 0f)
                 return;
@@ -69,24 +67,23 @@ public class MultAdder : MonoBehaviour
                     collision.collider.transform.position,
                     "x" + FormatMultiplier(applied),
                     applied,
-                    () => scoreManager.ApplyDeferredMultUi(applied, token));
+                    () => scoreManager.ApplyDeferredMultUi(applied));
             }
             else
             {
-                scoreManager.ApplyDeferredMultUi(applied, token);
+                scoreManager.ApplyDeferredMultUi(applied);
             }
         }
+        */
     }
 
     void OnTriggerEnter(Collider col)
     {
+        /*
         if (col.CompareTag("Ball"))
         {
             if (scoreManager == null) EnsureRefs();
-            if (scoreManager == null)
-                return;
-
-            int token = scoreManager.PointsAndMultUiToken;
+            
             float applied = scoreManager.AddMultDeferredUi(GetEffectiveMultToAdd());
             if (applied <= 0f)
                 return;
@@ -98,13 +95,14 @@ public class MultAdder : MonoBehaviour
                     col.transform.position,
                     "x" + FormatMultiplier(applied),
                     applied,
-                    () => scoreManager.ApplyDeferredMultUi(applied, token));
+                    () => scoreManager.ApplyDeferredMultUi(applied));
             }
             else
             {
-                scoreManager.ApplyDeferredMultUi(applied, token);
+                scoreManager.ApplyDeferredMultUi(applied);
             }
         }
+        */
     }
 
     private static string FormatMultiplier(float value)

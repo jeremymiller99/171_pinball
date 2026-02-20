@@ -27,6 +27,7 @@ public class MultiBall : Ball
 
     void Awake()
     {
+        base.Awake();
         ballSpawner = FindFirstObjectByType<BallSpawner>();
     }
 
@@ -37,23 +38,6 @@ public class MultiBall : Ball
         if (splitChildPointsMultiplier > 1f) splitChildPointsMultiplier = 1f;
     }
 
-    private static bool CountsAsComponentHit(Collider c)
-    {
-        if (c == null) return false;
-        if (c.CompareTag("Ball")) return false;
-        if (c.GetComponent<Portal>() != null) return false;
-
-        // Board components / scoring components.
-        if (c.GetComponent<PointAdder>() != null) return true;
-        if (c.GetComponent<MultAdder>() != null) return true;
-        if (c.GetComponent<CoinAdder>() != null) return true;
-        if (c.GetComponent<LockedTarget>() != null) return true;
-        if (c.GetComponent<Bumper>() != null) return true;
-        if (c.GetComponent<DropTarget>() != null) return true;
-        if (c.GetComponent<Spinner>() != null) return true;
-
-        return false;
-    }
 
     private void RegisterComponentHitAndMaybeSplit()
     {
@@ -97,16 +81,18 @@ public class MultiBall : Ball
 
     void OnCollisionEnter(Collision collision)
     {
-        base.OnCollisionEnter(collision);
-        if (collision == null || collision.collider == null) return;
-        if (!CountsAsComponentHit(collision.collider)) return;
+        BoardComponent component = collision.collider.GetComponent<BoardComponent>();
+        if (!component) return;
+        HandleParticles(collision);
         RegisterComponentHitAndMaybeSplit();
+        if (component.typeOfScore == TypeOfScore.coins)
+        {
+            AddScore(component.amountToScore, TypeOfScore.coins, transform);
+        } else
+        {
+            AddScore(component.amountToScore * PointsAwardMultiplier, component.typeOfScore, transform);
+        }
+        
     }
 
-    void OnTriggerEnter(Collider other)
-    {
-        if (other == null) return;
-        if (!CountsAsComponentHit(other)) return;
-        RegisterComponentHitAndMaybeSplit();
-    }
 }

@@ -5,13 +5,14 @@ using UnityEngine;
 public class Spinner : MonoBehaviour
 {
     [SerializeField] private float prevAngle = 0;
-    [SerializeField] private PointAdder pointAdder;
+    [SerializeField] private ScoreManager scoreManager;
+    [SerializeField] private float amountToAdd;
     [SerializeField] private float maxAngle = 300;
     [SerializeField] private float minAngle = 100;
 
     void Awake()
     {
-        pointAdder = GetComponent<PointAdder>();
+        scoreManager = FindFirstObjectByType<ScoreManager>();
     }
     void FixedUpdate()
     {
@@ -25,7 +26,7 @@ public class Spinner : MonoBehaviour
 
         if ((newAngle <= minAngle && prevAngle >= maxAngle) || (newAngle >= maxAngle && prevAngle <= minAngle))
         {
-            pointAdder.AddPoints(transform);
+            scoreManager.AddScore(amountToAdd, TypeOfScore.points, transform);
         }
         prevAngle = newAngle;
     }

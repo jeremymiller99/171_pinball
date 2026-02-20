@@ -11,9 +11,8 @@ GameObject:
   - component: {fileID: 6714476454855297192}
   - component: {fileID: 844570569686653648}
   - component: {fileID: 2939838860135131524}
-  - component: {fileID: 4966027531198756717}
-  - component: {fileID: 1448836093016045285}
   - component: {fileID: 9000000000000000005}
+  - component: {fileID: 1011027169214524815}
   m_Layer: 0
   m_Name: Bumper
   m_TagString: Bumper
@@ -76,46 +75,6 @@ MonoBehaviour:
   bounceForce: 50
   shakeDuration: 0.22
   shakeMagnitude: 0.16
---- !u!114 &4966027531198756717
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4773778546837097395}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7978cd7051874c242b090bce93cfdf89, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PointAdder
-  scoreManager: {fileID: 0}
-  pointsToAdd: 5
-  floatingTextSpawner: {fileID: 0}
---- !u!114 &1448836093016045285
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4773778546837097395}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c5d7e9f1a2b4c6d8e0f1a2b3c4d5e6f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FrenzyExplodable
-  ballTag: Ball
-  triggerOnCollision: 1
-  triggerOnTrigger: 1
-  shardCount: 8
-  shardForce: 6
-  shardRadius: 0.75
-  shardUpwardsModifier: 0.15
-  shardTorque: 6
-  shardSizeRange: {x: 0.18, y: 0.32}
-  shardLifetime: 5
-  destructionBonusPoints: 250
-  disableGameObjectOnExplode: 1
-  destroyGameObjectOnExplode: 0
 --- !u!114 &9000000000000000005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134,6 +93,20 @@ MonoBehaviour:
   popUpDurationSeconds: 0.06
   popDownDurationSeconds: 0.08
   minTriggerIntervalSeconds: 0.04
+--- !u!114 &1011027169214524815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4773778546837097395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f38538901152edf4a8496ca54bbca874, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IComponent
+  typeOfScore: 0
+  amountToScore: 10
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 9194399196875482537}
   - component: {fileID: 3819669662046131716}
   - component: {fileID: 2636849971776977195}
-  - component: {fileID: 139554945093747444}
-  - component: {fileID: 9000000000000000005}
+  - component: {fileID: 4465067592129906160}
+  - component: {fileID: -5120152879258555716}
   m_Layer: 0
   m_Name: Portal Entrance
   m_TagString: Portal
@@ -73,12 +73,12 @@ MonoBehaviour:
   portalExit: {fileID: 0}
   exitOffset: 0
   exitRandomAngle: 0
-  minExitSpeed: 10
   overrideExitSpeed: 1
   exitSpeed: 10
+  extraExitSpeed: 5
   shakeDuration: 0.22
   shakeMagnitude: 0.16
---- !u!114 &139554945093747444
+--- !u!114 &4465067592129906160
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -87,13 +87,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 5991595774560212685}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7978cd7051874c242b090bce93cfdf89, type: 3}
+  m_Script: {fileID: 11500000, guid: f38538901152edf4a8496ca54bbca874, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PointAdder
-  scoreManager: {fileID: 0}
-  pointsToAdd: 25
-  floatingTextSpawner: {fileID: 0}
---- !u!114 &9000000000000000005
+  m_EditorClassIdentifier: Assembly-CSharp::IComponent
+  typeOfScore: 0
+  amountToScore: 25
+--- !u!114 &-5120152879258555716
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -106,8 +105,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentPopOnHit
   ballTag: Ball
-  visualRoot: {fileID: 9000000000000000002}
-  popScaleMultiplier: 1.25
+  visualRoot: {fileID: 0}
+  popScaleMultiplier: 1.12
   popUpDurationSeconds: 0.06
   popDownDurationSeconds: 0.08
   minTriggerIntervalSeconds: 0.04

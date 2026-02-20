@@ -233,9 +233,7 @@ GameObject:
   - component: {fileID: 5147665446549920951}
   - component: {fileID: 4099058508977594839}
   - component: {fileID: 4855817964833420489}
-  - component: {fileID: 1848957387716866633}
   - component: {fileID: 8227378797955947165}
-  - component: {fileID: 9001234567890123456}
   m_Layer: 0
   m_Name: Spinner
   m_TagString: Untagged
@@ -311,21 +309,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 94
   m_CollisionDetection: 0
---- !u!114 &1848957387716866633
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3410741549929769084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7978cd7051874c242b090bce93cfdf89, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PointAdder
-  scoreManager: {fileID: 0}
-  pointsToAdd: 2.5
-  floatingTextSpawner: {fileID: 0}
 --- !u!114 &8227378797955947165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -339,34 +322,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   prevAngle: 0
-  pointAdder: {fileID: 0}
+  scoreManager: {fileID: 0}
+  amountToAdd: 0
   maxAngle: 300
   minAngle: 100
---- !u!114 &9001234567890123456
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3410741549929769084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c5d7e9f1a2b4c6d8e0f1a2b3c4d5e6f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FrenzyExplodable
-  ballTag: Ball
-  triggerOnCollision: 1
-  triggerOnTrigger: 1
-  shardCount: 8
-  shardForce: 6
-  shardRadius: 0.75
-  shardUpwardsModifier: 0.15
-  shardTorque: 6
-  shardSizeRange: {x: 0.18, y: 0.32}
-  shardLifetime: 5
-  destructionBonusPoints: 250
-  disableGameObjectOnExplode: 1
-  destroyGameObjectOnExplode: 0
 --- !u!1 &4850085123108910178
 GameObject:
   m_ObjectHideFlags: 0

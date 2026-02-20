@@ -42,6 +42,8 @@ public class FloatingText : MonoBehaviour
     [SerializeField] private bool clampFontSize = true;
     [SerializeField] private float maxFontSize = 64f;
     [SerializeField] private float maxScale = 1.35f;
+    
+    [SerializeField] private ScoreManager scoreManager;
 
     private TMP_Text text;
     private RectTransform rectTransform;
@@ -71,6 +73,7 @@ public class FloatingText : MonoBehaviour
     {
         text = GetComponent<TMP_Text>();
         rectTransform = GetComponent<RectTransform>();
+        scoreManager = FindFirstObjectByType<ScoreManager>();
         startColor = text.color;
         ageSeconds = 0f;
 
@@ -160,6 +163,7 @@ public class FloatingText : MonoBehaviour
 
         if (ageSeconds >= lifetime || alpha <= 0f)
         {
+            scoreManager.UpdateScoreText();
             Destroy(gameObject);
         }
     }
@@ -209,11 +213,13 @@ public class FloatingText : MonoBehaviour
 
         if (destroyOnFlyComplete && u >= 1f)
         {
+            scoreManager.UpdateScoreText();
             Destroy(gameObject);
         }
 
         if (!destroyOnFlyComplete && (ageSeconds >= lifetime || alpha <= 0f))
         {
+            scoreManager.UpdateScoreText();
             Destroy(gameObject);
         }
     }

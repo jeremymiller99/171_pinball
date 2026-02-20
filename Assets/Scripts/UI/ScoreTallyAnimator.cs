@@ -223,6 +223,9 @@ public class ScoreTallyAnimator : MonoBehaviour
         xText.text = _xStartString;
 
         // ScoreManager refreshed points/mult/roundTotal text values; now make them visible again.
+        
+        pointsText.text = FormatPointsCompact(scoreManager.points);
+        multText.text = FormatPointsCompact(scoreManager.mult);
         SetVisible(pointsText, true);
         SetVisible(multText, true);
         SetVisible(xText, true);

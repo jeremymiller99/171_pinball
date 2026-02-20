@@ -60,6 +60,7 @@ public class UpgradeComponents : MonoBehaviour
 
     private static void UpgradePointAddersByTag(string tag, float mult)
     {
+        /*
         PointAdder[] adders = Resources.FindObjectsOfTypeAll<PointAdder>();
         for (int i = 0; i < adders.Length; i++)
         {
@@ -76,10 +77,12 @@ public class UpgradeComponents : MonoBehaviour
 
             adder.multiplyPointsToAdd(mult);
         }
+        */
     }
 
     private static void UpgradeMultAddersByTag(string tag, float mult)
     {
+        /*
         MultAdder[] adders = Resources.FindObjectsOfTypeAll<MultAdder>();
         for (int i = 0; i < adders.Length; i++)
         {
@@ -96,10 +99,12 @@ public class UpgradeComponents : MonoBehaviour
 
             adder.multiplyMultToAdd(mult);
         }
+        */
     }
 
     private static void UpgradePortalsByTag(string tag, float mult)
     {
+        /*
         Portal[] portals = Resources.FindObjectsOfTypeAll<Portal>();
         for (int i = 0; i < portals.Length; i++)
         {
@@ -116,6 +121,7 @@ public class UpgradeComponents : MonoBehaviour
 
             portal.MultiplyExitSpeed(mult);
         }
+        */
     }
 
     private static bool IsSceneInstance(Component c)

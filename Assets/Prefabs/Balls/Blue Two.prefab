@@ -103,10 +103,10 @@ GameObject:
   - component: {fileID: 2295593079652826086}
   - component: {fileID: 5316753179070647220}
   - component: {fileID: 1682731018784348660}
-  - component: {fileID: 7121942170096085295}
   - component: {fileID: 4070781534835327072}
   - component: {fileID: 2097964190323927660}
   - component: {fileID: 8123456789012345675}
+  - component: {fileID: 863290315928686837}
   m_Layer: 0
   m_Name: Blue Two
   m_TagString: Ball
@@ -248,30 +248,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PortalTraveller
   teleportCooldown: 0.1
   lastTeleportTime: -999
---- !u!114 &7121942170096085295
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5723297401256486482}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 266556b076f51354d9655ad3a1b6d6db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  trailRenderer: {fileID: 0}
-  amountToEmit: 28
-  particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
-  poolSize: 15
-  wallHitSound:
-    Guid:
-      Data1: 641298852
-      Data2: 1192604421
-      Data3: 1548426920
-      Data4: 137299680
-    Path: event:/collide_wall
-  amountToMultiply: 2
 --- !u!96 &4070781534835327072
 TrailRenderer:
   serializedVersion: 3
@@ -421,3 +397,24 @@ MonoBehaviour:
   speedForMaxAssistMps: 0.5
   speedForMinAssistMps: 20
   boardRoot: {fileID: 0}
+--- !u!114 &863290315928686837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c3279caae1b40b4d8534d67b707bd90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  scoreManager: {fileID: 0}
+  trailRenderer: {fileID: 0}
+  amountToEmit: 28
+  particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
+  poolSize: 15
+  componentHits: 0
+  pointMultiplier: 2
+  multMultiplier: 1
+  coinMultiplier: 1

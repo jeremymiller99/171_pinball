@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4691959183965765713}
   - component: {fileID: 2884579813490541706}
   - component: {fileID: 9000000000000000005}
+  - component: {fileID: 7353249618063207327}
   m_Layer: 0
   m_Name: MultTarget
   m_TagString: Target
@@ -146,6 +147,24 @@ MonoBehaviour:
   popUpDurationSeconds: 0.06
   popDownDurationSeconds: 0.08
   minTriggerIntervalSeconds: 0.04
+--- !u!114 &7353249618063207327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8767137395333737936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 1
+  outlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWidth: 10
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

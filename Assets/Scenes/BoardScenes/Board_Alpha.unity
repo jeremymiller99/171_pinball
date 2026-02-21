@@ -4882,6 +4882,13 @@ MonoBehaviour:
   meterColorMid: {r: 1, g: 0.5019608, b: 0, a: 1}
   meterColorFull: {r: 1, g: 0.052272934, b: 0, a: 1}
   meterColorMidPoint: 0.5
+  rollingSound:
+    Guid:
+      Data1: -1397201519
+      Data2: 1186788513
+      Data3: 1619588757
+      Data4: -575593883
+    Path: event:/ball_rolling
   debugInText: 0
 --- !u!4 &855862844
 Transform:

@@ -1,5 +1,7 @@
 using TMPro;
 using UnityEngine;
+using FMODUnity;
+using FMOD.Studio;
 
 /// <summary>
 /// Put this on a HUD/UI object (not the ball). It finds the active ball and displays its speed on a TMP label.
@@ -72,6 +74,10 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField] private float meterColorMidPoint = 0.5f;
 
+    [Header("Audio")]
+    [Tooltip("Looping rolling sound to play based on speed.")]
+    [SerializeField] private EventReference rollingSound;
+
     [Header("Debug")]
     [SerializeField] private bool debugInText = true;
 
@@ -88,10 +94,22 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     private MaterialPropertyBlock _meterMPB;
     private float _meterBaseAlpha = 1f;
 
+    private EventInstance _rollingSoundInstance;
+
     private void Awake()
     {
         ResolveRefs();
         InitMeterIfNeeded();
+    }
+
+    private void Start()
+    {
+        // Start the continuous rolling sound when the HUD loads
+        if (!rollingSound.IsNull)
+        {
+            _rollingSoundInstance = RuntimeManager.CreateInstance(rollingSound);
+            _rollingSoundInstance.start();
+        }
     }
 
     private void ResolveRefs()
@@ -259,6 +277,12 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         // Drive fill color based on current fill percent (use smoothed units to match visuals).
         float fill01 = meterMaxUnits > 0.0001f ? Mathf.Clamp01(_meterUnitsSmoothed / meterMaxUnits) : 0f;
         UpdateMeterColor(fill01);
+
+        // Pass the calculated 0 to 1 value to the FMOD parameter
+        if (_rollingSoundInstance.isValid())
+        {
+            _rollingSoundInstance.setParameterByName("velocity", fill01);
+        }
     }
 
     private void UpdateMeterColor(float fill01)
@@ -422,5 +446,14 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
 
         return null;
     }
-}
 
+    private void OnDestroy()
+    {
+        // Clean up the rolling sound instance when the HUD is destroyed
+        if (_rollingSoundInstance.isValid())
+        {
+            _rollingSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            _rollingSoundInstance.release();
+        }
+    }
+}

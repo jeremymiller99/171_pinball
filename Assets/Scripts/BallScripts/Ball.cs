@@ -18,9 +18,9 @@ public class Ball : MonoBehaviour
     [SerializeField] private Stack<GameObject> pool;
     [SerializeField] private int poolSize;
     [SerializeField] protected int componentHits;
-    [SerializeField] protected float pointMultiplier = 1f;
-    [SerializeField] protected float multMultiplier = 1f;
-    [SerializeField] protected int coinMultiplier = 1;
+    public float pointMultiplier = 1f;
+    public float multMultiplier = 1f;
+    public int coinMultiplier = 1;
 
     virtual protected void Awake()
     {
@@ -39,41 +39,32 @@ public class Ball : MonoBehaviour
 
     virtual protected void OnCollisionEnter(Collision collision)
     {   
-        BoardComponent component = collision.collider.GetComponent<BoardComponent>();
-        if (component)
+        BoardComponent[] components = collision.collider.GetComponents<BoardComponent>();
+        if (components.Length > 0)
         {
             componentHits++;
-            AddScore(component.amountToScore, component.typeOfScore, transform);
             HandleParticles(collision);
+            foreach(BoardComponent component in components)
+            {
+                AddScore(component.amountToScore, component.typeOfScore, transform);
+            }
         }
 
     }
 
     void OnTriggerEnter(Collider collider)
     {
-        BoardComponent component = collider.GetComponent<BoardComponent>();
-        if (component)
+        BoardComponent[] components = collider.GetComponents<BoardComponent>();
+        if (components.Length > 0)
         {
-            if (collider.GetComponent<Portal>())
+            componentHits++;
+            foreach(BoardComponent component in components)
             {
-                trailRenderer.enabled = false;
-                return;            
+                AddScore(component.amountToScore, component.typeOfScore, transform);
             }
-            
-            AddScore(component.amountToScore, component.typeOfScore, transform);
         }
         
     }
-
-    void OnTriggerExit(Collider collider)
-    {
-        if (collider.GetComponent<Portal>())
-        {
-            trailRenderer.enabled = true;
-        }
-    }
-
-    
 
     protected void HandleParticles(Collision collision)
     {

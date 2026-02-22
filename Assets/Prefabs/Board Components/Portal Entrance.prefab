@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IComponent
   typeOfScore: 0
-  amountToScore: 25
+  amountToScore: 15
 --- !u!114 &-5120152879258555716
 MonoBehaviour:
   m_ObjectHideFlags: 0

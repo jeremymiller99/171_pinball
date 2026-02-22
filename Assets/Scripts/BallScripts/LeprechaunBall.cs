@@ -1,28 +1,30 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-17.
 using UnityEngine;
+using UnityEngine.XR;
 
 public class LeprechaunBall : Ball
 {
     [SerializeField] private int coinsToAdd = 1;
     [SerializeField] private int componentHitsPerDollar = 5;
+    [SerializeField] private bool handledOnHitEffect = false;
 
-    private int _componentHitsSinceLastDollar;
 
-
-    void OnCollisionEnter(Collision collision)
+    override protected void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)
     {
-        BoardComponent component = collision.collider.GetComponent<BoardComponent>();
-        if (!component) return;
+        if (componentHits % componentHitsPerDollar == 0 && !handledOnHitEffect)
+        {
+            scoreManager.AddScore(coinsToAdd * coinMultiplier, TypeOfScore.coins, pos);
+            handledOnHitEffect = true;
+        }
         
-        AddScore(component.amountToScore, component.typeOfScore, transform);     
-        HandleParticles(collision);
-        _componentHitsSinceLastDollar++;
-        int hitsPerDollar = Mathf.Max(1, componentHitsPerDollar);
-        int awardCount = _componentHitsSinceLastDollar / hitsPerDollar;
-        _componentHitsSinceLastDollar %= hitsPerDollar;
-        if (awardCount <= 0) return;        
-        int coinsToAward = coinsToAdd * awardCount;
-        AddScore(coinsToAward, TypeOfScore.coins, transform);
-        
+        base.AddScore(amount, typeOfScore, pos);
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        if (collision.collider.GetComponent<BoardComponent>())
+        {
+            handledOnHitEffect = false;
+        }
     }
 }

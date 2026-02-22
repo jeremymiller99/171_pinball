@@ -14,10 +14,10 @@ GameObject:
   - component: {fileID: 2295593079652826086}
   - component: {fileID: 5316753179070647220}
   - component: {fileID: 1682731018784348660}
-  - component: {fileID: 1976190117028334336}
   - component: {fileID: -5927464745616923939}
   - component: {fileID: 7218764734407977045}
   - component: {fileID: 8123456789012345674}
+  - component: {fileID: 6754550638101695226}
   m_Layer: 0
   m_Name: Red Two
   m_TagString: Ball
@@ -159,30 +159,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PortalTraveller
   teleportCooldown: 0.1
   lastTeleportTime: -999
---- !u!114 &1976190117028334336
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5723297401256486482}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0bda9135bfee90f43b12821974121881, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  trailRenderer: {fileID: 0}
-  amountToEmit: 28
-  particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
-  poolSize: 15
-  wallHitSound:
-    Guid:
-      Data1: 641298852
-      Data2: 1192604421
-      Data3: 1548426920
-      Data4: 137299680
-    Path: event:/collide_wall
-  amountToMultiply: 2
 --- !u!96 &-5927464745616923939
 TrailRenderer:
   serializedVersion: 3
@@ -332,6 +308,27 @@ MonoBehaviour:
   speedForMaxAssistMps: 0.5
   speedForMinAssistMps: 20
   boardRoot: {fileID: 0}
+--- !u!114 &6754550638101695226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c3279caae1b40b4d8534d67b707bd90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  scoreManager: {fileID: 0}
+  trailRenderer: {fileID: 0}
+  amountToEmit: 28
+  particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
+  poolSize: 15
+  componentHits: 0
+  pointMultiplier: 1
+  multMultiplier: 2
+  coinMultiplier: 1
 --- !u!1 &6285238752131022734
 GameObject:
   m_ObjectHideFlags: 0

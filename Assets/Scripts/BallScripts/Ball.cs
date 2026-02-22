@@ -9,12 +9,6 @@ using System;
 
 public class Ball : MonoBehaviour
 {
-    /// <summary>
-    /// Per-ball multiplier applied to point awards triggered by this ball.
-    /// Default is 1. Override in specific ball types (e.g. split-scatter children).
-    /// </summary>
-    public virtual float PointsAwardMultiplier => 1f;
-
     public ScoreManager scoreManager;
 
     [SerializeField] private TrailRenderer trailRenderer;
@@ -22,14 +16,18 @@ public class Ball : MonoBehaviour
     [SerializeField] private GameObject particleObject;
     [SerializeField] private Stack<GameObject> pool;
     [SerializeField] private int poolSize;
+    [SerializeField] protected int componentHits;
+    public float pointMultiplier = 1f;
+    public float multMultiplier = 1f;
+    public int coinMultiplier = 1;
 
-    protected void Awake()
+    virtual protected void Awake()
     {
         trailRenderer = GetComponent<TrailRenderer>();
         scoreManager = FindFirstObjectByType<ScoreManager>();
     }
 
-    void Start()
+    virtual protected void Start()
     {
         pool = new Stack<GameObject>();
         for (int i = 0; i < poolSize; i++)
@@ -38,46 +36,38 @@ public class Ball : MonoBehaviour
         }
     }
 
-    protected void OnCollisionEnter(Collision collision)
+    virtual protected void OnCollisionEnter(Collision collision)
     {   
-        BoardComponent component = collision.collider.GetComponent<BoardComponent>();
-        if (component)
+        BoardComponent[] components = collision.collider.GetComponents<BoardComponent>();
+        if (components.Length > 0)
         {
-            AddScore(component.amountToScore, component.typeOfScore, transform);
+            componentHits++;
             HandleParticles(collision);
+            foreach(BoardComponent component in components)
+            {
+                AddScore(component.amountToScore, component.typeOfScore, transform);
+            }
         }
 
     }
 
     void OnTriggerEnter(Collider collider)
     {
-        BoardComponent component = collider.GetComponent<BoardComponent>();
-        if (component)
+        BoardComponent[] components = collider.GetComponents<BoardComponent>();
+        if (components.Length > 0)
         {
-            AddScore(component.amountToScore, component.typeOfScore, transform);
+            componentHits++;
+            foreach(BoardComponent component in components)
+            {
+                AddScore(component.amountToScore, component.typeOfScore, transform);
+            }
         }
         
     }
 
-    void OnTriggerExit(Collider collider)
-    {
-        if (collider.GetComponent<Portal>())
-        {
-            trailRenderer.enabled = true;
-        }
-    }
-
-    
-
     protected void HandleParticles(Collision collision)
     {
         if (!collision.collider.GetComponent<Component>()) return;
-
-        if (collision.collider.GetComponent<Portal>())
-        {
-            trailRenderer.enabled = false;
-            return;            
-        }
         GameObject emitterObj = pool.Pop();
         ParticleSystem emitter = emitterObj.GetComponent<ParticleSystem>();
         emitter.transform.position = transform.position;
@@ -101,8 +91,19 @@ public class Ball : MonoBehaviour
         }
     }
 
-    protected void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)
+    virtual protected void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)
     {
-        scoreManager.AddScore(amount, typeOfScore, pos);
+        switch (typeOfScore)
+        {
+            case TypeOfScore.points:
+                scoreManager.AddScore(amount * pointMultiplier, typeOfScore, pos);
+                break;
+            case TypeOfScore.mult:
+                scoreManager.AddScore(amount * multMultiplier, typeOfScore, pos);
+                break;
+            case TypeOfScore.coins:
+                scoreManager.AddScore(amount * coinMultiplier, typeOfScore, pos);
+                break;
+        }
     }
 }

@@ -130,7 +130,7 @@ public class LockedTarget : MonoBehaviour
 
         if (ball == null) return 1f;
 
-        float m = ball.PointsAwardMultiplier;
+        float m = 1;
         if (m <= 0f) return 0f;
         return m;
     }

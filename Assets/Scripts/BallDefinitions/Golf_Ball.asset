@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33bdd2ce9371b3542bd29e4b7ab752b8, type: 3}
+  m_Name: Golf_Ball
+  m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
+  id: Golf Ball
+  displayName: Golf Ball
+  description: Ball first hit gives you 500 points and x2 mult. Everytime you hit
+    a board component after loses 10 points and .1 mult.
+  rarity: 0
+  icon: {fileID: 21300000, guid: af63de4465c43cf499133b557e6ee7cb, type: 3}
+  prefab: {fileID: 5723297401256486482, guid: 6b81d5032c58c3c409374b5ff3b08f7f, type: 3}
+  price: 10

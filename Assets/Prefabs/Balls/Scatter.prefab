@@ -14,10 +14,10 @@ GameObject:
   - component: {fileID: 2295593079652826086}
   - component: {fileID: 5316753179070647220}
   - component: {fileID: 1682731018784348660}
-  - component: {fileID: 4058802016084885643}
   - component: {fileID: 4631388011694291341}
   - component: {fileID: 7957608162571326216}
   - component: {fileID: 8123456789012345672}
+  - component: {fileID: 8878950739143992400}
   m_Layer: 0
   m_Name: Scatter
   m_TagString: Ball
@@ -158,36 +158,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PortalTraveller
   teleportCooldown: 0.1
   lastTeleportTime: -999
---- !u!114 &4058802016084885643
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5723297401256486482}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c60dd978084cc5d46a5252362dbd6251, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  trailRenderer: {fileID: 0}
-  amountToEmit: 28
-  particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
-  poolSize: 15
-  wallHitSound:
-    Guid:
-      Data1: 641298852
-      Data2: 1192604421
-      Data3: 1548426920
-      Data4: 137299680
-    Path: event:/collide_wall
-  prefab: {fileID: 5723297401256486482}
-  ballSpawner: {fileID: 0}
-  readyToSplit: 1
-  componentHitsToSplit: 5
-  componentHitsSoFar: 0
-  splitChildPointsMultiplier: 0.5
-  isSplitChild: 0
 --- !u!96 &4631388011694291341
 TrailRenderer:
   serializedVersion: 3
@@ -337,3 +307,30 @@ MonoBehaviour:
   speedForMaxAssistMps: 0.5
   speedForMinAssistMps: 20
   boardRoot: {fileID: 0}
+--- !u!114 &8878950739143992400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c60dd978084cc5d46a5252362dbd6251, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MultiBall
+  scoreManager: {fileID: 0}
+  trailRenderer: {fileID: 0}
+  amountToEmit: 28
+  particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
+  poolSize: 15
+  componentHits: 0
+  pointMultiplier: 1
+  multMultiplier: 1
+  coinMultiplier: 1
+  prefab: {fileID: 5723297401256486482}
+  ballSpawner: {fileID: 0}
+  readyToSplit: 1
+  componentHitsToSplit: 5
+  splitChildMultiplier: 0.5
+  isSplitChild: 0

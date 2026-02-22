@@ -124,3 +124,4 @@ fmod_editor.log
 # Ignore dev folder
 /[Aa]ssets/_Dev
 /[Aa]ssets/_Dev.meta
+_Dev

@@ -152,8 +152,8 @@ public class LockedTarget : MonoBehaviour
         {
             _hitCount = 2;
             if (scoreManager == null) EnsureRefs();
-            float applied = pointsToAdd;
-            scoreManager.AddScore(applied, TypeOfScore.points, transform);
+            scoreManager.AddScore(pointsToAdd, TypeOfScore.points, transform);
+            float applied = scoreManager.GetAppliedPointsForDisplay(pointsToAdd);
             Vector3 pos = collision.collider.transform.position;
             floatingTextSpawner?.SpawnPointsText(pos, "+" + applied, applied);
         }
@@ -176,8 +176,8 @@ public class LockedTarget : MonoBehaviour
         {
             _hitCount = 2;
             if (scoreManager == null) EnsureRefs();
-            float applied = pointsToAdd;
-            scoreManager.AddScore(applied, TypeOfScore.points, transform);
+            scoreManager.AddScore(pointsToAdd, TypeOfScore.points, transform);
+            float applied = scoreManager.GetAppliedPointsForDisplay(pointsToAdd);
             floatingTextSpawner?.SpawnPointsText(col.transform.position, "+" + applied, applied);
         }
     }

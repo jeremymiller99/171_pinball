@@ -24,8 +24,8 @@ public static class RoundModifierSetupHelper
         CreateModifier("Golden Touch", "Coins earned are doubled.",
             RoundModifierDefinition.ModifierType.Angel, coinMultiplier: 2f);
 
-        CreateModifier("Extra Life", "Start with one extra ball.",
-            RoundModifierDefinition.ModifierType.Angel, ballModifier: 1);
+        CreateModifier("Turbo", "Ball moves 4× faster.",
+            RoundModifierDefinition.ModifierType.Angel, timeScaleMultiplier: 4f);
 
         // Create devil modifiers
         CreateModifier("Cursed Multiplier", "Multiplier cannot increase this round.",
@@ -37,11 +37,17 @@ public static class RoundModifierSetupHelper
         CreateModifier("Poverty", "Coins earned reduced by 50%.",
             RoundModifierDefinition.ModifierType.Devil, coinMultiplier: 0.5f);
 
-        CreateModifier("Fragile", "Start with one fewer ball.",
-            RoundModifierDefinition.ModifierType.Devil, ballModifier: -1);
-
         CreateModifier("Weakened", "Points earned reduced by 25%.",
             RoundModifierDefinition.ModifierType.Devil, scoreMultiplier: 0.75f);
+
+        CreateModifier("Ghost Ball", "Ball hides every 6 seconds for 3 seconds. Trail is hidden too.",
+            RoundModifierDefinition.ModifierType.Devil, cyclicHideBallEnabled: true, cyclicHideBallVisibleSeconds: 6f, cyclicHideBallHiddenSeconds: 3f);
+
+        CreateModifier("Limited Flips", "Only 20 flipper uses this round. Exceed and you lose.",
+            RoundModifierDefinition.ModifierType.Devil, flipperUseLimit: 20);
+
+        CreateModifier("Unlucky Day", "Two random devil modifiers apply this round.",
+            RoundModifierDefinition.ModifierType.Devil, applyTwoRandomDevilModifiers: true);
 
         // Create pools
         CreateAngelPool();
@@ -64,7 +70,13 @@ public static class RoundModifierSetupHelper
         float goalModifier = 0f,
         float coinMultiplier = 1f,
         int ballModifier = 0,
-        bool disableMultiplier = false)
+        bool disableMultiplier = false,
+        bool applyTwoRandomDevilModifiers = false,
+        float timeScaleMultiplier = 1f,
+        bool cyclicHideBallEnabled = false,
+        float cyclicHideBallVisibleSeconds = 6f,
+        float cyclicHideBallHiddenSeconds = 3f,
+        int flipperUseLimit = 0)
     {
         string sanitizedName = displayName.Replace(" ", "_");
         string path = $"{ModifierDefinitionsPath}{sanitizedName}.asset";
@@ -90,6 +102,12 @@ public static class RoundModifierSetupHelper
         modifier.coinMultiplier = coinMultiplier;
         modifier.ballModifier = ballModifier;
         modifier.disableMultiplier = disableMultiplier;
+        modifier.applyTwoRandomDevilModifiers = applyTwoRandomDevilModifiers;
+        modifier.timeScaleMultiplier = timeScaleMultiplier;
+        modifier.cyclicHideBallEnabled = cyclicHideBallEnabled;
+        modifier.cyclicHideBallVisibleSeconds = cyclicHideBallVisibleSeconds;
+        modifier.cyclicHideBallHiddenSeconds = cyclicHideBallHiddenSeconds;
+        modifier.flipperUseLimit = flipperUseLimit;
 
         AssetDatabase.CreateAsset(modifier, path);
         Debug.Log($"Created modifier: {path}");

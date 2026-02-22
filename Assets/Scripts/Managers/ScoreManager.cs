@@ -262,7 +262,9 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private float multMultiplier;
     public float multModifierMultiplier;
     [SerializeField] private int coinMultiplier;
-    public int coinModifierMultiplier;
+    public float coinModifierMultiplier;
+    /// <summary>Time scale multiplier from the active round modifier (e.g. Turbo = 2). Set by GameRulesManager.</summary>
+    public float modifierTimeScaleMultiplier = 1f;
 
     [SerializeField] private int roundsToAddToMultipliers;
     [SerializeField] private float amountToAddToMultipliers;
@@ -282,6 +284,15 @@ public class ScoreManager : MonoBehaviour
         floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
     }
 
+    /// <summary>
+    /// Returns the points value that would be applied for display (after point multiplier and modifier).
+    /// Use this when showing floating text so the number matches what was actually added.
+    /// </summary>
+    public float GetAppliedPointsForDisplay(float rawAmount)
+    {
+        return rawAmount * pointMultiplier * pointsModifierMultiplier;
+    }
+
     public void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)
     {
         switch(typeOfScore)
@@ -293,7 +304,7 @@ public class ScoreManager : MonoBehaviour
                 AddMult(amount * multMultiplier * multModifierMultiplier, pos);
                 break;
             case TypeOfScore.coins:
-                AddCoins((int)amount * coinMultiplier* coinModifierMultiplier, pos);
+                AddCoins(Mathf.RoundToInt(amount * coinMultiplier * coinModifierMultiplier), pos);
                 break;
         }
     }
@@ -632,6 +643,7 @@ public class ScoreManager : MonoBehaviour
     {
         externalTimeScaleMultiplier = 1f;
         externalScoreAwardMultiplier = 1f;
+        modifierTimeScaleMultiplier = 1f;
         ClearAllTimeScaleRequests();
         ApplySpeedFromTier(force: true);
     }
@@ -832,7 +844,8 @@ public class ScoreManager : MonoBehaviour
         // Slow-mo removed: never allow any multiplier to reduce speed below baseline.
         float requestMult = Mathf.Max(1f, _timeScaleRequestMin);
         float extMult = Mathf.Max(1f, externalTimeScaleMultiplier);
-        float targetScale = _baseTimeScale * Mathf.Max(0f, SpeedMultiplier) * extMult * requestMult;
+        float modTimeScale = Mathf.Max(0.1f, modifierTimeScaleMultiplier);
+        float targetScale = _baseTimeScale * Mathf.Max(0f, SpeedMultiplier) * extMult * requestMult * modTimeScale;
         if (maxTimeScale > 0f)
         {
             targetScale = Mathf.Min(targetScale, maxTimeScale);

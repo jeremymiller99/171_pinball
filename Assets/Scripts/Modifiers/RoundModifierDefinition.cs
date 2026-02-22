@@ -27,6 +27,9 @@ public class RoundModifierDefinition : ScriptableObject
     [Tooltip("Whether this is an Angel (buff) or Devil (debuff) modifier.")]
     public ModifierType type = ModifierType.Angel;
 
+    [Tooltip("If true, this round applies two random devil modifiers (from the devil pool) instead of this definition's own effects. Used for Unlucky Day.")]
+    public bool applyTwoRandomDevilModifiers = false;
+
     [Header("Score Effects")]
     [Tooltip("Multiplier applied to all points earned. 1.5 = +50%, 0.75 = -25%.")]
     [Min(0f)]
@@ -47,6 +50,26 @@ public class RoundModifierDefinition : ScriptableObject
     [Header("Ball Effects")]
     [Tooltip("Number of balls added or removed for this round. Positive = more balls.")]
     public int ballModifier = 0;
+
+    [Header("Speed Effects")]
+    [Tooltip("Multiplier for game/ball speed this round (Time.timeScale). 2 = twice as fast, 1 = normal.")]
+    [Min(0.1f)]
+    public float timeScaleMultiplier = 1f;
+
+    [Header("Visibility (Special)")]
+    [Tooltip("If true, the ball (and its trail) are hidden for part of each cycle this round.")]
+    public bool cyclicHideBallEnabled = false;
+    [Tooltip("Seconds the ball is visible before hiding. Only used when Cyclic Hide Ball is enabled.")]
+    [Min(0.1f)]
+    public float cyclicHideBallVisibleSeconds = 6f;
+    [Tooltip("Seconds the ball (and trail) stay hidden. Only used when Cyclic Hide Ball is enabled.")]
+    [Min(0.1f)]
+    public float cyclicHideBallHiddenSeconds = 3f;
+
+    [Header("Flipper Limit (Special)")]
+    [Tooltip("Max flipper/paddle uses this round. 0 = no limit. When exceeded, the round is lost.")]
+    [Min(0)]
+    public int flipperUseLimit = 0;
 
     /// <summary>
     /// Returns a formatted string describing all active effects.
@@ -84,6 +107,21 @@ public class RoundModifierDefinition : ScriptableObject
         {
             string sign = ballModifier > 0 ? "+" : "";
             sb.AppendLine($"{sign}{ballModifier} Ball{(Mathf.Abs(ballModifier) != 1 ? "s" : "")}");
+        }
+
+        if (!Mathf.Approximately(timeScaleMultiplier, 1f))
+        {
+            sb.AppendLine($"{timeScaleMultiplier:0.#}× Speed");
+        }
+
+        if (cyclicHideBallEnabled)
+        {
+            sb.AppendLine($"Ball hidden {cyclicHideBallHiddenSeconds:0}s every {cyclicHideBallVisibleSeconds + cyclicHideBallHiddenSeconds:0}s");
+        }
+
+        if (flipperUseLimit > 0)
+        {
+            sb.AppendLine($"{flipperUseLimit} flips this round");
         }
 
         return sb.ToString().TrimEnd();

@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoundModifierPool
   modifiers:
   - {fileID: 11400000, guid: 6601eb3a349ac1049a2973f6da064a56, type: 2}
-  - {fileID: 11400000, guid: 940b435a4b921a54dbb5ee8230175982, type: 2}
   - {fileID: 11400000, guid: cabe5f1fe1beb6441a54b2c8b1941f69, type: 2}
   - {fileID: 11400000, guid: db8d56dfd962cec47ad0aa039e0290b0, type: 2}
   - {fileID: 11400000, guid: f1509a9dd14b9f14bb8a5ee6924b8095, type: 2}
+  - {fileID: 11400000, guid: a1b2c3d4e5f6789012345678abcdef01, type: 2}
+  - {fileID: 11400000, guid: c3d4e5f6a7b8901234567890abcdef03, type: 2}
+  - {fileID: 11400000, guid: d4e5f6a7b8c9012345678901abcdef04, type: 2}

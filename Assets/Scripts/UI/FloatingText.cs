@@ -119,6 +119,15 @@ public class FloatingText : MonoBehaviour
         rectTransform.localScale = Vector3.one * Mathf.Min(safe, cap);
     }
 
+    /// <summary>Override text color (e.g. red for modifier popup or penalty points).</summary>
+    public void SetColor(Color c)
+    {
+        if (text == null) text = GetComponent<TMP_Text>();
+        if (text == null) return;
+        text.color = c;
+        startColor = c;
+    }
+
     public void SetLifetime(float seconds)
     {
         lifetime = Mathf.Max(0.01f, seconds);

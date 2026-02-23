@@ -324,6 +324,7 @@ public class ScoreManager : MonoBehaviour
     private const string MultObjectName = "Mult";
     private const string RoundIndexObjectName = "Round Index";
     private const string RoundTotalObjectName = "RoundTotal";
+    private const string RoundScoreObjectName = "Round Score";
     private const string GoalObjectName = "Goal";
     private const string BallsRemainingObjectName = "Balls Remaining";
     private const string CoinsObjectName = "Coins";
@@ -706,7 +707,7 @@ public class ScoreManager : MonoBehaviour
         if (multText != null)
             multText.text = FormatMultiplier(multUiDisplayed);
         if (roundTotalText != null)
-            roundTotalText.text = roundTotal.ToString();
+            roundTotalText.text = FormatPointsCompact(roundTotal);
         if (goalText != null)
             goalText.text = _goal.ToString();
     }
@@ -975,7 +976,11 @@ public class ScoreManager : MonoBehaviour
                 if (!IsLiveSceneText(roundIndexText))
                     roundIndexText = FindTmpTextInChildrenByName(roundInfoPanel.transform, RoundIndexObjectName);
                 if (!IsLiveSceneText(roundTotalText))
+                {
                     roundTotalText = FindTmpTextInChildrenByName(roundInfoPanel.transform, RoundTotalObjectName);
+                    if (!IsLiveSceneText(roundTotalText))
+                        roundTotalText = FindTmpTextInChildrenByName(roundInfoPanel.transform, RoundScoreObjectName);
+                }
                 if (!IsLiveSceneText(goalText))
                     goalText = FindTmpTextInChildrenByName(roundInfoPanel.transform, GoalObjectName);
                 if (!IsLiveSceneText(ballsRemainingText))
@@ -1014,7 +1019,9 @@ public class ScoreManager : MonoBehaviour
             // Round Info Panel elements
             else if (!IsLiveSceneText(roundIndexText) && string.Equals(n, RoundIndexObjectName, StringComparison.OrdinalIgnoreCase))
                 roundIndexText = t;
-            else if (!IsLiveSceneText(roundTotalText) && string.Equals(n, RoundTotalObjectName, StringComparison.OrdinalIgnoreCase))
+            else if (!IsLiveSceneText(roundTotalText) && (
+                     string.Equals(n, RoundTotalObjectName, StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(n, RoundScoreObjectName, StringComparison.OrdinalIgnoreCase)))
                 roundTotalText = t;
             else if (!IsLiveSceneText(goalText) && string.Equals(n, GoalObjectName, StringComparison.OrdinalIgnoreCase))
                 goalText = t;

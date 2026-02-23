@@ -46,6 +46,7 @@ public class ScoreTallyAnimator : MonoBehaviour
     private const string MultObjectName = "Mult";
     private const string XObjectName = "X";
     private const string RoundTotalObjectName = "RoundTotal";
+    private const string RoundScoreObjectName = "Round Score";
 
     private static string FormatPointsCompact(float value)
     {
@@ -255,6 +256,8 @@ public class ScoreTallyAnimator : MonoBehaviour
             // Round total may live outside the Score Panel (e.g., another HUD element).
             // Try exact name match first.
             roundTotalText = FindTmpTextInLoadedScenesByName(RoundTotalObjectName);
+            if (!IsLiveSceneText(roundTotalText))
+                roundTotalText = FindTmpTextInLoadedScenesByName(RoundScoreObjectName);
         }
 
         // As a last resort, also allow X to be found globally (if your panel structure changes).

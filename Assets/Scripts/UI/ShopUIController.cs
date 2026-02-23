@@ -306,6 +306,22 @@ public sealed class ShopUIController : MonoBehaviour
             return;
         }
 
+        if (_selectedOfferIndex == offerIndex)
+        {
+            _selectedOfferIndex = -1;
+            _selectedHandSlotIndex = -1;
+            _pendingItem = null;
+            _pendingReplaceSlotIndex = -1;
+            _pendingOfferIndex = -1;
+            SetReplacePanelOpen(false);
+            ClearReplaceConfirmationVisuals();
+            SetPrompt(string.Empty);
+            RefreshSelectedPanel();
+            RefreshOfferEntrySelectionVisuals();
+            RefreshUI();
+            return;
+        }
+
         _selectedOfferIndex = offerIndex;
         _pendingItem = null;
         _pendingReplaceSlotIndex = -1;

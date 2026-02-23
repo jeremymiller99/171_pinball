@@ -15,7 +15,7 @@ public class TenzoBall : Ball
     {
         if (componentHits % componentHitsPerTenzo == 0 && !handledOnHitEffect)
         {
-            base.AddScore(pointsToAdd, TypeOfScore.coins, pos);
+            base.AddScore(pointsToAdd, TypeOfScore.points, pos);
             base.AddScore(multToAdd, TypeOfScore.mult, pos);
             handledOnHitEffect = true;
         }

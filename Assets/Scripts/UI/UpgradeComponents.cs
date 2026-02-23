@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using FMODUnity;
 
 public class UpgradeComponents : MonoBehaviour
 {
@@ -9,15 +10,26 @@ public class UpgradeComponents : MonoBehaviour
     [SerializeField] private GameRulesManager gameRulesManager;
     [SerializeField] private ShopUIController shopUIController;
 
+    [Header("Audio")]
+    [SerializeField] private EventReference purchaseSound;
+
     private void EnsureRefs()
     {
         if (!gameRulesManager)
         {
+#if UNITY_2022_2_OR_NEWER
             gameRulesManager = FindFirstObjectByType<GameRulesManager>();
+#else
+            gameRulesManager = FindObjectOfType<GameRulesManager>();
+#endif
         }
         if (!shopUIController)
         {
+#if UNITY_2022_2_OR_NEWER
             shopUIController = FindFirstObjectByType<ShopUIController>();
+#else
+            shopUIController = FindObjectOfType<ShopUIController>();
+#endif
         }
     }
 
@@ -44,6 +56,8 @@ public class UpgradeComponents : MonoBehaviour
         {
             return;
         }
+
+        AudioManager.Instance.PlayOneShot(purchaseSound);
 
         shopUIController.RefreshUI();
 

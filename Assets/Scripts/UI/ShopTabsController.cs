@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// Minimal 2-tab controller for the Shop panel.
@@ -95,6 +96,12 @@ public sealed class ShopTabsController : MonoBehaviour
 
     private void WireButtonsIfNeeded()
     {
+        ButtonSound globalSound = AudioManager.Instance.GetComponent<ButtonSound>();
+        if (globalSound == null)
+        {
+            Debug.LogWarning("No ButtonSound attached to the AudioManager!");
+            return;
+        }
         if (_wired)
             return;
 
@@ -102,12 +109,45 @@ public sealed class ShopTabsController : MonoBehaviour
         {
             ballsTabButton.onClick.RemoveListener(SelectBallsTab);
             ballsTabButton.onClick.AddListener(SelectBallsTab);
+            ballsTabButton.onClick.RemoveListener(globalSound.PlaySound);
+            ballsTabButton.onClick.AddListener(globalSound.PlaySound);
+
+            EventTrigger trigger = ballsTabButton.GetComponent<EventTrigger>();
+            if (trigger == null)
+            {
+                trigger = ballsTabButton.gameObject.AddComponent<EventTrigger>();
+            }
+
+            trigger.triggers.RemoveAll(entry => entry.eventID == EventTriggerType.PointerEnter);
+
+            EventTrigger.Entry hoverEntry = new EventTrigger.Entry();
+            hoverEntry.eventID = EventTriggerType.PointerEnter;
+            hoverEntry.callback.AddListener((data) => { globalSound.PlayHoverSound(); });
+            
+            trigger.triggers.Add(hoverEntry);
         }
 
         if (boardComponentsTabButton != null)
         {
             boardComponentsTabButton.onClick.RemoveListener(SelectBoardComponentsTab);
             boardComponentsTabButton.onClick.AddListener(SelectBoardComponentsTab);
+            boardComponentsTabButton.onClick.RemoveListener(globalSound.PlaySound);
+            boardComponentsTabButton.onClick.AddListener(globalSound.PlaySound);
+
+
+            EventTrigger trigger = boardComponentsTabButton.GetComponent<EventTrigger>();
+            if (trigger == null)
+            {
+                trigger = boardComponentsTabButton.gameObject.AddComponent<EventTrigger>();
+            }
+
+            trigger.triggers.RemoveAll(entry => entry.eventID == EventTriggerType.PointerEnter);
+
+            EventTrigger.Entry hoverEntry = new EventTrigger.Entry();
+            hoverEntry.eventID = EventTriggerType.PointerEnter;
+            hoverEntry.callback.AddListener((data) => { globalSound.PlayHoverSound(); });
+            
+            trigger.triggers.Add(hoverEntry);
         }
 
         _wired = true;

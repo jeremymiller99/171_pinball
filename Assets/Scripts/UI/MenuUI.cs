@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.EventSystems; // Added for EventTrigger (Hover sounds)
 using TMPro;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -180,12 +181,38 @@ public class MainMenuUI : MonoBehaviour
         OpenMainMenuPanel();
     }
 
+    /// <summary>
+    /// Helper method to consistently apply the global UI sound to an auto-wired button.
+    /// </summary>
     private void AttachSoundToButton(Button btn)
     {
-        if (btn != null && _globalButtonSound != null)
+        if (btn == null || _globalButtonSound == null) return;
+
+        // Attach click sound
+        btn.onClick.AddListener(_globalButtonSound.PlaySound);
+
+        // Attach hover sound
+        EventTrigger trigger = btn.gameObject.GetComponent<EventTrigger>();
+        if (trigger == null)
         {
-            btn.onClick.AddListener(_globalButtonSound.PlaySound);
+            trigger = btn.gameObject.AddComponent<EventTrigger>();
         }
+        else
+        {
+            // Avoid adding duplicates if the trigger already has a pointer enter
+            for (int i = 0; i < trigger.triggers.Count; i++)
+            {
+                if (trigger.triggers[i].eventID == EventTriggerType.PointerEnter)
+                {
+                    return;
+                }
+            }
+        }
+
+        EventTrigger.Entry entry = new EventTrigger.Entry();
+        entry.eventID = EventTriggerType.PointerEnter;
+        entry.callback.AddListener((_) => _globalButtonSound.PlayHoverSound());
+        trigger.triggers.Add(entry);
     }
 
     private void InstallControlsMenuIfPossible()

@@ -5384,8 +5384,48 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiClickSound.Path
+      value: event:/button_click
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: purchaseSound.Path
+      value: event:/generic_purchase
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: allBallItems.Array.size
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiClickSound.Guid.Data1
+      value: -1197954480
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiClickSound.Guid.Data2
+      value: 1255480211
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiClickSound.Guid.Data3
+      value: -1982403935
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiClickSound.Guid.Data4
+      value: 57654664
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: purchaseSound.Guid.Data1
+      value: -1951192067
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: purchaseSound.Guid.Data2
+      value: 1154365322
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: purchaseSound.Guid.Data3
+      value: 1741149063
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: purchaseSound.Guid.Data4
+      value: 1085209921
       objectReference: {fileID: 0}
     - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: allBallItems.Array.data[0].cost

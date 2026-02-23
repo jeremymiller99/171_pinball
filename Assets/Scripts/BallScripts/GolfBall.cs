@@ -10,7 +10,15 @@ public class GolfBall : Ball
 
     override protected void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)
     {
-        base.AddScore(startingPoints - (lostPointsPerHit * (componentHits - 1)), TypeOfScore.points, pos);
-        base.AddScore(startingMult - (lostMultPerHit * (componentHits - 1)), TypeOfScore.mult, pos);
+        if (componentHits == 1)
+        {
+            base.AddScore(startingPoints, TypeOfScore.points, pos);
+            base.AddScore(startingMult, TypeOfScore.mult, pos);
+        } else
+        {
+            base.AddScore(-lostPointsPerHit, TypeOfScore.points, pos);
+            base.AddScore(-lostMultPerHit, TypeOfScore.mult, pos);
+        }
+        
     }
 }

@@ -49,10 +49,8 @@ public sealed class ShopUIController : MonoBehaviour
     [Header("Audio")]
     [Tooltip("Sound played when successfully spending coins on a new ball.")]
     [SerializeField] private EventReference purchaseSound;
-    [Tooltip("General click sound for shop navigation buttons.")]
-    [SerializeField] private EventReference uiClickSound;
-    [Tooltip("General hover sound for shop buttons.")]
-    [SerializeField] private EventReference uiHoverSound;
+    [Tooltip("Sound for a successful reroll.")]
+    [SerializeField] private EventReference rerollSound;
 
     [Header("UI (optional)")]
     [Tooltip("Shown when a replacement slot must be chosen.")]
@@ -158,35 +156,7 @@ public sealed class ShopUIController : MonoBehaviour
         ResolveReplacePanelIconImagesIfNeeded();
         HookRerollButton();
         
-        AttachHoverSound(selectedBuyButton);
-        AttachHoverSound(selectedSellButton);
-    }
 
-    private void AttachHoverSound(Button btn)
-    {
-        if (btn == null || uiHoverSound.IsNull) return;
-
-        EventTrigger trigger = btn.gameObject.GetComponent<EventTrigger>();
-        if (trigger == null)
-        {
-            trigger = btn.gameObject.AddComponent<EventTrigger>();
-        }
-        else
-        {
-            // Avoid adding duplicates if the trigger already has a pointer enter
-            for (int i = 0; i < trigger.triggers.Count; i++)
-            {
-                if (trigger.triggers[i].eventID == EventTriggerType.PointerEnter)
-                {
-                    return;
-                }
-            }
-        }
-
-        EventTrigger.Entry entry = new EventTrigger.Entry();
-        entry.eventID = EventTriggerType.PointerEnter;
-        entry.callback.AddListener((_) => AudioManager.Instance.PlayOneShot(uiHoverSound));
-        trigger.triggers.Add(entry);
     }
 
     public void TrySwapHandSlots(int a, int b)
@@ -265,7 +235,6 @@ public sealed class ShopUIController : MonoBehaviour
 
         RefreshReplaceConfirmationText();
         SetReplacePanelOpen(true);
-        AudioManager.Instance.PlayOneShot(uiClickSound);
         RefreshUI();
     }
 
@@ -397,7 +366,6 @@ public sealed class ShopUIController : MonoBehaviour
         rulesManager.AddCoinsUnscaled(sellPrice);
 
         SetPrompt($"Sold {removed.GetSafeDisplayName()} for ${sellPrice}.");
-        AudioManager.Instance.PlayOneShot(uiClickSound);
 
         _selectedOfferIndex = -1;
         _selectedHandSlotIndex = -1;
@@ -539,7 +507,6 @@ public sealed class ShopUIController : MonoBehaviour
         RebuildReplaceSlots();
         SetReplacePanelOpen(false);
         SetPrompt($"Select a ball to replace with {item.GetSafeDisplayName()} (${item.Price}).");
-        AudioManager.Instance.PlayOneShot(uiClickSound);
         RefreshUI();
     }
 
@@ -608,7 +575,6 @@ public sealed class ShopUIController : MonoBehaviour
 
         RefreshReplaceConfirmationText();
         SetReplacePanelOpen(true);
-        AudioManager.Instance.PlayOneShot(uiClickSound);
         RefreshUI();
     }
 
@@ -617,7 +583,6 @@ public sealed class ShopUIController : MonoBehaviour
         _pendingItem = null;
         _pendingReplaceSlotIndex = -1;
         _pendingOfferIndex = -1;
-        AudioManager.Instance.PlayOneShot(uiClickSound);
         SetReplacePanelOpen(false);
         SetPrompt(string.Empty);
         ClearReplaceConfirmationVisuals();
@@ -745,7 +710,6 @@ public sealed class ShopUIController : MonoBehaviour
         SetReplacePanelOpen(false);
         ClearReplaceConfirmationVisuals();
         SetPrompt($"Select a ball to replace with {_pendingItem.GetSafeDisplayName()} (${_pendingItem.Price}).");
-        AudioManager.Instance.PlayOneShot(uiClickSound);
         RefreshUI();
     }
 
@@ -1234,7 +1198,7 @@ public sealed class ShopUIController : MonoBehaviour
         ClearReplaceConfirmationVisuals();
         RebuildOffers();
         SetPrompt("Rerolled shop.");
-        AudioManager.Instance.PlayOneShot(uiClickSound);
+        AudioManager.Instance.PlayOneShot(rerollSound);
         RefreshUI();
     }
 
@@ -1253,7 +1217,6 @@ public sealed class ShopUIController : MonoBehaviour
 
         rerollButton.onClick.RemoveListener(RerollOffers);
         rerollButton.onClick.AddListener(RerollOffers);
-        AttachHoverSound(rerollButton);
     }
 
     private static Button FindButtonUnder(Transform root, string objectName)

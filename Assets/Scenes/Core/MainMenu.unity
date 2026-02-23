@@ -443,6 +443,7 @@ GameObject:
   - component: {fileID: 266196554}
   - component: {fileID: 266196553}
   - component: {fileID: 266196555}
+  - component: {fileID: 266196556}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -510,6 +511,18 @@ MonoBehaviour:
       Data3: 997750147
       Data4: 47879637
     Path: event:/button_hover
+--- !u!114 &266196556
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 266196552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3ce7dec03fc6784aa90105ef6e5c989, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GlobalButtonAudioSetup
 --- !u!1 &273842394
 GameObject:
   m_ObjectHideFlags: 0

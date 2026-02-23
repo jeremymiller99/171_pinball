@@ -5384,12 +5384,36 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: rerollSound.Path
+      value: event:/reroll
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: uiClickSound.Path
       value: event:/button_click
       objectReference: {fileID: 0}
     - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiHoverSound.Path
+      value: event:/button_hover
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: purchaseSound.Path
       value: event:/generic_purchase
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: rerollSound.Guid.Data1
+      value: -1253221564
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: rerollSound.Guid.Data2
+      value: 1301160907
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: rerollSound.Guid.Data3
+      value: -1110270803
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: rerollSound.Guid.Data4
+      value: -638404508
       objectReference: {fileID: 0}
     - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: allBallItems.Array.size
@@ -5410,6 +5434,22 @@ PrefabInstance:
     - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: uiClickSound.Guid.Data4
       value: 57654664
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiHoverSound.Guid.Data1
+      value: 1185751379
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiHoverSound.Guid.Data2
+      value: 1268245631
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiHoverSound.Guid.Data3
+      value: 997750147
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiHoverSound.Guid.Data4
+      value: 47879637
       objectReference: {fileID: 0}
     - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: purchaseSound.Guid.Data1

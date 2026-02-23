@@ -157,6 +157,13 @@ MonoBehaviour:
   flySpeed: 800
   flyDurationMin: 0.75
   flyDurationMax: 1.5
+  whooshSound:
+    Guid:
+      Data1: -154778767
+      Data2: 1103640199
+      Data3: 2135438226
+      Data4: -687054736
+    Path: event:/score_whoosh
   flyEaseInExponent: 2.6
   flyPreRiseDuration: 0.2
   flyPreRiseDistance: 10
@@ -167,3 +174,7 @@ MonoBehaviour:
   flyArcHeight: 40
   flyFadeStartNormalized: 0.75
   destroyOnFlyComplete: 1
+  clampFontSize: 1
+  maxFontSize: 64
+  maxScale: 1.35
+  scoreManager: {fileID: 0}

@@ -2,6 +2,7 @@
 using UnityEngine;
 using TMPro;
 using System;
+using FMODUnity;
 
 public class FloatingText : MonoBehaviour
 {
@@ -17,6 +18,8 @@ public class FloatingText : MonoBehaviour
     [SerializeField] private float flySpeed = 1200f;
     [SerializeField] private float flyDurationMin = 0.18f;
     [SerializeField] private float flyDurationMax = 0.75f;
+    [Tooltip("Sound to play when Fly To starts.")]
+    [SerializeField] private EventReference whooshSound;
 
     [Header("Fly To - Easing")]
     [Tooltip("Higher values start slower and accelerate toward the destination (ease-in). 1 = linear.")]
@@ -158,6 +161,7 @@ public class FloatingText : MonoBehaviour
         flyElapsedSeconds = 0f;
         flyConfigured = true;
         flyCompletionInvoked = false;
+        AudioManager.Instance.PlayOneShot(whooshSound);
         animationMode = AnimationMode.FlyTo;
     }
 

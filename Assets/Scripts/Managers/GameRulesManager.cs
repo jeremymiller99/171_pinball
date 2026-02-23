@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using FMODUnity;
 
 public class GameRulesManager : MonoBehaviour
 {
@@ -68,6 +69,8 @@ public class GameRulesManager : MonoBehaviour
     [SerializeField] private GameObject roundFailedUIRoot;
     [SerializeField] private GameObject homeRunUIRoot;
     [SerializeField] private TMP_Text homeRunMessageText;
+    [Tooltip("Sound for a failed purchase attempt.")]
+    [SerializeField] private EventReference failedPurchaseSound;
 
     [Header("Transitions (optional)")]
     [SerializeField] private ShopTransitionController shopTransitionController;
@@ -1257,6 +1260,7 @@ public class GameRulesManager : MonoBehaviour
 
         if (coins < amount)
         {
+            AudioManager.Instance.PlayOneShot(failedPurchaseSound);
             return false;
         }
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// Orchestrates the "enter shop" / "exit shop" transition for the additive-board architecture:
@@ -127,11 +128,13 @@ public sealed class ShopTransitionController : MonoBehaviour
         // Clear cached board UI reference so we find the new one
         _boardUIRoot = null;
 
+
         // If boards are swapped additively while we're locked, disable newly-loaded controls too.
         if (_inputLocked)
         {
             LockGameplayInput();
         }
+
     }
 
     /// <summary>
@@ -163,6 +166,19 @@ public sealed class ShopTransitionController : MonoBehaviour
         CachePanelHomesIfNeeded(force: false);
         RecomputePanelHiddenPositions();
         SnapPanelsToHidden();
+
+        if (AudioManager.Instance != null)
+        {
+            GlobalButtonAudioSetup audioSetup = AudioManager.Instance.GetComponent<GlobalButtonAudioSetup>();
+            if (audioSetup != null)
+            {
+                audioSetup.HookupAllButtons();
+            }
+            else
+            {
+                Debug.LogWarning("GlobalButtonAudioSetup component is missing from the AudioManager GameObject.");
+            }
+        }
 
         StartTransition(OpenRoutine());
     }
@@ -661,6 +677,7 @@ public sealed class ShopTransitionController : MonoBehaviour
         return null;
     }
 
+
     private static T FindFirstObjectByTypeCompat<T>(bool includeInactive) where T : UnityEngine.Object
     {
 #if UNITY_2022_2_OR_NEWER
@@ -675,4 +692,6 @@ public sealed class ShopTransitionController : MonoBehaviour
 #endif
     }
 }
+
+
 

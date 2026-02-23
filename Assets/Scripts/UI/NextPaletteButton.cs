@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// Very small helper: put this on a Unity UI Button to advance the board palette.

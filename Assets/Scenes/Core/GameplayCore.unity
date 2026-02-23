@@ -3229,6 +3229,13 @@ MonoBehaviour:
   roundFailedUIRoot: {fileID: 1243198069}
   homeRunUIRoot: {fileID: 2109000000}
   homeRunMessageText: {fileID: 2109000012}
+  failedPurchaseSound:
+    Guid:
+      Data1: 519620263
+      Data2: 1231414510
+      Data3: 1800051360
+      Data4: -1715759857
+    Path: event:/generic_fail
   shopTransitionController: {fileID: 987650103}
   roundIndex: 0
   maxBalls: 0
@@ -5384,8 +5391,108 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: rerollSound.Path
+      value: event:/reroll
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiClickSound.Path
+      value: event:/button_click
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiHoverSound.Path
+      value: event:/button_hover
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: purchaseSound.Path
+      value: event:/generic_purchase
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: rerollSound.Guid.Data1
+      value: -1253221564
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: rerollSound.Guid.Data2
+      value: 1301160907
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: rerollSound.Guid.Data3
+      value: -1110270803
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: rerollSound.Guid.Data4
+      value: -638404508
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: allBallItems.Array.size
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiClickSound.Guid.Data1
+      value: -1197954480
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiClickSound.Guid.Data2
+      value: 1255480211
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiClickSound.Guid.Data3
+      value: -1982403935
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiClickSound.Guid.Data4
+      value: 57654664
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiHoverSound.Guid.Data1
+      value: 1185751379
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiHoverSound.Guid.Data2
+      value: 1268245631
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiHoverSound.Guid.Data3
+      value: 997750147
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: uiHoverSound.Guid.Data4
+      value: 47879637
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: failedPurchaseSound.Path
+      value: event:/generic_fail
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: purchaseSound.Guid.Data1
+      value: -1951192067
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: purchaseSound.Guid.Data2
+      value: 1154365322
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: purchaseSound.Guid.Data3
+      value: 1741149063
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: purchaseSound.Guid.Data4
+      value: 1085209921
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: failedPurchaseSound.Guid.Data1
+      value: 519620263
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: failedPurchaseSound.Guid.Data2
+      value: 1231414510
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: failedPurchaseSound.Guid.Data3
+      value: 1800051360
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: failedPurchaseSound.Guid.Data4
+      value: -1715759857
       objectReference: {fileID: 0}
     - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: allBallItems.Array.data[0].cost

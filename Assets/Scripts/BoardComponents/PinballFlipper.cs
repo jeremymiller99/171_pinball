@@ -63,6 +63,7 @@ public class PinballFlipper : MonoBehaviour
     private bool _pressed;
     private bool _previousPressed;
     private Rigidbody _rb;
+    private GameRulesManager _gameRulesManager;
 
     private void Awake()
     {
@@ -79,6 +80,14 @@ public class PinballFlipper : MonoBehaviour
 #else
         _pressed = useCentralBindings ? GetPressed_Centralized() : GetPressed_LegacyInput();
 #endif
+
+        if (_pressed && !_previousPressed)
+        {
+            if (_gameRulesManager == null)
+                _gameRulesManager = FindFirstObjectByType<GameRulesManager>();
+            if (_gameRulesManager != null && !_gameRulesManager.TryConsumeFlipperUse())
+                _pressed = false;
+        }
 
         HandleFlipperSfx();
     }

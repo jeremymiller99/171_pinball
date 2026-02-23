@@ -379,6 +379,35 @@ public class FloatingTextSpawner : MonoBehaviour
             goalPopupPopInDuration);
     }
 
+    /// <summary>
+    /// Spawns a centered popup showing the active modifier name for a few seconds (for testing/feedback).
+    /// </summary>
+    /// <param name="modifierName">Text to show (e.g. single modifier name or "Mod1\nMod2" for Unlucky Day).</param>
+    /// <param name="durationSeconds">How long the popup stays.</param>
+    /// <param name="color">Color for the text. If null, uses red.</param>
+    public void SpawnModifierPopup(string modifierName, float durationSeconds = 3f, Color? color = null)
+    {
+        if (string.IsNullOrWhiteSpace(modifierName)) return;
+        if (!TryGetCanvasCenterAnchoredPosition(out Vector2 anchoredOnCanvas)) return;
+
+        Color c = color ?? Color.red;
+        string hex = ColorUtility.ToHtmlStringRGB(c);
+        string coloredText = "<color=#" + hex + ">" + modifierName.Trim() + "</color>";
+        Vector2 anchoredPos = anchoredOnCanvas + goalPraisePopupOffset;
+        SpawnAnchoredTextBounceInternal(
+            anchoredPos,
+            coloredText,
+            goalPraiseFontAsset,
+            goalPraisePopupScale,
+            Mathf.Max(0.5f, durationSeconds),
+            enablePopIn: true,
+            goalPraisePopStartScaleMultiplier,
+            goalPraisePopPeakScaleMultiplier,
+            goalPraisePopRisePortion,
+            goalPraisePopDuration,
+            colorOverride: c);
+    }
+
     private void SpawnAnchoredTextInternal(
         Vector2 anchoredPosition,
         string text,
@@ -427,7 +456,8 @@ public class FloatingTextSpawner : MonoBehaviour
         float popStartScaleMultiplier,
         float popPeakScaleMultiplier,
         float popRisePortion,
-        float popDurationSeconds)
+        float popDurationSeconds,
+        Color? colorOverride = null)
     {
         if (floatingTextPrefab == null || canvas == null) return;
 
@@ -443,6 +473,9 @@ public class FloatingTextSpawner : MonoBehaviour
         {
             ft.SetFontAsset(fontAsset);
         }
+
+        if (colorOverride.HasValue)
+            ft.SetColor(colorOverride.Value);
 
         float safeScale = Mathf.Max(0.0001f, scale);
         ft.SetScale(safeScale);

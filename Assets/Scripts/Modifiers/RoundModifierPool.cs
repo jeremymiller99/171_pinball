@@ -71,6 +71,33 @@ public class RoundModifierPool : ScriptableObject
     }
 
     /// <summary>
+    /// Returns two distinct random modifiers from the pool, excluding the given modifier (e.g. Unlucky Day).
+    /// If the pool has fewer than 2 modifiers (after excluding), returns only what's available.
+    /// </summary>
+    public List<RoundModifierDefinition> GetTwoRandomModifiersExcluding(System.Random rng, RoundModifierDefinition exclude)
+    {
+        if (modifiers == null || modifiers.Count == 0)
+            return new List<RoundModifierDefinition>();
+
+        var valid = new List<RoundModifierDefinition>();
+        foreach (var mod in modifiers)
+        {
+            if (mod != null && mod != exclude)
+                valid.Add(mod);
+        }
+
+        if (valid.Count == 0)
+            return new List<RoundModifierDefinition>();
+        if (valid.Count == 1)
+            return new List<RoundModifierDefinition> { valid[0] };
+
+        int i = rng.Next(valid.Count);
+        int j = rng.Next(valid.Count - 1);
+        if (j >= i) j++;
+        return new List<RoundModifierDefinition> { valid[i], valid[j] };
+    }
+
+    /// <summary>
     /// Returns the count of valid (non-null) modifiers in the pool.
     /// </summary>
     public int ValidCount

@@ -96,10 +96,21 @@ public class GameRulesManager : MonoBehaviour
     // Active level modifier (rolled per level).
     private RoundModifierDefinition _activeModifier;
     private RoundData _currentRoundData;
+    /// <summary>When Unlucky Day (or similar) applies two devil modifiers, this holds the combined goal modifier for GetGoalForRound.</summary>
+    private float _effectiveGoalModifierForRound;
+    /// <summary>When Unlucky Day is active, the two devil modifiers that were picked (for display in orange).</summary>
+    private List<RoundModifierDefinition> _unluckyDayActiveModifiers;
+    /// <summary>Remaining flipper uses this round. -1 = no limit.</summary>
+    private int _flipperUsesRemaining = -1;
 
     [Header("Level Modifiers (runtime)")]
     [Min(1)]
     [SerializeField] private int guaranteedBagSizeFallback = 7;
+
+    [Header("Default Modifier Pools (when no challenge)")]
+    [Tooltip("Used so every round has an angel or devil modifier even in Quick Run. Assign at least one.")]
+    [SerializeField] private RoundModifierPool defaultAngelPool;
+    [SerializeField] private RoundModifierPool defaultDevilPool;
 
     private System.Random _levelModifierRng;
     private readonly List<RoundType> _guaranteedTypeBag = new List<RoundType>();
@@ -181,6 +192,41 @@ public class GameRulesManager : MonoBehaviour
     /// Returns true if the multiplier is disabled by the active modifier.
     /// </summary>
     public bool IsMultiplierDisabled() => _activeModifier?.disableMultiplier ?? false;
+
+    /// <summary>
+    /// Remaining flipper/paddle uses this round. -1 when there is no limit.
+    /// </summary>
+    public int RemainingFlipperUses => _flipperUsesRemaining;
+
+    /// <summary>
+    /// True when the active modifier limits flipper uses this round.
+    /// </summary>
+    public bool HasFlipperLimit => _flipperUsesRemaining >= 0;
+
+    /// <summary>
+    /// Call when the player activates a flipper. Returns true if the flipper may activate;
+    /// false if the limit was exceeded (round is lost and flipper should not activate).
+    /// </summary>
+    public bool TryConsumeFlipperUse()
+    {
+        if (_flipperUsesRemaining < 0)
+            return true;
+        if (_flipperUsesRemaining > 0)
+        {
+            _flipperUsesRemaining--;
+            return true;
+        }
+        TriggerRoundFailed();
+        return false;
+    }
+
+    /// <summary>
+    /// Immediately end the round as failed (e.g. when flipper limit exceeded).
+    /// </summary>
+    public void TriggerRoundFailed()
+    {
+        ShowRoundFailed();
+    }
 
     private void ResolveBallSpawner(bool logIfMissing)
     {
@@ -469,6 +515,16 @@ public class GameRulesManager : MonoBehaviour
     {
         _activeModifier = null;
 
+        // Reset modifier multipliers to 1 when the previous modifier ends (peer rule: reset when modifier wears off).
+        ResolveScoreManager(logIfMissing: false);
+        if (scoreManager != null)
+        {
+            scoreManager.pointsModifierMultiplier = 1f;
+            scoreManager.multModifierMultiplier = 1f;
+            scoreManager.coinModifierMultiplier = 1f;
+            scoreManager.modifierTimeScaleMultiplier = 1f;
+        }
+
         RoundType type = RoundType.Normal;
         RoundModifierDefinition modifier = null;
 
@@ -477,13 +533,122 @@ public class GameRulesManager : MonoBehaviour
         if (challenge != null && challenge.HasModifierPools)
         {
             type = RollModifierType(challenge);
+            if (type == RoundType.Normal)
+            {
+                if (_levelModifierRng == null)
+                    _levelModifierRng = new System.Random(Environment.TickCount);
+                type = _levelModifierRng.NextDouble() < 0.5 ? RoundType.Angel : RoundType.Devil;
+            }
             modifier = RollModifierFromPool(challenge, type);
+            if (modifier == null && type == RoundType.Angel && challenge.devilPool != null && challenge.devilPool.ValidCount > 0)
+                modifier = challenge.devilPool.GetRandomModifier(_levelModifierRng);
+            if (modifier == null && type == RoundType.Devil && challenge.angelPool != null && challenge.angelPool.ValidCount > 0)
+                modifier = challenge.angelPool.GetRandomModifier(_levelModifierRng);
+        }
+        else
+        {
+            RoundModifierPool angelPool = defaultAngelPool;
+            RoundModifierPool devilPool = defaultDevilPool;
+            bool hasAngel = angelPool != null && angelPool.ValidCount > 0;
+            bool hasDevil = devilPool != null && devilPool.ValidCount > 0;
+            if (hasAngel || hasDevil)
+            {
+                if (_levelModifierRng == null)
+                    _levelModifierRng = new System.Random(Environment.TickCount);
+                type = (_levelModifierRng.NextDouble() < 0.5) ? RoundType.Angel : RoundType.Devil;
+                if (type == RoundType.Angel && hasAngel)
+                    modifier = angelPool.GetRandomModifier(_levelModifierRng);
+                else if (type == RoundType.Devil && hasDevil)
+                    modifier = devilPool.GetRandomModifier(_levelModifierRng);
+                if (modifier == null && hasAngel)
+                    modifier = angelPool.GetRandomModifier(_levelModifierRng);
+                if (modifier == null && hasDevil)
+                    modifier = devilPool.GetRandomModifier(_levelModifierRng);
+            }
         }
 
         _activeModifier = modifier;
         _currentRoundData = new RoundData(roundIndex, type, modifier);
+        _flipperUsesRemaining = (_activeModifier != null && _activeModifier.flipperUseLimit > 0)
+            ? _activeModifier.flipperUseLimit
+            : -1;
 
-        ApplyBallModifierFromActiveModifier();
+        // Push active modifier into ScoreManager so ball→AddScore() uses the right multipliers (peer rule).
+        _effectiveGoalModifierForRound = 0f;
+        _unluckyDayActiveModifiers = null;
+        if (scoreManager != null && _activeModifier != null)
+        {
+            if (_activeModifier.applyTwoRandomDevilModifiers)
+            {
+                RoundModifierPool devilPool = (session != null && session.ActiveChallenge != null && session.ActiveChallenge.devilPool != null)
+                    ? session.ActiveChallenge.devilPool
+                    : defaultDevilPool;
+                if (devilPool != null)
+                {
+                    var two = devilPool.GetTwoRandomModifiersExcluding(_levelModifierRng, _activeModifier);
+                    _unluckyDayActiveModifiers = two;
+                    float scoreMult = 1f;
+                    float goalMod = 0f;
+                    float coinMult = 1f;
+                    bool disableMult = false;
+                    int ballMod = 0;
+                    float timeScaleMult = 1f;
+                    foreach (var m in two)
+                    {
+                        if (m == null) continue;
+                        scoreMult *= m.scoreMultiplier;
+                        goalMod += m.goalModifier;
+                        coinMult *= m.coinMultiplier;
+                        disableMult = disableMult || m.disableMultiplier;
+                        ballMod += m.ballModifier;
+                        timeScaleMult *= m.timeScaleMultiplier;
+                    }
+                    scoreManager.pointsModifierMultiplier = Mathf.Max(0f, scoreMult);
+                    scoreManager.multModifierMultiplier = disableMult ? 0f : 1f;
+                    scoreManager.coinModifierMultiplier = Mathf.Max(0f, coinMult);
+                    scoreManager.modifierTimeScaleMultiplier = Mathf.Max(0.1f, timeScaleMult);
+                    _effectiveGoalModifierForRound = goalMod;
+                    ApplyBallModifierFromActiveModifier(ballMod);
+                }
+                else
+                {
+                    scoreManager.pointsModifierMultiplier = Mathf.Max(0f, _activeModifier.scoreMultiplier);
+                    scoreManager.multModifierMultiplier = _activeModifier.disableMultiplier ? 0f : 1f;
+                    scoreManager.coinModifierMultiplier = Mathf.Max(0f, _activeModifier.coinMultiplier);
+                    ApplyBallModifierFromActiveModifier();
+                }
+            }
+            else
+            {
+                scoreManager.pointsModifierMultiplier = Mathf.Max(0f, _activeModifier.scoreMultiplier);
+                scoreManager.multModifierMultiplier = _activeModifier.disableMultiplier ? 0f : 1f; // Cursed Multiplier: mult cannot increase (locked at 1×)
+                scoreManager.coinModifierMultiplier = Mathf.Max(0f, _activeModifier.coinMultiplier);
+                scoreManager.modifierTimeScaleMultiplier = Mathf.Max(0.1f, _activeModifier.timeScaleMultiplier);
+                ApplyBallModifierFromActiveModifier();
+            }
+        }
+
+        // Show modifier name for ~3 seconds so you can confirm it's active (Unlucky Day = two names in orange).
+        if (_activeModifier != null)
+        {
+            ResolveFloatingTextSpawner(logIfMissing: false);
+            if (_activeModifier.applyTwoRandomDevilModifiers && _unluckyDayActiveModifiers != null && _unluckyDayActiveModifiers.Count > 0)
+            {
+                var names = new List<string>();
+                foreach (var m in _unluckyDayActiveModifiers)
+                {
+                    if (m != null && !string.IsNullOrEmpty(m.displayName))
+                        names.Add(m.displayName);
+                }
+                string text = names.Count > 0 ? string.Join("\n", names) : _activeModifier.displayName;
+                floatingTextSpawner?.SpawnModifierPopup(text, 3f, Color.orange);
+            }
+            else
+            {
+                floatingTextSpawner?.SpawnModifierPopup(_activeModifier.displayName, 3f);
+            }
+        }
+
         LevelChanged?.Invoke();
     }
 
@@ -603,14 +768,19 @@ public class GameRulesManager : MonoBehaviour
 
     private void ApplyBallModifierFromActiveModifier()
     {
-        if (_activeModifier == null || _activeModifier.ballModifier == 0)
+        int delta = _activeModifier != null ? _activeModifier.ballModifier : 0;
+        ApplyBallModifierFromActiveModifier(delta);
+    }
+
+    private void ApplyBallModifierFromActiveModifier(int delta)
+    {
+        if (delta == 0)
         {
             return;
         }
 
         ResolveBallSpawner(logIfMissing: false);
 
-        int delta = _activeModifier.ballModifier;
         if (delta > 0)
         {
             TryAddFallbackBallsToLoadout(delta);
@@ -724,12 +894,12 @@ public class GameRulesManager : MonoBehaviour
             {
                 float prevGoal = CurrentGoal;
 
-                AddCoinsUnscaled(coinsPerLevelUp);
+                int coinsAwarded = AddCoinsScaled(coinsPerLevelUp);
 
                 if (showLevelUpCoinsPopup)
                 {
                     ResolveFloatingTextSpawner(logIfMissing: false);
-                    floatingTextSpawner?.SpawnLevelUpCoinsPopup(coinsPerLevelUp);
+                    floatingTextSpawner?.SpawnLevelUpCoinsPopup(coinsAwarded);
                 }
 
                 scoreManager.ConsumeLevelProgress(prevGoal);
@@ -1196,10 +1366,14 @@ public class GameRulesManager : MonoBehaviour
 
         float baseGoalForRound = GetBaseGoalForRound(index);
 
-        // Apply goal modifier from active modifier
-        if (_activeModifier != null && !Mathf.Approximately(_activeModifier.goalModifier, 0f))
+        // Apply goal modifier from active modifier (or combined when Unlucky Day applies two devils)
+        if (_activeModifier != null)
         {
-            baseGoalForRound = Mathf.Max(0f, baseGoalForRound + _activeModifier.goalModifier);
+            float goalMod = _activeModifier.applyTwoRandomDevilModifiers ? _effectiveGoalModifierForRound : _activeModifier.goalModifier;
+            if (!Mathf.Approximately(goalMod, 0f))
+            {
+                baseGoalForRound = Mathf.Max(0f, baseGoalForRound + goalMod);
+            }
         }
 
         return baseGoalForRound;

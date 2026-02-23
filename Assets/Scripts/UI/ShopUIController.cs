@@ -51,6 +51,8 @@ public sealed class ShopUIController : MonoBehaviour
     [SerializeField] private EventReference purchaseSound;
     [Tooltip("Sound for a successful reroll.")]
     [SerializeField] private EventReference rerollSound;
+    [Tooltip("Sound for a failed purchase attempt.")]
+    [SerializeField] private EventReference failedPurchaseSound;
 
     [Header("UI (optional)")]
     [Tooltip("Shown when a replacement slot must be chosen.")]
@@ -213,6 +215,7 @@ public sealed class ShopUIController : MonoBehaviour
         if (rulesManager.Coins < offer.Price)
         {
             SetPrompt($"Not enough coins for {offer.GetSafeDisplayName()}.");
+            AudioManager.Instance.PlayOneShot(failedPurchaseSound);
             RefreshUI();
             return;
         }
@@ -462,6 +465,7 @@ public sealed class ShopUIController : MonoBehaviour
         if (rulesManager.Coins < item.Price)
         {
             SetPrompt($"Not enough coins for {item.GetSafeDisplayName()}.");
+            AudioManager.Instance.PlayOneShot(failedPurchaseSound);
             RefreshUI();
             return;
         }
@@ -558,6 +562,7 @@ public sealed class ShopUIController : MonoBehaviour
         if (rulesManager.Coins < selectedOffer.Price)
         {
             SetPrompt($"Not enough coins for {selectedOffer.GetSafeDisplayName()}.");
+            AudioManager.Instance.PlayOneShot(failedPurchaseSound);
             RefreshUI();
             return;
         }
@@ -612,7 +617,7 @@ public sealed class ShopUIController : MonoBehaviour
 
         if (rerollButton != null && rulesManager != null)
         {
-            rerollButton.interactable = rulesManager.Coins >= rerollCost;
+            // rerollButton.interactable = rulesManager.Coins >= rerollCost;
         }
     }
 
@@ -1182,6 +1187,7 @@ public sealed class ShopUIController : MonoBehaviour
         if (rulesManager.Coins < rerollCost)
         {
             SetPrompt($"Not enough coins to reroll (${rerollCost}).");
+            AudioManager.Instance.PlayOneShot(failedPurchaseSound);
             RefreshUI();
             return;
         }

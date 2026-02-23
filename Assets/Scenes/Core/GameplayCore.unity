@@ -3229,6 +3229,13 @@ MonoBehaviour:
   roundFailedUIRoot: {fileID: 1243198069}
   homeRunUIRoot: {fileID: 2109000000}
   homeRunMessageText: {fileID: 2109000012}
+  failedPurchaseSound:
+    Guid:
+      Data1: 519620263
+      Data2: 1231414510
+      Data3: 1800051360
+      Data4: -1715759857
+    Path: event:/generic_fail
   shopTransitionController: {fileID: 987650103}
   roundIndex: 0
   maxBalls: 0
@@ -5452,6 +5459,10 @@ PrefabInstance:
       value: 47879637
       objectReference: {fileID: 0}
     - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: failedPurchaseSound.Path
+      value: event:/generic_fail
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: purchaseSound.Guid.Data1
       value: -1951192067
       objectReference: {fileID: 0}
@@ -5466,6 +5477,22 @@ PrefabInstance:
     - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: purchaseSound.Guid.Data4
       value: 1085209921
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: failedPurchaseSound.Guid.Data1
+      value: 519620263
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: failedPurchaseSound.Guid.Data2
+      value: 1231414510
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: failedPurchaseSound.Guid.Data3
+      value: 1800051360
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: failedPurchaseSound.Guid.Data4
+      value: -1715759857
       objectReference: {fileID: 0}
     - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: allBallItems.Array.data[0].cost

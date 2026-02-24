@@ -2992,7 +2992,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeComponents
   typeOfScore: 0
-  defaultScore: 10
+  defaultScore: 5
   cost: 5
   gameRulesManager: {fileID: 0}
   shopUIController: {fileID: 0}
@@ -4293,10 +4293,6 @@ MonoBehaviour:
   originialBoardScale: {x: 0, y: 0, z: 0}
   boardRoot: {fileID: 0}
   chosenComponent: {fileID: 0}
-  upgradeButtons:
-  - {fileID: 3036657600032104299}
-  - {fileID: 6079979063461199508}
-  - {fileID: 5931260187651461961}
   componentTypeText: {fileID: 110519917239097646}
 --- !u!114 &2109684641203258976
 MonoBehaviour:

@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IComponent
   typeOfScore: 0
-  amountToScore: 25
+  amountToScore: 15
   leftObject: {fileID: 0}
   rightObject: {fileID: 0}
   upObject: {fileID: 0}

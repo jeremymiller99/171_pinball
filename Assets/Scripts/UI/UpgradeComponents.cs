@@ -3,13 +3,15 @@ using UnityEngine;
 
 public class UpgradeComponents : MonoBehaviour
 {
-    [SerializeField] private string tagToUpgrade;
-    [SerializeField] private float multiplyPointsBy;
+    [SerializeField] private TypeOfScore typeOfScore;
+    [SerializeField] private float defaultScore;
     [SerializeField] private int cost;
     [SerializeField] private GameRulesManager gameRulesManager;
     [SerializeField] private ShopUIController shopUIController;
+    [SerializeField] private GameObject targetedComponent;
+    [SerializeField] private GameObject star;
 
-    private void EnsureRefs()
+    private void Awake()
     {
         if (!gameRulesManager)
         {
@@ -21,156 +23,43 @@ public class UpgradeComponents : MonoBehaviour
         }
     }
 
-    public void UpgradeComponentByTag()
+    public void Refresh(GameObject gameObject)
     {
-        EnsureRefs();
-
-        if (gameRulesManager == null || shopUIController == null)
+        foreach(BoardComponent component in gameObject.GetComponents<BoardComponent>())
         {
-            return;
+            if (component.typeOfScore == typeOfScore)
+            {
+                star.SetActive(true);
+            } else
+            {
+                star.SetActive(false);
+            }
         }
+        targetedComponent = gameObject;
+    }
 
-        if (string.IsNullOrWhiteSpace(tagToUpgrade))
-        {
-            return;
-        }
-
-        if (cost > 0 && gameRulesManager.Coins < cost)
-        {
-            return;
-        }
-
+    public void UpgradeComponent()
+    {
         if (cost > 0 && !gameRulesManager.TrySpendCoins(cost))
         {
             return;
         }
 
         shopUIController.RefreshUI();
-
-        float mult = multiplyPointsBy;
-        if (mult <= 0f)
-        {
-            mult = 1f;
-        }
-
-        UpgradePointAddersByTag(tagToUpgrade, mult);
-        UpgradeMultAddersByTag(tagToUpgrade, mult);
-        UpgradePortalsByTag(tagToUpgrade, mult);
+        BoardComponent defaultComponent = targetedComponent.GetComponent<BoardComponent>();
+        BoardComponent newComponent = targetedComponent.AddComponent<BoardComponent>();
+        newComponent.amountToScore = defaultScore;
+        newComponent.typeOfScore = typeOfScore;
+        newComponent.upObject = defaultComponent.upObject;
+        newComponent.downObject = defaultComponent.downObject;
+        newComponent.leftObject = defaultComponent.leftObject;
+        newComponent.rightObject = defaultComponent.rightObject;
+        newComponent.startingSize = defaultComponent.startingSize;
+        newComponent.pulseAmount = defaultComponent.pulseAmount;
+        newComponent.maxPulseScale = defaultComponent.maxPulseScale;
+        Refresh(targetedComponent);
     }
 
-    private static void UpgradePointAddersByTag(string tag, float mult)
-    {
-        /*
-        PointAdder[] adders = Resources.FindObjectsOfTypeAll<PointAdder>();
-        for (int i = 0; i < adders.Length; i++)
-        {
-            PointAdder adder = adders[i];
-            if (!IsSceneInstance(adder))
-            {
-                continue;
-            }
-
-            if (!HierarchyContainsTag(adder.transform, tag))
-            {
-                continue;
-            }
-
-            adder.multiplyPointsToAdd(mult);
-        }
-        */
-    }
-
-    private static void UpgradeMultAddersByTag(string tag, float mult)
-    {
-        /*
-        MultAdder[] adders = Resources.FindObjectsOfTypeAll<MultAdder>();
-        for (int i = 0; i < adders.Length; i++)
-        {
-            MultAdder adder = adders[i];
-            if (!IsSceneInstance(adder))
-            {
-                continue;
-            }
-
-            if (!HierarchyContainsTag(adder.transform, tag))
-            {
-                continue;
-            }
-
-            adder.multiplyMultToAdd(mult);
-        }
-        */
-    }
-
-    private static void UpgradePortalsByTag(string tag, float mult)
-    {
-        /*
-        Portal[] portals = Resources.FindObjectsOfTypeAll<Portal>();
-        for (int i = 0; i < portals.Length; i++)
-        {
-            Portal portal = portals[i];
-            if (!IsSceneInstance(portal))
-            {
-                continue;
-            }
-
-            if (!HierarchyContainsTag(portal.transform, tag))
-            {
-                continue;
-            }
-
-            portal.MultiplyExitSpeed(mult);
-        }
-        */
-    }
-
-    private static bool IsSceneInstance(Component c)
-    {
-        if (c == null)
-        {
-            return false;
-        }
-
-        GameObject go = c.gameObject;
-        if (go == null)
-        {
-            return false;
-        }
-
-        return go.scene.IsValid();
-    }
-
-    private static bool HierarchyContainsTag(Transform root, string tag)
-    {
-        if (root == null)
-        {
-            return false;
-        }
-
-        Transform t = root;
-        while (t != null)
-        {
-            if (t.CompareTag(tag))
-            {
-                return true;
-            }
-            t = t.parent;
-        }
-
-        Transform[] transforms = root.GetComponentsInChildren<Transform>(includeInactive: true);
-        for (int i = 0; i < transforms.Length; i++)
-        {
-            Transform child = transforms[i];
-            if (child == null)
-            {
-                continue;
-            }
-            if (child.CompareTag(tag))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    
+    
 }

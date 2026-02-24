@@ -203,6 +203,9 @@ public sealed class GameSession : MonoBehaviour
             AssignProbabilityRounds(roundTypes, rng);
         }
 
+        // The first level is always a normal round.
+        roundTypes[0] = RoundType.Normal;
+
         // Create RoundData with assigned modifiers
         for (int i = 0; i < totalRounds; i++)
         {
@@ -224,12 +227,13 @@ public sealed class GameSession : MonoBehaviour
     private void AssignGuaranteedRounds(RoundType[] roundTypes, System.Random rng)
     {
         int totalRounds = roundTypes.Length;
-        int angelsToPlace = Mathf.Min(activeChallenge.guaranteedAngels, totalRounds);
-        int devilsToPlace = Mathf.Min(activeChallenge.guaranteedDevils, totalRounds - angelsToPlace);
+        int availableRounds = Mathf.Max(0, totalRounds - 1);
+        int angelsToPlace = Mathf.Min(activeChallenge.guaranteedAngels, availableRounds);
+        int devilsToPlace = Mathf.Min(activeChallenge.guaranteedDevils, availableRounds - angelsToPlace);
 
         // Create list of available indices
         var availableIndices = new List<int>();
-        for (int i = 0; i < totalRounds; i++)
+        for (int i = 1; i < totalRounds; i++)
         {
             availableIndices.Add(i);
         }
@@ -262,7 +266,8 @@ public sealed class GameSession : MonoBehaviour
         float angelChance = Mathf.Clamp01(activeChallenge.angelChance);
         float devilChance = Mathf.Clamp01(activeChallenge.devilChance);
 
-        for (int i = 0; i < roundTypes.Length; i++)
+        // The first level is always a normal round.
+        for (int i = 1; i < roundTypes.Length; i++)
         {
             float roll = (float)rng.NextDouble();
 

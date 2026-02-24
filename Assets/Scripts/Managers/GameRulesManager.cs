@@ -729,6 +729,12 @@ public class GameRulesManager : MonoBehaviour
         ChallengeModeDefinition challenge = session != null ? session.ActiveChallenge : null;
         if (challenge != null && challenge.HasModifierPools)
         {
+            if (absoluteRoundIndex == 0 && challenge.distributionMode == RoundDistributionMode.Guaranteed)
+            {
+                EnsureGuaranteedTypeBag(challenge);
+                EnsureCurrentGuaranteedTypeIsNormal();
+            }
+
             type = RollModifierType(challenge);
             modifier = RollModifierFromPool(challenge, type);
             if (modifier == null && type == RoundType.Angel && challenge.devilPool != null && challenge.devilPool.ValidCount > 0)
@@ -754,6 +760,12 @@ public class GameRulesManager : MonoBehaviour
                     modifier = devilPool.GetRandomModifier(_levelModifierRng);
                 }
             }
+        }
+
+        if (absoluteRoundIndex == 0)
+        {
+            type = RoundType.Normal;
+            modifier = null;
         }
 
         var generated = new GeneratedRound
@@ -1079,6 +1091,29 @@ public class GameRulesManager : MonoBehaviour
             int j = _levelModifierRng.Next(i + 1);
             (_guaranteedTypeBag[i], _guaranteedTypeBag[j]) = (_guaranteedTypeBag[j], _guaranteedTypeBag[i]);
         }
+    }
+
+    private void EnsureCurrentGuaranteedTypeIsNormal()
+    {
+        if (_guaranteedTypeBag == null || _guaranteedTypeBag.Count == 0)
+        {
+            return;
+        }
+
+        int i = Mathf.Clamp(_guaranteedTypeBagPos, 0, _guaranteedTypeBag.Count - 1);
+        if (_guaranteedTypeBag[i] == RoundType.Normal)
+        {
+            return;
+        }
+
+        int swapIndex = _guaranteedTypeBag.FindIndex(i + 1, t => t == RoundType.Normal);
+        if (swapIndex >= 0)
+        {
+            (_guaranteedTypeBag[i], _guaranteedTypeBag[swapIndex]) = (_guaranteedTypeBag[swapIndex], _guaranteedTypeBag[i]);
+            return;
+        }
+
+        _guaranteedTypeBag[i] = RoundType.Normal;
     }
 
     private void ApplyBallModifierFromActiveModifier()

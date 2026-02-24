@@ -1,10 +1,16 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
 using UnityEngine;
 using UnityEngine.UI;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 [DisallowMultipleComponent]
 public sealed class BasicTutorialPanelController : MonoBehaviour
 {
+    private const int tutorialPanelCount = 6;
+    private const int ignoreInputFramesOnOpen = 2;
+
     [Header("Optional refs (auto-resolved if blank)")]
     [SerializeField] private GameRulesManager rulesManager;
 
@@ -22,6 +28,12 @@ public sealed class BasicTutorialPanelController : MonoBehaviour
 
     [Header("Tutorial Close (optional)")]
     [SerializeField] private Button tutorialCloseButton;
+
+    private int currentPanelIndex = -1;
+    private int ignoreInputFrames;
+    private bool hasResolvedStepPanels;
+    private bool isStepperActive;
+    private GameObject[] stepPanels;
 
     private void Awake()
     {
@@ -42,6 +54,27 @@ public sealed class BasicTutorialPanelController : MonoBehaviour
         {
             tutorialRoot.SetActive(false);
         }
+    }
+
+    private void Update()
+    {
+        if (!isStepperActive || tutorialRoot == null || !tutorialRoot.activeInHierarchy)
+        {
+            return;
+        }
+
+        if (ignoreInputFrames > 0)
+        {
+            ignoreInputFrames--;
+            return;
+        }
+
+        if (!WasAdvanceInputPressedThisFrame())
+        {
+            return;
+        }
+
+        AdvancePanel();
     }
 
     private void OnEnable()
@@ -140,6 +173,8 @@ public sealed class BasicTutorialPanelController : MonoBehaviour
         {
             tutorialRoot.SetActive(true);
         }
+
+        StartTutorialStepper();
     }
 
     private void HideTutorial()
@@ -148,6 +183,12 @@ public sealed class BasicTutorialPanelController : MonoBehaviour
         {
             tutorialRoot.SetActive(false);
         }
+
+        isStepperActive = false;
+        currentPanelIndex = -1;
+        ignoreInputFrames = 0;
+
+        HideAllStepPanels();
     }
 
     private void CloseBasicTutorialPanel()
@@ -175,6 +216,182 @@ public sealed class BasicTutorialPanelController : MonoBehaviour
     private void OnTutorialClosePressed()
     {
         HideTutorial();
+    }
+
+    private void StartTutorialStepper()
+    {
+        if (tutorialRoot == null)
+        {
+            return;
+        }
+
+        ResolveStepPanelsIfNeeded();
+        if (stepPanels == null)
+        {
+            return;
+        }
+
+        HideLegacyTutorialChildren();
+
+        isStepperActive = true;
+        ignoreInputFrames = ignoreInputFramesOnOpen;
+        currentPanelIndex = 0;
+        ShowPanel(currentPanelIndex);
+    }
+
+    private void ResolveStepPanelsIfNeeded()
+    {
+        if (hasResolvedStepPanels)
+        {
+            return;
+        }
+
+        hasResolvedStepPanels = true;
+        if (tutorialRoot == null)
+        {
+            return;
+        }
+
+        stepPanels = new GameObject[tutorialPanelCount];
+        for (int i = 0; i < tutorialPanelCount; i++)
+        {
+            string panelName = (i + 1).ToString();
+            Transform t = tutorialRoot.transform.Find(panelName);
+            if (t == null)
+            {
+                Debug.LogWarning(
+                    $"{nameof(BasicTutorialPanelController)}: Missing tutorial panel '{panelName}' under " +
+                    $"'{tutorialRoot.name}'.");
+                stepPanels = null;
+                return;
+            }
+
+            stepPanels[i] = t.gameObject;
+        }
+    }
+
+    private void HideLegacyTutorialChildren()
+    {
+        if (tutorialRoot == null || stepPanels == null)
+        {
+            return;
+        }
+
+        Transform root = tutorialRoot.transform;
+        for (int i = 0; i < root.childCount; i++)
+        {
+            Transform child = root.GetChild(i);
+            if (child == null)
+            {
+                continue;
+            }
+
+            if (IsStepPanel(child.gameObject))
+            {
+                continue;
+            }
+
+            child.gameObject.SetActive(false);
+        }
+    }
+
+    private bool IsStepPanel(GameObject go)
+    {
+        if (go == null || stepPanels == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < stepPanels.Length; i++)
+        {
+            if (stepPanels[i] == go)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void HideAllStepPanels()
+    {
+        if (stepPanels == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < stepPanels.Length; i++)
+        {
+            if (stepPanels[i] != null)
+            {
+                stepPanels[i].SetActive(false);
+            }
+        }
+    }
+
+    private void ShowPanel(int index)
+    {
+        if (stepPanels == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < stepPanels.Length; i++)
+        {
+            GameObject panel = stepPanels[i];
+            if (panel == null)
+            {
+                continue;
+            }
+
+            panel.SetActive(i == index);
+        }
+    }
+
+    private void AdvancePanel()
+    {
+        if (stepPanels == null)
+        {
+            return;
+        }
+
+        if (currentPanelIndex < 0)
+        {
+            currentPanelIndex = 0;
+            ShowPanel(currentPanelIndex);
+            return;
+        }
+
+        if (currentPanelIndex >= stepPanels.Length - 1)
+        {
+            HideTutorial();
+            return;
+        }
+
+        currentPanelIndex++;
+        ShowPanel(currentPanelIndex);
+    }
+
+    private static bool WasAdvanceInputPressedThisFrame()
+    {
+#if ENABLE_INPUT_SYSTEM
+        if (Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame)
+        {
+            return true;
+        }
+
+        if (Mouse.current != null &&
+            (Mouse.current.leftButton.wasPressedThisFrame ||
+             Mouse.current.rightButton.wasPressedThisFrame ||
+             Mouse.current.middleButton.wasPressedThisFrame))
+        {
+            return true;
+        }
+
+        return false;
+#else
+        return Input.anyKeyDown;
+#endif
     }
 }
 

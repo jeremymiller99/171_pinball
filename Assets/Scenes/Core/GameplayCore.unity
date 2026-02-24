@@ -5824,6 +5824,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Basic Tutorial Panel
       objectReference: {fileID: 0}
+    - target: {fileID: 5630811846323021269, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8118021236926230899, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

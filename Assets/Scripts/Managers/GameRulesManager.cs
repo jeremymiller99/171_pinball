@@ -817,24 +817,37 @@ public class GameRulesManager : MonoBehaviour
             }
         }
 
-        // Show modifier name for ~3 seconds so you can confirm it's active (Unlucky Day = two names in orange).
+        // Legacy: floating text modifier popup (replaced by Modifier Card Panel when present).
         if (_activeModifier != null)
         {
-            ResolveFloatingTextSpawner(logIfMissing: false);
-            if (_activeModifier.applyTwoRandomDevilModifiers && _unluckyDayActiveModifiers != null && _unluckyDayActiveModifiers.Count > 0)
+            bool hasModifierCardPopup = false;
+#if UNITY_2022_2_OR_NEWER
+            hasModifierCardPopup =
+                FindFirstObjectByType<ModifierCardPopupController>(FindObjectsInactive.Include) != null;
+#else
+            hasModifierCardPopup =
+                FindObjectOfType<ModifierCardPopupController>() != null;
+#endif
+
+            if (!hasModifierCardPopup)
             {
-                var names = new List<string>();
-                foreach (var m in _unluckyDayActiveModifiers)
+                ResolveFloatingTextSpawner(logIfMissing: false);
+                if (_activeModifier.applyTwoRandomDevilModifiers && _unluckyDayActiveModifiers != null &&
+                    _unluckyDayActiveModifiers.Count > 0)
                 {
-                    if (m != null && !string.IsNullOrEmpty(m.displayName))
-                        names.Add(m.displayName);
+                    var names = new List<string>();
+                    foreach (var m in _unluckyDayActiveModifiers)
+                    {
+                        if (m != null && !string.IsNullOrEmpty(m.displayName))
+                            names.Add(m.displayName);
+                    }
+                    string text = names.Count > 0 ? string.Join("\n", names) : _activeModifier.displayName;
+                    floatingTextSpawner?.SpawnModifierPopup(text, 3f, Color.orange);
                 }
-                string text = names.Count > 0 ? string.Join("\n", names) : _activeModifier.displayName;
-                floatingTextSpawner?.SpawnModifierPopup(text, 3f, Color.orange);
-            }
-            else
-            {
-                floatingTextSpawner?.SpawnModifierPopup(_activeModifier.displayName, 3f);
+                else
+                {
+                    floatingTextSpawner?.SpawnModifierPopup(_activeModifier.displayName, 3f);
+                }
             }
         }
 

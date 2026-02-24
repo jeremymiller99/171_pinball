@@ -1,9 +1,13 @@
+// Generated with Cursor AI (GPT-5.2), by OpenAI, 2026-02-24.
+// Change: add selection outline + portal paired-exit outline.
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 
 public class BoardComponent : MonoBehaviour
 {
+    private const float defaultSelectionOutlineWidth = 8f;
+
     public TypeOfScore typeOfScore;
     public float amountToScore;
     public GameObject leftObject;
@@ -16,6 +20,16 @@ public class BoardComponent : MonoBehaviour
     public float pulseAmount;
     public Vector3 startingSize;
     [SerializeField] private int directionOfPulse = 1;
+
+    [Header("Selection Outline")]
+    [SerializeField] private bool useSelectionOutline = true;
+    [SerializeField] private Outline.Mode selectionOutlineMode = Outline.Mode.OutlineAll;
+    [SerializeField] private Color selectionOutlineColor = Color.white;
+    [SerializeField, Range(0f, 10f)] private float selectionOutlineWidth = defaultSelectionOutlineWidth;
+
+    private Outline selectionOutline;
+    private Outline portalExitOutline;
+    private Transform cachedPortalExit;
 
     void Awake()
     {
@@ -158,10 +172,112 @@ public class BoardComponent : MonoBehaviour
     public void Select()
     {
         isSelected = true;
+
+        if (!useSelectionOutline)
+        {
+            return;
+        }
+
+        EnsureSelectionOutline();
+        if (selectionOutline == null)
+        {
+            return;
+        }
+
+        ApplySelectionOutlineSettings(selectionOutline);
+        selectionOutline.enabled = true;
+
+        SetPortalExitOutlineEnabled(true);
     }
     public void DeSelect()
     {
         isSelected = false;
         transform.localScale = startingSize;
+
+        if (selectionOutline != null)
+        {
+            selectionOutline.enabled = false;
+        }
+
+        SetPortalExitOutlineEnabled(false);
+    }
+
+    public void PrewarmSelectionOutline()
+    {
+        if (!useSelectionOutline)
+        {
+            return;
+        }
+
+        EnsureSelectionOutline();
+        if (selectionOutline == null)
+        {
+            return;
+        }
+
+        ApplySelectionOutlineSettings(selectionOutline);
+        selectionOutline.enabled = false;
+
+        SetPortalExitOutlineEnabled(false);
+    }
+
+    private void EnsureSelectionOutline()
+    {
+        if (selectionOutline != null)
+        {
+            return;
+        }
+
+        selectionOutline = GetComponent<Outline>();
+        if (selectionOutline == null)
+        {
+            selectionOutline = gameObject.AddComponent<Outline>();
+        }
+    }
+
+    private void SetPortalExitOutlineEnabled(bool isEnabled)
+    {
+        Portal portal = GetComponent<Portal>();
+        if (portal == null || portal.portalExit == null)
+        {
+            if (portalExitOutline != null)
+            {
+                portalExitOutline.enabled = false;
+            }
+
+            portalExitOutline = null;
+            cachedPortalExit = null;
+            return;
+        }
+
+        if (cachedPortalExit != portal.portalExit)
+        {
+            cachedPortalExit = portal.portalExit;
+            portalExitOutline = null;
+        }
+
+        if (portalExitOutline == null)
+        {
+            portalExitOutline = cachedPortalExit.GetComponent<Outline>();
+            if (portalExitOutline == null)
+            {
+                portalExitOutline = cachedPortalExit.gameObject.AddComponent<Outline>();
+            }
+        }
+
+        ApplySelectionOutlineSettings(portalExitOutline);
+        portalExitOutline.enabled = isEnabled;
+    }
+
+    private void ApplySelectionOutlineSettings(Outline outline)
+    {
+        if (outline == null)
+        {
+            return;
+        }
+
+        outline.OutlineMode = selectionOutlineMode;
+        outline.OutlineColor = selectionOutlineColor;
+        outline.OutlineWidth = selectionOutlineWidth;
     }
 }

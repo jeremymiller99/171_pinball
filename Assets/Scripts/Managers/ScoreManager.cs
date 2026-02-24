@@ -602,7 +602,7 @@ public class ScoreManager : MonoBehaviour
         UpdateGoalTierAndApplySpeed();
         EnsureCoreScoreTextBindings();
         if (goalText != null)
-            goalText.text = CumulativeGoal.ToString();
+            goalText.text = FormatPointsCompact(CumulativeGoal);
         ScoreChanged?.Invoke();
     }
 
@@ -726,7 +726,7 @@ public class ScoreManager : MonoBehaviour
         if (roundTotalText != null)
             roundTotalText.text = FormatPointsCompact(roundTotal);
         if (goalText != null)
-            goalText.text = CumulativeGoal.ToString();
+            goalText.text = FormatPointsCompact(CumulativeGoal);
     }
 
     private void CaptureRoundIndexJuiceBaselineIfNeeded()

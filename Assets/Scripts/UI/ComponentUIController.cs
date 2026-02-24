@@ -1,3 +1,5 @@
+// Generated with Cursor AI (GPT-5.2), by OpenAI, 2026-02-24.
+// Change: prewarm selection outlines for board components.
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -59,6 +61,7 @@ public class ComponentUIController : MonoBehaviour
         }
 
         BuildDisplayNamesForCurrentBoardScene();
+        PrewarmSelectionOutlinesForCurrentBoardScene();
         chosenComponent.Select();
         Refresh();
     }
@@ -207,6 +210,45 @@ public class ComponentUIController : MonoBehaviour
 
                 displayNameByInstanceId[go.GetInstanceID()] = $"{tag} {i + 1}";
             }
+        }
+    }
+
+    private void PrewarmSelectionOutlinesForCurrentBoardScene()
+    {
+        if (boardRoot == null)
+        {
+            return;
+        }
+
+        string sceneName = boardRoot.gameObject.scene.name;
+        if (string.IsNullOrWhiteSpace(sceneName))
+        {
+            return;
+        }
+
+        BoardComponent[] all =
+            FindObjectsByType<BoardComponent>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        for (int i = 0; i < all.Length; i++)
+        {
+            BoardComponent bc = all[i];
+            if (bc == null || bc.gameObject == null)
+            {
+                continue;
+            }
+
+            GameObject go = bc.gameObject;
+            if (!go.scene.IsValid() || !go.scene.isLoaded)
+            {
+                continue;
+            }
+
+            if (!string.Equals(go.scene.name, sceneName))
+            {
+                continue;
+            }
+
+            bc.PrewarmSelectionOutline();
         }
     }
 

@@ -25,22 +25,55 @@ public class ComponentUIController : MonoBehaviour
 
     void OnEnable()
     {
+        if (boardRoot == null)
+        {
+            boardRoot = FindFirstObjectByType<BoardRoot>();
+        }
+        if (boardRoot == null)
+        {
+            return;
+        }
+        
+        if (chosenComponent == null)
+        {
+            chosenComponent = FindFirstObjectByType<BoardComponent>();
+        }
+        if (chosenComponent == null)
+        {
+            return;
+        }
+
         originalBoardPosition = boardRoot.transform.position;
         originalBoardRotation = boardRoot.transform.rotation.eulerAngles;
         originialBoardScale = boardRoot.transform.localScale;
         boardRoot.transform.position = newBoardPosition;
         boardRoot.transform.rotation = Quaternion.Euler(newBoardRotation.x, newBoardRotation.y, newBoardRotation.z);
         boardRoot.transform.localScale = newBoardScale;
+
+        var session = GameSession.Instance;
+        if (session != null && boardRoot != null)
+        {
+            session.ApplyBoardComponentUpgradesForScene(boardRoot.gameObject.scene.name);
+        }
+
         chosenComponent.Select();
         Refresh();
     }
 
     void OnDisable()
     {
+        if (boardRoot == null)
+        {
+            return;
+        }
+
         boardRoot.transform.position = originalBoardPosition;
         boardRoot.transform.rotation = Quaternion.Euler(originalBoardRotation.x, originalBoardRotation.y, originalBoardRotation.z);
         boardRoot.transform.localScale = originialBoardScale;
-        chosenComponent.DeSelect();
+        if (chosenComponent != null)
+        {
+            chosenComponent.DeSelect();
+        }
     }
 
     void OnLeft()

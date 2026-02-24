@@ -491,10 +491,21 @@ public class ScoreManager : MonoBehaviour
 
     public void UpdateScoreText()
     {
-        if (pointQueue.Count == 0) return;
-        pointsText.text = FormatPointsCompact(pointQueue.Dequeue());
-        multText.text = FormatMultiplier(multQueue.Dequeue());
-        coinsText.text = "$" + coinQueue.Dequeue().ToString();
+        EnsureCoreScoreTextBindings();
+        if (gameRulesManager == null)
+        {
+            EnsureRefs();
+        }
+
+        if (pointsText != null && pointQueue.Count > 0)
+            pointsText.text = FormatPointsCompact(pointQueue.Dequeue());
+        if (multText != null && multQueue.Count > 0)
+            multText.text = FormatMultiplier(multQueue.Dequeue());
+
+        // Coins can change outside the per-popup queue (e.g. level-up awards), so always read the
+        // authoritative value to prevent the UI snapping back to stale queued values.
+        if (coinsText != null && gameRulesManager != null)
+            coinsText.text = $"${gameRulesManager.Coins}";
     }
 
 

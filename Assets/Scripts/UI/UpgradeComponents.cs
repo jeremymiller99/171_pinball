@@ -4,9 +4,10 @@ using FMODUnity;
 
 public class UpgradeComponents : MonoBehaviour
 {
+    private const int BoardComponentUpgradeCost = 25;
+
     [SerializeField] private TypeOfScore typeOfScore;
     [SerializeField] private float defaultScore;
-    [SerializeField] private int cost;
     [SerializeField] private GameRulesManager gameRulesManager;
     [SerializeField] private ShopUIController shopUIController;
     [SerializeField] private GameObject targetedComponent;
@@ -37,43 +38,120 @@ public class UpgradeComponents : MonoBehaviour
 
     public void Refresh(GameObject gameObject)
     {
-        foreach(BoardComponent component in gameObject.GetComponents<BoardComponent>())
+        targetedComponent = gameObject;
+
+        bool hasUpgrade = TargetHasScoreType(targetedComponent, typeOfScore);
+        if (!hasUpgrade)
         {
-            if (component.typeOfScore == typeOfScore)
+            var session = GameSession.Instance;
+            if (session != null)
             {
-                star.SetActive(true);
-            } else
-            {
-                star.SetActive(false);
+                hasUpgrade = session.HasBoardComponentUpgrade(targetedComponent, typeOfScore);
             }
         }
-        targetedComponent = gameObject;
+
+        if (star != null)
+        {
+            star.SetActive(hasUpgrade);
+        }
     }
 
     public void UpgradeComponent()
     {
-        if (cost > 0 && !gameRulesManager.TrySpendCoins(cost))
+        if (targetedComponent == null || gameRulesManager == null)
+        {
+            return;
+        }
+
+        if (TargetHasScoreType(targetedComponent, typeOfScore))
+        {
+            Refresh(targetedComponent);
+            return;
+        }
+
+        var session = GameSession.Instance;
+        if (session != null && session.HasBoardComponentUpgrade(targetedComponent, typeOfScore))
+        {
+            EnsureBoardComponentScoreType(targetedComponent);
+            Refresh(targetedComponent);
+            return;
+        }
+
+        if (!gameRulesManager.TrySpendCoins(BoardComponentUpgradeCost))
         {
             return;
         }
 
         AudioManager.Instance.PlayOneShot(purchaseSound);
 
-        shopUIController.RefreshUI();
-        BoardComponent defaultComponent = targetedComponent.GetComponent<BoardComponent>();
-        BoardComponent newComponent = targetedComponent.AddComponent<BoardComponent>();
-        newComponent.amountToScore = defaultScore;
-        newComponent.typeOfScore = typeOfScore;
-        newComponent.upObject = defaultComponent.upObject;
-        newComponent.downObject = defaultComponent.downObject;
-        newComponent.leftObject = defaultComponent.leftObject;
-        newComponent.rightObject = defaultComponent.rightObject;
-        newComponent.startingSize = defaultComponent.startingSize;
-        newComponent.pulseAmount = defaultComponent.pulseAmount;
-        newComponent.maxPulseScale = defaultComponent.maxPulseScale;
+        if (session != null)
+        {
+            session.RegisterBoardComponentUpgrade(targetedComponent, typeOfScore, defaultScore);
+        }
+
+        EnsureBoardComponentScoreType(targetedComponent);
+
+        if (shopUIController != null)
+        {
+            shopUIController.RefreshUI();
+        }
+
         Refresh(targetedComponent);
     }
 
-    
-    
+    private bool TargetHasScoreType(GameObject target, TypeOfScore scoreType)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        BoardComponent[] components = target.GetComponents<BoardComponent>();
+        for (int i = 0; i < components.Length; i++)
+        {
+            BoardComponent bc = components[i];
+            if (bc != null && bc.typeOfScore == scoreType)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void EnsureBoardComponentScoreType(GameObject target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        BoardComponent[] components = target.GetComponents<BoardComponent>();
+        for (int i = 0; i < components.Length; i++)
+        {
+            BoardComponent bc = components[i];
+            if (bc != null && bc.typeOfScore == typeOfScore)
+            {
+                bc.amountToScore = defaultScore;
+                return;
+            }
+        }
+
+        BoardComponent template = target.GetComponent<BoardComponent>();
+        if (template == null)
+        {
+            return;
+        }
+
+        BoardComponent newComponent = target.AddComponent<BoardComponent>();
+        newComponent.amountToScore = defaultScore;
+        newComponent.typeOfScore = typeOfScore;
+        newComponent.upObject = template.upObject;
+        newComponent.downObject = template.downObject;
+        newComponent.leftObject = template.leftObject;
+        newComponent.rightObject = template.rightObject;
+        newComponent.startingSize = template.startingSize;
+        newComponent.pulseAmount = template.pulseAmount;
+        newComponent.maxPulseScale = template.maxPulseScale;
+    }
 }

@@ -33,6 +33,13 @@ public sealed class GameSession : MonoBehaviour
     [SerializeField] private List<RoundData> generatedRounds = new List<RoundData>();
     [SerializeField] private ChallengeModeDefinition activeChallenge;
 
+    [Header("Board Component Upgrades (runtime)")]
+    [SerializeField] private List<BoardComponentUpgrade> boardComponentUpgrades = new List<BoardComponentUpgrade>();
+
+    private readonly Dictionary<string, BoardComponentUpgrade> _boardComponentUpgradeByKey =
+        new Dictionary<string, BoardComponentUpgrade>();
+    private bool _boardComponentUpgradeLookupBuilt;
+
     public StartType ActiveStartType => startType;
     public int Seed => seed;
     public IReadOnlyList<BoardDefinition> Boards => activeRunPlan?.boards;
@@ -84,6 +91,7 @@ public sealed class GameSession : MonoBehaviour
             activeRunPlan.boards.AddRange(boardsForRun);
         }
         currentBoardIndex = 0;
+        ClearBoardComponentUpgrades();
     }
 
     public void ConfigureChallenge(IList<BoardDefinition> boardsForChallenge, int runSeed)
@@ -98,6 +106,7 @@ public sealed class GameSession : MonoBehaviour
         currentBoardIndex = 0;
         activeChallenge = null;
         generatedRounds.Clear();
+        ClearBoardComponentUpgrades();
     }
 
     public void ConfigureChallenge(ChallengeModeDefinition challenge, int runSeed)
@@ -112,6 +121,7 @@ public sealed class GameSession : MonoBehaviour
         }
         currentBoardIndex = 0;
         generatedRounds.Clear();
+        ClearBoardComponentUpgrades();
     }
 
     public void ConfigureChallenge(BoardDefinition singleBoardChallenge, int runSeed)
@@ -294,6 +304,238 @@ public sealed class GameSession : MonoBehaviour
         currentBoardIndex = 0;
         activeChallenge = null;
         generatedRounds.Clear();
+        ClearBoardComponentUpgrades();
+    }
+
+    [Serializable]
+    private sealed class BoardComponentUpgrade
+    {
+        public string boardSceneName;
+        public string componentPath;
+        public TypeOfScore typeOfScore;
+        public float amountToScore;
+    }
+
+    public bool HasBoardComponentUpgrade(GameObject target, TypeOfScore typeOfScore)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        EnsureBoardComponentUpgradeLookup();
+        string key = BuildBoardComponentUpgradeKey(target, typeOfScore);
+        return !string.IsNullOrWhiteSpace(key) && _boardComponentUpgradeByKey.ContainsKey(key);
+    }
+
+    public void RegisterBoardComponentUpgrade(GameObject target, TypeOfScore typeOfScore, float amountToScore)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        EnsureBoardComponentUpgradeLookup();
+        string key = BuildBoardComponentUpgradeKey(target, typeOfScore);
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return;
+        }
+
+        if (_boardComponentUpgradeByKey.TryGetValue(key, out BoardComponentUpgrade existing) && existing != null)
+        {
+            existing.amountToScore = amountToScore;
+            return;
+        }
+
+        var entry = new BoardComponentUpgrade
+        {
+            boardSceneName = target.scene.name,
+            componentPath = GetHierarchyPath(target.transform),
+            typeOfScore = typeOfScore,
+            amountToScore = amountToScore
+        };
+
+        boardComponentUpgrades.Add(entry);
+        _boardComponentUpgradeByKey[key] = entry;
+    }
+
+    public void ApplyBoardComponentUpgradesForScene(string boardSceneName)
+    {
+        if (string.IsNullOrWhiteSpace(boardSceneName))
+        {
+            return;
+        }
+
+        EnsureBoardComponentUpgradeLookup();
+        if (_boardComponentUpgradeByKey.Count == 0)
+        {
+            return;
+        }
+
+        BoardComponent[] allBoardComponents =
+            FindObjectsByType<BoardComponent>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        var uniqueTargets = new Dictionary<int, GameObject>();
+        for (int i = 0; i < allBoardComponents.Length; i++)
+        {
+            BoardComponent bc = allBoardComponents[i];
+            if (bc == null)
+            {
+                continue;
+            }
+
+            GameObject go = bc.gameObject;
+            if (go == null)
+            {
+                continue;
+            }
+
+            if (!go.scene.IsValid() || !go.scene.isLoaded)
+            {
+                continue;
+            }
+
+            if (!string.Equals(go.scene.name, boardSceneName, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            uniqueTargets[go.GetInstanceID()] = go;
+        }
+
+        foreach (GameObject go in uniqueTargets.Values)
+        {
+            ApplyUpgradeIfPresent(go, TypeOfScore.points);
+            ApplyUpgradeIfPresent(go, TypeOfScore.mult);
+            ApplyUpgradeIfPresent(go, TypeOfScore.coins);
+        }
+    }
+
+    private void ClearBoardComponentUpgrades()
+    {
+        boardComponentUpgrades.Clear();
+        _boardComponentUpgradeByKey.Clear();
+        _boardComponentUpgradeLookupBuilt = true;
+    }
+
+    private void EnsureBoardComponentUpgradeLookup()
+    {
+        if (_boardComponentUpgradeLookupBuilt)
+        {
+            return;
+        }
+
+        _boardComponentUpgradeLookupBuilt = true;
+        _boardComponentUpgradeByKey.Clear();
+        if (boardComponentUpgrades == null || boardComponentUpgrades.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < boardComponentUpgrades.Count; i++)
+        {
+            BoardComponentUpgrade entry = boardComponentUpgrades[i];
+            if (entry == null)
+            {
+                continue;
+            }
+
+            string key = BuildBoardComponentUpgradeKey(entry.boardSceneName, entry.componentPath, entry.typeOfScore);
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                continue;
+            }
+
+            _boardComponentUpgradeByKey[key] = entry;
+        }
+    }
+
+    private static string BuildBoardComponentUpgradeKey(GameObject target, TypeOfScore typeOfScore)
+    {
+        if (target == null)
+        {
+            return string.Empty;
+        }
+
+        string sceneName = target.scene.name;
+        string path = GetHierarchyPath(target.transform);
+        return BuildBoardComponentUpgradeKey(sceneName, path, typeOfScore);
+    }
+
+    private static string BuildBoardComponentUpgradeKey(string sceneName, string componentPath, TypeOfScore typeOfScore)
+    {
+        if (string.IsNullOrWhiteSpace(sceneName) || string.IsNullOrWhiteSpace(componentPath))
+        {
+            return string.Empty;
+        }
+
+        return $"{sceneName}|{componentPath}|{(int)typeOfScore}";
+    }
+
+    private static string GetHierarchyPath(Transform t)
+    {
+        if (t == null)
+        {
+            return string.Empty;
+        }
+
+        var names = new Stack<string>();
+        Transform current = t;
+        while (current != null)
+        {
+            names.Push(current.name);
+            current = current.parent;
+        }
+
+        return string.Join("/", names);
+    }
+
+    private void ApplyUpgradeIfPresent(GameObject target, TypeOfScore typeOfScore)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        string key = BuildBoardComponentUpgradeKey(target, typeOfScore);
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return;
+        }
+
+        if (!_boardComponentUpgradeByKey.TryGetValue(key, out BoardComponentUpgrade entry) || entry == null)
+        {
+            return;
+        }
+
+        BoardComponent[] components = target.GetComponents<BoardComponent>();
+        for (int i = 0; i < components.Length; i++)
+        {
+            BoardComponent bc = components[i];
+            if (bc != null && bc.typeOfScore == typeOfScore)
+            {
+                bc.amountToScore = entry.amountToScore;
+                return;
+            }
+        }
+
+        BoardComponent template = target.GetComponent<BoardComponent>();
+        if (template == null)
+        {
+            return;
+        }
+
+        BoardComponent newComponent = target.AddComponent<BoardComponent>();
+        newComponent.amountToScore = entry.amountToScore;
+        newComponent.typeOfScore = typeOfScore;
+        newComponent.upObject = template.upObject;
+        newComponent.downObject = template.downObject;
+        newComponent.leftObject = template.leftObject;
+        newComponent.rightObject = template.rightObject;
+        newComponent.startingSize = template.startingSize;
+        newComponent.pulseAmount = template.pulseAmount;
+        newComponent.maxPulseScale = template.maxPulseScale;
     }
 }
 

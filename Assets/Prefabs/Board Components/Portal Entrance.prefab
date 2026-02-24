@@ -99,6 +99,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IComponent
   typeOfScore: 0
   amountToScore: 15
+  leftObject: {fileID: 0}
+  rightObject: {fileID: 0}
+  upObject: {fileID: 0}
+  downObject: {fileID: 0}
+  components: []
+  isSelected: 0
+  maxPulseScale: 1.25
+  pulseAmount: 0.025
+  startingSize: {x: 0, y: 0, z: 0}
+  directionOfPulse: 1
 --- !u!114 &-5120152879258555716
 MonoBehaviour:
   m_ObjectHideFlags: 0

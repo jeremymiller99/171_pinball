@@ -111,9 +111,20 @@ public class GameRulesManager : MonoBehaviour
     [SerializeField] private int guaranteedBagSizeFallback = 7;
 
     [Header("Default Modifier Pools (when no challenge)")]
-    [Tooltip("Used so every round has an angel or devil modifier even in Quick Run. Assign at least one.")]
+    [Tooltip("Modifier pools used for Quick Run / when no challenge is active.")]
     [SerializeField] private RoundModifierPool defaultAngelPool;
     [SerializeField] private RoundModifierPool defaultDevilPool;
+
+    private const float defaultQuickRunAngelChance = 0.2f;
+    private const float defaultQuickRunDevilChance = 0.2f;
+    private const float defaultQuickRunNormalChance = 0.6f;
+
+    [Header("Quick Run round-type distribution")]
+    [Tooltip("Percent chances for what kind of round it is when no challenge is active.\n" +
+             "Defaults are 20/20/60 (Angel/Devil/Normal). If the sum isn't 1, values are normalized at runtime.")]
+    [SerializeField] private float quickRunAngelChance = defaultQuickRunAngelChance;
+    [SerializeField] private float quickRunDevilChance = defaultQuickRunDevilChance;
+    [SerializeField] private float quickRunNormalChance = defaultQuickRunNormalChance;
 
     private System.Random _levelModifierRng;
     private readonly List<RoundType> _guaranteedTypeBag = new List<RoundType>();
@@ -391,6 +402,8 @@ public class GameRulesManager : MonoBehaviour
         ResolveScoreTallyAnimator(logIfMissing: false);
         ResolveFloatingTextSpawner(logIfMissing: false);
 
+        NormalizeQuickRunChances();
+
         if (goalByRound == null || goalByRound.Count == 0)
         {
             goalByRound = new List<float> { 500f, 800f, 1200f, 1700f, 2300f, 3000f, 4000f };
@@ -420,6 +433,11 @@ public class GameRulesManager : MonoBehaviour
         {
             StartRun();
         }
+    }
+
+    private void OnValidate()
+    {
+        NormalizeQuickRunChances();
     }
 
     public void StartRun()
@@ -536,12 +554,6 @@ public class GameRulesManager : MonoBehaviour
         if (challenge != null && challenge.HasModifierPools)
         {
             type = RollModifierType(challenge);
-            if (type == RoundType.Normal)
-            {
-                if (_levelModifierRng == null)
-                    _levelModifierRng = new System.Random(Environment.TickCount);
-                type = _levelModifierRng.NextDouble() < 0.5 ? RoundType.Angel : RoundType.Devil;
-            }
             modifier = RollModifierFromPool(challenge, type);
             if (modifier == null && type == RoundType.Angel && challenge.devilPool != null && challenge.devilPool.ValidCount > 0)
                 modifier = challenge.devilPool.GetRandomModifier(_levelModifierRng);
@@ -558,15 +570,16 @@ public class GameRulesManager : MonoBehaviour
             {
                 if (_levelModifierRng == null)
                     _levelModifierRng = new System.Random(Environment.TickCount);
-                type = (_levelModifierRng.NextDouble() < 0.5) ? RoundType.Angel : RoundType.Devil;
+
+                type = RollQuickRunType(hasAngel, hasDevil);
                 if (type == RoundType.Angel && hasAngel)
+                {
                     modifier = angelPool.GetRandomModifier(_levelModifierRng);
+                }
                 else if (type == RoundType.Devil && hasDevil)
+                {
                     modifier = devilPool.GetRandomModifier(_levelModifierRng);
-                if (modifier == null && hasAngel)
-                    modifier = angelPool.GetRandomModifier(_levelModifierRng);
-                if (modifier == null && hasDevil)
-                    modifier = devilPool.GetRandomModifier(_levelModifierRng);
+                }
             }
         }
 
@@ -653,6 +666,71 @@ public class GameRulesManager : MonoBehaviour
         }
 
         LevelChanged?.Invoke();
+    }
+
+    private RoundType RollQuickRunType(bool hasAngelPool, bool hasDevilPool)
+    {
+        if (_levelModifierRng == null)
+        {
+            _levelModifierRng = new System.Random(Environment.TickCount);
+        }
+
+        float angelChance = Mathf.Max(0f, quickRunAngelChance);
+        float devilChance = Mathf.Max(0f, quickRunDevilChance);
+        float normalChance = Mathf.Max(0f, quickRunNormalChance);
+
+        if (!hasAngelPool)
+        {
+            angelChance = 0f;
+        }
+
+        if (!hasDevilPool)
+        {
+            devilChance = 0f;
+        }
+
+        float sum = angelChance + devilChance + normalChance;
+        if (sum <= 0f)
+        {
+            return RoundType.Normal;
+        }
+
+        angelChance /= sum;
+        devilChance /= sum;
+        normalChance /= sum;
+
+        double roll = _levelModifierRng.NextDouble();
+        if (roll < angelChance)
+        {
+            return RoundType.Angel;
+        }
+
+        if (roll < (angelChance + devilChance))
+        {
+            return RoundType.Devil;
+        }
+
+        return RoundType.Normal;
+    }
+
+    private void NormalizeQuickRunChances()
+    {
+        quickRunAngelChance = Mathf.Max(0f, quickRunAngelChance);
+        quickRunDevilChance = Mathf.Max(0f, quickRunDevilChance);
+        quickRunNormalChance = Mathf.Max(0f, quickRunNormalChance);
+
+        float sum = quickRunAngelChance + quickRunDevilChance + quickRunNormalChance;
+        if (sum <= 0f)
+        {
+            quickRunAngelChance = defaultQuickRunAngelChance;
+            quickRunDevilChance = defaultQuickRunDevilChance;
+            quickRunNormalChance = defaultQuickRunNormalChance;
+            return;
+        }
+
+        quickRunAngelChance /= sum;
+        quickRunDevilChance /= sum;
+        quickRunNormalChance /= sum;
     }
 
     private RoundType RollModifierType(ChallengeModeDefinition challenge)

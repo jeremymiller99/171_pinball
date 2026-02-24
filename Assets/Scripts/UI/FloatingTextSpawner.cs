@@ -285,7 +285,7 @@ public class FloatingTextSpawner : MonoBehaviour
 
         string text = "+$" + amount;
         Vector2 anchoredPos = anchoredOnCanvas + levelUpCoinsPopupOffset;
-        SpawnAnchoredTextBounceInternal(
+        FloatingText ft = SpawnAnchoredTextBounceInternal(
             anchoredPos,
             text,
             goldFontAsset,
@@ -296,6 +296,19 @@ public class FloatingTextSpawner : MonoBehaviour
             goalPraisePopPeakScaleMultiplier,
             goalPraisePopRisePortion,
             goalPraisePopDuration);
+
+        if (ft == null)
+        {
+            return;
+        }
+
+        EnsureTargetBindings();
+        if (enableFlyToScoreUi
+            && TryGetFlyToAnchoredPosition(FlyToTarget.Coins, out Vector2 coinsDestAnchored))
+        {
+            ft.PlayFlyTo(coinsDestAnchored);
+            ft.SetOnFlyComplete(() => TriggerJuiceForTarget(FlyToTarget.Coins));
+        }
     }
 
     private void SpawnTextInternal(
@@ -446,7 +459,7 @@ public class FloatingTextSpawner : MonoBehaviour
         }
     }
 
-    private void SpawnAnchoredTextBounceInternal(
+    private FloatingText SpawnAnchoredTextBounceInternal(
         Vector2 anchoredPosition,
         string text,
         TMP_FontAsset fontAsset,
@@ -459,12 +472,12 @@ public class FloatingTextSpawner : MonoBehaviour
         float popDurationSeconds,
         Color? colorOverride = null)
     {
-        if (floatingTextPrefab == null || canvas == null) return;
+        if (floatingTextPrefab == null || canvas == null) return null;
 
         FloatingText ft = Instantiate(floatingTextPrefab, canvas.transform);
         ft.gameObject.hideFlags = HideFlags.HideInHierarchy;
         RectTransform rt = ft.GetComponent<RectTransform>();
-        if (rt == null) return;
+        if (rt == null) return null;
 
         rt.anchoredPosition = anchoredPosition;
         ft.SetText(text);
@@ -495,6 +508,8 @@ public class FloatingTextSpawner : MonoBehaviour
                 popRisePortion,
                 popDurationSeconds));
         }
+
+        return ft;
     }
 
     private void TriggerJuiceForTarget(FlyToTarget target)

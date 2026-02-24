@@ -130,6 +130,23 @@ public class GameRulesManager : MonoBehaviour
     private readonly List<RoundType> _guaranteedTypeBag = new List<RoundType>();
     private int _guaranteedTypeBagPos;
 
+    [Serializable]
+    private sealed class GeneratedRound
+    {
+        public RoundData roundData;
+        public List<RoundModifierDefinition> unluckyDayActiveModifiers;
+    }
+
+    [Header("Round Type Preview (generation)")]
+    [Min(0)]
+    [SerializeField] private int previewLookaheadRounds = 2;
+
+    [Header("Round Type Preview (debug)")]
+    [SerializeField] private int generatedRoundWindowStartIndex;
+    [SerializeField] private int generatedRoundWindowEndIndex;
+
+    private readonly List<GeneratedRound> _generatedRoundWindow = new List<GeneratedRound>();
+
     /// <summary>
     /// Fired whenever a new round is started (after goal/round UI is reset).
     /// Useful for per-round systems like Frenzy.
@@ -464,7 +481,8 @@ public class GameRulesManager : MonoBehaviour
         ballsRemaining = BallLoadoutCount;
 
         InitLevelModifierRolling();
-        ApplyLevelModifier();
+        ResetAndPrimeRoundWindow();
+        ApplyCurrentRoundFromWindow();
 
         if (scoreManager != null)
         {
@@ -532,20 +550,130 @@ public class GameRulesManager : MonoBehaviour
         _guaranteedTypeBagPos = 0;
     }
 
-    private void ApplyLevelModifier()
+    public bool TryGetRoundType(int absoluteRoundIndex, out RoundType type)
     {
-        _activeModifier = null;
+        type = RoundType.Normal;
 
-        // Reset modifier multipliers to 1 when the previous modifier ends (peer rule: reset when modifier wears off).
-        ResolveScoreManager(logIfMissing: false);
-        if (scoreManager != null)
+        if (!runActive)
         {
-            scoreManager.pointsModifierMultiplier = 1f;
-            scoreManager.multModifierMultiplier = 1f;
-            scoreManager.coinModifierMultiplier = 1f;
-            scoreManager.modifierTimeScaleMultiplier = 1f;
+            return false;
         }
 
+        if (absoluteRoundIndex < 0)
+        {
+            return false;
+        }
+
+        EnsureGeneratedThrough(absoluteRoundIndex);
+
+        if (!TryGetGeneratedRound(absoluteRoundIndex, out GeneratedRound generatedRound))
+        {
+            return false;
+        }
+
+        if (generatedRound == null || generatedRound.roundData == null)
+        {
+            return false;
+        }
+
+        type = generatedRound.roundData.type;
+        return true;
+    }
+
+    private void ResetAndPrimeRoundWindow()
+    {
+        _generatedRoundWindow.Clear();
+        generatedRoundWindowStartIndex = 0;
+        generatedRoundWindowEndIndex = -1;
+
+        EnsureGeneratedThrough(Mathf.Max(0, roundIndex + previewLookaheadRounds));
+    }
+
+    private void TrimGeneratedBefore(int absoluteRoundIndex)
+    {
+        int toRemove = absoluteRoundIndex - generatedRoundWindowStartIndex;
+        if (toRemove <= 0)
+        {
+            return;
+        }
+
+        toRemove = Mathf.Clamp(toRemove, 0, _generatedRoundWindow.Count);
+        if (toRemove <= 0)
+        {
+            return;
+        }
+
+        _generatedRoundWindow.RemoveRange(0, toRemove);
+        generatedRoundWindowStartIndex = Mathf.Max(0, generatedRoundWindowStartIndex + toRemove);
+
+        if (_generatedRoundWindow.Count == 0)
+        {
+            generatedRoundWindowEndIndex = generatedRoundWindowStartIndex - 1;
+        }
+        else
+        {
+            generatedRoundWindowEndIndex = generatedRoundWindowStartIndex + _generatedRoundWindow.Count - 1;
+        }
+    }
+
+    private void EnsureGeneratedThrough(int inclusiveRoundIndex)
+    {
+        if (!runActive)
+        {
+            return;
+        }
+
+        if (inclusiveRoundIndex < 0)
+        {
+            return;
+        }
+
+        if (_levelModifierRng == null)
+        {
+            _levelModifierRng = new System.Random(Environment.TickCount);
+        }
+
+        if (_generatedRoundWindow.Count == 0)
+        {
+            generatedRoundWindowStartIndex = Mathf.Max(0, generatedRoundWindowStartIndex);
+            generatedRoundWindowEndIndex = generatedRoundWindowStartIndex - 1;
+        }
+
+        int nextToGenerate = generatedRoundWindowEndIndex + 1;
+        if (nextToGenerate < generatedRoundWindowStartIndex)
+        {
+            nextToGenerate = generatedRoundWindowStartIndex;
+        }
+
+        for (int i = nextToGenerate; i <= inclusiveRoundIndex; i++)
+        {
+            GeneratedRound generatedRound = GenerateRoundAtIndex(i);
+            _generatedRoundWindow.Add(generatedRound);
+            generatedRoundWindowEndIndex = i;
+        }
+    }
+
+    private bool TryGetGeneratedRound(int absoluteRoundIndex, out GeneratedRound generatedRound)
+    {
+        generatedRound = null;
+
+        if (absoluteRoundIndex < generatedRoundWindowStartIndex)
+        {
+            return false;
+        }
+
+        int localIndex = absoluteRoundIndex - generatedRoundWindowStartIndex;
+        if (localIndex < 0 || localIndex >= _generatedRoundWindow.Count)
+        {
+            return false;
+        }
+
+        generatedRound = _generatedRoundWindow[localIndex];
+        return generatedRound != null;
+    }
+
+    private GeneratedRound GenerateRoundAtIndex(int absoluteRoundIndex)
+    {
         RoundType type = RoundType.Normal;
         RoundModifierDefinition modifier = null;
 
@@ -568,9 +696,6 @@ public class GameRulesManager : MonoBehaviour
             bool hasDevil = devilPool != null && devilPool.ValidCount > 0;
             if (hasAngel || hasDevil)
             {
-                if (_levelModifierRng == null)
-                    _levelModifierRng = new System.Random(Environment.TickCount);
-
                 type = RollQuickRunType(hasAngel, hasDevil);
                 if (type == RoundType.Angel && hasAngel)
                 {
@@ -583,33 +708,81 @@ public class GameRulesManager : MonoBehaviour
             }
         }
 
-        _activeModifier = modifier;
-        _currentRoundData = new RoundData(roundIndex, type, modifier);
+        var generated = new GeneratedRound
+        {
+            roundData = new RoundData(absoluteRoundIndex, type, modifier),
+            unluckyDayActiveModifiers = null
+        };
+
+        if (modifier != null && modifier.applyTwoRandomDevilModifiers)
+        {
+            RoundModifierPool devilPool = (session != null && session.ActiveChallenge != null && session.ActiveChallenge.devilPool != null)
+                ? session.ActiveChallenge.devilPool
+                : defaultDevilPool;
+            if (devilPool != null)
+            {
+                generated.unluckyDayActiveModifiers = devilPool.GetTwoRandomModifiersExcluding(_levelModifierRng, modifier);
+            }
+        }
+
+        return generated;
+    }
+
+    private void ApplyCurrentRoundFromWindow()
+    {
+        TrimGeneratedBefore(roundIndex);
+        EnsureGeneratedThrough(Mathf.Max(0, roundIndex + previewLookaheadRounds));
+
+        if (!TryGetGeneratedRound(roundIndex, out GeneratedRound generatedRound))
+        {
+            generatedRound = GenerateRoundAtIndex(roundIndex);
+        }
+
+        ApplyGeneratedRound(generatedRound);
+    }
+
+    private void ApplyGeneratedRound(GeneratedRound generatedRound)
+    {
+        _activeModifier = null;
+
+        // Reset modifier multipliers to 1 when the previous modifier ends (peer rule: reset when modifier wears off).
+        ResolveScoreManager(logIfMissing: false);
+        if (scoreManager != null)
+        {
+            scoreManager.pointsModifierMultiplier = 1f;
+            scoreManager.multModifierMultiplier = 1f;
+            scoreManager.coinModifierMultiplier = 1f;
+            scoreManager.modifierTimeScaleMultiplier = 1f;
+        }
+
+        RoundData data = generatedRound != null ? generatedRound.roundData : null;
+        if (data == null)
+        {
+            data = new RoundData(roundIndex, RoundType.Normal, null);
+        }
+
+        _activeModifier = data.modifier;
+        _currentRoundData = data;
         _flipperUsesRemaining = (_activeModifier != null && _activeModifier.flipperUseLimit > 0)
             ? _activeModifier.flipperUseLimit
             : -1;
 
         // Push active modifier into ScoreManager so ball→AddScore() uses the right multipliers (peer rule).
         _effectiveGoalModifierForRound = 0f;
-        _unluckyDayActiveModifiers = null;
+        _unluckyDayActiveModifiers = generatedRound != null ? generatedRound.unluckyDayActiveModifiers : null;
         if (scoreManager != null && _activeModifier != null)
         {
             if (_activeModifier.applyTwoRandomDevilModifiers)
             {
-                RoundModifierPool devilPool = (session != null && session.ActiveChallenge != null && session.ActiveChallenge.devilPool != null)
-                    ? session.ActiveChallenge.devilPool
-                    : defaultDevilPool;
-                if (devilPool != null)
+                if (_unluckyDayActiveModifiers != null)
                 {
-                    var two = devilPool.GetTwoRandomModifiersExcluding(_levelModifierRng, _activeModifier);
-                    _unluckyDayActiveModifiers = two;
                     float scoreMult = 1f;
                     float goalMod = 0f;
                     float coinMult = 1f;
                     bool disableMult = false;
                     int ballMod = 0;
                     float timeScaleMult = 1f;
-                    foreach (var m in two)
+                    foreach (var m in _unluckyDayActiveModifiers)
                     {
                         if (m == null) continue;
                         scoreMult *= m.scoreMultiplier;
@@ -986,7 +1159,7 @@ public class GameRulesManager : MonoBehaviour
                 scoreManager.ConsumeLevelProgress(prevGoal);
 
                 roundIndex = Mathf.Max(0, roundIndex + 1);
-                ApplyLevelModifier();
+                ApplyCurrentRoundFromWindow();
 
                 scoreManager.SetRoundIndex(roundIndex);
                 scoreManager.OnNewRound(roundIndex); 

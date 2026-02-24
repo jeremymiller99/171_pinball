@@ -14,6 +14,20 @@ public class FloatingTextSpawner : MonoBehaviour
     [SerializeField] private Camera targetCamera;
     [SerializeField] private Vector2 spawnOffset = new Vector2(20f, 0f);
 
+    [Header("Spawn Stacking (avoid overlapping popups)")]
+    [SerializeField] private bool enableSpawnStacking = true;
+    [Tooltip("If multiple popups spawn near the same screen position within this window, they will be offset.")]
+    [Min(0f)]
+    [SerializeField] private float spawnStackWindowSeconds = 0.20f;
+    [Tooltip("Offsets applied per additional popup in the same spawn burst (anchored canvas units).")]
+    [SerializeField] private Vector2 spawnStackStep = new Vector2(14f, 18f);
+    [Tooltip("Quantization size for grouping nearby spawns (anchored canvas units). Higher = more grouping.")]
+    [Min(1f)]
+    [SerializeField] private float spawnStackCellSize = 70f;
+    [Tooltip("Maximum number of stacked offsets before clamping (prevents text from flying too far away).")]
+    [Min(0)]
+    [SerializeField] private int spawnStackMaxCount = 6;
+
     [Header("Fly To Score UI")]
     [SerializeField] private bool enableFlyToScoreUi = true;
     [SerializeField] private Vector2 flyToOffset = Vector2.zero;
@@ -110,6 +124,21 @@ public class FloatingTextSpawner : MonoBehaviour
 
     private readonly Dictionary<RectTransform, Quaternion> juiceBaseRotationByTarget =
         new Dictionary<RectTransform, Quaternion>();
+
+    private struct SpawnStackState
+    {
+        public float lastSpawnTimeSeconds;
+        public int burstCount;
+    }
+
+    private readonly Dictionary<Vector2Int, SpawnStackState> spawnStackByCell =
+        new Dictionary<Vector2Int, SpawnStackState>();
+
+    private float nextSpawnStackCleanupTimeSeconds;
+    private const float spawnStackCleanupIntervalSeconds = 1.0f;
+    private const float spawnStackCleanupIntervalMinSeconds = 0.10f;
+    private const float spawnStackPruneWindowMultiplier = 6f;
+    private const float spawnStackPruneWindowMinSeconds = 0.05f;
 
     private void Start()
     {
@@ -338,7 +367,8 @@ public class FloatingTextSpawner : MonoBehaviour
             GetCanvasCamera(),
             out Vector2 anchoredPos);
 
-        rt.anchoredPosition = anchoredPos + spawnOffset;
+        Vector2 stacked = GetSpawnStackOffset(anchoredPos);
+        rt.anchoredPosition = anchoredPos + spawnOffset + stacked;
         ft.SetText(MaybeCompact(text));
         
         if (fontAsset != null)
@@ -363,6 +393,104 @@ public class FloatingTextSpawner : MonoBehaviour
         {
             onArrive?.Invoke();
         }
+    }
+
+    private Vector2 GetSpawnStackOffset(Vector2 anchoredPos)
+    {
+        if (!enableSpawnStacking)
+        {
+            return Vector2.zero;
+        }
+
+        float window = Mathf.Max(0f, spawnStackWindowSeconds);
+        float cellSize = Mathf.Max(1f, spawnStackCellSize);
+        int maxCount = Mathf.Max(0, spawnStackMaxCount);
+
+        float now = Time.unscaledTime;
+        MaybeCleanupSpawnStacks(now, window);
+
+        Vector2Int cell = QuantizeToCell(anchoredPos, cellSize);
+        bool hadState = spawnStackByCell.TryGetValue(cell, out SpawnStackState state);
+        bool shouldResetBurst = !hadState || (window > 0f && (now - state.lastSpawnTimeSeconds) > window);
+        if (shouldResetBurst)
+        {
+            state.burstCount = 0;
+        }
+        else
+        {
+            state.burstCount = Mathf.Max(0, state.burstCount + 1);
+        }
+
+        state.lastSpawnTimeSeconds = now;
+        spawnStackByCell[cell] = state;
+
+        int n = Mathf.Clamp(state.burstCount, 0, maxCount);
+        if (n <= 0)
+        {
+            return Vector2.zero;
+        }
+
+        float stepX = spawnStackStep.x;
+        float stepY = spawnStackStep.y;
+
+        int sign = (n % 2 == 0) ? 1 : -1;
+        int tier = (n + 1) / 2;
+        float x = sign * stepX * tier;
+        float y = stepY * n;
+        return new Vector2(x, y);
+    }
+
+    private void MaybeCleanupSpawnStacks(float nowSeconds, float windowSeconds)
+    {
+        float interval = Mathf.Max(spawnStackCleanupIntervalMinSeconds, spawnStackCleanupIntervalSeconds);
+        if (nowSeconds < nextSpawnStackCleanupTimeSeconds)
+        {
+            return;
+        }
+
+        nextSpawnStackCleanupTimeSeconds = nowSeconds + interval;
+
+        if (spawnStackByCell.Count == 0)
+        {
+            return;
+        }
+
+        float pruneAfter =
+            Mathf.Max(spawnStackPruneWindowMinSeconds, windowSeconds) * spawnStackPruneWindowMultiplier;
+
+        List<Vector2Int> toRemove = null;
+        foreach (var kv in spawnStackByCell)
+        {
+            if ((nowSeconds - kv.Value.lastSpawnTimeSeconds) <= pruneAfter)
+            {
+                continue;
+            }
+
+            if (toRemove == null)
+            {
+                toRemove = new List<Vector2Int>();
+            }
+
+            toRemove.Add(kv.Key);
+        }
+
+        if (toRemove == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < toRemove.Count; i++)
+        {
+            spawnStackByCell.Remove(toRemove[i]);
+        }
+    }
+
+    private static Vector2Int QuantizeToCell(Vector2 anchoredPos, float cellSize)
+    {
+        float inv = 1f / Mathf.Max(1f, cellSize);
+        int x = Mathf.FloorToInt(anchoredPos.x * inv);
+        int y = Mathf.FloorToInt(anchoredPos.y * inv);
+        return new Vector2Int(x, y);
     }
 
     private void SpawnUiTextInternal(

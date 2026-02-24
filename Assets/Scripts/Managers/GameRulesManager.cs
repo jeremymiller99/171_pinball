@@ -57,6 +57,9 @@ public class GameRulesManager : MonoBehaviour
     [Tooltip("Required: BallSpawner pre-spawns a hand of balls and lerps the next ball to spawnPoint.")]
     [SerializeField] private BallSpawner ballSpawner;
 
+    [Header("Board loading (optional)")]
+    [SerializeField] private BoardLoader boardLoader;
+
     [Header("Ball Loadout (hand)")]
     [Tooltip("Optional: starting ball prefabs for the player's hand/loadout. If empty, falls back to repeating Ball Prefab.")]
     [SerializeField] private List<GameObject> startingBallLoadout = new List<GameObject>();
@@ -389,6 +392,49 @@ public class GameRulesManager : MonoBehaviour
         Debug.LogWarning($"{nameof(GameRulesManager)} found multiple {nameof(FloatingTextSpawner)} instances; using '{floatingTextSpawner.name}'. Remove duplicates for a single source of truth.", floatingTextSpawner);
     }
 
+    private void ResolveBoardLoader(bool logIfMissing)
+    {
+        if (boardLoader != null)
+        {
+            return;
+        }
+
+        BoardLoader[] found;
+        found = FindObjectsByType<BoardLoader>(FindObjectsSortMode.None);
+
+        if (found == null || found.Length == 0)
+        {
+            if (logIfMissing)
+            {
+                Debug.LogWarning($"{nameof(GameRulesManager)} could not find any {nameof(BoardLoader)} in loaded scenes.", this);
+            }
+
+            return;
+        }
+
+        if (found.Length == 1)
+        {
+            boardLoader = found[0];
+            return;
+        }
+
+        for (int i = 0; i < found.Length; i++)
+        {
+            if (found[i] != null && found[i].gameObject.scene == gameObject.scene)
+            {
+                boardLoader = found[i];
+                break;
+            }
+        }
+
+        if (boardLoader == null)
+        {
+            boardLoader = found[0];
+        }
+
+        Debug.LogWarning($"{nameof(GameRulesManager)} found multiple {nameof(BoardLoader)} instances; using '{boardLoader.name}'. Remove duplicates for a single source of truth.", boardLoader);
+    }
+
     /// <summary>
     /// Returns a snapshot copy of the current ball loadout (one prefab per hand slot).
     /// Safe to enumerate without risking external mutation.
@@ -418,6 +464,7 @@ public class GameRulesManager : MonoBehaviour
         ResolveScoreManager(logIfMissing: false);
         ResolveScoreTallyAnimator(logIfMissing: false);
         ResolveFloatingTextSpawner(logIfMissing: false);
+        ResolveBoardLoader(logIfMissing: false);
 
         NormalizeQuickRunChances();
 
@@ -440,6 +487,7 @@ public class GameRulesManager : MonoBehaviour
         ResolveScoreManager(logIfMissing: false);
         ResolveScoreTallyAnimator(logIfMissing: false);
         ResolveFloatingTextSpawner(logIfMissing: false);
+        ResolveBoardLoader(logIfMissing: false);
 
         // In the additive-board architecture, the board (containing the BallSpawner) is loaded 
         // after GameplayCore, then StartRun() is called by RunFlowController.
@@ -1280,6 +1328,14 @@ public class GameRulesManager : MonoBehaviour
             }
 
             _activeBallSlotIndex = -1;
+
+            if (ShouldCompleteRunNow())
+            {
+                CompleteRunAndShowWinScreen();
+                _drainProcessing = false;
+                yield break;
+            }
+
             OpenShop();
             _drainProcessing = false;
             yield break;
@@ -1305,6 +1361,59 @@ public class GameRulesManager : MonoBehaviour
         ShowRoundFailed();
         _drainProcessing = false;
         yield break;
+    }
+
+    private bool ShouldCompleteRunNow()
+    {
+        ResolveBoardLoader(logIfMissing: false);
+        BoardRoot root = boardLoader != null ? boardLoader.CurrentBoardRoot : null;
+        if (root == null)
+        {
+            return false;
+        }
+
+        if (!root.IsCleared(this))
+        {
+            return false;
+        }
+
+        var session = GameSession.Instance;
+        if (session == null)
+        {
+            return false;
+        }
+
+        return session.GetNextBoard() == null;
+    }
+
+    private void CompleteRunAndShowWinScreen()
+    {
+        int levelReached = Mathf.Max(1, LevelIndex + 1);
+        long points = (long)Math.Round(Math.Max(0f, TotalScore));
+
+        ProfileService.RecordRunCompleted();
+
+        var session = GameSession.Instance;
+        session?.ResetSession();
+
+        runActive = false;
+        shopOpen = false;
+        _shopBallSaveAvailable = false;
+        _drainProcessing = false;
+        _levelUpProcessing = false;
+
+        SetShopOpen(false);
+        SetRoundFailedOpen(false);
+
+        ClearAllBalls();
+
+        ResolveScoreManager(logIfMissing: false);
+        if (scoreManager != null)
+        {
+            scoreManager.SetScoringLocked(true);
+        }
+
+        WinScreenController.Show(levelReached, points);
     }
 
     private void ConsumeActiveBallFromLoadout()

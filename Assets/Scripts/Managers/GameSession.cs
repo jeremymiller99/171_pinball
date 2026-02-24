@@ -325,7 +325,13 @@ public sealed class GameSession : MonoBehaviour
 
         EnsureBoardComponentUpgradeLookup();
         string key = BuildBoardComponentUpgradeKey(target, typeOfScore);
-        return !string.IsNullOrWhiteSpace(key) && _boardComponentUpgradeByKey.ContainsKey(key);
+        if (!string.IsNullOrWhiteSpace(key) && _boardComponentUpgradeByKey.ContainsKey(key))
+        {
+            return true;
+        }
+
+        string legacyKey = BuildLegacyBoardComponentUpgradeKey(target, typeOfScore);
+        return !string.IsNullOrWhiteSpace(legacyKey) && _boardComponentUpgradeByKey.ContainsKey(legacyKey);
     }
 
     public void RegisterBoardComponentUpgrade(GameObject target, TypeOfScore typeOfScore, float amountToScore)
@@ -348,10 +354,22 @@ public sealed class GameSession : MonoBehaviour
             return;
         }
 
+        string legacyKey = BuildLegacyBoardComponentUpgradeKey(target, typeOfScore);
+        if (!string.IsNullOrWhiteSpace(legacyKey)
+            && _boardComponentUpgradeByKey.TryGetValue(legacyKey, out BoardComponentUpgrade legacyExisting)
+            && legacyExisting != null)
+        {
+            legacyExisting.amountToScore = amountToScore;
+            legacyExisting.componentPath = GetHierarchyPathWithSiblingIndices(target.transform);
+            _boardComponentUpgradeByKey.Remove(legacyKey);
+            _boardComponentUpgradeByKey[key] = legacyExisting;
+            return;
+        }
+
         var entry = new BoardComponentUpgrade
         {
             boardSceneName = target.scene.name,
-            componentPath = GetHierarchyPath(target.transform),
+            componentPath = GetHierarchyPathWithSiblingIndices(target.transform),
             typeOfScore = typeOfScore,
             amountToScore = amountToScore
         };
@@ -459,7 +477,7 @@ public sealed class GameSession : MonoBehaviour
         }
 
         string sceneName = target.scene.name;
-        string path = GetHierarchyPath(target.transform);
+        string path = GetHierarchyPathWithSiblingIndices(target.transform);
         return BuildBoardComponentUpgradeKey(sceneName, path, typeOfScore);
     }
 
@@ -473,7 +491,37 @@ public sealed class GameSession : MonoBehaviour
         return $"{sceneName}|{componentPath}|{(int)typeOfScore}";
     }
 
-    private static string GetHierarchyPath(Transform t)
+    private static string BuildLegacyBoardComponentUpgradeKey(GameObject target, TypeOfScore typeOfScore)
+    {
+        if (target == null)
+        {
+            return string.Empty;
+        }
+
+        string sceneName = target.scene.name;
+        string path = GetHierarchyPathNamesOnly(target.transform);
+        return BuildBoardComponentUpgradeKey(sceneName, path, typeOfScore);
+    }
+
+    private static string GetHierarchyPathWithSiblingIndices(Transform t)
+    {
+        if (t == null)
+        {
+            return string.Empty;
+        }
+
+        var names = new Stack<string>();
+        Transform current = t;
+        while (current != null)
+        {
+            names.Push($"{current.name}[{current.GetSiblingIndex()}]");
+            current = current.parent;
+        }
+
+        return string.Join("/", names);
+    }
+
+    private static string GetHierarchyPathNamesOnly(Transform t)
     {
         if (t == null)
         {
@@ -499,14 +547,20 @@ public sealed class GameSession : MonoBehaviour
         }
 
         string key = BuildBoardComponentUpgradeKey(target, typeOfScore);
-        if (string.IsNullOrWhiteSpace(key))
+        string legacyKey = BuildLegacyBoardComponentUpgradeKey(target, typeOfScore);
+        if (string.IsNullOrWhiteSpace(key) && string.IsNullOrWhiteSpace(legacyKey))
         {
             return;
         }
 
         if (!_boardComponentUpgradeByKey.TryGetValue(key, out BoardComponentUpgrade entry) || entry == null)
         {
-            return;
+            if (string.IsNullOrWhiteSpace(legacyKey)
+                || !_boardComponentUpgradeByKey.TryGetValue(legacyKey, out entry)
+                || entry == null)
+            {
+                return;
+            }
         }
 
         BoardComponent[] components = target.GetComponents<BoardComponent>();

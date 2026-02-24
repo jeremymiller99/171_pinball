@@ -41,6 +41,8 @@ public sealed class PauseMenuController : MonoBehaviour
 
     private readonly List<Behaviour> _disabledWhileOpen = new List<Behaviour>();
 
+    private bool _buttonsWired;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void InstallIfPauseMenuExists()
     {
@@ -68,7 +70,7 @@ public sealed class PauseMenuController : MonoBehaviour
     {
         AutoWireUiIfNeeded();
         EnsurePanelHiddenAtStart();
-        WireButtons();
+        WireButtonsIfPossible();
     }
 
     private void OnDisable()
@@ -81,6 +83,11 @@ public sealed class PauseMenuController : MonoBehaviour
 
     private void Update()
     {
+        if (isOpen)
+        {
+            EnforcePausedIfNeeded();
+        }
+
         if (!WasEscapePressedThisFrame())
         {
             return;
@@ -96,6 +103,8 @@ public sealed class PauseMenuController : MonoBehaviour
             return;
         }
 
+        WireButtonsIfPossible();
+
         if (isOpen)
         {
             Close();
@@ -104,6 +113,16 @@ public sealed class PauseMenuController : MonoBehaviour
         {
             Open();
         }
+    }
+
+    private void LateUpdate()
+    {
+        if (!isOpen)
+        {
+            return;
+        }
+
+        EnforcePausedIfNeeded();
     }
 
     private void Open()
@@ -203,6 +222,24 @@ public sealed class PauseMenuController : MonoBehaviour
         }
     }
 
+    private void EnforcePausedIfNeeded()
+    {
+        if (!_pausedByThisMenu)
+        {
+            return;
+        }
+
+        if (!Mathf.Approximately(Time.timeScale, 0f))
+        {
+            Time.timeScale = 0f;
+        }
+
+        if (pauseAudioListener && !AudioListener.pause)
+        {
+            AudioListener.pause = true;
+        }
+    }
+
     private void UnpauseTimeIfNeeded()
     {
         if (!_pausedByThisMenu)
@@ -243,19 +280,26 @@ public sealed class PauseMenuController : MonoBehaviour
         Close();
     }
 
-    private void WireButtons()
+    private void WireButtonsIfPossible()
     {
+        if (_buttonsWired)
+        {
+            return;
+        }
+
         if (resumeButton != null)
         {
-            resumeButton.onClick = new Button.ButtonClickedEvent();
+            resumeButton.onClick.RemoveListener(Resume);
             resumeButton.onClick.AddListener(Resume);
         }
 
         if (quitButton != null)
         {
-            quitButton.onClick = new Button.ButtonClickedEvent();
+            quitButton.onClick.RemoveListener(QuitToMainMenu);
             quitButton.onClick.AddListener(QuitToMainMenu);
         }
+
+        _buttonsWired = resumeButton != null || quitButton != null;
     }
 
     private bool AutoWireUiIfNeeded()

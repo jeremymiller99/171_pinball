@@ -198,6 +198,12 @@ public class ScoreManager : MonoBehaviour
     public float Goal => _goal;
 
     /// <summary>
+    /// Cumulative goal target (sum of all prior goals + current goal).
+    /// Useful for UI that wants to show an absolute score target rather than "remaining this level".
+    /// </summary>
+    public float CumulativeGoal => Mathf.Max(0f, levelProgressOffset + _goal);
+
+    /// <summary>
     /// Current goal tier, computed from LiveRoundTotal / Goal.
     /// Tier 0 means LiveRoundTotal is below the goal.
     /// </summary>
@@ -596,7 +602,7 @@ public class ScoreManager : MonoBehaviour
         UpdateGoalTierAndApplySpeed();
         EnsureCoreScoreTextBindings();
         if (goalText != null)
-            goalText.text = goal.ToString();
+            goalText.text = CumulativeGoal.ToString();
         ScoreChanged?.Invoke();
     }
 
@@ -720,7 +726,7 @@ public class ScoreManager : MonoBehaviour
         if (roundTotalText != null)
             roundTotalText.text = FormatPointsCompact(roundTotal);
         if (goalText != null)
-            goalText.text = _goal.ToString();
+            goalText.text = CumulativeGoal.ToString();
     }
 
     private void CaptureRoundIndexJuiceBaselineIfNeeded()
@@ -851,6 +857,14 @@ public class ScoreManager : MonoBehaviour
     {
         if (!applySpeedToTimeScale) return;
         CaptureTimeBaseIfNeeded();
+
+        // Respect global pause via Time.timeScale.
+        // Other systems (pause menu, modifier cards, etc.) may set timeScale to 0 and expect it to
+        // stay there while their UI is open.
+        if (Time.timeScale <= 0f)
+        {
+            return;
+        }
 
         // Target is baseline * tier multiplier.
         // Slow-mo removed: never allow any multiplier to reduce speed below baseline.

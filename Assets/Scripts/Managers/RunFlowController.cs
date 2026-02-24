@@ -225,10 +225,21 @@ public sealed class RunFlowController : MonoBehaviour
         BoardDefinition next = session.GetNextBoard();
         if (next == null)
         {
-            // Run complete. Return to main menu.
+            // Run complete. Show Win Screen.
             ProfileService.RecordRunCompleted();
             session.ResetSession();
-            SceneManager.LoadScene(mainMenuSceneName);
+
+            yield return StartCoroutine(CloseShopTransitionAndWait());
+
+            if (shopTransitionController != null)
+            {
+                shopTransitionController.ShowBoardUI();
+                shopTransitionController.ResumeGameplayInput();
+            }
+
+            int levelReached = rulesManager != null ? Mathf.Max(1, rulesManager.LevelIndex + 1) : 1;
+            long points = rulesManager != null ? (long)Mathf.Round(rulesManager.TotalScore) : 0L;
+            WinScreenController.Show(levelReached, points);
             yield break;
         }
 

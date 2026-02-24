@@ -1,3 +1,4 @@
+// Updated with Cursor (GPT-5.2) by OpenAI assistant for jjmil on 2026-02-23.
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -16,14 +17,20 @@ public sealed class FpsCounterHUD : MonoBehaviour
     private const float BaseFontSize = 24f;
     private const float FontScale = 0.65f; // 35% smaller
     private const string PreferredFontName = "Early GameBoy";
+    private const string FpsTextObjectName = "FPS Text";
+    private const string SpeedTextObjectName = "Speed Text";
 
     [Header("UI")]
     [SerializeField] private TMP_Text label;
+    [SerializeField] private TMP_Text speedLabel;
 
     [Header("Behavior")]
     [Tooltip("How often the label updates, in seconds.")]
     [Min(0.05f)]
     [SerializeField] private float updateInterval = 0.25f;
+
+    [Tooltip("Format uses Time.timeScale (actual effective game speed).")]
+    [SerializeField] private string speedFormat = "x{0:0.00}";
 
     // Intentionally kept for backward compatibility with existing serialized data.
     // FPS display is now always a compact "fps: 000" format.
@@ -32,6 +39,7 @@ public sealed class FpsCounterHUD : MonoBehaviour
     private int _frames;
     private float _timeAccum;
     private float _timeLeft;
+    private float _lastSpeedScale = -1f;
 
     private void Awake()
     {
@@ -47,6 +55,8 @@ public sealed class FpsCounterHUD : MonoBehaviour
     {
         if (!label)
             return;
+
+        UpdateSpeedLabel();
 
         float dt = Mathf.Max(0.000001f, Time.unscaledDeltaTime);
 
@@ -64,6 +74,19 @@ public sealed class FpsCounterHUD : MonoBehaviour
         _frames = 0;
         _timeAccum = 0f;
         _timeLeft = Mathf.Max(0.05f, updateInterval);
+    }
+
+    private void UpdateSpeedLabel()
+    {
+        if (!speedLabel)
+            return;
+
+        float scale = Time.timeScale;
+        if (Mathf.Abs(scale - _lastSpeedScale) <= 0.0005f)
+            return;
+
+        _lastSpeedScale = scale;
+        speedLabel.text = string.Format(GetSpeedFormatOrDefault(), scale);
     }
 
     private void EnsureInstalledUI()
@@ -89,22 +112,22 @@ public sealed class FpsCounterHUD : MonoBehaviour
         rootRt.anchorMax = new Vector2(1f, 1f);
         rootRt.pivot = new Vector2(1f, 1f);
         rootRt.anchoredPosition = new Vector2(AnchorPaddingX, AnchorPaddingY);
-        rootRt.sizeDelta = new Vector2(200f, 40f);
+        rootRt.sizeDelta = new Vector2(200f, 56f);
 
         if (!label)
         {
-            Transform existing = transform.Find("FPS Text");
+            Transform existing = transform.Find(FpsTextObjectName);
             var textGo = existing
                 ? existing.gameObject
-                : new GameObject("FPS Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+                : new GameObject(FpsTextObjectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
 
             textGo.transform.SetParent(transform, worldPositionStays: false);
 
             var textRt = (RectTransform)textGo.transform;
-            textRt.anchorMin = Vector2.zero;
-            textRt.anchorMax = Vector2.one;
-            textRt.offsetMin = Vector2.zero;
-            textRt.offsetMax = Vector2.zero;
+            textRt.anchorMin = new Vector2(0f, 0.5f);
+            textRt.anchorMax = new Vector2(1f, 1f);
+            textRt.offsetMin = new Vector2(0f, 0f);
+            textRt.offsetMax = new Vector2(0f, 0f);
 
             var tmp = textGo.GetComponent<TextMeshProUGUI>();
             tmp.raycastTarget = false;
@@ -117,6 +140,73 @@ public sealed class FpsCounterHUD : MonoBehaviour
 
             label = tmp;
         }
+        ConfigureFpsText(label);
+
+        if (!speedLabel)
+        {
+            Transform existing = transform.Find(SpeedTextObjectName);
+            var textGo = existing
+                ? existing.gameObject
+                : new GameObject(SpeedTextObjectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+
+            textGo.transform.SetParent(transform, worldPositionStays: false);
+
+            var textRt = (RectTransform)textGo.transform;
+            textRt.anchorMin = new Vector2(0f, 0f);
+            textRt.anchorMax = new Vector2(1f, 0.5f);
+            textRt.offsetMin = new Vector2(0f, 0f);
+            textRt.offsetMax = new Vector2(0f, 0f);
+
+            var tmp = textGo.GetComponent<TextMeshProUGUI>();
+            tmp.raycastTarget = false;
+            tmp.textWrappingMode = TextWrappingModes.NoWrap;
+            tmp.alignment = TextAlignmentOptions.BottomRight;
+            tmp.fontSize = Mathf.Ceil(BaseFontSize * FontScale);
+            tmp.color = Color.white;
+            tmp.text = string.Format(GetSpeedFormatOrDefault(), Time.timeScale);
+            ApplyPreferredFont(tmp);
+
+            speedLabel = tmp;
+            _lastSpeedScale = -1f; // force refresh next Update()
+        }
+        ConfigureSpeedText(speedLabel);
+    }
+
+    private string GetSpeedFormatOrDefault()
+    {
+        return string.IsNullOrWhiteSpace(speedFormat) ? "x{0:0.00}" : speedFormat;
+    }
+
+    private static void ConfigureFpsText(TMP_Text t)
+    {
+        if (!t)
+            return;
+
+        RectTransform rt = t.rectTransform;
+        rt.anchorMin = new Vector2(0f, 0.5f);
+        rt.anchorMax = new Vector2(1f, 1f);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+
+        t.raycastTarget = false;
+        t.textWrappingMode = TextWrappingModes.NoWrap;
+        t.alignment = TextAlignmentOptions.TopRight;
+    }
+
+    private static void ConfigureSpeedText(TMP_Text t)
+    {
+        if (!t)
+            return;
+
+        RectTransform rt = t.rectTransform;
+        rt.anchorMin = new Vector2(0f, 0f);
+        rt.anchorMax = new Vector2(1f, 0.5f);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+
+        t.raycastTarget = false;
+        t.textWrappingMode = TextWrappingModes.NoWrap;
+        t.alignment = TextAlignmentOptions.BottomRight;
     }
 
     private static void ApplyPreferredFont(TextMeshProUGUI tmp)

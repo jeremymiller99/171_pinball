@@ -129,9 +129,15 @@ public sealed class BallSpawner : MonoBehaviour
             _moveCoroutine = null;
         }
 
-        if (_activeBalls.Count != 0)
+        while (_activeBalls.Count > 0)
         {
-            _activeBalls.Clear();
+            GameObject b = _activeBalls[0];
+            if (b == null)
+            {
+                _activeBalls.RemoveAt(0);
+                continue;
+            }
+            DespawnBall(b);
         }
 
         for (int i = _handBalls.Count - 1; i >= 0; i--)
@@ -224,6 +230,20 @@ public sealed class BallSpawner : MonoBehaviour
         {
             Debug.LogWarning($"{nameof(BallSpawner)} missing spawnPoint.", this);
             return null;
+        }
+
+        if (enforceSingleActiveBall)
+        {
+            while (_activeBalls.Count > 0)
+            {
+                GameObject b = _activeBalls[0];
+                if (b == null)
+                {
+                    _activeBalls.RemoveAt(0);
+                    continue;
+                }
+                DespawnBall(b);
+            }
         }
 
         if (_handBalls.Count == 0)
@@ -331,14 +351,30 @@ public sealed class BallSpawner : MonoBehaviour
             return null;
         }
 
-        if (enforceSingleActiveBall && _activeBalls.Count == 1)
+        if (spawnPoint == null)
         {
-            DespawnBall(_activeBalls[0]);
+            Debug.LogWarning($"{nameof(BallSpawner)} missing spawnPoint.", this);
+            return null;
         }
 
-        _activeBalls[0] = Instantiate(ballPrefab, spawnPoint.position, spawnPoint.rotation);
-        _activeBalls[0].name = $"{ballPrefab.name}_ActiveBall";
-        return _activeBalls[0];
+        if (enforceSingleActiveBall)
+        {
+            while (_activeBalls.Count > 0)
+            {
+                GameObject b = _activeBalls[0];
+                if (b == null)
+                {
+                    _activeBalls.RemoveAt(0);
+                    continue;
+                }
+                DespawnBall(b);
+            }
+        }
+
+        GameObject ball = Instantiate(ballPrefab, spawnPoint.position, spawnPoint.rotation);
+        ball.name = $"{ballPrefab.name}_ActiveBall";
+        _activeBalls.Add(ball);
+        return ball;
     }
 
     private void LayoutHandImmediate()

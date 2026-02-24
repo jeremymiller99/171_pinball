@@ -111,7 +111,8 @@ public class GameRulesManager : MonoBehaviour
     [SerializeField] private int guaranteedBagSizeFallback = 7;
 
     [Header("Default Modifier Pools (when no challenge)")]
-    [Tooltip("Used so every round has an angel or devil modifier even in Quick Run. Assign at least one.")]
+    [Tooltip("Optional pools used to roll Angel/Devil modifiers when no challenge is active.\n" +
+             "If assigned, levels roll 60% Normal / 20% Angel / 20% Devil by default.")]
     [SerializeField] private RoundModifierPool defaultAngelPool;
     [SerializeField] private RoundModifierPool defaultDevilPool;
 
@@ -536,12 +537,6 @@ public class GameRulesManager : MonoBehaviour
         if (challenge != null && challenge.HasModifierPools)
         {
             type = RollModifierType(challenge);
-            if (type == RoundType.Normal)
-            {
-                if (_levelModifierRng == null)
-                    _levelModifierRng = new System.Random(Environment.TickCount);
-                type = _levelModifierRng.NextDouble() < 0.5 ? RoundType.Angel : RoundType.Devil;
-            }
             modifier = RollModifierFromPool(challenge, type);
             if (modifier == null && type == RoundType.Angel && challenge.devilPool != null && challenge.devilPool.ValidCount > 0)
                 modifier = challenge.devilPool.GetRandomModifier(_levelModifierRng);
@@ -558,14 +553,26 @@ public class GameRulesManager : MonoBehaviour
             {
                 if (_levelModifierRng == null)
                     _levelModifierRng = new System.Random(Environment.TickCount);
-                type = (_levelModifierRng.NextDouble() < 0.5) ? RoundType.Angel : RoundType.Devil;
-                if (type == RoundType.Angel && hasAngel)
+
+                // Default distribution (when no challenge is active):
+                // 60% Normal, 20% Angel, 20% Devil.
+                // (If a desired pool is missing, gracefully fall back to the other type or Normal.)
+                double roll = _levelModifierRng.NextDouble();
+                if (roll < 0.2)
+                    type = RoundType.Angel;
+                else if (roll < 0.4)
+                    type = RoundType.Devil;
+                else
+                    type = RoundType.Normal;
+
+                if (type == RoundType.Angel && !hasAngel)
+                    type = hasDevil ? RoundType.Devil : RoundType.Normal;
+                if (type == RoundType.Devil && !hasDevil)
+                    type = hasAngel ? RoundType.Angel : RoundType.Normal;
+
+                if (type == RoundType.Angel)
                     modifier = angelPool.GetRandomModifier(_levelModifierRng);
-                else if (type == RoundType.Devil && hasDevil)
-                    modifier = devilPool.GetRandomModifier(_levelModifierRng);
-                if (modifier == null && hasAngel)
-                    modifier = angelPool.GetRandomModifier(_levelModifierRng);
-                if (modifier == null && hasDevil)
+                else if (type == RoundType.Devil)
                     modifier = devilPool.GetRandomModifier(_levelModifierRng);
             }
         }

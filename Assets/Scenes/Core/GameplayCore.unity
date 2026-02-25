@@ -5771,10 +5771,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 912259834}
     m_Modifications:
-    - target: {fileID: 4442160442984780212, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
-      propertyPath: rulesManager
-      value: 
-      objectReference: {fileID: 1398822445}
     - target: {fileID: 4469331004543435806, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -5858,14 +5854,6 @@ PrefabInstance:
     - target: {fileID: 5630811846323021269, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
       propertyPath: m_Name
       value: Basic Tutorial Panel
-      objectReference: {fileID: 0}
-    - target: {fileID: 5630811846323021269, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8118021236926230899, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

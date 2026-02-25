@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: BOMI
   displayName: Ball of Minor inconvenience
-  description: Points and mult are +50% but every 5th hit the score is inverted and
-    subtracts.
+  description: Points and mult are +50% but every 10th hit the score is inverted
+    and subtracts.
   rarity: 1
   icon: {fileID: 21300000, guid: af63de4465c43cf499133b557e6ee7cb, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 3f9260e952e4f5348941deee3ce22e2d, type: 3}

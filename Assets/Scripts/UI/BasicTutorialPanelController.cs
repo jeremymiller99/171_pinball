@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 [DisallowMultipleComponent]
 public sealed class BasicTutorialPanelController : MonoBehaviour
 {
-    private const int tutorialPanelCount = 6;
+    private const int tutorialPanelCount = 8;
     private const int ignoreInputFramesOnOpen = 2;
 
     [Header("Optional refs (auto-resolved if blank)")]

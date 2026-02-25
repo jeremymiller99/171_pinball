@@ -164,7 +164,8 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private float maxFixedDeltaTime = 0.1f;
     [Header("Audio")]
     [SerializeField] private EventReference pointsAddEvent;
-     [SerializeField] private EventReference multAddEvent;
+    [SerializeField] private EventReference multAddEvent;
+    [SerializeField] private EventReference coinAddEvent;
     
     private int compTriggered = 35;
     private int framesSinceLastScore = 0;
@@ -505,6 +506,26 @@ public class ScoreManager : MonoBehaviour
         gameRulesManager.AddCoinsUnscaled(applied);
         UpdateStoredScores();
         floatingTextSpawner?.SpawnGoldText(pos.position, "+$" + applied, applied);
+    }
+
+    private System.Collections.IEnumerator PlayCoinSoundsRoutine(int amount)
+    {
+        if (coinAddEvent.IsNull) yield break;
+
+        for (int i = 0; i < amount; i++)
+        {
+            AudioManager.Instance.PlayOneShot(coinAddEvent);
+            
+            yield return new WaitForSeconds(0.1f); 
+        }
+    }
+
+    public void PlayStaggeredCoinSounds(int amount)
+    {
+        if (amount > 0)
+        {
+            StartCoroutine(PlayCoinSoundsRoutine(amount));
+        }
     }
 
     public void SetScoringLocked(bool locked)

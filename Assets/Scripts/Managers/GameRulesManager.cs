@@ -1651,15 +1651,13 @@ public class GameRulesManager : MonoBehaviour
     /// </summary>
     public void AddCoinsUnscaled(int amount)
     {
-        if (amount <= 0)
-        {
-            return;
-        }
+        if (amount <= 0) return;
 
         coins += amount;
         if (scoreManager != null)
         {
             scoreManager.SetCoins(coins);
+            scoreManager.PlayStaggeredCoinSounds(amount); // Added Audio!
         }
     }
 
@@ -1691,6 +1689,7 @@ public class GameRulesManager : MonoBehaviour
         if (scoreManager != null)
         {
             scoreManager.SetCoins(coins);
+            scoreManager.PlayStaggeredCoinSounds(applied); // Added Audio!
         }
 
         return applied;

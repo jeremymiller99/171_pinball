@@ -1060,6 +1060,13 @@ MonoBehaviour:
       Data3: 1049703831
       Data4: -556799613
     Path: event:/add_mult
+  coinAddEvent:
+    Guid:
+      Data1: -369928764
+      Data2: 1115790982
+      Data3: -1647532638
+      Data4: 106056798
+    Path: event:/add_coins
   _goalTier: 0
   pointMultiplier: 1
   pointsModifierMultiplier: 1

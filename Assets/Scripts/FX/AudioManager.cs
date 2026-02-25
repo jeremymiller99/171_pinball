@@ -8,8 +8,16 @@ public class AudioManager : MonoBehaviour
 
     [Header("Music Settings")]
     [SerializeField] private EventReference mainMusicEvent;
+    [Header("Volume Buses")]
+    // Make sure these string paths match exactly what you named your buses in FMOD Studio!
+    [SerializeField] private string masterBusPath = "bus:/";
+    [SerializeField] private string musicBusPath = "bus:/Music";
+    [SerializeField] private string sfxBusPath = "bus:/SFX";
     
     private EventInstance musicInstance;
+    private FMOD.Studio.Bus masterBus;
+    private FMOD.Studio.Bus musicBus;
+    private FMOD.Studio.Bus sfxBus;
 
     private void Awake()
     {
@@ -21,7 +29,15 @@ public class AudioManager : MonoBehaviour
         }
 
         Instance = this;
+        InitializeBuses();
         DontDestroyOnLoad(gameObject);
+    }
+
+    private void InitializeBuses()
+    {
+        masterBus = RuntimeManager.GetBus(masterBusPath);
+        musicBus = RuntimeManager.GetBus(musicBusPath);
+        sfxBus = RuntimeManager.GetBus(sfxBusPath);
     }
 
     private void Start()
@@ -70,6 +86,21 @@ public class AudioManager : MonoBehaviour
             instance.start();
             instance.release();
         }
+    }
+
+    public void SetMasterVolume(float volume)
+    {
+        masterBus.setVolume(volume);
+    }
+
+    public void SetMusicVolume(float volume)
+    {
+        musicBus.setVolume(volume);
+    }
+
+    public void SetSFXVolume(float volume)
+    {
+        sfxBus.setVolume(volume);
     }
 
     private void OnDestroy()

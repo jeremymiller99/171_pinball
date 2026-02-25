@@ -2975,6 +2975,13 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   shopCanvasRoot: {fileID: 460876978}
+  transitionSound:
+    Guid:
+      Data1: 86384479
+      Data2: 1179429909
+      Data3: -900643699
+      Data4: 455003607
+    Path: event:/window_whoosh
   shopPanelRect: {fileID: 460876981}
   panelTitle: {fileID: 0}
   panelTabs: {fileID: 0}
@@ -3478,6 +3485,13 @@ MonoBehaviour:
       Data3: 1800051360
       Data4: -1715759857
     Path: event:/generic_fail
+  levelUpSound:
+    Guid:
+      Data1: -1004533979
+      Data2: 1256531157
+      Data3: 153186719
+      Data4: 1881532589
+    Path: event:/level_up
   shopTransitionController: {fileID: 987650103}
   roundIndex: 0
   maxBalls: 0
@@ -5966,6 +5980,26 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -27.3
       objectReference: {fileID: 0}
+    - target: {fileID: 4909302719662743289, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: tabSwitchSound.Path
+      value: event:/window_whoosh
+      objectReference: {fileID: 0}
+    - target: {fileID: 4909302719662743289, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: tabSwitchSound.Guid.Data1
+      value: 86384479
+      objectReference: {fileID: 0}
+    - target: {fileID: 4909302719662743289, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: tabSwitchSound.Guid.Data2
+      value: 1179429909
+      objectReference: {fileID: 0}
+    - target: {fileID: 4909302719662743289, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: tabSwitchSound.Guid.Data3
+      value: -900643699
+      objectReference: {fileID: 0}
+    - target: {fileID: 4909302719662743289, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: tabSwitchSound.Guid.Data4
+      value: 455003607
+      objectReference: {fileID: 0}
     - target: {fileID: 5464857294773175667, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -6005,6 +6039,26 @@ PrefabInstance:
     - target: {fileID: 6146807440524120631, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -27.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: swapSlotSound.Path
+      value: event:/window_whoosh
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: swapSlotSound.Guid.Data1
+      value: 86384479
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: swapSlotSound.Guid.Data2
+      value: 1179429909
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: swapSlotSound.Guid.Data3
+      value: -900643699
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: swapSlotSound.Guid.Data4
+      value: 455003607
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

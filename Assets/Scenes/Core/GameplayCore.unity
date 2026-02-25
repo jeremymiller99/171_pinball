@@ -1055,11 +1055,11 @@ MonoBehaviour:
     Path: event:/add_points
   multAddEvent:
     Guid:
-      Data1: -1551028495
-      Data2: 1247067323
-      Data3: 1049703831
-      Data4: -556799613
-    Path: event:/add_mult
+      Data1: 525079654
+      Data2: 1330019275
+      Data3: -1472266100
+      Data4: 2042514203
+    Path: event:/add_points
   coinAddEvent:
     Guid:
       Data1: -369928764

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine.SceneManagement;
+using FMODUnity;
 
 public enum TypeOfScore
 {
@@ -161,6 +162,13 @@ public class ScoreManager : MonoBehaviour
     [Tooltip("Caps Time.fixedDeltaTime after applying timeScale (prevents huge physics steps at high timeScale).")]
     [Min(0.0001f)]
     [SerializeField] private float maxFixedDeltaTime = 0.1f;
+    [Header("Audio")]
+    [SerializeField] private EventReference pointsAddEvent;
+     [SerializeField] private EventReference multAddEvent;
+    
+    private int compTriggered = 35;
+    private int framesSinceLastScore = 0;
+    private const int FramesToResetAudio = 200;
 
     // Stored goal value for the current round (set via SetGoal).
     private float _goal;
@@ -411,6 +419,7 @@ public class ScoreManager : MonoBehaviour
     private void Start()
     {
         // Keep existing defaults.
+        ResetAudioPitch();
         points = 0f;
         mult = 1f;
         roundTotal = 0f;
@@ -424,6 +433,21 @@ public class ScoreManager : MonoBehaviour
         ResolveCameraShake();
         RefreshScoreUI();
         ScoreChanged?.Invoke();
+    }
+
+    private void Update()
+    {
+        // Increment the frame counter
+        if (framesSinceLastScore < FramesToResetAudio)
+        {
+            framesSinceLastScore++;
+            
+            // If we just hit the threshold, reset the pitch
+            if (framesSinceLastScore == FramesToResetAudio)
+            {
+                ResetAudioPitch();
+            }
+        }
     }
 
     private void AddPoints(float applied, Transform pos)
@@ -503,15 +527,63 @@ public class ScoreManager : MonoBehaviour
             EnsureRefs();
         }
 
+        bool pointsActuallyChanged = false;
+        bool multActuallyChanged = false;
+
+        // Process Points
         if (pointsText != null && pointQueue.Count > 0)
-            pointsText.text = FormatPointsCompact(pointQueue.Dequeue());
+        {
+            float newPoints = pointQueue.Dequeue();
+            
+            if (newPoints != pointsUiDisplayed)
+            {
+                pointsActuallyChanged = true;
+                pointsUiDisplayed = newPoints;
+            }
+            pointsText.text = FormatPointsCompact(newPoints);
+        }
+
+        // Process Multiplier
         if (multText != null && multQueue.Count > 0)
-            multText.text = FormatMultiplier(multQueue.Dequeue());
+        {
+            float newMult = multQueue.Dequeue();
+            
+            if (newMult != multUiDisplayed)
+            {
+                multActuallyChanged = true;
+                multUiDisplayed = newMult;
+            }
+            multText.text = FormatMultiplier(newMult);
+        }
 
         // Coins can change outside the per-popup queue (e.g. level-up awards), so always read the
         // authoritative value to prevent the UI snapping back to stale queued values.
         if (coinsText != null && gameRulesManager != null)
             coinsText.text = $"${gameRulesManager.Coins}";
+
+        if (pointsActuallyChanged && !pointsAddEvent.IsNull)
+        {
+            AudioManager.Instance.PlayOneShotWithParameter(pointsAddEvent, "compTriggered", compTriggered);
+        }
+
+        if (multActuallyChanged && !multAddEvent.IsNull)
+        {
+            AudioManager.Instance.PlayOneShotWithParameter(multAddEvent, "compTriggered", compTriggered);
+        }
+        
+        if (pointsActuallyChanged || multActuallyChanged)
+        {
+            framesSinceLastScore = 0;
+            if (compTriggered < 80)
+            {
+                compTriggered += 5;
+            }
+        }
+    }
+
+    public void ResetAudioPitch()
+    {
+        compTriggered = 35;
     }
 
 
@@ -538,6 +610,7 @@ public class ScoreManager : MonoBehaviour
         roundTotal += banked;
 
         // Reset for next ball.
+        ResetAudioPitch();
         points = 0f;
         mult = 1f;
 
@@ -555,6 +628,7 @@ public class ScoreManager : MonoBehaviour
         levelProgressOffset = 0f;
         roundTotal = 0f;
         points = 0f;
+        ResetAudioPitch();
         mult = 1f;
         _goalTier = 0;
 

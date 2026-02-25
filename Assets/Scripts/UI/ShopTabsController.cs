@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using FMODUnity;
 
 /// <summary>
 /// Minimal 2-tab controller for the Shop panel.
@@ -17,6 +18,8 @@ public sealed class ShopTabsController : MonoBehaviour
         Balls = 0,
         BoardComponents = 1
     }
+
+    [SerializeField] private EventReference tabSwitchSound;
 
     [Header("UI")]
     [SerializeField] private Button ballsTabButton;
@@ -70,6 +73,8 @@ public sealed class ShopTabsController : MonoBehaviour
             ApplyTab(tab, notify: false);
             return;
         }
+
+        AudioManager.Instance.PlayOneShot(tabSwitchSound);
 
         CurrentTab = tab;
         ApplyTab(tab, notify);

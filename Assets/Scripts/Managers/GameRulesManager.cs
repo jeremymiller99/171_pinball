@@ -74,6 +74,8 @@ public class GameRulesManager : MonoBehaviour
     [SerializeField] private TMP_Text homeRunMessageText;
     [Tooltip("Sound for a failed purchase attempt.")]
     [SerializeField] private EventReference failedPurchaseSound;
+    [Tooltip("Level up sound effect.")]
+    [SerializeField] private EventReference levelUpSound;
 
     [Header("Transitions (optional)")]
     [SerializeField] private ShopTransitionController shopTransitionController;
@@ -1263,6 +1265,8 @@ public class GameRulesManager : MonoBehaviour
 
                 _shopBallSaveAvailable = true;
 
+                AudioManager.Instance.PlayOneShot(levelUpSound);
+
                 safety++;
                 if (safety > 100)
                 {
@@ -1686,15 +1690,13 @@ public class GameRulesManager : MonoBehaviour
     /// </summary>
     public void AddCoinsUnscaled(int amount)
     {
-        if (amount <= 0)
-        {
-            return;
-        }
+        if (amount <= 0) return;
 
         coins += amount;
         if (scoreManager != null)
         {
             scoreManager.SetCoins(coins);
+            scoreManager.PlayStaggeredCoinSounds(amount); // Added Audio!
         }
     }
 
@@ -1726,6 +1728,7 @@ public class GameRulesManager : MonoBehaviour
         if (scoreManager != null)
         {
             scoreManager.SetCoins(coins);
+            scoreManager.PlayStaggeredCoinSounds(applied); // Added Audio!
         }
 
         return applied;

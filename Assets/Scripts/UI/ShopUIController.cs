@@ -53,6 +53,8 @@ public sealed class ShopUIController : MonoBehaviour
     [SerializeField] private EventReference rerollSound;
     [Tooltip("Sound for a failed purchase attempt.")]
     [SerializeField] private EventReference failedPurchaseSound;
+    [Tooltip("Sound for swapping balls.")]
+    [SerializeField] private EventReference swapSlotSound;
 
     [Header("UI (optional)")]
     [Tooltip("Shown when a replacement slot must be chosen.")]
@@ -93,6 +95,8 @@ public sealed class ShopUIController : MonoBehaviour
     [SerializeField] private TMP_Text selectedRarityText;
     [SerializeField] private Button selectedBuyButton;
     [SerializeField] private Button selectedSellButton;
+
+    
 
     private TMP_Text _selectedSellButtonLabel;
 
@@ -172,6 +176,8 @@ public sealed class ShopUIController : MonoBehaviour
         {
             return;
         }
+
+        AudioManager.Instance.PlayOneShot(swapSlotSound);
 
         // Swapping while a confirmation is open can become confusing, so close it.
         _pendingItem = null;

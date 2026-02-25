@@ -54,6 +54,24 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    public void PlayOneShotWithParameter(EventReference soundEvent, string paramName, float paramValue, Vector3 worldPosition = default)
+    {
+        if (!soundEvent.IsNull)
+        {
+            EventInstance instance = RuntimeManager.CreateInstance(soundEvent);
+            
+            instance.setParameterByName(paramName, paramValue);
+            
+            if (worldPosition != default)
+            {
+                instance.set3DAttributes(RuntimeUtils.To3DAttributes(worldPosition));
+            }
+            
+            instance.start();
+            instance.release();
+        }
+    }
+
     private void OnDestroy()
     {
         if (Instance == this && musicInstance.isValid())

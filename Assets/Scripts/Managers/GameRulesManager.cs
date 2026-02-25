@@ -74,6 +74,8 @@ public class GameRulesManager : MonoBehaviour
     [SerializeField] private TMP_Text homeRunMessageText;
     [Tooltip("Sound for a failed purchase attempt.")]
     [SerializeField] private EventReference failedPurchaseSound;
+    [Tooltip("Level up sound effect.")]
+    [SerializeField] private EventReference levelUpSound;
 
     [Header("Transitions (optional)")]
     [SerializeField] private ShopTransitionController shopTransitionController;
@@ -1227,6 +1229,8 @@ public class GameRulesManager : MonoBehaviour
                 scoreManager.SetGoal(CurrentGoal);
 
                 _shopBallSaveAvailable = true;
+
+                AudioManager.Instance.PlayOneShot(levelUpSound);
 
                 safety++;
                 if (safety > 100)

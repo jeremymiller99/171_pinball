@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33bdd2ce9371b3542bd29e4b7ab752b8, type: 3}
+  m_Name: Eye_on_The_Prize
+  m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
+  id: Eye on The Prize
+  displayName: Eye on the Prize Ball
+  description: 'spawn ten balls with one red one. the other balls do nothing but
+    the red ball gives you alot if its the last one '
+  rarity: 1
+  icon: {fileID: 0}
+  prefab: {fileID: 5723297401256486482, guid: 1c5c28d68e2bc445baaf3f95ce58cbf4, type: 3}
+  price: 25

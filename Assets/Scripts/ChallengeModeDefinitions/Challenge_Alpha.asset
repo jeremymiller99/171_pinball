@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ChallengeModeDefinition
   displayName: OG
   description: Complete the OG Board
-  winConditionDescription: Beat 10 rounds
+  winConditionDescription: Reach Level 7
   boards:
   - {fileID: 11400000, guid: 6c3ed43778e1f254490b8b449bd4076a, type: 2}
   totalRounds: 7

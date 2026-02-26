@@ -4,7 +4,8 @@ using UnityEngine;
 public class ChaosBall : Ball
 {
     [SerializeField] private GameObject chaosBallPrefab;
-    [SerializeField] private float lastBallPointsMultiplier = 10f;
+    [SerializeField] private float lastBallPointsMultiplier = 3f;
+    [SerializeField] private float whiteBallPointsMultiplier = 0.1f;
     [SerializeField] private float spawnRadius = 0.5f;
     [Header("Initial ball = red, duplicates = white")]
     [SerializeField] private Color redColor = Color.red;
@@ -25,10 +26,11 @@ public class ChaosBall : Ball
         if (!_hasSpawned)
             TryStartChaosRound();
 
-        if (!_isRed)
-            return;
-        if (ChaosRoundTracker.IsRedLastStanding(this))
+        if (_isRed)
             amount *= lastBallPointsMultiplier;
+        else
+            amount *= whiteBallPointsMultiplier;
+
         base.AddScore(amount, typeOfScore, pos);
     }
 

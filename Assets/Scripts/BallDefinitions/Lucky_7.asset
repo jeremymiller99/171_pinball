@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Lucky 7
   displayName: Lucky 7 Ball
-  description: every 7th hit do double points
+  description: x2 score every 7th component hit.
   rarity: 0
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 5accd05b043beee45927680c88955df0, type: 3}
   prefab: {fileID: 5723297401256486482, guid: c0ee1454469fe40588468916af0cf46e, type: 3}
   price: 10

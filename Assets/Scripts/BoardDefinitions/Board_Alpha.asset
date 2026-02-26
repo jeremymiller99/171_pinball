@@ -15,6 +15,6 @@ MonoBehaviour:
   displayName: OG
   boardSceneName: Board_Alpha
   clearCondition: 1
-  targetRoundIndex: 10
+  targetRoundIndex: 7
   targetCoins: 10
   targetRoundTotal: 2000

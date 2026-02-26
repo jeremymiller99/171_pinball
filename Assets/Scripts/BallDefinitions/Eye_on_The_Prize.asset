@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Eye on The Prize
   displayName: Eye on the Prize Ball
-  description: 'spawn ten balls with one red one. the other balls do nothing but
-    the red ball gives you alot if its the last one '
+  description: Spawn 10 white balls and 1 red ball. The white balls score x0.1 but
+    the red one scores x3.
   rarity: 1
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: c249f17688530c4479e19dc7b62e0d1f, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 1c5c28d68e2bc445baaf3f95ce58cbf4, type: 3}
   price: 25

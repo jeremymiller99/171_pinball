@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Racket Ball
   displayName: Racket Ball
-  description: Adds mult everytime you hit the ball with a flipper
+  description: Adds mult everytime you hit the ball with a flipper.
   rarity: 0
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 1c437a8241dbe004d9bb9a0b18d1bdc2, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 2b82c6f8f32384210a6840f2b65e8f56, type: 3}
   price: 10

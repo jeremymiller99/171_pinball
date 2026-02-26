@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Suspense
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Suspense
-  displayName: Ball
-  description: Starts normal, as time goes on every hit gives more points and mult.
-    Exponential increase, resets when flipper is used
-  rarity: 0
-  icon: {fileID: 0}
+  displayName: Suspense
+  description: 'Scoring buff increases exponentially the longer you don''t use the
+    pinball flippers. Buff resets when the flipper is used. '
+  rarity: 1
+  icon: {fileID: 21300000, guid: c4e32c3fa70f76f418371d2a6ea45727, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 1b79449042dee4c70a8ccf44adb807f2, type: 3}
   price: 25

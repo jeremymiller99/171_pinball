@@ -229,6 +229,10 @@ internal static class FpsCounterHUDBootstrap
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Init()
     {
+        // FPS counter disabled — uncomment the body below to re-enable.
+        return;
+
+#pragma warning disable CS0162 // Unreachable code
         // Avoid duplicates across domain reloads / scene reloads.
 #if UNITY_2022_2_OR_NEWER
         if (Object.FindFirstObjectByType<FpsCounterHUDBootstrapper>() != null)
@@ -241,6 +245,7 @@ internal static class FpsCounterHUDBootstrap
         var go = new GameObject(nameof(FpsCounterHUDBootstrapper));
         Object.DontDestroyOnLoad(go);
         go.AddComponent<FpsCounterHUDBootstrapper>();
+#pragma warning restore CS0162
     }
 }
 

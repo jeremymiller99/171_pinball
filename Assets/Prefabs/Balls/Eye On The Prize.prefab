@@ -330,6 +330,7 @@ MonoBehaviour:
   coinMultiplier: 1
   chaosBallPrefab: {fileID: 5723297401256486482}
   lastBallPointsMultiplier: 3
+  whiteBallPointsMultiplier: 0.1
   spawnRadius: 0.5
   redColor: {r: 1, g: 0, b: 0, a: 1}
   whiteColor: {r: 1, g: 1, b: 1, a: 1}

@@ -17,6 +17,6 @@ MonoBehaviour:
   description: Every 10 component hits, give +100 pts +0.2 mult. all other hits don't
     score
   rarity: 0
-  icon: {fileID: 21300000, guid: af63de4465c43cf499133b557e6ee7cb, type: 3}
+  icon: {fileID: 21300000, guid: c9e94e0116aa2d6428b6bba726d720e6, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 7abae6571b8cd71448df1a146c1bb916, type: 3}
   price: 10

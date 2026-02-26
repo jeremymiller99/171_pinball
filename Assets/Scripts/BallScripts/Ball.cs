@@ -40,19 +40,25 @@ public class Ball : MonoBehaviour
 
     virtual protected void OnCollisionEnter(Collision collision)
     {   
-        if (collision.collider.GetComponent<Portal>() != null)
-        {
-            return;
-        }
-
         BoardComponent[] components = collision.collider.GetComponents<BoardComponent>();
         if (components.Length > 0)
         {
-            componentHits++;
             HandleParticles(collision);
+            bool scoredAnyComponent = false;
             foreach(BoardComponent component in components)
             {
+                if (!ShouldScoreBoardComponent(component))
+                {
+                    continue;
+                }
+
+                scoredAnyComponent = true;
                 AddScore(component.amountToScore, component.typeOfScore, transform);
+            }
+
+            if (scoredAnyComponent)
+            {
+                componentHits++;
             }
         }
 
@@ -60,21 +66,32 @@ public class Ball : MonoBehaviour
 
     void OnTriggerEnter(Collider collider)
     {
-        if (collider.GetComponent<Portal>() != null)
-        {
-            return;
-        }
-
         BoardComponent[] components = collider.GetComponents<BoardComponent>();
         if (components.Length > 0)
         {
-            componentHits++;
+            bool scoredAnyComponent = false;
             foreach(BoardComponent component in components)
             {
+                if (!ShouldScoreBoardComponent(component))
+                {
+                    continue;
+                }
+
+                scoredAnyComponent = true;
                 AddScore(component.amountToScore, component.typeOfScore, transform);
+            }
+
+            if (scoredAnyComponent)
+            {
+                componentHits++;
             }
         }
         
+    }
+
+    protected virtual bool ShouldScoreBoardComponent(BoardComponent component)
+    {
+        return component != null;
     }
 
     protected void HandleParticles(Collision collision)

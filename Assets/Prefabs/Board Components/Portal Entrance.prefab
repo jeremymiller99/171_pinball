@@ -71,6 +71,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Portal
   camShake: {fileID: 0}
   portalExit: {fileID: 0}
+  canTeleportFromThisPortal: 1
   exitOffset: 0
   exitRandomAngle: 0
   overrideExitSpeed: 1

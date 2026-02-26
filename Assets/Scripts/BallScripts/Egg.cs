@@ -63,6 +63,11 @@ public class EggBall : Ball
         }
     }
 
+    protected override bool ShouldScoreBoardComponent(BoardComponent component)
+    {
+        return component != null && component.GetComponent<Portal>() == null;
+    }
+
     void OnDestroy()
     {
         if (applyOnUseOnly && !wasUsed) return;

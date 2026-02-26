@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Joker_Ball
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Joker Ball
-  displayName: Joker Ball
+  displayName: Joker
   description: Scores 1.25x.
   rarity: 0
   icon: {fileID: 21300000, guid: e681d574556e4974e9a4c5a6ac0c74ab, type: 3}

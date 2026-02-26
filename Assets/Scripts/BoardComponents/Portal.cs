@@ -6,6 +6,7 @@ public class Portal : MonoBehaviour
 {
     [SerializeField] private CameraShake camShake;
     public Transform portalExit;
+    [SerializeField] private bool canTeleportFromThisPortal = true;
 
     [Header("Settings")]
     [Tooltip("How far in front of the exit portal to place the object after teleport.")]
@@ -53,6 +54,11 @@ public class Portal : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!canTeleportFromThisPortal)
+        {
+            return;
+        }
+
         
         Rigidbody rb = other.attachedRigidbody;
         if (rb == null) return;

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Eye_on_The_Prize
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Eye on The Prize
-  displayName: Eye on the Prize Ball
+  displayName: Eye on the Prize
   description: Spawn 10 white balls and 1 red ball. The white balls score x0.25 but
     the red one scores x3.
   rarity: 1

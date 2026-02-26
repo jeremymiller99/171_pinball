@@ -855,7 +855,7 @@ public class GameRulesManager : MonoBehaviour
                         timeScaleMult *= m.timeScaleMultiplier;
                     }
                     scoreManager.pointsModifierMultiplier = Mathf.Max(0f, scoreMult);
-                    scoreManager.multModifierMultiplier = disableMult ? 0f : 1f;
+                    scoreManager.multModifierMultiplier = disableMult ? 0.5f : 1f;
                     scoreManager.coinModifierMultiplier = Mathf.Max(0f, coinMult);
                     scoreManager.modifierTimeScaleMultiplier = Mathf.Max(0.1f, timeScaleMult);
                     _effectiveGoalModifierForRound = goalMod;
@@ -864,7 +864,7 @@ public class GameRulesManager : MonoBehaviour
                 else
                 {
                     scoreManager.pointsModifierMultiplier = Mathf.Max(0f, _activeModifier.scoreMultiplier);
-                    scoreManager.multModifierMultiplier = _activeModifier.disableMultiplier ? 0f : 1f;
+                    scoreManager.multModifierMultiplier = _activeModifier.disableMultiplier ? 0.5f : 1f;
                     scoreManager.coinModifierMultiplier = Mathf.Max(0f, _activeModifier.coinMultiplier);
                     ApplyBallModifierFromActiveModifier();
                 }
@@ -872,7 +872,7 @@ public class GameRulesManager : MonoBehaviour
             else
             {
                 scoreManager.pointsModifierMultiplier = Mathf.Max(0f, _activeModifier.scoreMultiplier);
-                scoreManager.multModifierMultiplier = _activeModifier.disableMultiplier ? 0f : 1f; // Cursed Multiplier: mult cannot increase (locked at 1×)
+                scoreManager.multModifierMultiplier = _activeModifier.disableMultiplier ? 0.5f : 1f; // Cursed Multiplier: mult gain reduced by 50%
                 scoreManager.coinModifierMultiplier = Mathf.Max(0f, _activeModifier.coinMultiplier);
                 scoreManager.modifierTimeScaleMultiplier = Mathf.Max(0.1f, _activeModifier.timeScaleMultiplier);
                 ApplyBallModifierFromActiveModifier();

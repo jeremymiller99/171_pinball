@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Cursed_Multiplier
   m_EditorClassIdentifier: Assembly-CSharp::RoundModifierDefinition
   displayName: Cursed Multiplier
-  description: Multiplier cannot increase this round.
+  description: Multiplier gains are reduced by 50% this round.
   icon: {fileID: 0}
   type: 1
   scoreMultiplier: 1

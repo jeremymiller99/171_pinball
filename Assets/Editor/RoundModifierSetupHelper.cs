@@ -28,7 +28,7 @@ public static class RoundModifierSetupHelper
             RoundModifierDefinition.ModifierType.Angel, timeScaleMultiplier: 4f);
 
         // Create devil modifiers
-        CreateModifier("Cursed Multiplier", "Multiplier cannot increase this round.",
+        CreateModifier("Cursed Multiplier", "Multiplier gains are reduced by 50% this round.",
             RoundModifierDefinition.ModifierType.Devil, disableMultiplier: true);
 
         CreateModifier("Higher Stakes", "Goal requirement increased by 500.",

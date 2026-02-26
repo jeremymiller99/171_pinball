@@ -1,5 +1,6 @@
-// Generated with Cursor (claude-4.6-opus) by jjmil on 2026-02-26.
+// Generated with Cursor (claude-4.6-opus-high-thinking) by jjmil on 2026-02-26.
 using UnityEngine;
+using FMODUnity;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -9,6 +10,8 @@ public sealed class ShopTutorialPanelController : MonoBehaviour
 {
     private const int shopTutorialPanelCount = 4;
     private const int ignoreInputFramesOnOpen = 2;
+
+    [SerializeField] private EventReference nextSound;
 
     [Header("Optional refs (auto-resolved if blank)")]
     [SerializeField] private ShopTransitionController shopTransitionController;
@@ -268,6 +271,11 @@ public sealed class ShopTutorialPanelController : MonoBehaviour
         if (stepPanels == null)
         {
             return;
+        }
+
+        if (!nextSound.IsNull)
+        {
+            AudioManager.Instance.PlayOneShot(nextSound);
         }
 
         if (currentPanelIndex < 0)

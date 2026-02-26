@@ -40,6 +40,11 @@ public class Ball : MonoBehaviour
 
     virtual protected void OnCollisionEnter(Collision collision)
     {   
+        if (collision.collider.GetComponent<Portal>() != null)
+        {
+            return;
+        }
+
         BoardComponent[] components = collision.collider.GetComponents<BoardComponent>();
         if (components.Length > 0)
         {
@@ -55,6 +60,11 @@ public class Ball : MonoBehaviour
 
     void OnTriggerEnter(Collider collider)
     {
+        if (collider.GetComponent<Portal>() != null)
+        {
+            return;
+        }
+
         BoardComponent[] components = collider.GetComponents<BoardComponent>();
         if (components.Length > 0)
         {

@@ -5,7 +5,7 @@ public class ChaosBall : Ball
 {
     [SerializeField] private GameObject chaosBallPrefab;
     [SerializeField] private float lastBallPointsMultiplier = 3f;
-    [SerializeField] private float whiteBallPointsMultiplier = 0.1f;
+    [SerializeField] private float whiteBallPointsMultiplier = 0.25f;
     [SerializeField] private float spawnRadius = 0.5f;
     [Header("Initial ball = red, duplicates = white")]
     [SerializeField] private Color redColor = Color.red;

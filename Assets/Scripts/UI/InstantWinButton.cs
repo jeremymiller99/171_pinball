@@ -2,7 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Dev/testing helper: when clicked during an active round, bank enough points to meet the current round goal.
+/// Generated with Cursor (GPT-5.3-codex) by OpenAI assistant for jjmil on 2026-02-26.
+/// Dev/testing helper: when clicked during an active round, bank enough points to meet the current level goal.
 /// Intended to be wired to a UI Button in a debug panel.
 /// </summary>
 [DisallowMultipleComponent]
@@ -61,21 +62,19 @@ public sealed class InstantWinButton : MonoBehaviour
             return;
         }
 
-        // If we bank right now, this is what the round total would become.
+        // Use level-progress space, not round-total space.
+        // roundTotal can include progress already consumed by previous level-ups, which can make
+        // a debug "instant level up" button fail on higher levels if we compare against roundTotal.
         float mult = scoreManager.mult;
         if (mult <= 0f) mult = 1f;
 
-        float liveIfBankedNow = scoreManager.roundTotal + (scoreManager.points * mult);
-        float extraNeeded = goal - liveIfBankedNow;
-        if (extraNeeded <= 0f)
-        {
-            // Already at/over goal (or would be if banked). Do nothing.
-            return;
-        }
+        float extraNeeded = goal - scoreManager.LiveLevelProgress;
 
-        // Add just enough points so that banking reaches the goal, then bank immediately into roundTotal.
+        // Add just enough points so that banking reaches the goal, then bank immediately.
         // We write directly to ScoreManager fields so tier-scaling doesn't distort the cheat amount.
-        scoreManager.points += extraNeeded / mult;
+        if (extraNeeded > 0f)
+            scoreManager.points += extraNeeded / mult;
+
         scoreManager.BankCurrentBallScore(bankMultiplier: 1f);
     }
 }

@@ -375,8 +375,9 @@ public sealed class ShopTransitionController : MonoBehaviour
         AudioManager.Instance.PlayOneShot(transitionSound);
         yield return AnimatePanel(panelBalls, _panelBallsHidden, _panelBallsHome, phase2);
 
-        AudioManager.Instance.PlayOneShot(transitionSound);
+        
         yield return AnimatePanel(panelDone, _panelDoneHidden, _panelDoneHome, final);
+        AudioManager.Instance.PlayOneShot(transitionSound);
     }
 
     private IEnumerator SlidePanelsOutAll()

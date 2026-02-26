@@ -1048,17 +1048,17 @@ MonoBehaviour:
   maxFixedDeltaTime: 0.1
   pointsAddEvent:
     Guid:
-      Data1: 525079654
-      Data2: 1330019275
-      Data3: -1472266100
-      Data4: 2042514203
+      Data1: -418338245
+      Data2: 1161525135
+      Data3: -1576776550
+      Data4: 1382297272
     Path: event:/add_points
   multAddEvent:
     Guid:
-      Data1: 525079654
-      Data2: 1330019275
-      Data3: -1472266100
-      Data4: 2042514203
+      Data1: -418338245
+      Data2: 1161525135
+      Data3: -1576776550
+      Data4: 1382297272
     Path: event:/add_points
   coinAddEvent:
     Guid:
@@ -5771,6 +5771,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 912259834}
     m_Modifications:
+    - target: {fileID: 4442160442984780212, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: nextSound.Path
+      value: event:/add_points
+      objectReference: {fileID: 0}
+    - target: {fileID: 4442160442984780212, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: nextSound.Guid.Data1
+      value: -418338245
+      objectReference: {fileID: 0}
+    - target: {fileID: 4442160442984780212, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: nextSound.Guid.Data2
+      value: 1161525135
+      objectReference: {fileID: 0}
+    - target: {fileID: 4442160442984780212, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: nextSound.Guid.Data3
+      value: -1576776550
+      objectReference: {fileID: 0}
+    - target: {fileID: 4442160442984780212, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: nextSound.Guid.Data4
+      value: 1382297272
+      objectReference: {fileID: 0}
     - target: {fileID: 4469331004543435806, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -6055,6 +6075,26 @@ PrefabInstance:
     - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: swapSlotSound.Guid.Data4
       value: 455003607
+      objectReference: {fileID: 0}
+    - target: {fileID: 7880029343774438804, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: switchSound.Path
+      value: event:/add_points
+      objectReference: {fileID: 0}
+    - target: {fileID: 7880029343774438804, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: switchSound.Guid.Data1
+      value: -418338245
+      objectReference: {fileID: 0}
+    - target: {fileID: 7880029343774438804, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: switchSound.Guid.Data2
+      value: 1161525135
+      objectReference: {fileID: 0}
+    - target: {fileID: 7880029343774438804, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: switchSound.Guid.Data3
+      value: -1576776550
+      objectReference: {fileID: 0}
+    - target: {fileID: 7880029343774438804, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: switchSound.Guid.Data4
+      value: 1382297272
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -3496,8 +3496,7 @@ MonoBehaviour:
   coinsPerLevelUp: 10
   ballSpawner: {fileID: 0}
   boardLoader: {fileID: 0}
-  startingBallLoadout:
-  - {fileID: 5723297401256486482, guid: 1b79449042dee4c70a8ccf44adb807f2, type: 3}
+  startingBallLoadout: []
   startingBallLoadoutDefinitions: []
   shopCanvasRoot: {fileID: 460876978}
   roundFailedUIRoot: {fileID: 1243198069}

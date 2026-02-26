@@ -161,7 +161,6 @@ public class FloatingText : MonoBehaviour
         flyElapsedSeconds = 0f;
         flyConfigured = true;
         flyCompletionInvoked = false;
-        AudioManager.Instance.PlayOneShot(whooshSound);
         animationMode = AnimationMode.FlyTo;
     }
 

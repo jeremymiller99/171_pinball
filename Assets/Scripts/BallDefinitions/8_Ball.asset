@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: 8 Ball
   displayName: 8 Ball
-  description: x3 score every 8th component hit
-  rarity: 1
+  description: x3 score every 8th component hit.
+  rarity: 0
   icon: {fileID: 0}
   prefab: {fileID: 5723297401256486482, guid: 20e6ec85c48b743e885ff9aef85e5148, type: 3}
   price: 25

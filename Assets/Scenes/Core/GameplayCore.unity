@@ -347,11 +347,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 148225956}
   m_CullTransparentMesh: 1
---- !u!1 &167573751 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6614348045160488329, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
-  m_PrefabInstance: {fileID: 8022325052346818037}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &194363610
 GameObject:
   m_ObjectHideFlags: 0
@@ -1053,17 +1048,17 @@ MonoBehaviour:
   maxFixedDeltaTime: 0.1
   pointsAddEvent:
     Guid:
-      Data1: 525079654
-      Data2: 1330019275
-      Data3: -1472266100
-      Data4: 2042514203
+      Data1: -418338245
+      Data2: 1161525135
+      Data3: -1576776550
+      Data4: 1382297272
     Path: event:/add_points
   multAddEvent:
     Guid:
-      Data1: 525079654
-      Data2: 1330019275
-      Data3: -1472266100
-      Data4: 2042514203
+      Data1: -418338245
+      Data2: 1161525135
+      Data3: -1576776550
+      Data4: 1382297272
     Path: event:/add_points
   coinAddEvent:
     Guid:
@@ -3787,25 +3782,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1529075086}
   m_CullTransparentMesh: 1
---- !u!1 &1536920853 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5630811846323021269, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
-  m_PrefabInstance: {fileID: 8022325052346818037}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1536920857
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1536920853}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a72155591bc49c5458a0fdebcfcc7db9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ShopTutorialPanelController
-  rulesManager: {fileID: 1398822445}
-  shopTutorialRoot: {fileID: 167573751}
 --- !u!224 &1668108026 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1334538533519268259, guid: d009092034bc27b4dba01f5ef8d3dc01, type: 3}
@@ -5795,9 +5771,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 912259834}
     m_Modifications:
-    - target: {fileID: 3316532939533840073, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
-      propertyPath: m_IsActive
-      value: 0
+    - target: {fileID: 4442160442984780212, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: nextSound.Path
+      value: event:/add_points
+      objectReference: {fileID: 0}
+    - target: {fileID: 4442160442984780212, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: nextSound.Guid.Data1
+      value: -418338245
+      objectReference: {fileID: 0}
+    - target: {fileID: 4442160442984780212, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: nextSound.Guid.Data2
+      value: 1161525135
+      objectReference: {fileID: 0}
+    - target: {fileID: 4442160442984780212, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: nextSound.Guid.Data3
+      value: -1576776550
+      objectReference: {fileID: 0}
+    - target: {fileID: 4442160442984780212, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: nextSound.Guid.Data4
+      value: 1382297272
       objectReference: {fileID: 0}
     - target: {fileID: 4469331004543435806, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
       propertyPath: m_Pivot.x
@@ -5883,21 +5875,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Basic Tutorial Panel
       objectReference: {fileID: 0}
-    - target: {fileID: 6614348045160488329, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7025034694798522703, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5630811846323021269, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1536920857}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
 --- !u!1001 &8192110664919275161
 PrefabInstance:
@@ -6094,6 +6075,26 @@ PrefabInstance:
     - target: {fileID: 6843881263247619683, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: swapSlotSound.Guid.Data4
       value: 455003607
+      objectReference: {fileID: 0}
+    - target: {fileID: 7880029343774438804, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: switchSound.Path
+      value: event:/add_points
+      objectReference: {fileID: 0}
+    - target: {fileID: 7880029343774438804, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: switchSound.Guid.Data1
+      value: -418338245
+      objectReference: {fileID: 0}
+    - target: {fileID: 7880029343774438804, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: switchSound.Guid.Data2
+      value: 1161525135
+      objectReference: {fileID: 0}
+    - target: {fileID: 7880029343774438804, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: switchSound.Guid.Data3
+      value: -1576776550
+      objectReference: {fileID: 0}
+    - target: {fileID: 7880029343774438804, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: switchSound.Guid.Data4
+      value: 1382297272
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

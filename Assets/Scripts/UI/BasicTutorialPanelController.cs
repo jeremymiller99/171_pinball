@@ -1,6 +1,7 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
 using UnityEngine;
 using UnityEngine.UI;
+using FMODUnity;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -10,6 +11,8 @@ public sealed class BasicTutorialPanelController : MonoBehaviour
 {
     private const int tutorialPanelCount = 8;
     private const int ignoreInputFramesOnOpen = 2;
+
+    [SerializeField] private EventReference nextSound;
 
     [Header("Optional refs (auto-resolved if blank)")]
     [SerializeField] private GameRulesManager rulesManager;
@@ -355,6 +358,11 @@ public sealed class BasicTutorialPanelController : MonoBehaviour
             return;
         }
 
+        if (!nextSound.IsNull)
+        {
+            AudioManager.Instance.PlayOneShot(nextSound);
+        }
+        
         if (currentPanelIndex < 0)
         {
             currentPanelIndex = 0;

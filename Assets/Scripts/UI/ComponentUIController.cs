@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
+using FMODUnity;
 
 public class ComponentUIController : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class ComponentUIController : MonoBehaviour
     [SerializeField] private BoardRoot boardRoot;
     [SerializeField] private BoardComponent chosenComponent;
     [SerializeField] private TextMeshProUGUI componentTypeText;
+    [SerializeField] private EventReference switchSound;
 
     private readonly Dictionary<int, string> displayNameByInstanceId = new Dictionary<int, string>();
 
@@ -123,6 +125,8 @@ public class ComponentUIController : MonoBehaviour
         {
             upgrade.Refresh(chosenComponent.gameObject);
         }
+
+        AudioManager.Instance.PlayOneShot(switchSound);
     }
 
     private void BuildDisplayNamesForCurrentBoardScene()

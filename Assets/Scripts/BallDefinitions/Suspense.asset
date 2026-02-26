@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33bdd2ce9371b3542bd29e4b7ab752b8, type: 3}
+  m_Name: Suspense
+  m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
+  id: Suspense
+  displayName: Ball
+  description: Starts normal, as time goes on every hit gives more points and mult.
+    Exponential increase, resets when flipper is used
+  rarity: 0
+  icon: {fileID: 0}
+  prefab: {fileID: 5723297401256486482, guid: 1b79449042dee4c70a8ccf44adb807f2, type: 3}
+  price: 25

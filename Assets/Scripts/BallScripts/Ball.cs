@@ -21,6 +21,8 @@ public class Ball : MonoBehaviour
     public float multMultiplier = 1f;
     public int coinMultiplier = 1;
 
+    public virtual float PointsAwardMultiplier => pointMultiplier;
+
     virtual protected void Awake()
     {
         trailRenderer = GetComponent<TrailRenderer>();

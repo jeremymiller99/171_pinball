@@ -1712,13 +1712,10 @@ MonoBehaviour:
   gameplayCoreSceneName: GameplayCore
   quickRunBoards:
   - {fileID: 11400000, guid: 6c3ed43778e1f254490b8b449bd4076a, type: 2}
-  - {fileID: 11400000, guid: 19d947c5247e5764c9b19eaf3fb464be, type: 2}
   challengeModes:
   - {fileID: 11400000, guid: b2349c469a3ecdf4c93edc8b993a3d5e, type: 2}
-  - {fileID: 11400000, guid: 104d2ecf9dc15184d84e208c0a469578, type: 2}
   challengeBoards:
   - {fileID: 11400000, guid: 6c3ed43778e1f254490b8b449bd4076a, type: 2}
-  - {fileID: 11400000, guid: 19d947c5247e5764c9b19eaf3fb464be, type: 2}
   mainMenuPanel: {fileID: 622060392}
   runSelectorPanel: {fileID: 1147841084}
   settingsPanel: {fileID: 273842394}

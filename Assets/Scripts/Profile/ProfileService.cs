@@ -161,6 +161,27 @@ public sealed class ProfileService : MonoBehaviour
         ProfileChanged?.Invoke(Instance.activeSlot);
     }
 
+    public static bool HasSeenShopTutorial()
+    {
+        if (Instance == null) return false;
+
+        ProfileSaveData p = Instance.GetOrCreateActiveProfile();
+        return p != null && p.hasSeenShopTutorial;
+    }
+
+    public static void RecordShopTutorialSeen()
+    {
+        if (Instance == null) return;
+
+        ProfileSaveData p = Instance.GetOrCreateActiveProfile();
+        if (p == null) return;
+
+        p.hasSeenShopTutorial = true;
+
+        Instance.SaveSlot(Instance.activeSlot);
+        ProfileChanged?.Invoke(Instance.activeSlot);
+    }
+
     public static bool ConsumeCleanFirstRunSkipIfNeeded()
     {
         if (Instance == null) return false;

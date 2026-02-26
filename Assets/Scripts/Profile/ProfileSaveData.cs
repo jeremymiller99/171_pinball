@@ -14,5 +14,6 @@ public sealed class ProfileSaveData
     public bool hasConsumedCleanFirstRunSkip;
     public bool hasAnsweredFirstTimePlayingPrompt;
     public bool isFirstTimePlayingAnswerYes;
+    public bool hasSeenShopTutorial;
 }
 

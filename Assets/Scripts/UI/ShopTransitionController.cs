@@ -95,6 +95,8 @@ public sealed class ShopTransitionController : MonoBehaviour
     private Vector2 _panelBallsHidden;
     private Vector2 _panelDoneHidden;
 
+    public event Action OpenTransitionFinished;
+
     private bool _isOpen;
     private bool _isTransitioning;
     private Coroutine _transitionRoutine;
@@ -281,6 +283,7 @@ public sealed class ShopTransitionController : MonoBehaviour
         yield return SlidePanelsInSequence();
 
         _isTransitioning = false;
+        OpenTransitionFinished?.Invoke();
     }
 
     private IEnumerator CloseRoutine(Action afterClosed)

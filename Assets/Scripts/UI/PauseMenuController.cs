@@ -28,6 +28,9 @@ public sealed class PauseMenuController : MonoBehaviour
     [SerializeField] private bool pauseAudioListener = true;
     [SerializeField] private bool showCursorWhenPaused = true;
 
+    [Header("Input")]
+    [SerializeField] private InputActionReference pauseAction;
+
     [Header("Runtime (debug)")]
     [SerializeField] private bool isOpen;
 
@@ -88,7 +91,7 @@ public sealed class PauseMenuController : MonoBehaviour
             EnforcePausedIfNeeded();
         }
 
-        if (!WasEscapePressedThisFrame())
+        if (!pauseAction.action.WasPressedThisFrame())
         {
             return;
         }
@@ -187,11 +190,7 @@ public sealed class PauseMenuController : MonoBehaviour
     private void DisableIfEnabled<T>() where T : Behaviour
     {
         T[] all;
-#if UNITY_2022_2_OR_NEWER
         all = Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-#else
-        all = FindObjectsOfType<T>(includeInactive: true);
-#endif
 
         for (int i = 0; i < all.Length; i++)
         {
@@ -375,22 +374,10 @@ public sealed class PauseMenuController : MonoBehaviour
         EventSystem.current.SetSelectedGameObject(button.gameObject);
     }
 
-    private static bool WasEscapePressedThisFrame()
-    {
-#if ENABLE_INPUT_SYSTEM
-        return Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame;
-#else
-        return Input.GetKeyDown(KeyCode.Escape);
-#endif
-    }
-
     private static PauseMenuController FindAnyPauseMenuController()
     {
-#if UNITY_2022_2_OR_NEWER
         return FindFirstObjectByType<PauseMenuController>();
-#else
-        return FindObjectOfType<PauseMenuController>();
-#endif
+
     }
 
     private static GameObject FindPanelLikeObject(string name)
@@ -441,13 +428,9 @@ public sealed class PauseMenuController : MonoBehaviour
     {
         Transform[] all;
 
-#if UNITY_2022_2_OR_NEWER
         all = Object.FindObjectsByType<Transform>(
             includeInactive ? FindObjectsInactive.Include : FindObjectsInactive.Exclude,
             FindObjectsSortMode.None);
-#else
-        all = Resources.FindObjectsOfTypeAll<Transform>();
-#endif
 
         var result = new List<Transform>(all.Length);
         for (int i = 0; i < all.Length; i++)
@@ -457,10 +440,8 @@ public sealed class PauseMenuController : MonoBehaviour
 
             if (!t.gameObject.scene.IsValid() || !t.gameObject.scene.isLoaded) continue;
 
-#if !UNITY_2022_2_OR_NEWER
             if ((t.hideFlags & HideFlags.NotEditable) != 0) continue;
             if ((t.hideFlags & HideFlags.HideAndDontSave) != 0) continue;
-#endif
 
             if (!includeInactive && !t.gameObject.activeInHierarchy) continue;
 

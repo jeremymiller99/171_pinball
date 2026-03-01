@@ -2,7 +2,6 @@
 // Change: add selection outline + portal paired-exit outline.
 using UnityEngine;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
 public class BoardComponent : MonoBehaviour
 {
@@ -15,7 +14,7 @@ public class BoardComponent : MonoBehaviour
     public GameObject upObject;
     public GameObject downObject;
     public List<GameObject> components = new List<GameObject>();
-    public bool isSelected = false;
+    public bool isConfirmed = false;
     public float maxPulseScale;
     public float pulseAmount;
     public Vector3 startingSize;
@@ -24,7 +23,8 @@ public class BoardComponent : MonoBehaviour
     [Header("Selection Outline")]
     [SerializeField] private bool useSelectionOutline = true;
     [SerializeField] private Outline.Mode selectionOutlineMode = Outline.Mode.OutlineAll;
-    [SerializeField] private Color selectionOutlineColor = Color.white;
+    [SerializeField] private Color confirmOutlineColor = Color.white;
+    [SerializeField] private Color selectionOutlineColor = Color.gray;
     [SerializeField, Range(0f, 10f)] private float selectionOutlineWidth = defaultSelectionOutlineWidth;
 
     private Outline selectionOutline;
@@ -51,15 +51,9 @@ public class BoardComponent : MonoBehaviour
         if (!leftObject)
         {
             leftObject = rightObject;
-        } else if (!rightObject)
-        {
-            rightObject = leftObject;
         }
 
-        if (!upObject)
-        {
-            upObject = downObject;
-        } else if (!downObject)
+        if (!downObject)
         {
             downObject = upObject;
         }
@@ -151,7 +145,7 @@ public class BoardComponent : MonoBehaviour
 
     public void FixedUpdate()
     {
-        if (!isSelected) return;
+        if (!isConfirmed) return;
         if (directionOfPulse == 1)
         {
             transform.localScale = Vector3.MoveTowards(transform.localScale, startingSize * maxPulseScale, pulseAmount);
@@ -167,39 +161,6 @@ public class BoardComponent : MonoBehaviour
                 directionOfPulse *= -1;
             }
         }
-    }
-
-    public void Select()
-    {
-        isSelected = true;
-
-        if (!useSelectionOutline)
-        {
-            return;
-        }
-
-        EnsureSelectionOutline();
-        if (selectionOutline == null)
-        {
-            return;
-        }
-
-        ApplySelectionOutlineSettings(selectionOutline);
-        selectionOutline.enabled = true;
-
-        SetPortalExitOutlineEnabled(true);
-    }
-    public void DeSelect()
-    {
-        isSelected = false;
-        transform.localScale = startingSize;
-
-        if (selectionOutline != null)
-        {
-            selectionOutline.enabled = false;
-        }
-
-        SetPortalExitOutlineEnabled(false);
     }
 
     public void PrewarmSelectionOutline()
@@ -279,5 +240,45 @@ public class BoardComponent : MonoBehaviour
         outline.OutlineMode = selectionOutlineMode;
         outline.OutlineColor = selectionOutlineColor;
         outline.OutlineWidth = selectionOutlineWidth;
+    }
+
+    public void Select()
+    {
+        if (!useSelectionOutline || isConfirmed)
+        {
+            return;
+        }
+
+        EnsureSelectionOutline();
+        selectionOutline.enabled = true;
+        selectionOutline.OutlineMode = selectionOutlineMode;
+        selectionOutline.OutlineColor = selectionOutlineColor;
+        selectionOutline.OutlineWidth = selectionOutlineWidth;
+        SetPortalExitOutlineEnabled(true);
+    }
+
+    public void DeSelect()
+    {
+        if (!isConfirmed)
+        {
+            selectionOutline.enabled = false;
+            SetPortalExitOutlineEnabled(false);
+        }
+    }
+
+    public void Confirm()
+    {
+        selectionOutline.OutlineColor = confirmOutlineColor;
+        isConfirmed = true;
+    }
+
+    public void DeConfirm()
+    {
+        if (!isConfirmed) return;
+        selectionOutline.OutlineColor = selectionOutlineColor;
+        isConfirmed = false;
+        transform.localScale = startingSize;
+        selectionOutline.enabled = false;
+        SetPortalExitOutlineEnabled(false);
     }
 }

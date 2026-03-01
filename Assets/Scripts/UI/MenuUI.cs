@@ -129,10 +129,6 @@ public class MainMenuUI : MonoBehaviour
         // Allow Esc to return from sub-panels.
         if (WasEscapePressedThisFrame())
         {
-            // If the controls menu is listening for a rebind, Esc should cancel that
-            // (not immediately back out of Settings).
-            if (ControlsMenuController.IsRebindingInProgress())
-                return;
 
             // First check if mode info overlay is open.
             if (modeInfoPanel != null && modeInfoPanel.activeSelf)
@@ -169,7 +165,6 @@ public class MainMenuUI : MonoBehaviour
 #endif
 
         AutoWirePanels();
-        InstallControlsMenuIfPossible();
         AutoWireMainMenuButtons();
         AutoWireStartRunButton();
         AutoWireChallengeRootAndTemplate();
@@ -215,16 +210,6 @@ public class MainMenuUI : MonoBehaviour
         trigger.triggers.Add(entry);
     }
 
-    private void InstallControlsMenuIfPossible()
-    {
-        if (settingsPanel == null)
-            return;
-
-        // Adds a nested Controls menu under Settings at runtime.
-        // (Safer than editing the scene YAML by hand.)
-        ControlsMenuController.InstallInto(settingsPanel);
-    }
-
     private void AutoWirePanels()
     {
         if (mainMenuPanel == null)
@@ -237,12 +222,6 @@ public class MainMenuUI : MonoBehaviour
         {
             var go = FindPanelLikeObject("Run Selector Panel") ?? FindPanelLikeObject("Run Selector");
             if (go != null) runSelectorPanel = go;
-        }
-
-        if (settingsPanel == null)
-        {
-            var go = FindPanelLikeObject("Settings") ?? FindPanelLikeObject("Settings Panel");
-            if (go != null) settingsPanel = go;
         }
 
         if (profilePanel == null)
@@ -552,6 +531,9 @@ public class MainMenuUI : MonoBehaviour
         labelText.alignment = TextAlignmentOptions.Center;
         labelText.color = Color.white;
 
+        ColorBlock buttonColors = btn.colors;
+        buttonColors.selectedColor = Color.gray;
+        btn.colors = buttonColors;
         return btn;
     }
 
@@ -621,6 +603,9 @@ public class MainMenuUI : MonoBehaviour
     {
         var btn = Instantiate(challengeButtonTemplate, challengeButtonsRoot);
         btn.name = $"ChallengeButton_{label}";
+        ColorBlock buttonColors = btn.colors;
+        buttonColors.selectedColor = Color.gray;
+        btn.colors = buttonColors;
 
         btn.onClick = new Button.ButtonClickedEvent();
         if (onClick != null)

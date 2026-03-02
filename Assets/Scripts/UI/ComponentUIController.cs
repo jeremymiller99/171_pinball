@@ -101,7 +101,6 @@ public class ComponentUIController : MonoBehaviour
         {
             if (keepMoving)
             {
-                Debug.Log("Right:" + moveVector);
                 keepMoving = false;
                 chosenComponent.DeSelect();
                 if (!chosenComponent.rightObject)
@@ -119,7 +118,6 @@ public class ComponentUIController : MonoBehaviour
         {
             if (keepMoving)
             {
-                Debug.Log("Up:" + moveVector);
                 keepMoving = false;
                 chosenComponent.DeSelect();
                 if (!chosenComponent.upObject)
@@ -137,7 +135,6 @@ public class ComponentUIController : MonoBehaviour
         {
             if (keepMoving)
             {
-                Debug.Log("Down:" + moveVector);
                 keepMoving = false;
                 chosenComponent.DeSelect();
                 chosenComponent = chosenComponent.downObject.GetComponent<BoardComponent>();
@@ -148,7 +145,6 @@ public class ComponentUIController : MonoBehaviour
         {
             if (keepMoving)
             {
-                Debug.Log("Left:" + moveVector);
                 keepMoving = false;
                 chosenComponent.DeSelect();
                 chosenComponent = chosenComponent.leftObject.GetComponent<BoardComponent>();

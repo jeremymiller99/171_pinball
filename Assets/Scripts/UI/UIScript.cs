@@ -17,11 +17,6 @@ public class UIScript : MonoBehaviour
 
     void Update()
     {
-        InputAction inputAction = InputSystem.actions.FindAction("UIMovement");
-        if (inputAction.ReadValue<Vector2>() != Vector2.zero)
-        {
-            Debug.Log("moving");
-        }
         if (eventSystem.currentSelectedGameObject && eventSystem.currentSelectedGameObject.activeInHierarchy)
         {
             selectedObject = eventSystem.currentSelectedGameObject;

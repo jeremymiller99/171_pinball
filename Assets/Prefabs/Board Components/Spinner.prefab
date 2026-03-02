@@ -323,7 +323,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   prevAngle: 0
   scoreManager: {fileID: 0}
-  amountToAdd: 0
+  amountToAdd: 2
   maxAngle: 300
   minAngle: 100
 --- !u!1 &4850085123108910178

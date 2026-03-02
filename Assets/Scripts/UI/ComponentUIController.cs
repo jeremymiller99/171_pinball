@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
-using FMODUnity;
 
 public class ComponentUIController : MonoBehaviour
 {
@@ -17,23 +16,33 @@ public class ComponentUIController : MonoBehaviour
     [SerializeField] private Vector3 originalBoardRotation;
     [SerializeField] private Vector3 originialBoardScale;
     [SerializeField] private BoardRoot boardRoot;
-    [SerializeField] private BoardComponent chosenComponent;
+    public BoardComponent chosenComponent;
     [SerializeField] private TextMeshProUGUI componentTypeText;
-    [SerializeField] private EventReference switchSound;
+    [SerializeField] private float movementTreshold = .8f;
+    [SerializeField] private UIScript uiScript;
+    [SerializeField] private bool selectingButtons = true;
+    /*
+    keepMoving is used to make sure that controllers don't make the UI move every frame
+    on the UIMovement function. It's implemented in a strange way so that
+    it checks if the previous frame the left stick was past the movementThreshold before
+    actually moving where the UI is.
+    */
+    [SerializeField] private bool keepMoving;
 
     private readonly Dictionary<int, string> displayNameByInstanceId = new Dictionary<int, string>();
 
     void Awake()
     {
-        boardRoot = FindFirstObjectByType<BoardRoot>();
-        chosenComponent = FindFirstObjectByType<BoardComponent>();
+        boardRoot = FindAnyObjectByType<BoardRoot>();
+        chosenComponent = FindAnyObjectByType<BoardComponent>();
+        uiScript = FindAnyObjectByType<UIScript>();
     }
 
     void OnEnable()
     {
         if (boardRoot == null)
         {
-            boardRoot = FindFirstObjectByType<BoardRoot>();
+            boardRoot = FindAnyObjectByType<BoardRoot>();
         }
         if (boardRoot == null)
         {
@@ -42,7 +51,7 @@ public class ComponentUIController : MonoBehaviour
         
         if (chosenComponent == null)
         {
-            chosenComponent = FindFirstObjectByType<BoardComponent>();
+            chosenComponent = FindAnyObjectByType<BoardComponent>();
         }
         if (chosenComponent == null)
         {
@@ -64,8 +73,7 @@ public class ComponentUIController : MonoBehaviour
 
         BuildDisplayNamesForCurrentBoardScene();
         PrewarmSelectionOutlinesForCurrentBoardScene();
-        chosenComponent.Select();
-        Refresh();
+        selectingButtons = true;
     }
 
     void OnDisable()
@@ -84,49 +92,111 @@ public class ComponentUIController : MonoBehaviour
         }
     }
 
-    void OnLeft()
+    public void OnUIMovement(InputValue context)
     {
-        chosenComponent.DeSelect();
-        chosenComponent = chosenComponent.leftObject.GetComponent<BoardComponent>();
+        Vector2 moveVector = context.Get<Vector2>();
+        if (selectingButtons) return;
+
+        if (moveVector.x >= movementTreshold)
+        {
+            if (keepMoving)
+            {
+                keepMoving = false;
+                chosenComponent.DeSelect();
+                if (!chosenComponent.rightObject)
+                {
+                    uiScript.SelectButton();
+                    selectingButtons = true;
+                    return;
+                }
+
+                chosenComponent = chosenComponent.rightObject.GetComponent<BoardComponent>();
+                Refresh();
+            }
+
+        } else if (moveVector.y >= movementTreshold)
+        {
+            if (keepMoving)
+            {
+                keepMoving = false;
+                chosenComponent.DeSelect();
+                if (!chosenComponent.upObject)
+                {
+                    uiScript.SelectButton();
+                    selectingButtons = true;
+                    return;
+                }
+
+                chosenComponent = chosenComponent.upObject.GetComponent<BoardComponent>();
+                Refresh();
+            }
+        
+        } else if (moveVector.y <= -movementTreshold)
+        {
+            if (keepMoving)
+            {
+                keepMoving = false;
+                chosenComponent.DeSelect();
+                chosenComponent = chosenComponent.downObject.GetComponent<BoardComponent>();
+                Refresh();
+            }
+
+        } else if (moveVector.x <= -movementTreshold)
+        {
+            if (keepMoving)
+            {
+                keepMoving = false;
+                chosenComponent.DeSelect();
+                chosenComponent = chosenComponent.leftObject.GetComponent<BoardComponent>();
+                Refresh();
+            }
+            
+        } else
+        {
+            keepMoving = true;
+        }
+    }
+
+    public void OnEnter()
+    {
+        if (selectingButtons) return;
+        foreach (GameObject boardComponent in chosenComponent.components)
+        {
+            foreach (BoardComponent component in boardComponent.GetComponents<BoardComponent>())
+            {
+                component.DeConfirm();
+            }
+        }
+        chosenComponent.Confirm();
         Refresh();
     }
 
-    void OnRight()
+    public void Refresh()
     {
-        chosenComponent.DeSelect();
-        chosenComponent = chosenComponent.rightObject.GetComponent<BoardComponent>();
-        Refresh();
-    }
-
-    void OnUp()
-    {
-        chosenComponent.DeSelect();
-        chosenComponent = chosenComponent.upObject.GetComponent<BoardComponent>();
-        Refresh();
-    }
-
-    void OnDown()
-    {
-        chosenComponent.DeSelect();
-        chosenComponent = chosenComponent.downObject.GetComponent<BoardComponent>();
-        Refresh();
-    }
-
-    void Refresh()
-    {
+        selectingButtons = false;
         chosenComponent.Select();
+        BoardComponent confirmedComponent = chosenComponent;
+        foreach (GameObject boardComponent in chosenComponent.components)
+        {
+            foreach (BoardComponent component in boardComponent.GetComponents<BoardComponent>())
+            {
+                if (component.isConfirmed)
+                {
+                    confirmedComponent = component;
+                }
+            }
+        }
+
         if (componentTypeText != null)
         {
-            componentTypeText.text = GetDisplayNameFor(chosenComponent);
+            componentTypeText.text = GetDisplayNameFor(confirmedComponent);
         }
         UpgradeComponents[] upgradeComponents = GetComponentsInChildren<UpgradeComponents>();
 
         foreach (UpgradeComponents upgrade in upgradeComponents)
         {
-            upgrade.Refresh(chosenComponent.gameObject);
+            upgrade.Refresh(confirmedComponent.gameObject);
         }
-
-        AudioManager.Instance.PlayOneShot(switchSound);
     }
 
     private void BuildDisplayNamesForCurrentBoardScene()

@@ -39,6 +39,10 @@
     - All 3D model files should be .fbx
     - All sound files should be .bank files for FMOD integration.
 
+3. Input System:
+    - Make sure keyboard controls are set to the 0th index for binding.
+    - Make sure gamepad/controller controls are set to the 1st index for binding.
+
 ## Art Style Guide
 
 1. This is where we put a link to our art style guide.

@@ -20,6 +20,7 @@ public class Ball : MonoBehaviour
     public float pointMultiplier = 1f;
     public float multMultiplier = 1f;
     public int coinMultiplier = 1;
+    public GameObject lastObjectHit;
 
     public virtual float PointsAwardMultiplier => pointMultiplier;
 
@@ -40,6 +41,7 @@ public class Ball : MonoBehaviour
 
     virtual protected void OnCollisionEnter(Collision collision)
     {   
+        lastObjectHit = collision.gameObject;
         BoardComponent[] components = collision.collider.GetComponents<BoardComponent>();
         if (components.Length > 0)
         {
@@ -66,6 +68,7 @@ public class Ball : MonoBehaviour
 
     void OnTriggerEnter(Collider collider)
     {
+        lastObjectHit = collider.gameObject;
         BoardComponent[] components = collider.GetComponents<BoardComponent>();
         if (components.Length > 0)
         {

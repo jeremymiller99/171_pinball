@@ -48,8 +48,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f08df1548aaa46941ba873aefc84cc5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  chanceForSpawn: 1
-  tryToSpawnEvery: 1
+  chanceForSpawn: 5
+  tryToSpawnEvery: 0.25
   timeSinceLastSpawn: 0
   gameRulesManager: {fileID: 0}
   alienShip: {fileID: 0}
@@ -714,12 +714,12 @@ MonoBehaviour:
   outOfBoundsLocation: {x: -5.5, y: -0.16, z: -2.8299}
   dockLocation: {x: 0.01, y: -0.16, z: -2.8299}
   speed: 1
-  minHitsRequired: 5
-  maxHitsRequired: 10
-  minSecondsToHit: 5
-  maxSecondsToHit: 10
-  minCoinsToGive: 2
-  maxCoinsToGive: 5
+  minHitsRequired: 10
+  maxHitsRequired: 20
+  minSecondsToHit: 10
+  maxSecondsToHit: 20
+  minCoinsToGive: 5
+  maxCoinsToGive: 10
   componentTagLookingFor: 
   hitsLeft: 0
   secondsLeft: 0

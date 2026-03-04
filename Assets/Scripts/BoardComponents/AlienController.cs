@@ -19,9 +19,12 @@ public class AlienController : MonoBehaviour
         timeSinceLastSpawn += Time.deltaTime;
         if (gameRulesManager.IsShopOpen || alienShip.inPlay) return;
 
-        if (timeSinceLastSpawn > tryToSpawnEvery && Random.Range(0f, 1f) <= chanceForSpawn)
+        if (timeSinceLastSpawn > tryToSpawnEvery)
         {
-            alienShip.Spawn();
+            if (Random.Range(0f, 1f) <= chanceForSpawn)
+            {
+                alienShip.Spawn();
+            }
             timeSinceLastSpawn = 0;
         }
     }

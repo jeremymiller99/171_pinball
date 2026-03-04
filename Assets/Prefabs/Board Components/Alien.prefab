@@ -48,8 +48,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f08df1548aaa46941ba873aefc84cc5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  chanceForSpawn: 5
-  tryToSpawnEvery: 0.25
+  chanceForSpawn: 0.25
+  tryToSpawnEvery: 5
   timeSinceLastSpawn: 0
   gameRulesManager: {fileID: 0}
   alienShip: {fileID: 0}

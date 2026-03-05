@@ -16,7 +16,7 @@ public class Ball : MonoBehaviour
     [SerializeField] private GameObject particleObject;
     [SerializeField] private Stack<GameObject> pool;
     [SerializeField] private int poolSize;
-    [SerializeField] protected int componentHits;
+    public int componentHits;
     public float pointMultiplier = 1f;
     public float multMultiplier = 1f;
     public int coinMultiplier = 1;

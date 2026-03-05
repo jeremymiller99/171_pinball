@@ -570,7 +570,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4218852779294266786}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7385820501362412768}
+        m_TargetAssemblyTypeName: ControlChanger, Assembly-CSharp
+        m_MethodName: OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &7385820501362412768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1629,7 +1641,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4029641233190303758}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7538152293507720135}
+        m_TargetAssemblyTypeName: ControlChanger, Assembly-CSharp
+        m_MethodName: OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &7538152293507720135
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2039,7 +2063,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8383447207063974191}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2778324523857205784}
+        m_TargetAssemblyTypeName: ControlChanger, Assembly-CSharp
+        m_MethodName: OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2778324523857205784
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2449,7 +2485,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1548427517430593772}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7681834858249256253}
+        m_TargetAssemblyTypeName: ControlChanger, Assembly-CSharp
+        m_MethodName: OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &7681834858249256253
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2462,7 +2510,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0288d8186818eb489b5e1387f1e60c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  actionReference: {fileID: 1064514270297456241, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  actionReference: {fileID: -9215914586454232947, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   bindingIndex: 0
   displayText: {fileID: 0}
   noInputText: N/A
@@ -2883,7 +2931,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2378656819615949786}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 641751603762498907}
+        m_TargetAssemblyTypeName: ControlChanger, Assembly-CSharp
+        m_MethodName: OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &641751603762498907
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3021,7 +3081,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3673874867257701761}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6693844044317963473}
+        m_TargetAssemblyTypeName: ControlChanger, Assembly-CSharp
+        m_MethodName: OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &6693844044317963473
 MonoBehaviour:
   m_ObjectHideFlags: 0

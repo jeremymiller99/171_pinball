@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5991595774560212685
+--- !u!1 &4773778546837097395
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,42 +8,42 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 9194399196875482537}
-  - component: {fileID: 3819669662046131716}
-  - component: {fileID: 2636849971776977195}
-  - component: {fileID: 4465067592129906160}
-  - component: {fileID: -5120152879258555716}
-  - component: {fileID: -8501268839526964743}
+  - component: {fileID: 6714476454855297192}
+  - component: {fileID: 844570569686653648}
+  - component: {fileID: 2939838860135131524}
+  - component: {fileID: 9000000000000000005}
+  - component: {fileID: 6945288493568343080}
+  - component: {fileID: 7704073523566280680}
   m_Layer: 0
-  m_Name: Portal Entrance
-  m_TagString: Portal
+  m_Name: CasinoBumper
+  m_TagString: Bumper
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &9194399196875482537
+--- !u!4 &6714476454855297192
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5991595774560212685}
+  m_GameObject: {fileID: 4773778546837097395}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.38268343, z: 0, w: 0.92387956}
-  m_LocalPosition: {x: 6.64, y: 0.84, z: 11.19}
-  m_LocalScale: {x: 4.408132, y: 2, z: 1.6618503}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 7.38, y: 0.5399997, z: 19.36}
+  m_LocalScale: {x: 3, y: 1, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 9000000000000000002}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
---- !u!65 &3819669662046131716
-BoxCollider:
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &844570569686653648
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5991595774560212685}
+  m_GameObject: {fileID: 4773778546837097395}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -52,55 +52,69 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2636849971776977195
+  serializedVersion: 2
+  m_Radius: 0.5000001
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!114 &2939838860135131524
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5991595774560212685}
+  m_GameObject: {fileID: 4773778546837097395}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f45235460e6d1f9408fbf6eb3cf1f2f3, type: 3}
+  m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Portal
+  m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 0}
-  portalExit: {fileID: 0}
-  canTeleportFromThisPortal: 1
-  exitOffset: 0
-  exitRandomAngle: 0
-  overrideExitSpeed: 1
-  exitSpeed: 10
-  extraExitSpeed: 5
+  bounceForce: 50
   shakeDuration: 0.22
   shakeMagnitude: 0.16
-  portalSound:
+  hitSound:
     Guid:
-      Data1: -452830574
-      Data2: 1287721858
-      Data3: 1479539585
-      Data4: -1925869889
-    Path: event:/effect_portal
---- !u!114 &4465067592129906160
+      Data1: 1449137371
+      Data2: 1333712520
+      Data3: -1154293597
+      Data4: -2036301457
+    Path: event:/collide_points
+--- !u!114 &9000000000000000005
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5991595774560212685}
+  m_GameObject: {fileID: 4773778546837097395}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f38538901152edf4a8496ca54bbca874, type: 3}
+  m_Script: {fileID: 11500000, guid: b2c1f3a4d5e6f7091a2b3c4d5e6f7081, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::IComponent
+  m_EditorClassIdentifier: Assembly-CSharp::BoardComponentPopOnHit
+  ballTag: Ball
+  visualRoot: {fileID: 9000000000000000002}
+  popScaleMultiplier: 1.25
+  popUpDurationSeconds: 0.06
+  popDownDurationSeconds: 0.08
+  minTriggerIntervalSeconds: 0.04
+--- !u!114 &6945288493568343080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4773778546837097395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0adde2ad47563a5409ba9957185797c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CasinoComponent
   typeOfScore: 0
-  amountToScore: 15
+  amountToScore: 5
   leftObject: {fileID: 0}
   rightObject: {fileID: 0}
   upObject: {fileID: 0}
@@ -113,39 +127,22 @@ MonoBehaviour:
   directionOfPulse: 1
   ballHits: 0
   scoreManager: {fileID: 0}
-  pointMultiplier: 1
-  multMultiplier: 1
-  coinMultiplier: 1
   useSelectionOutline: 1
   selectionOutlineMode: 0
   confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   selectionOutlineWidth: 8
---- !u!114 &-5120152879258555716
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5991595774560212685}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2c1f3a4d5e6f7091a2b3c4d5e6f7081, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BoardComponentPopOnHit
-  ballTag: Ball
-  visualRoot: {fileID: 0}
-  popScaleMultiplier: 1.12
-  popUpDurationSeconds: 0.06
-  popDownDurationSeconds: 0.08
-  minTriggerIntervalSeconds: 0.04
---- !u!54 &-8501268839526964743
+  minScoreToAdd: 1
+  maxScoreToAdd: 20
+  ballHitsToGamble: 3
+  decimalPlace: 1
+--- !u!54 &7704073523566280680
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5991595774560212685}
+  m_GameObject: {fileID: 4773778546837097395}
   serializedVersion: 5
   m_Mass: 1
   m_LinearDamping: 0
@@ -197,7 +194,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 9194399196875482537}
+  m_Father: {fileID: 6714476454855297192}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &9000000000000000003
 MeshFilter:
@@ -206,7 +203,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9000000000000000001}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &9000000000000000004
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -232,7 +229,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d29635be321261d43a700c46193be81f, type: 2}
+  - {fileID: 2100000, guid: 3951dd17123c2f74991958e5d0ad8daf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

@@ -137,8 +137,10 @@ MonoBehaviour:
   ballHitsToFire: 3
   timeForHits: 10
   timeOnFire: 5
-  fireMultiplier: 2
+  fireMultiplier: 3
   onFire: 0
+  preFireBallHitsInLastSeconds: 0
+  onFireBallHitsInLastSeconds: 0
   particles: {fileID: 0}
 --- !u!54 &7704073523566280680
 Rigidbody:

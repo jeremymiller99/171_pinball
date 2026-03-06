@@ -7,13 +7,13 @@ public class DuplicatingComponent : BoardComponent
     [SerializeField] private int ballHitsToDuplicate;
     [SerializeField] private List<Ball> duplicatedBalls = new List<Ball>();
     [SerializeField] private List<Ball> ballsToDestroy = new List<Ball>();
-    [SerializeField] private BallSpawner ballSpawner;
+    [SerializeField] private GameRulesManager gameRulesManager;
     [SerializeField] private int componentHitsToDestroy;
 
     new void Awake()
     {
         base.Awake();
-        ballSpawner = FindAnyObjectByType<BallSpawner>();
+        gameRulesManager = FindAnyObjectByType<GameRulesManager>();
     }
 
     new void OnCollisionEnter(Collision collision)
@@ -27,7 +27,7 @@ public class DuplicatingComponent : BoardComponent
                 Ball newBall = Instantiate(ball);
                 duplicatedBalls.Add(newBall);
                 newBall.componentHits = 0;
-                ballSpawner.ActiveBalls.Add(newBall.gameObject);
+                gameRulesManager.ActiveBalls.Add(newBall.gameObject);
             }
 
         }
@@ -49,7 +49,7 @@ public class DuplicatingComponent : BoardComponent
             if (ball.componentHits >= componentHitsToDestroy)
             {
                 duplicatedBalls.Remove(ball);
-                ballSpawner.DespawnBall(ball.gameObject);
+                gameRulesManager.OnBallDrained(ball.gameObject);
             }
         }
 

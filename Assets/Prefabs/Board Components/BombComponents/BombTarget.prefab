@@ -133,7 +133,7 @@ MonoBehaviour:
   ballHitsToExplode: 15
   explosionPrefab: {fileID: 1551915222172123564, guid: 0e2644a071948c94897caa314bb364f9, type: 3}
   explosion: {fileID: 0}
-  explosionActiveTime: 0.2
+  explosionActiveTime: 0.5
 --- !u!54 &1797207729555026595
 Rigidbody:
   m_ObjectHideFlags: 0

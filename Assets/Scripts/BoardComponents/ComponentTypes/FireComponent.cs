@@ -15,6 +15,7 @@ public class FireComponent : BoardComponent
 
     new protected void Awake()
     {
+        base.Awake();
         particles = GetComponent<ParticleSystem>();
         particles.Pause();
     }

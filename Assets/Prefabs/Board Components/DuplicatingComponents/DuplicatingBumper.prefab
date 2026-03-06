@@ -12,9 +12,10 @@ GameObject:
   - component: {fileID: 844570569686653648}
   - component: {fileID: 2939838860135131524}
   - component: {fileID: 9000000000000000005}
-  - component: {fileID: 2423504538548351846}
+  - component: {fileID: 7704073523566280680}
+  - component: {fileID: -1018324694268007287}
   m_Layer: 0
-  m_Name: BombBumper
+  m_Name: DuplicatingBumper
   m_TagString: Bumper
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -100,7 +101,34 @@ MonoBehaviour:
   popUpDurationSeconds: 0.06
   popDownDurationSeconds: 0.08
   minTriggerIntervalSeconds: 0.04
---- !u!114 &2423504538548351846
+--- !u!54 &7704073523566280680
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4773778546837097395}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &-1018324694268007287
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -109,9 +137,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 4773778546837097395}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e081410646de0459baf70adf5c2ea5, type: 3}
+  m_Script: {fileID: 11500000, guid: da455143779f768458332e7563675e92, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BombComponent
+  m_EditorClassIdentifier: '::'
   typeOfScore: 0
   amountToScore: 5
   leftObject: {fileID: 0}
@@ -131,10 +159,9 @@ MonoBehaviour:
   confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   selectionOutlineWidth: 8
-  ballHitsToExplode: 15
-  explosionPrefab: {fileID: 1551915222172123564, guid: 0e2644a071948c94897caa314bb364f9, type: 3}
-  explosion: {fileID: 0}
-  explosionActiveTime: 0.2
+  ballHitsToDuplicate: 10
+  duplicatedBalls: []
+  componentHitsToDestroy: 10
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0
@@ -201,7 +228,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d29635be321261d43a700c46193be81f, type: 2}
+  - {fileID: 2100000, guid: f2a45fa29c716b64289a3fd22b51a18d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

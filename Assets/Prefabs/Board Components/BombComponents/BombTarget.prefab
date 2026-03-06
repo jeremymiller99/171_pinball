@@ -130,10 +130,10 @@ MonoBehaviour:
   confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   selectionOutlineWidth: 8
-  ballHitsToExplode: 1
+  ballHitsToExplode: 15
   explosionPrefab: {fileID: 1551915222172123564, guid: 0e2644a071948c94897caa314bb364f9, type: 3}
   explosion: {fileID: 0}
-  explosionActiveTime: 1.5
+  explosionActiveTime: 0.2
 --- !u!54 &1797207729555026595
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -99,7 +99,7 @@ public class Ball : MonoBehaviour
 
     protected void HandleParticles(Collision collision)
     {
-        if (!collision.collider.GetComponent<Component>()) return;
+        if (!collision.collider.GetComponent<BoardComponent>()) return;
         GameObject emitterObj = pool.Pop();
         ParticleSystem emitter = emitterObj.GetComponent<ParticleSystem>();
         emitter.transform.position = transform.position;

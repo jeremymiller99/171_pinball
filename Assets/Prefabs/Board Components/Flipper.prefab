@@ -125,6 +125,7 @@ GameObject:
   - component: {fileID: 9136393512419607858}
   - component: {fileID: 5856829977129076378}
   - component: {fileID: 8154719291560654655}
+  - component: {fileID: 7126293216701182756}
   m_Layer: 0
   m_Name: Flipper
   m_TagString: Untagged
@@ -282,3 +283,16 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 3
+--- !u!114 &7126293216701182756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3240940857872849999}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
+  definition: {fileID: 11400000, guid: 2e3c1ebfe0ad7c5488f6318befaa635b, type: 2}

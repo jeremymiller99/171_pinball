@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 7410013449785006933}
   - component: {fileID: 1936772266398688545}
   - component: {fileID: 7875234487328605984}
+  - component: {fileID: 9050347659653484495}
   m_Layer: 0
   m_Name: Bomb
   m_TagString: Untagged
@@ -4988,3 +4989,16 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &9050347659653484495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1551915222172123564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
+  definition: {fileID: 11400000, guid: e63c6231e18a7554ea730c0346c00fd9, type: 2}

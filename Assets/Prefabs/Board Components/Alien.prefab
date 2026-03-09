@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3954234383558218034}
   - component: {fileID: 3348175307749980017}
+  - component: {fileID: 23502001146604486}
   m_Layer: 0
   m_Name: Alien
   m_TagString: Untagged
@@ -53,6 +54,19 @@ MonoBehaviour:
   timeSinceLastSpawn: 0
   gameRulesManager: {fileID: 0}
   alienShip: {fileID: 0}
+--- !u!114 &23502001146604486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 136208403913938366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
+  definition: {fileID: 11400000, guid: d84729af7a0eddf43a95aca62a9c48a6, type: 2}
 --- !u!1 &1663971319163875481
 GameObject:
   m_ObjectHideFlags: 0

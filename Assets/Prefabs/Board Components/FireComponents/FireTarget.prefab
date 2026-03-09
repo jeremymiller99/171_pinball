@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: -4100029125914899309}
   - component: {fileID: 4196952436859788703}
   - component: {fileID: 7816237078750217933}
+  - component: {fileID: 390335147904964115}
   m_Layer: 0
   m_Name: FireTarget
   m_TagString: Target
@@ -4970,6 +4971,19 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &390335147904964115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8767137395333737936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
+  definition: {fileID: 11400000, guid: 9a4208ad3d1e16746bdf12464b1571de, type: 2}
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

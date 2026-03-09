@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2939838860135131524}
   - component: {fileID: 9000000000000000005}
   - component: {fileID: 2423504538548351846}
+  - component: {fileID: 8180557298239084306}
   m_Layer: 0
   m_Name: BombBumper
   m_TagString: Bumper
@@ -135,6 +136,19 @@ MonoBehaviour:
   explosionPrefab: {fileID: 1551915222172123564, guid: 0e2644a071948c94897caa314bb364f9, type: 3}
   explosion: {fileID: 0}
   explosionActiveTime: 0.5
+--- !u!114 &8180557298239084306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4773778546837097395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
+  definition: {fileID: 11400000, guid: 23ed8f806342f4d4db9178cfc9a7286f, type: 2}
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

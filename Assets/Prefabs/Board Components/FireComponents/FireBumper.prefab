@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 7704073523566280680}
   - component: {fileID: 1284416720462932287}
   - component: {fileID: 1920614839817756361}
+  - component: {fileID: 5410886672574542244}
   m_Layer: 0
   m_Name: FireBumper
   m_TagString: Bumper
@@ -4972,6 +4973,19 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
+--- !u!114 &5410886672574542244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4773778546837097395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
+  definition: {fileID: 11400000, guid: 0793734833d91ca408d9b98f5b0dda57, type: 2}
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

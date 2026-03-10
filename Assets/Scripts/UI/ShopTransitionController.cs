@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using FMODUnity;
 
 /// <summary>
 /// Orchestrates the "enter shop" / "exit shop" transition for the additive-board architecture:
@@ -28,7 +27,6 @@ public sealed class ShopTransitionController : MonoBehaviour
     [Header("Shop UI slide")]
     [Tooltip("Root GameObject to enable/disable for the shop. Usually the same object that GameRulesManager toggles.")]
     [SerializeField] private GameObject shopCanvasRoot;
-    [SerializeField] private EventReference transitionSound;
 
     [Tooltip("Root RectTransform of the shop UI. Used for layout/offscreen calculations.")]
     [SerializeField] private RectTransform shopPanelRect;
@@ -171,21 +169,6 @@ public sealed class ShopTransitionController : MonoBehaviour
         RecomputePanelHiddenPositions();
         SnapPanelsToHidden();
 
-        if (AudioManager.Instance != null)
-        {
-            GlobalButtonAudioSetup audioSetup = AudioManager.Instance.GetComponent<GlobalButtonAudioSetup>();
-            if (audioSetup != null)
-            {
-                audioSetup.HookupAllButtons();
-            }
-            else
-            {
-                Debug.LogWarning("GlobalButtonAudioSetup component is missing from the AudioManager GameObject.");
-            }
-        }
-
-        
-
         StartTransition(OpenRoutine());
     }
 
@@ -211,7 +194,7 @@ public sealed class ShopTransitionController : MonoBehaviour
             return;
         }
 
-        AudioManager.Instance.PlayOneShot(transitionSound);
+        AudioManager.Instance.PlayTransition();
 
         StartTransition(CloseRoutine(afterClosed));
     }
@@ -272,7 +255,7 @@ public sealed class ShopTransitionController : MonoBehaviour
         _isTransitioning = true;
 
         // Camera pans first while the shop panels remain hidden.
-        AudioManager.Instance.PlayOneShot(transitionSound);
+        AudioManager.Instance.PlayTransition();
         yield return AnimateCamera(
             fromCam: _cameraHomeLocalPos,
             toCam: _cameraShopLocalPos,
@@ -304,7 +287,7 @@ public sealed class ShopTransitionController : MonoBehaviour
 
         _isOpen = false;
         _isTransitioning = false;
-        AudioManager.Instance.PlayOneShot(transitionSound);
+        AudioManager.Instance.PlayTransition();
 
         afterClosed?.Invoke();
     }
@@ -366,21 +349,21 @@ public sealed class ShopTransitionController : MonoBehaviour
         float phase1 = Mathf.Max(0.001f, p1Total / phase1PanelCount);
         float phase2 = Mathf.Max(0.001f, p2Total / phase2PanelCount);
         float final = Mathf.Max(0.001f, p3);
-        AudioManager.Instance.PlayOneShot(transitionSound);
+        AudioManager.Instance.PlayTransition();
         yield return AnimatePanel(panelTitle, _panelTitleHidden, _panelTitleHome, phase1);
-        AudioManager.Instance.PlayOneShot(transitionSound);
+        AudioManager.Instance.PlayTransition();
         yield return AnimatePanel(panelTabs, _panelTabsHidden, _panelTabsHome, phase1);
-        AudioManager.Instance.PlayOneShot(transitionSound);
+        AudioManager.Instance.PlayTransition();
         yield return AnimatePanel(panelMoney, _panelMoneyHidden, _panelMoneyHome, phase1);
 
-        AudioManager.Instance.PlayOneShot(transitionSound);
+        AudioManager.Instance.PlayTransition();
         yield return AnimatePanel(panelGumball, _panelGumballHidden, _panelGumballHome, phase2);
-        AudioManager.Instance.PlayOneShot(transitionSound);
+        AudioManager.Instance.PlayTransition();
         yield return AnimatePanel(panelBalls, _panelBallsHidden, _panelBallsHome, phase2);
 
         
         yield return AnimatePanel(panelDone, _panelDoneHidden, _panelDoneHome, final);
-        AudioManager.Instance.PlayOneShot(transitionSound);
+        AudioManager.Instance.PlayTransition();
     }
 
     private IEnumerator SlidePanelsOutAll()

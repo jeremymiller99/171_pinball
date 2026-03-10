@@ -1,13 +1,9 @@
 using UnityEngine;
-using FMODUnity;
 
 public class ResetZone : MonoBehaviour
 {
     [SerializeField] private GameRulesManager rulesManager;
     [SerializeField] private bool outsideBounds;
-
-    [Header("Audio")]
-    [SerializeField] private EventReference ballLostSound;
 
     private void Awake()
     {
@@ -18,7 +14,7 @@ public class ResetZone : MonoBehaviour
     {
         if (other.CompareTag("Ball"))
         {
-            AudioManager.Instance.PlayOneShot(ballLostSound);
+            AudioManager.Instance.PlayBallLost();
 
             if (rulesManager == null)
                 ResolveRulesManager();

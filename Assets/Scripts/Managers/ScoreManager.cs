@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine.SceneManagement;
-using FMODUnity;
 
 public enum TypeOfScore
 {
@@ -162,10 +161,6 @@ public class ScoreManager : MonoBehaviour
     [Tooltip("Caps Time.fixedDeltaTime after applying timeScale (prevents huge physics steps at high timeScale).")]
     [Min(0.0001f)]
     [SerializeField] private float maxFixedDeltaTime = 0.1f;
-    [Header("Audio")]
-    [SerializeField] private EventReference pointsAddEvent;
-    [SerializeField] private EventReference multAddEvent;
-    [SerializeField] private EventReference coinAddEvent;
     
     private int compTriggered = 35;
     private int framesSinceLastScore = 0;
@@ -508,24 +503,9 @@ public class ScoreManager : MonoBehaviour
         floatingTextSpawner?.SpawnGoldText(pos.position, "+$" + applied, applied);
     }
 
-    private System.Collections.IEnumerator PlayCoinSoundsRoutine(int amount)
-    {
-        if (coinAddEvent.IsNull) yield break;
-
-        for (int i = 0; i < amount; i++)
-        {
-            AudioManager.Instance.PlayOneShot(coinAddEvent);
-            
-            yield return new WaitForSeconds(0.1f); 
-        }
-    }
-
     public void PlayStaggeredCoinSounds(int amount)
     {
-        if (amount > 0)
-        {
-            StartCoroutine(PlayCoinSoundsRoutine(amount));
-        }
+        AudioManager.Instance.PlayStaggeredCoinSounds(amount);
     }
 
     public void SetScoringLocked(bool locked)
@@ -582,14 +562,13 @@ public class ScoreManager : MonoBehaviour
         if (coinsText != null && gameRulesManager != null)
             coinsText.text = $"${gameRulesManager.Coins}";
 
-        if (pointsActuallyChanged && !pointsAddEvent.IsNull)
+        if (pointsActuallyChanged)
         {
-            AudioManager.Instance.PlayOneShotWithParameter(pointsAddEvent, "compTriggered", compTriggered);
+            AudioManager.Instance.PlayPointsAdd(compTriggered);
         }
-
-        if (multActuallyChanged && !multAddEvent.IsNull)
+        if (multActuallyChanged)
         {
-            AudioManager.Instance.PlayOneShotWithParameter(multAddEvent, "compTriggered", compTriggered);
+            AudioManager.Instance.PlayMultAdd(compTriggered);
         }
         
         if (pointsActuallyChanged || multActuallyChanged)

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1965a039b036c804e95a533e2df9861b, type: 3}
+  m_Name: FireTarget
+  m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinition
+  id: Fire Target
+  displayName: Fire Target
+  description: If this target gets hit 3 times within 10 seconds, it gets set 'on
+    fire', where all points are tripled. Keep hitting it in order to keep the fire
+    going!
+  componentType: 1
+  icon: {fileID: 0}
+  prefab: {fileID: 8767137395333737936, guid: 990429d65f7f3f44d8d6f09ed158399a, type: 3}
+  price: 10

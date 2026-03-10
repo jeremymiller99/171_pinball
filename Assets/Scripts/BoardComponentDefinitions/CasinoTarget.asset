@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1965a039b036c804e95a533e2df9861b, type: 3}
+  m_Name: CasinoTarget
+  m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinition
+  id: Casino Target
+  displayName: Casino Target
+  description: Every 3 times this target is hit, adds an extra 0.1 - 0.5 mult to
+    score.
+  componentType: 1
+  icon: {fileID: 0}
+  prefab: {fileID: 8767137395333737936, guid: 1434f2ff10525ac4f950467361933ff0, type: 3}
+  price: 10

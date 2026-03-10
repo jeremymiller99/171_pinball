@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
-  definition: {fileID: 11400000, guid: 23ed8f806342f4d4db9178cfc9a7286f, type: 2}
+  definition: {fileID: 11400000, guid: ca442fffa8476264d94780ba67994e3f, type: 2}
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

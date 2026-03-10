@@ -23,9 +23,9 @@ public sealed class BoardComponentDefinition : ScriptableObject
     [Header("Gameplay")]
     [Tooltip("Prefab that will be spawned/placed for this component.")]
     [SerializeField] private GameObject prefab;
-    [Tooltip("Default base score amount (points) for this component type.")]
+    [Tooltip("Amount of coins this component upgrade will cost")]
     [Min(0)]
-    [SerializeField] private float baseScore = 5f;
+    [SerializeField] private int price = 10;
 
     public string Id => id;
     public string DisplayName => displayName;
@@ -33,7 +33,7 @@ public sealed class BoardComponentDefinition : ScriptableObject
     public BoardComponentType ComponentType => componentType;
     public Sprite Icon => icon;
     public GameObject Prefab => prefab;
-    public float BaseScore => baseScore;
+    public float Price => price;
 
     public static BoardComponentDefinition CreateRuntime(
         string runtimeId,
@@ -42,7 +42,7 @@ public sealed class BoardComponentDefinition : ScriptableObject
         BoardComponentType runtimeType,
         Sprite runtimeIcon,
         GameObject runtimePrefab,
-        float runtimeBaseScore)
+        int runtimePrice)
     {
         var def = CreateInstance<BoardComponentDefinition>();
         def.id = runtimeId ?? "";
@@ -51,7 +51,7 @@ public sealed class BoardComponentDefinition : ScriptableObject
         def.componentType = runtimeType;
         def.icon = runtimeIcon;
         def.prefab = runtimePrefab;
-        def.baseScore = Mathf.Max(0f, runtimeBaseScore);
+        def.price = runtimePrice;
         return def;
     }
 
@@ -72,6 +72,6 @@ public sealed class BoardComponentDefinition : ScriptableObject
             displayName = "Component";
         }
 
-        baseScore = Mathf.Max(0f, baseScore);
+        price = price;
     }
 }

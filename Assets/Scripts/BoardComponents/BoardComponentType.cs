@@ -10,9 +10,8 @@ public enum BoardComponentType
     DropTarget,
     Spinner,
     Portal,
-    Flipper,
+    Rollover,
     Launcher,
-    Bomb,
-    Alien,
+    Flipper,
     Other
 }

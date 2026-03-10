@@ -4983,7 +4983,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
-  definition: {fileID: 11400000, guid: 9a4208ad3d1e16746bdf12464b1571de, type: 2}
+  definition: {fileID: 11400000, guid: 2c99ec52697a8a840a8f0ce2c523e050, type: 2}
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

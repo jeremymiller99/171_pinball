@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1965a039b036c804e95a533e2df9861b, type: 3}
-  m_Name: BoardComponentDefinition_
+  m_Name: BombBumper
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinition
-  id: 
-  displayName: Component
-  description: 
+  id: Bomb Bumper
+  displayName: Bomb Bumper
+  description: Every 15 times this bumper gets hit, it explodes and scores points
+    from all the components surrounding it, including itself!
   componentType: 0
   icon: {fileID: 0}
-  prefab: {fileID: 0}
-  baseScore: 5
+  prefab: {fileID: 4773778546837097395, guid: e8e2211ff0230784c9ac77aeded019ec, type: 3}
+  price: 10

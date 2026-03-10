@@ -188,16 +188,6 @@ public static class BoardComponentDefinitionSetupHelper
             return BoardComponentType.Launcher;
         }
 
-        if (lowerName.Contains("bomb") && !lowerName.Contains("bumper") && !lowerName.Contains("target"))
-        {
-            return BoardComponentType.Bomb;
-        }
-
-        if (lowerName.Contains("alien"))
-        {
-            return BoardComponentType.Alien;
-        }
-
         return BoardComponentType.Other;
     }
 

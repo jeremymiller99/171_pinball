@@ -270,8 +270,6 @@ GameObject:
   m_Component:
   - component: {fileID: 266196554}
   - component: {fileID: 266196553}
-  - component: {fileID: 266196555}
-  - component: {fileID: 266196556}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -298,6 +296,156 @@ MonoBehaviour:
       Data3: -544931439
       Data4: 505712395
     Path: event:/music_main
+  masterBusPath: bus:/
+  musicBusPath: bus:/Music
+  sfxBusPath: bus:/SFX
+  buttonClickSound:
+    Guid:
+      Data1: -1197954480
+      Data2: 1255480211
+      Data3: -1982403935
+      Data4: 57654664
+    Path: event:/button_click
+  buttonHoverSound:
+    Guid:
+      Data1: 1185751379
+      Data2: 1268245631
+      Data3: 997750147
+      Data4: 47879637
+    Path: event:/button_hover
+  tutorialNextSound:
+    Guid:
+      Data1: -1197954480
+      Data2: 1255480211
+      Data3: -1982403935
+      Data4: 57654664
+    Path: event:/button_click
+  tabSwitchSound:
+    Guid:
+      Data1: 86384479
+      Data2: 1179429909
+      Data3: -900643699
+      Data4: 455003607
+    Path: event:/window_whoosh
+  transitionSound:
+    Guid:
+      Data1: 86384479
+      Data2: 1179429909
+      Data3: -900643699
+      Data4: 455003607
+    Path: event:/window_whoosh
+  purchaseSound:
+    Guid:
+      Data1: -1951192067
+      Data2: 1154365322
+      Data3: 1741149063
+      Data4: 1085209921
+    Path: event:/generic_purchase
+  failedPurchaseSound:
+    Guid:
+      Data1: 519620263
+      Data2: 1231414510
+      Data3: 1800051360
+      Data4: -1715759857
+    Path: event:/generic_fail
+  rerollSound:
+    Guid:
+      Data1: -1253221564
+      Data2: 1301160907
+      Data3: -1110270803
+      Data4: -638404508
+    Path: event:/reroll
+  swapSlotSound:
+    Guid:
+      Data1: 86384479
+      Data2: 1179429909
+      Data3: -900643699
+      Data4: 455003607
+    Path: event:/window_whoosh
+  levelUpSound:
+    Guid:
+      Data1: -1004533979
+      Data2: 1256531157
+      Data3: 153186719
+      Data4: 1881532589
+    Path: event:/level_up
+  bumperHitSound:
+    Guid:
+      Data1: 1449137371
+      Data2: 1333712520
+      Data3: -1154293597
+      Data4: -2036301457
+    Path: event:/collide_points
+  flipperUpSound:
+    Guid:
+      Data1: -1860561248
+      Data2: 1169797383
+      Data3: 1350184087
+      Data4: 206532917
+    Path: event:/flipper_up
+  flipperDownSound:
+    Guid:
+      Data1: -2137675161
+      Data2: 1216462387
+      Data3: 341324723
+      Data4: -1274449514
+    Path: event:/flipper_down
+  launchSound:
+    Guid:
+      Data1: -1376618757
+      Data2: 1299550731
+      Data3: 1672712324
+      Data4: -809238670
+    Path: event:/ball_launched
+  portalSound:
+    Guid:
+      Data1: -452830574
+      Data2: 1287721858
+      Data3: 1479539585
+      Data4: -1925869889
+    Path: event:/effect_portal
+  ballLostSound:
+    Guid:
+      Data1: -1893509061
+      Data2: 1112773022
+      Data3: -1794802512
+      Data4: -929301267
+    Path: event:/ball_lost
+  textWhooshSound:
+    Guid:
+      Data1: -154778767
+      Data2: 1103640199
+      Data3: 2135438226
+      Data4: -687054736
+    Path: event:/score_whoosh
+  pointsAddEvent:
+    Guid:
+      Data1: -418338245
+      Data2: 1161525135
+      Data3: -1576776550
+      Data4: 1382297272
+    Path: event:/add_points
+  multAddEvent:
+    Guid:
+      Data1: -418338245
+      Data2: 1161525135
+      Data3: -1576776550
+      Data4: 1382297272
+    Path: event:/add_points
+  coinAddEvent:
+    Guid:
+      Data1: -369928764
+      Data2: 1115790982
+      Data3: -1647532638
+      Data4: 106056798
+    Path: event:/add_coins
+  rollingSoundEvent:
+    Guid:
+      Data1: -1397201519
+      Data2: 1186788513
+      Data3: 1619588757
+      Data4: -575593883
+    Path: event:/ball_rolling
 --- !u!4 &266196554
 Transform:
   m_ObjectHideFlags: 0
@@ -313,44 +461,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &266196555
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 266196552}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 792588a5b72b5164fa907c6d9eea5943, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
-  clickSound:
-    Guid:
-      Data1: -1197954480
-      Data2: 1255480211
-      Data3: -1982403935
-      Data4: 57654664
-    Path: event:/button_click
-  hoverSound:
-    Guid:
-      Data1: 1185751379
-      Data2: 1268245631
-      Data3: 997750147
-      Data4: 47879637
-    Path: event:/button_hover
---- !u!114 &266196556
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 266196552}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3ce7dec03fc6784aa90105ef6e5c989, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GlobalButtonAudioSetup
 --- !u!1 &273842394
 GameObject:
   m_ObjectHideFlags: 0
@@ -894,7 +1004,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 266196555}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
         m_MethodName: PlaySound
         m_Mode: 1
@@ -961,7 +1071,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -1902,6 +2012,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIScript
   eventSystem: {fileID: 0}
   selectingComponents: 0
+  selectedObject: {fileID: 0}
 --- !u!1 &1418252266
 GameObject:
   m_ObjectHideFlags: 0
@@ -2441,7 +2552,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -2716,7 +2827,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 266196555}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
         m_MethodName: PlaySound
         m_Mode: 1
@@ -2795,7 +2906,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -2891,7 +3002,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 266196555}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
         m_MethodName: PlaySound
         m_Mode: 1
@@ -2958,7 +3069,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -3406,7 +3517,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -3502,7 +3613,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 266196555}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
         m_MethodName: PlaySound
         m_Mode: 1
@@ -3581,7 +3692,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -3677,7 +3788,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 266196555}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
         m_MethodName: PlaySound
         m_Mode: 1
@@ -3756,7 +3867,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -4122,7 +4233,7 @@ PrefabInstance:
     - target: {fileID: 1574655243985524612, guid: 990ff40650851e34e8b389585d0d8af0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 266196555}
+      objectReference: {fileID: 0}
     - target: {fileID: 1574655243985524612, guid: 990ff40650851e34e8b389585d0d8af0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -4246,7 +4357,7 @@ PrefabInstance:
     - target: {fileID: 5613372665094472713, guid: 990ff40650851e34e8b389585d0d8af0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 266196555}
+      objectReference: {fileID: 0}
     - target: {fileID: 5613372665094472713, guid: 990ff40650851e34e8b389585d0d8af0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -4274,7 +4385,7 @@ PrefabInstance:
     - target: {fileID: 6658242790582736034, guid: 990ff40650851e34e8b389585d0d8af0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 266196555}
+      objectReference: {fileID: 0}
     - target: {fileID: 6658242790582736034, guid: 990ff40650851e34e8b389585d0d8af0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -4302,7 +4413,7 @@ PrefabInstance:
     - target: {fileID: 6851207552757609620, guid: 990ff40650851e34e8b389585d0d8af0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 266196555}
+      objectReference: {fileID: 0}
     - target: {fileID: 6851207552757609620, guid: 990ff40650851e34e8b389585d0d8af0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -4346,7 +4457,7 @@ PrefabInstance:
     - target: {fileID: 8059252165611213693, guid: 990ff40650851e34e8b389585d0d8af0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 266196555}
+      objectReference: {fileID: 0}
     - target: {fileID: 8059252165611213693, guid: 990ff40650851e34e8b389585d0d8af0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -4390,7 +4501,7 @@ PrefabInstance:
     - target: {fileID: 9019271273548800992, guid: 990ff40650851e34e8b389585d0d8af0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 266196555}
+      objectReference: {fileID: 0}
     - target: {fileID: 9019271273548800992, guid: 990ff40650851e34e8b389585d0d8af0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -4418,7 +4529,7 @@ PrefabInstance:
     - target: {fileID: 9104122429611475926, guid: 990ff40650851e34e8b389585d0d8af0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 266196555}
+      objectReference: {fileID: 0}
     - target: {fileID: 9104122429611475926, guid: 990ff40650851e34e8b389585d0d8af0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -4529,7 +4640,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -4558,7 +4669,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -4587,7 +4698,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -4616,7 +4727,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -4645,7 +4756,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -4732,7 +4843,7 @@ PrefabInstance:
     - target: {fileID: 3596182329486398171, guid: b67617d05cddf59459f46789b713173f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 266196555}
+      objectReference: {fileID: 0}
     - target: {fileID: 3596182329486398171, guid: b67617d05cddf59459f46789b713173f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
       value: 2
@@ -4896,7 +5007,7 @@ PrefabInstance:
     - target: {fileID: 5857426070171217925, guid: b67617d05cddf59459f46789b713173f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 266196555}
+      objectReference: {fileID: 0}
     - target: {fileID: 5857426070171217925, guid: b67617d05cddf59459f46789b713173f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -4936,7 +5047,7 @@ PrefabInstance:
     - target: {fileID: 6902515016803447619, guid: b67617d05cddf59459f46789b713173f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 266196555}
+      objectReference: {fileID: 0}
     - target: {fileID: 6902515016803447619, guid: b67617d05cddf59459f46789b713173f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -4996,7 +5107,7 @@ PrefabInstance:
     - target: {fileID: 8971275155124657187, guid: b67617d05cddf59459f46789b713173f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 266196555}
+      objectReference: {fileID: 0}
     - target: {fileID: 8971275155124657187, guid: b67617d05cddf59459f46789b713173f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -5052,7 +5163,7 @@ PrefabInstance:
     - target: {fileID: 9083686826241153640, guid: b67617d05cddf59459f46789b713173f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 266196555}
+      objectReference: {fileID: 0}
     - target: {fileID: 9083686826241153640, guid: b67617d05cddf59459f46789b713173f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -5150,7 +5261,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -5179,7 +5290,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -5208,7 +5319,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -5237,7 +5348,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1
@@ -5266,7 +5377,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 266196555}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: ButtonSound, Assembly-CSharp
           m_MethodName: PlayHoverSound
           m_Mode: 1

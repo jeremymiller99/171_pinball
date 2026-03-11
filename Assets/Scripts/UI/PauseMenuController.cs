@@ -137,6 +137,7 @@ public sealed class PauseMenuController : MonoBehaviour
 
         isOpen = true;
         pauseMenuPanel.SetActive(true);
+        if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMuffled(true);
 
         DisableWhileOpen();
         PauseTimeIfPossible();
@@ -160,6 +161,8 @@ public sealed class PauseMenuController : MonoBehaviour
         {
             pauseMenuPanel.SetActive(false);
         }
+
+        if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMuffled(false);
 
         RestoreDisabledWhileOpen();
         RestoreCursor();

@@ -1,5 +1,4 @@
 using UnityEngine;
-using FMODUnity;
 
 public class Bumper : MonoBehaviour
 {
@@ -10,9 +9,6 @@ public class Bumper : MonoBehaviour
     [Header("FX")]
     [SerializeField] private float shakeDuration = 0.22f;
     [SerializeField] private float shakeMagnitude = 0.16f;
-
-    [Header("Audio")]
-    [SerializeField] private EventReference hitSound;
 
     private void Awake()
     {
@@ -46,7 +42,7 @@ public class Bumper : MonoBehaviour
         {
             Rigidbody rb = collision.rigidbody;
             
-            AudioManager.Instance.PlayOneShot(hitSound, transform.position);
+            AudioManager.Instance.PlayBumperHit(transform.position);
 
             Vector3 forceDir = (collision.transform.position - transform.position).normalized;
             rb.AddForce(forceDir * baseBounceForce, ForceMode.Impulse);

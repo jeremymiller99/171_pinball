@@ -1,6 +1,10 @@
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using FMODUnity;
 using FMOD.Studio;
+using System.Collections;
 
 public class AudioManager : MonoBehaviour
 {
@@ -8,20 +12,53 @@ public class AudioManager : MonoBehaviour
 
     [Header("Music Settings")]
     [SerializeField] private EventReference mainMusicEvent;
+
     [Header("Volume Buses")]
-    // Make sure these string paths match exactly what you named your buses in FMOD Studio!
     [SerializeField] private string masterBusPath = "bus:/";
     [SerializeField] private string musicBusPath = "bus:/Music";
     [SerializeField] private string sfxBusPath = "bus:/SFX";
-    
+
+    [Header("UI Sounds")]
+    [SerializeField] private EventReference buttonClickSound;
+    [SerializeField] private EventReference buttonHoverSound;
+    [SerializeField] private EventReference tutorialNextSound;
+    [SerializeField] private EventReference tabSwitchSound;
+    [SerializeField] private EventReference transitionSound;
+
+    [Header("Shop & Meta Sounds")]
+    [SerializeField] private EventReference purchaseSound;
+    [SerializeField] private EventReference failedPurchaseSound;
+    [SerializeField] private EventReference rerollSound;
+    [SerializeField] private EventReference swapSlotSound;
+    [SerializeField] private EventReference levelUpSound;
+
+    [Header("Gameplay Interactions")]
+    [SerializeField] private EventReference bumperHitSound;
+    [SerializeField] private EventReference flipperUpSound;
+    [SerializeField] private EventReference flipperDownSound;
+    [SerializeField] private EventReference launchSound;
+    [SerializeField] private EventReference portalSound;
+    [SerializeField] private EventReference ballLostSound;
+    [SerializeField] private EventReference textWhooshSound;
+
+    [Header("Scoring Sounds")]
+    [SerializeField] private EventReference pointsAddEvent;
+    [SerializeField] private EventReference multAddEvent;
+    [SerializeField] private EventReference coinAddEvent;
+
+    [Header("Continuous Sounds")]
+    [Tooltip("Looping rolling sound to play based on speed.")]
+    [SerializeField] private EventReference rollingSoundEvent;
+
     private EventInstance musicInstance;
+    private EventInstance rollingSoundInstance;
     private FMOD.Studio.Bus masterBus;
     private FMOD.Studio.Bus musicBus;
     private FMOD.Studio.Bus sfxBus;
 
     private void Awake()
     {
-        // singleton moment
+        // Singleton pattern
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -33,11 +70,14 @@ public class AudioManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    private void InitializeBuses()
+    private void OnEnable()
     {
-        masterBus = RuntimeManager.GetBus(masterBusPath);
-        musicBus = RuntimeManager.GetBus(musicBusPath);
-        sfxBus = RuntimeManager.GetBus(sfxBusPath);
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void Start()
@@ -48,6 +88,52 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    private void InitializeBuses()
+    {
+        masterBus = RuntimeManager.GetBus(masterBusPath);
+        musicBus = RuntimeManager.GetBus(musicBusPath);
+        sfxBus = RuntimeManager.GetBus(sfxBusPath);
+    }
+
+    // Scene Load & Button Auto-Wiring
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Find all buttons in the scene, including inactive ones
+        Button[] allButtons = Resources.FindObjectsOfTypeAll<Button>();
+
+        foreach (Button btn in allButtons)
+        {
+            // Make sure the button belongs to the loaded scene (prevents wiring project prefabs)
+            if (btn.gameObject.scene.IsValid() && btn.gameObject.scene == scene)
+            {
+                WireButtonAudio(btn);
+            }
+        }
+    }
+    public void WireButtonAudio(Button btn)
+    {
+        // Wire the click sound (preventing duplicates)
+        btn.onClick.RemoveListener(PlayButtonClick);
+        btn.onClick.AddListener(PlayButtonClick);
+
+        // Wire the hover sound using EventTrigger
+        EventTrigger trigger = btn.GetComponent<EventTrigger>();
+        if (trigger == null)
+        {
+            trigger = btn.gameObject.AddComponent<EventTrigger>();
+        }
+
+        // Clean up previous hover triggers we might have created to avoid stacking
+        trigger.triggers.RemoveAll(entry => entry.eventID == EventTriggerType.PointerEnter);
+
+        EventTrigger.Entry hoverEntry = new EventTrigger.Entry();
+        hoverEntry.eventID = EventTriggerType.PointerEnter;
+        hoverEntry.callback.AddListener((data) => { PlayButtonHover(); });
+        trigger.triggers.Add(hoverEntry);
+    }
+
+    // General Audio Methods
 
     public void StartMusic(EventReference musicEvent)
     {
@@ -59,10 +145,28 @@ public class AudioManager : MonoBehaviour
 
         musicInstance = RuntimeManager.CreateInstance(musicEvent);
         musicInstance.start();
+        
+        SetMusicState(0f);
+        SetMusicMuffled(false);
     }
 
+    public void SetMusicState(float stateValue)
+    {
+        if (musicInstance.isValid())
+        {
+            musicInstance.setParameterByName("modifier", stateValue);
+        }
+    }
 
-    public void PlayOneShot(EventReference soundEvent, Vector3 worldPosition = default)
+    public void SetMusicMuffled(bool isMuffled)
+    {
+        if (musicInstance.isValid())
+        {
+            musicInstance.setParameterByName("muffled", isMuffled ? 1f : 0f);
+        }
+    }
+
+    private void PlayOneShot(EventReference soundEvent, Vector3 worldPosition = default)
     {
         if (!soundEvent.IsNull)
         {
@@ -70,45 +174,133 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public void PlayOneShotWithParameter(EventReference soundEvent, string paramName, float paramValue, Vector3 worldPosition = default)
+    private void PlayOneShotWithParameter(EventReference soundEvent, string paramName, float paramValue, Vector3 worldPosition = default)
     {
         if (!soundEvent.IsNull)
         {
             EventInstance instance = RuntimeManager.CreateInstance(soundEvent);
-            
             instance.setParameterByName(paramName, paramValue);
-            
+
             if (worldPosition != default)
             {
                 instance.set3DAttributes(RuntimeUtils.To3DAttributes(worldPosition));
             }
-            
+
             instance.start();
             instance.release();
         }
     }
 
-    public void SetMasterVolume(float volume)
+    // Specific Gameplay & UI Functions
+
+    // UI Interactions
+    public void PlayButtonClick() => PlayOneShot(buttonClickSound);
+    public void PlayButtonHover() => PlayOneShot(buttonHoverSound);
+    public void PlayTutorialNext() => PlayOneShot(tutorialNextSound);
+    public void PlayTabSwitch() => PlayOneShot(tabSwitchSound);
+    public void PlayTransition() => PlayOneShot(transitionSound);
+
+    // Shop & Meta
+    public void PlayPurchase() => PlayOneShot(purchaseSound);
+    public void PlayFailedPurchase() => PlayOneShot(failedPurchaseSound);
+    public void PlayReroll() => PlayOneShot(rerollSound);
+    public void PlaySwapSlot() => PlayOneShot(swapSlotSound);
+    public void PlayLevelUp() => PlayOneShot(levelUpSound);
+
+    // Gameplay Board
+    public void PlayBumperHit(Vector3 position) => PlayOneShot(bumperHitSound, position);
+    public void PlayFlipperUp(Vector3 position) => PlayOneShot(flipperUpSound, position);
+    public void PlayFlipperDown(Vector3 position) => PlayOneShot(flipperDownSound, position);
+    public void PlayLaunch(Vector3 position) => PlayOneShot(launchSound, position);
+    public void PlayPortal(Vector3 position) => PlayOneShot(portalSound, position);
+    public void PlayBallLost() => PlayOneShot(ballLostSound);
+    public void PlayWhoosh() => PlayOneShot(textWhooshSound);
+
+    // Scoring Logic
+
+    public void PlayPointsAdd(int compTriggered)
     {
-        masterBus.setVolume(volume);
+        PlayOneShotWithParameter(pointsAddEvent, "compTriggered", compTriggered);
     }
 
-    public void SetMusicVolume(float volume)
+    public void PlayMultAdd(int compTriggered)
     {
-        musicBus.setVolume(volume);
+        PlayOneShotWithParameter(multAddEvent, "compTriggered", compTriggered);
     }
 
-    public void SetSFXVolume(float volume)
+    public void PlayStaggeredCoinSounds(int amount)
     {
-        sfxBus.setVolume(volume);
+        if (amount > 0)
+        {
+            StartCoroutine(PlayCoinSoundsRoutine(amount));
+        }
     }
+
+    private IEnumerator PlayCoinSoundsRoutine(int amount)
+    {
+        if (coinAddEvent.IsNull) yield break;
+
+        for (int i = 0; i < amount; i++)
+        {
+            PlayOneShot(coinAddEvent);
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
+    // Continuous Rolling Sound 
+
+    public void StartRollingSound()
+    {
+        if (rollingSoundEvent.IsNull) return;
+
+        if (!rollingSoundInstance.isValid())
+        {
+            rollingSoundInstance = RuntimeManager.CreateInstance(rollingSoundEvent);
+        }
+        
+        // Only start if it isn't already playing
+        rollingSoundInstance.getPlaybackState(out PLAYBACK_STATE state);
+        if (state != PLAYBACK_STATE.PLAYING)
+        {
+            rollingSoundInstance.start();
+        }
+    }
+
+    public void UpdateRollingSound(float velocityNormalized)
+    {
+        if (rollingSoundInstance.isValid())
+        {
+            rollingSoundInstance.setParameterByName("velocity", velocityNormalized);
+        }
+    }
+
+    public void StopRollingSound()
+    {
+        if (rollingSoundInstance.isValid())
+        {
+            rollingSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            rollingSoundInstance.release();
+            rollingSoundInstance.clearHandle();
+        }
+    }
+
+    // Volume Controls 
+
+    public void SetMasterVolume(float volume) => masterBus.setVolume(volume);
+    public void SetMusicVolume(float volume) => musicBus.setVolume(volume);
+    public void SetSFXVolume(float volume) => sfxBus.setVolume(volume);
 
     private void OnDestroy()
     {
-        if (Instance == this && musicInstance.isValid())
+        if (Instance == this)
         {
-            musicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-            musicInstance.release();
+            if (musicInstance.isValid())
+            {
+                musicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                musicInstance.release();
+            }
+
+            StopRollingSound();
         }
     }
 }

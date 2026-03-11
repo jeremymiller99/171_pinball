@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using FMODUnity;
 
 public class UpgradeComponents : MonoBehaviour
 {
@@ -12,9 +11,6 @@ public class UpgradeComponents : MonoBehaviour
     [SerializeField] private ShopUIController shopUIController;
     [SerializeField] private GameObject targetedComponent;
     [SerializeField] private GameObject star;
-
-    [Header("Audio")]
-    [SerializeField] private EventReference purchaseSound;
 
     private void Awake()
     {
@@ -82,7 +78,7 @@ public class UpgradeComponents : MonoBehaviour
             return;
         }
 
-        AudioManager.Instance.PlayOneShot(purchaseSound);
+        AudioManager.Instance.PlayPurchase();
 
         if (session != null)
         {

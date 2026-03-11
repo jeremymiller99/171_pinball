@@ -105,9 +105,6 @@ public class MainMenuUI : MonoBehaviour
     // Stores the full challenge mode definition for round modifier generation.
     private ChallengeModeDefinition _pendingChallengeMode;
 
-    // Global audio reference
-    private ButtonSound _globalButtonSound;
-
     public void LoadGameScene()
     {
         // Backwards-compatible entry point for the existing MainMenu button wiring.
@@ -157,13 +154,6 @@ public class MainMenuUI : MonoBehaviour
         if (_built) return;
         _built = true;
 
-        // Find the global button sound component (attached to AudioManager)
-#if UNITY_2022_2_OR_NEWER
-        _globalButtonSound = FindFirstObjectByType<ButtonSound>();
-#else
-        _globalButtonSound = FindObjectOfType<ButtonSound>();
-#endif
-
         AutoWirePanels();
         AutoWireMainMenuButtons();
         AutoWireStartRunButton();
@@ -174,40 +164,6 @@ public class MainMenuUI : MonoBehaviour
 
         // Ensure a consistent initial panel state at runtime.
         OpenMainMenuPanel();
-    }
-
-    /// <summary>
-    /// Helper method to consistently apply the global UI sound to an auto-wired button.
-    /// </summary>
-    private void AttachSoundToButton(Button btn)
-    {
-        if (btn == null || _globalButtonSound == null) return;
-
-        // Attach click sound
-        btn.onClick.AddListener(_globalButtonSound.PlaySound);
-
-        // Attach hover sound
-        EventTrigger trigger = btn.gameObject.GetComponent<EventTrigger>();
-        if (trigger == null)
-        {
-            trigger = btn.gameObject.AddComponent<EventTrigger>();
-        }
-        else
-        {
-            // Avoid adding duplicates if the trigger already has a pointer enter
-            for (int i = 0; i < trigger.triggers.Count; i++)
-            {
-                if (trigger.triggers[i].eventID == EventTriggerType.PointerEnter)
-                {
-                    return;
-                }
-            }
-        }
-
-        EventTrigger.Entry entry = new EventTrigger.Entry();
-        entry.eventID = EventTriggerType.PointerEnter;
-        entry.callback.AddListener((_) => _globalButtonSound.PlayHoverSound());
-        trigger.triggers.Add(entry);
     }
 
     private void AutoWirePanels()
@@ -259,30 +215,26 @@ public class MainMenuUI : MonoBehaviour
 
         if (settingsButton != null)
         {
-            settingsButton.onClick = new Button.ButtonClickedEvent();
+            settingsButton.onClick.RemoveListener(OpenSettingsPanel);
             settingsButton.onClick.AddListener(OpenSettingsPanel);
-            AttachSoundToButton(settingsButton);
         }
 
         if (profileButton != null)
         {
-            profileButton.onClick = new Button.ButtonClickedEvent();
+            profileButton.onClick.RemoveListener(OpenProfilePanel);
             profileButton.onClick.AddListener(OpenProfilePanel);
-            AttachSoundToButton(profileButton);
         }
 
         if (collectionButton != null)
         {
-            collectionButton.onClick = new Button.ButtonClickedEvent();
+            collectionButton.onClick.RemoveListener(OpenCollectionPanel);
             collectionButton.onClick.AddListener(OpenCollectionPanel);
-            AttachSoundToButton(collectionButton);
         }
 
         if (quitButton != null)
         {
-            quitButton.onClick = new Button.ButtonClickedEvent();
+            quitButton.onClick.RemoveListener(QuitGame);
             quitButton.onClick.AddListener(QuitGame);
-            AttachSoundToButton(quitButton);
         }
     }
 
@@ -295,9 +247,8 @@ public class MainMenuUI : MonoBehaviour
 
         if (startRunButton != null)
         {
-            startRunButton.onClick = new Button.ButtonClickedEvent();
+            startRunButton.onClick.RemoveListener(OpenRunSelectorPanel);
             startRunButton.onClick.AddListener(OpenRunSelectorPanel);
-            AttachSoundToButton(startRunButton);
         }
     }
 
@@ -369,10 +320,9 @@ public class MainMenuUI : MonoBehaviour
 
         if (returnToMainMenuButton != null)
         {
-            returnToMainMenuButton.onClick = new Button.ButtonClickedEvent();
+            returnToMainMenuButton.onClick.RemoveListener(OpenMainMenuPanel);
             returnToMainMenuButton.onClick.AddListener(OpenMainMenuPanel);
-            AttachSoundToButton(returnToMainMenuButton);
-            
+
             var text = returnToMainMenuButton.GetComponentInChildren<TMP_Text>(true);
             if (text != null) text.text = "Return";
         }
@@ -409,16 +359,14 @@ public class MainMenuUI : MonoBehaviour
 
             if (modeInfoPlayButton != null)
             {
-                modeInfoPlayButton.onClick = new Button.ButtonClickedEvent();
+                modeInfoPlayButton.onClick.RemoveListener(OnModeInfoPlayClicked);
                 modeInfoPlayButton.onClick.AddListener(OnModeInfoPlayClicked);
-                AttachSoundToButton(modeInfoPlayButton);
             }
 
             if (modeInfoCloseButton != null)
             {
-                modeInfoCloseButton.onClick = new Button.ButtonClickedEvent();
+                modeInfoCloseButton.onClick.RemoveListener(CloseModeInfoPanel);
                 modeInfoCloseButton.onClick.AddListener(CloseModeInfoPanel);
-                AttachSoundToButton(modeInfoCloseButton);
             }
         }
     }
@@ -534,6 +482,11 @@ public class MainMenuUI : MonoBehaviour
         ColorBlock buttonColors = btn.colors;
         buttonColors.selectedColor = Color.gray;
         btn.colors = buttonColors;
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.WireButtonAudio(btn);
+        }
         return btn;
     }
 
@@ -607,12 +560,16 @@ public class MainMenuUI : MonoBehaviour
         buttonColors.selectedColor = Color.gray;
         btn.colors = buttonColors;
 
-        btn.onClick = new Button.ButtonClickedEvent();
         if (onClick != null)
         {
+            btn.onClick.RemoveListener(onClick);
             btn.onClick.AddListener(onClick);
         }
-        AttachSoundToButton(btn);
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.WireButtonAudio(btn);
+        }
 
         var text = btn.GetComponentInChildren<TMP_Text>(true);
         if (text != null)

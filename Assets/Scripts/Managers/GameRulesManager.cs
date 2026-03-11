@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using FMODUnity;
 
 public class GameRulesManager : MonoBehaviour
 {
@@ -72,10 +71,6 @@ public class GameRulesManager : MonoBehaviour
     [SerializeField] private GameObject roundFailedUIRoot;
     [SerializeField] private GameObject homeRunUIRoot;
     [SerializeField] private TMP_Text homeRunMessageText;
-    [Tooltip("Sound for a failed purchase attempt.")]
-    [SerializeField] private EventReference failedPurchaseSound;
-    [Tooltip("Level up sound effect.")]
-    [SerializeField] private EventReference levelUpSound;
 
     [Header("Transitions (optional)")]
     [SerializeField] private ShopTransitionController shopTransitionController;
@@ -562,6 +557,8 @@ public class GameRulesManager : MonoBehaviour
         SetShopOpen(false);
         SetRoundFailedOpen(false);
 
+        if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMuffled(false);
+
         EnsureLoadoutWithinCapacity();
         ballsRemaining = BallLoadoutCount;
 
@@ -828,6 +825,22 @@ public class GameRulesManager : MonoBehaviour
         _flipperUsesRemaining = (_activeModifier != null && _activeModifier.flipperUseLimit > 0)
             ? _activeModifier.flipperUseLimit
             : -1;
+
+        if (AudioManager.Instance != null)
+        {
+            float musicState = 0f; // Default to Normal
+
+            if (_currentRoundData.type == RoundType.Angel)
+            {
+                musicState = 1f; // Positive Modifier
+            }
+            else if (_currentRoundData.type == RoundType.Devil)
+            {
+                musicState = -1f; // Negative Modifier
+            }
+
+            AudioManager.Instance.SetMusicState(musicState);
+        }
 
         // Push active modifier into ScoreManager so ball→AddScore() uses the right multipliers (peer rule).
         _effectiveGoalModifierForRound = 0f;
@@ -1265,7 +1278,7 @@ public class GameRulesManager : MonoBehaviour
 
                 _shopBallSaveAvailable = true;
 
-                AudioManager.Instance.PlayOneShot(levelUpSound);
+                AudioManager.Instance.PlayLevelUp();
 
                 safety++;
                 if (safety > 100)
@@ -1672,7 +1685,7 @@ public class GameRulesManager : MonoBehaviour
 
         if (coins < amount)
         {
-            AudioManager.Instance.PlayOneShot(failedPurchaseSound);
+            AudioManager.Instance.PlayFailedPurchase();
             return false;
         }
 
@@ -1920,6 +1933,8 @@ public class GameRulesManager : MonoBehaviour
         shopOpen = true;
         ClearAllBalls();
         ShopOpened?.Invoke();
+
+        if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMuffled(true);
 
         // Prefer the animated transition controller if present.
         if (shopTransitionController != null)

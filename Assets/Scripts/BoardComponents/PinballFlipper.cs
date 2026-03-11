@@ -2,7 +2,6 @@
 // Fix: flipper up/down SFX now triggers for centralized bindings + new input system.
 
 using UnityEngine;
-using FMODUnity;
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -27,10 +26,6 @@ public class PinballFlipper : MonoBehaviour
     public bool invertDirection = false;
     public float flipAngle = 45f;
     public float rotateSpeed = 900f;
-
-    [Header("Audio")]
-    [SerializeField] private EventReference flipperUpSound;
-    [SerializeField] private EventReference flipperDownSound;
 
     private Quaternion _baseLocalRotation;
     private float _currentOffset;
@@ -74,9 +69,9 @@ public class PinballFlipper : MonoBehaviour
             return;
 
         if (_pressed)
-            AudioManager.Instance.PlayOneShot(flipperUpSound, transform.position);
+            AudioManager.Instance.PlayFlipperUp(transform.position);
         else
-            AudioManager.Instance.PlayOneShot(flipperDownSound, transform.position);
+            AudioManager.Instance.PlayFlipperDown(transform.position);
 
         _previousPressed = _pressed;
     }

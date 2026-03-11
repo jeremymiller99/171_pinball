@@ -1,6 +1,5 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
 using UnityEngine;
-using FMODUnity;
 using System.Globalization;
 
 public class MultAdder : MonoBehaviour

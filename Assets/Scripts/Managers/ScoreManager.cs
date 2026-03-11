@@ -311,6 +311,7 @@ public class ScoreManager : MonoBehaviour
                 AddPoints(amount * pointMultiplier * pointsModifierMultiplier, pos);
                 break;
             case TypeOfScore.mult:
+                AudioManager.Instance.PlayMultHit(new Vector3(0f, 0f, 0f), 0);
                 AddMult(amount * multMultiplier * multModifierMultiplier, pos);
                 break;
             case TypeOfScore.coins:

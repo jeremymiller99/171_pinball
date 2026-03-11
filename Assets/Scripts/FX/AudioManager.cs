@@ -34,6 +34,7 @@ public class AudioManager : MonoBehaviour
 
     [Header("Gameplay Interactions")]
     [SerializeField] private EventReference bumperHitSound;
+    [SerializeField] private EventReference multHitSound;
     [SerializeField] private EventReference flipperUpSound;
     [SerializeField] private EventReference flipperDownSound;
     [SerializeField] private EventReference launchSound;
@@ -208,7 +209,15 @@ public class AudioManager : MonoBehaviour
     public void PlayLevelUp() => PlayOneShot(levelUpSound);
 
     // Gameplay Board
-    public void PlayBumperHit(Vector3 position) => PlayOneShot(bumperHitSound, position);
+    public void PlayBumperHit(Vector3 position, int variant=0)
+    {
+        PlayOneShotWithParameter(bumperHitSound, "collision_variant", variant);
+    }
+
+    public void PlayMultHit(Vector3 position, int variant=0)
+    {
+        PlayOneShotWithParameter(multHitSound, "collision_variant", variant);
+    }
     public void PlayFlipperUp(Vector3 position) => PlayOneShot(flipperUpSound, position);
     public void PlayFlipperDown(Vector3 position) => PlayOneShot(flipperDownSound, position);
     public void PlayLaunch(Vector3 position) => PlayOneShot(launchSound, position);

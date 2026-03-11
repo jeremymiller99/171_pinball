@@ -81,10 +81,11 @@ public class AlienShip : MonoBehaviour
                 {
                     previousLastObjectsHit.Add(gameObject);
                 }
+                
+                if (!ball.lastObjectHit) continue;
 
                 if (previousLastObjectsHit[i] != ball.lastObjectHit)
                 {
-                    if (!ball.lastObjectHit) continue;
 
                     previousLastObjectsHit[i] = ball.lastObjectHit;
                     if (ball.lastObjectHit.tag == componentTagLookingFor)

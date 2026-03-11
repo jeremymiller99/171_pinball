@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 5209088111457011690}
   - component: {fileID: 9000000000000000005}
   - component: {fileID: 520263348088857629}
+  - component: {fileID: -8025225607555112495}
+  - component: {fileID: 2633373387632847819}
   m_Layer: 0
   m_Name: Drop Target
   m_TagString: Target
@@ -133,6 +135,63 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IComponent
   typeOfScore: 1
   amountToScore: 0.1
+  leftObject: {fileID: 0}
+  rightObject: {fileID: 0}
+  upObject: {fileID: 0}
+  downObject: {fileID: 0}
+  components: []
+  isConfirmed: 0
+  maxPulseScale: 0
+  pulseAmount: 0
+  startingSize: {x: 0, y: 0, z: 0}
+  directionOfPulse: 1
+  ballHits: 0
+  scoreManager: {fileID: 0}
+  useSelectionOutline: 1
+  selectionOutlineMode: 0
+  confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  selectionOutlineWidth: 8
+--- !u!54 &-8025225607555112495
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3392549938974561248}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &2633373387632847819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3392549938974561248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
+  definition: {fileID: 11400000, guid: 394335d759f677c47b4f018571fddfbb, type: 2}
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

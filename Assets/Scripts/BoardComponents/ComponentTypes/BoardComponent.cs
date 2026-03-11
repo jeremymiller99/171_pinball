@@ -19,6 +19,8 @@ public class BoardComponent : MonoBehaviour
     public float pulseAmount;
     public Vector3 startingSize;
     [SerializeField] private int directionOfPulse = 1;
+    [SerializeField] protected int ballHits = 0;
+    [SerializeField] protected ScoreManager scoreManager;
 
     [Header("Selection Outline")]
     [SerializeField] private bool useSelectionOutline = true;
@@ -31,9 +33,10 @@ public class BoardComponent : MonoBehaviour
     private Outline portalExitOutline;
     private Transform cachedPortalExit;
 
-    void Awake()
+    virtual protected void Awake()
     {
         startingSize = transform.localScale;
+        scoreManager = FindAnyObjectByType<ScoreManager>();
         BoardComponent[] boardComponents = FindObjectsByType<BoardComponent>(FindObjectsSortMode.InstanceID);
         foreach (BoardComponent boardComponent in boardComponents)
         {
@@ -280,5 +283,26 @@ public class BoardComponent : MonoBehaviour
         transform.localScale = startingSize;
         selectionOutline.enabled = false;
         SetPortalExitOutlineEnabled(false);
+    }
+
+    protected virtual void OnTriggerEnter(Collider other)
+    {
+        if (other.GetComponent<Ball>())
+        {
+            ballHits++;
+        }
+    }
+
+    protected virtual void OnCollisionEnter(Collision collision)
+    {
+        if (collision.collider.GetComponent<Ball>())
+        {
+            ballHits++;
+        }
+    }
+
+    virtual public void AddScore()
+    {
+        scoreManager.AddScore(amountToScore, typeOfScore, transform);
     }
 }

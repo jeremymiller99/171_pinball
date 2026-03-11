@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 2636849971776977195}
   - component: {fileID: 4465067592129906160}
   - component: {fileID: -5120152879258555716}
+  - component: {fileID: -8501268839526964743}
+  - component: {fileID: 9137516812934396178}
   m_Layer: 0
   m_Name: Portal Entrance
   m_TagString: Portal
@@ -105,11 +107,18 @@ MonoBehaviour:
   upObject: {fileID: 0}
   downObject: {fileID: 0}
   components: []
-  isSelected: 0
+  isConfirmed: 0
   maxPulseScale: 1.25
   pulseAmount: 0.025
   startingSize: {x: 0, y: 0, z: 0}
   directionOfPulse: 1
+  ballHits: 0
+  scoreManager: {fileID: 0}
+  useSelectionOutline: 1
+  selectionOutlineMode: 0
+  confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  selectionOutlineWidth: 8
 --- !u!114 &-5120152879258555716
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,6 +137,46 @@ MonoBehaviour:
   popUpDurationSeconds: 0.06
   popDownDurationSeconds: 0.08
   minTriggerIntervalSeconds: 0.04
+--- !u!54 &-8501268839526964743
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5991595774560212685}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &9137516812934396178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5991595774560212685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
+  definition: {fileID: 11400000, guid: 4cc0f1f72e52f184aa15b775dd10c4b8, type: 2}
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

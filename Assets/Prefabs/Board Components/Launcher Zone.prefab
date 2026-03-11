@@ -122,6 +122,7 @@ GameObject:
   - component: {fileID: 9052217241026934646}
   - component: {fileID: 2238305982682655483}
   - component: {fileID: 2742554695502604615}
+  - component: {fileID: 3013511393583237027}
   m_Layer: 0
   m_Name: Launcher Zone
   m_TagString: Untagged
@@ -191,3 +192,16 @@ MonoBehaviour:
       Data3: 1672712324
       Data4: -809238670
     Path: event:/ball_launched
+--- !u!114 &3013511393583237027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2769725525149553476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
+  definition: {fileID: 11400000, guid: 1b8bfe20ba961544da9c6651459c95c0, type: 2}

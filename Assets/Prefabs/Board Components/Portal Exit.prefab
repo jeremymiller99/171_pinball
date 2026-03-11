@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4365510458197362709}
   - component: {fileID: 7724268363075715273}
   - component: {fileID: 9000000000000000005}
+  - component: {fileID: 2704974851345239253}
   m_Layer: 0
   m_Name: Portal Exit
   m_TagString: Portal
@@ -73,11 +74,18 @@ MonoBehaviour:
   canTeleportFromThisPortal: 0
   exitOffset: 0
   exitRandomAngle: 5
-  minExitSpeed: 10
   overrideExitSpeed: 0
   exitSpeed: 10
+  extraExitSpeed: 5
   shakeDuration: 0.22
   shakeMagnitude: 0.16
+  portalSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!114 &9000000000000000005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -96,6 +104,19 @@ MonoBehaviour:
   popUpDurationSeconds: 0.06
   popDownDurationSeconds: 0.08
   minTriggerIntervalSeconds: 0.04
+--- !u!114 &2704974851345239253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7994282982738389196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
+  definition: {fileID: 11400000, guid: bfd8284da97e7a04c8fa4a7fc0ce0180, type: 2}
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

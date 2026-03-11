@@ -557,6 +557,8 @@ public class GameRulesManager : MonoBehaviour
         SetShopOpen(false);
         SetRoundFailedOpen(false);
 
+        if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMuffled(false);
+
         EnsureLoadoutWithinCapacity();
         ballsRemaining = BallLoadoutCount;
 
@@ -823,6 +825,22 @@ public class GameRulesManager : MonoBehaviour
         _flipperUsesRemaining = (_activeModifier != null && _activeModifier.flipperUseLimit > 0)
             ? _activeModifier.flipperUseLimit
             : -1;
+
+        if (AudioManager.Instance != null)
+        {
+            float musicState = 0f; // Default to Normal
+
+            if (_currentRoundData.type == RoundType.Angel)
+            {
+                musicState = 1f; // Positive Modifier
+            }
+            else if (_currentRoundData.type == RoundType.Devil)
+            {
+                musicState = -1f; // Negative Modifier
+            }
+
+            AudioManager.Instance.SetMusicState(musicState);
+        }
 
         // Push active modifier into ScoreManager so ball→AddScore() uses the right multipliers (peer rule).
         _effectiveGoalModifierForRound = 0f;
@@ -1915,6 +1933,8 @@ public class GameRulesManager : MonoBehaviour
         shopOpen = true;
         ClearAllBalls();
         ShopOpened?.Invoke();
+
+        if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMuffled(true);
 
         // Prefer the animated transition controller if present.
         if (shopTransitionController != null)

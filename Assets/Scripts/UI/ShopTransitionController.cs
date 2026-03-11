@@ -275,6 +275,7 @@ public sealed class ShopTransitionController : MonoBehaviour
 
         // Panels exit first (opposite direction of their entry), then camera pans back to the board.
         yield return SlidePanelsOutAll();
+        if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMuffled(false);
 
         yield return AnimateCamera(
             fromCam: cameraRig != null ? cameraRig.localPosition : _cameraShopLocalPos,
@@ -287,7 +288,6 @@ public sealed class ShopTransitionController : MonoBehaviour
 
         _isOpen = false;
         _isTransitioning = false;
-        AudioManager.Instance.PlayTransition();
 
         afterClosed?.Invoke();
     }

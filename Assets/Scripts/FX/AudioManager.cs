@@ -145,6 +145,25 @@ public class AudioManager : MonoBehaviour
 
         musicInstance = RuntimeManager.CreateInstance(musicEvent);
         musicInstance.start();
+        
+        SetMusicState(0f);
+        SetMusicMuffled(false);
+    }
+
+    public void SetMusicState(float stateValue)
+    {
+        if (musicInstance.isValid())
+        {
+            musicInstance.setParameterByName("modifier", stateValue);
+        }
+    }
+
+    public void SetMusicMuffled(bool isMuffled)
+    {
+        if (musicInstance.isValid())
+        {
+            musicInstance.setParameterByName("muffled", isMuffled ? 1f : 0f);
+        }
     }
 
     private void PlayOneShot(EventReference soundEvent, Vector3 worldPosition = default)

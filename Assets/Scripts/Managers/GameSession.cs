@@ -383,58 +383,6 @@ public sealed class GameSession : MonoBehaviour
         _boardComponentUpgradeByKey[key] = entry;
     }
 
-    public void ApplyBoardComponentUpgradesForScene(string boardSceneName)
-    {
-        if (string.IsNullOrWhiteSpace(boardSceneName))
-        {
-            return;
-        }
-
-        EnsureBoardComponentUpgradeLookup();
-        if (_boardComponentUpgradeByKey.Count == 0)
-        {
-            return;
-        }
-
-        BoardComponent[] allBoardComponents =
-            FindObjectsByType<BoardComponent>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-
-        var uniqueTargets = new Dictionary<int, GameObject>();
-        for (int i = 0; i < allBoardComponents.Length; i++)
-        {
-            BoardComponent bc = allBoardComponents[i];
-            if (bc == null)
-            {
-                continue;
-            }
-
-            GameObject go = bc.gameObject;
-            if (go == null)
-            {
-                continue;
-            }
-
-            if (!go.scene.IsValid() || !go.scene.isLoaded)
-            {
-                continue;
-            }
-
-            if (!string.Equals(go.scene.name, boardSceneName, StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            uniqueTargets[go.GetInstanceID()] = go;
-        }
-
-        foreach (GameObject go in uniqueTargets.Values)
-        {
-            ApplyUpgradeIfPresent(go, TypeOfScore.points);
-            ApplyUpgradeIfPresent(go, TypeOfScore.mult);
-            ApplyUpgradeIfPresent(go, TypeOfScore.coins);
-        }
-    }
-
     private void ClearBoardComponentUpgrades()
     {
         boardComponentUpgrades.Clear();
@@ -542,59 +490,6 @@ public sealed class GameSession : MonoBehaviour
         }
 
         return string.Join("/", names);
-    }
-
-    private void ApplyUpgradeIfPresent(GameObject target, TypeOfScore typeOfScore)
-    {
-        if (target == null)
-        {
-            return;
-        }
-
-        string key = BuildBoardComponentUpgradeKey(target, typeOfScore);
-        string legacyKey = BuildLegacyBoardComponentUpgradeKey(target, typeOfScore);
-        if (string.IsNullOrWhiteSpace(key) && string.IsNullOrWhiteSpace(legacyKey))
-        {
-            return;
-        }
-
-        if (!_boardComponentUpgradeByKey.TryGetValue(key, out BoardComponentUpgrade entry) || entry == null)
-        {
-            if (string.IsNullOrWhiteSpace(legacyKey)
-                || !_boardComponentUpgradeByKey.TryGetValue(legacyKey, out entry)
-                || entry == null)
-            {
-                return;
-            }
-        }
-
-        BoardComponent[] components = target.GetComponents<BoardComponent>();
-        for (int i = 0; i < components.Length; i++)
-        {
-            BoardComponent bc = components[i];
-            if (bc != null && bc.typeOfScore == typeOfScore)
-            {
-                bc.amountToScore = entry.amountToScore;
-                return;
-            }
-        }
-
-        BoardComponent template = target.GetComponent<BoardComponent>();
-        if (template == null)
-        {
-            return;
-        }
-
-        BoardComponent newComponent = target.AddComponent<BoardComponent>();
-        newComponent.amountToScore = entry.amountToScore;
-        newComponent.typeOfScore = typeOfScore;
-        newComponent.upObject = template.upObject;
-        newComponent.downObject = template.downObject;
-        newComponent.leftObject = template.leftObject;
-        newComponent.rightObject = template.rightObject;
-        newComponent.startingSize = template.startingSize;
-        newComponent.pulseAmount = template.pulseAmount;
-        newComponent.maxPulseScale = template.maxPulseScale;
     }
 }
 

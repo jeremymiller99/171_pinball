@@ -44,6 +44,7 @@ public sealed class ShopUIController : MonoBehaviour
     [SerializeField] private GameObject shopCanvasRoot;
     [Tooltip("Optional: tab controller used to switch between Balls and Board Components screens.")]
     [SerializeField] private ShopTabsController tabsController;
+    [SerializeField] private ComponentUIController componentUIController;
 
     [Header("UI (optional)")]
     [Tooltip("Shown when a replacement slot must be chosen.")]
@@ -111,6 +112,8 @@ public sealed class ShopUIController : MonoBehaviour
 
     private void Awake()
     {
+
+        componentUIController = FindAnyObjectByType<ComponentUIController>();
         if (rulesManager == null)
         {
 #if UNITY_2022_2_OR_NEWER
@@ -258,6 +261,7 @@ public sealed class ShopUIController : MonoBehaviour
         _pendingOfferIndex = -1;
         ClearReplaceConfirmationVisuals();
         RebuildReplaceSlots();
+        componentUIController.RefreshComponentOffers();
         RebuildOffers();
         RefreshUI();
     }

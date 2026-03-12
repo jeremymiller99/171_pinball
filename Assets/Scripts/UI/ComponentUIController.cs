@@ -17,9 +17,19 @@ public class ComponentUIController : MonoBehaviour
     [SerializeField] private Vector3 originialBoardScale;
     [SerializeField] private BoardRoot boardRoot;
     public BoardComponent chosenComponent;
+    [SerializeField] private int chosenComponentIndex = 0;
+    [SerializeField] private List<BoardComponent> bumpers = new List<BoardComponent>();
+    [SerializeField] private List<BoardComponent> targets = new List<BoardComponent>();
+    [SerializeField] private List<BoardComponentDefinition> allComponentDefinitions = new List<BoardComponentDefinition>();
+    public BoardComponentDefinition buyingComponentDefinition;
+    [SerializeField] private BoardComponentDefinition selectedComponentDefinition;    
+    [SerializeField] private UpgradeComponents[] upgradeComponentList;
     [SerializeField] private TextMeshProUGUI componentTypeText;
+
+    [SerializeField] private TextMeshProUGUI selectedComponentDescription;
     [SerializeField] private float movementTreshold = .8f;
     [SerializeField] private UIScript uiScript;
+    [SerializeField] private GameRulesManager gameRulesManager;
     [SerializeField] private bool selectingButtons = true;
     /*
     keepMoving is used to make sure that controllers don't make the UI move every frame
@@ -36,6 +46,8 @@ public class ComponentUIController : MonoBehaviour
         boardRoot = FindAnyObjectByType<BoardRoot>();
         chosenComponent = FindAnyObjectByType<BoardComponent>();
         uiScript = FindAnyObjectByType<UIScript>();
+        gameRulesManager = FindAnyObjectByType<GameRulesManager>();
+        chosenComponentIndex = 0;
     }
 
     void OnEnable()
@@ -65,11 +77,24 @@ public class ComponentUIController : MonoBehaviour
         boardRoot.transform.rotation = Quaternion.Euler(newBoardRotation.x, newBoardRotation.y, newBoardRotation.z);
         boardRoot.transform.localScale = newBoardScale;
 
-        var session = GameSession.Instance;
-        if (session != null && boardRoot != null)
+        BoardComponent[] boardComponents = FindObjectsByType<BoardComponent>(FindObjectsSortMode.None);
+        foreach (BoardComponent boardComponent in boardComponents)
         {
-            session.ApplyBoardComponentUpgradesForScene(boardRoot.gameObject.scene.name);
+            if (!boardComponent.gameObject || !boardComponent) return;
+            if (!bumpers.Contains(boardComponent) && boardComponent.componentType == BoardComponentType.Bumper) {
+                bumpers.Add(boardComponent);
+            }
+
+            if (!targets.Contains(boardComponent) && boardComponent.componentType == BoardComponentType.Target) {
+                targets.Add(boardComponent);
+            }
         }
+
+        bumpers.RemoveAll(x => !x);
+        targets.RemoveAll(x => !x);
+
+        bumpers.Sort();
+        targets.Sort();
 
         BuildDisplayNamesForCurrentBoardScene();
         PrewarmSelectionOutlinesForCurrentBoardScene();
@@ -97,57 +122,23 @@ public class ComponentUIController : MonoBehaviour
         Vector2 moveVector = context.Get<Vector2>();
         if (selectingButtons) return;
 
-        if (moveVector.x >= movementTreshold)
+        if (moveVector.x >= movementTreshold || moveVector.y >= movementTreshold)
         {
             if (keepMoving)
             {
                 keepMoving = false;
                 chosenComponent.DeSelect();
-                if (!chosenComponent.rightObject)
-                {
-                    uiScript.SelectButton();
-                    selectingButtons = true;
-                    return;
-                }
-
-                chosenComponent = chosenComponent.rightObject.GetComponent<BoardComponent>();
+                chosenComponentIndex++;
                 Refresh();
             }
 
-        } else if (moveVector.y >= movementTreshold)
+        } else if (moveVector.x <= -movementTreshold || moveVector.y <= -movementTreshold)
         {
             if (keepMoving)
             {
                 keepMoving = false;
                 chosenComponent.DeSelect();
-                if (!chosenComponent.upObject)
-                {
-                    uiScript.SelectButton();
-                    selectingButtons = true;
-                    return;
-                }
-
-                chosenComponent = chosenComponent.upObject.GetComponent<BoardComponent>();
-                Refresh();
-            }
-        
-        } else if (moveVector.y <= -movementTreshold)
-        {
-            if (keepMoving)
-            {
-                keepMoving = false;
-                chosenComponent.DeSelect();
-                chosenComponent = chosenComponent.downObject.GetComponent<BoardComponent>();
-                Refresh();
-            }
-
-        } else if (moveVector.x <= -movementTreshold)
-        {
-            if (keepMoving)
-            {
-                keepMoving = false;
-                chosenComponent.DeSelect();
-                chosenComponent = chosenComponent.leftObject.GetComponent<BoardComponent>();
+                chosenComponentIndex--;
                 Refresh();
             }
             
@@ -160,42 +151,58 @@ public class ComponentUIController : MonoBehaviour
     public void OnEnter()
     {
         if (selectingButtons) return;
-        foreach (GameObject boardComponent in chosenComponent.components)
+        if (!gameRulesManager.TrySpendCoins((int)buyingComponentDefinition.Price)) return;
+
+        GameObject newComponent = Instantiate(buyingComponentDefinition.Prefab, chosenComponent.transform.parent);
+        newComponent.transform.position = chosenComponent.transform.position;
+        newComponent.transform.rotation = chosenComponent.transform.rotation;
+        newComponent.transform.localScale = chosenComponent.transform.localScale;
+        if (newComponent.GetComponent<BoardComponent>().componentType == BoardComponentType.Bumper)
         {
-            foreach (BoardComponent component in boardComponent.GetComponents<BoardComponent>())
-            {
-                component.DeConfirm();
-            }
+            bumpers.Add(newComponent.GetComponent<BoardComponent>());
+            bumpers.Remove(chosenComponent);
+        } else
+        {
+            targets.Add(newComponent.GetComponent<BoardComponent>());
+            targets.Remove(chosenComponent);
         }
-        chosenComponent.Confirm();
+        Destroy(chosenComponent.gameObject);
+        Destroy(chosenComponent);
+
+        bumpers.Sort();
+        targets.Sort();
         Refresh();
+    }
+
+    public void OnBack()
+    {
+        if (selectingButtons) return;
+        selectingButtons = true;
+        uiScript.SelectButton();
+        chosenComponent.DeSelect();
+        selectedComponentDescription.text = "";
     }
 
     public void Refresh()
     {
         selectingButtons = false;
-        chosenComponent.Select();
-        BoardComponent confirmedComponent = chosenComponent;
-        foreach (GameObject boardComponent in chosenComponent.components)
+        chosenComponent.DeSelect();
+
+        if (buyingComponentDefinition.ComponentType == BoardComponentType.Bumper)
         {
-            foreach (BoardComponent component in boardComponent.GetComponents<BoardComponent>())
-            {
-                if (component.isConfirmed)
-                {
-                    confirmedComponent = component;
-                }
-            }
+            chosenComponent = bumpers[Mathf.Abs(chosenComponentIndex) % bumpers.Count];
+        } else if (buyingComponentDefinition.ComponentType == BoardComponentType.Target)
+        {
+            chosenComponent = targets[Mathf.Abs(chosenComponentIndex) % targets.Count];
         }
+
+        chosenComponent.Select();
+        chosenComponent.GetComponent<BoardComponentDefinitionLink>().TryGetDefinition(out selectedComponentDefinition);
+        selectedComponentDescription.text = selectedComponentDefinition.Description;
 
         if (componentTypeText != null)
         {
-            componentTypeText.text = GetDisplayNameFor(confirmedComponent);
-        }
-        UpgradeComponents[] upgradeComponents = GetComponentsInChildren<UpgradeComponents>();
-
-        foreach (UpgradeComponents upgrade in upgradeComponents)
-        {
-            upgrade.Refresh(confirmedComponent.gameObject);
+            componentTypeText.text = GetDisplayNameFor(chosenComponent);
         }
     }
 
@@ -272,7 +279,6 @@ public class ComponentUIController : MonoBehaviour
                 continue;
             }
 
-            list.Sort(CompareBoardObjectPlacement);
 
             for (int i = 0; i < list.Count; i++)
             {
@@ -326,60 +332,6 @@ public class ComponentUIController : MonoBehaviour
         }
     }
 
-    private static int CompareBoardObjectPlacement(GameObject a, GameObject b)
-    {
-        if (a == null && b == null)
-        {
-            return 0;
-        }
-        if (a == null)
-        {
-            return 1;
-        }
-        if (b == null)
-        {
-            return -1;
-        }
-
-        Transform ta = a.transform;
-        Transform tb = b.transform;
-        if (ta == null && tb == null)
-        {
-            return 0;
-        }
-        if (ta == null)
-        {
-            return 1;
-        }
-        if (tb == null)
-        {
-            return -1;
-        }
-
-        Vector3 pa = ta.position;
-        Vector3 pb = tb.position;
-
-        int cmp = pa.x.CompareTo(pb.x);
-        if (cmp != 0)
-        {
-            return cmp;
-        }
-
-        cmp = pa.z.CompareTo(pb.z);
-        if (cmp != 0)
-        {
-            return cmp;
-        }
-
-        cmp = pa.y.CompareTo(pb.y);
-        if (cmp != 0)
-        {
-            return cmp;
-        }
-
-        return a.GetInstanceID().CompareTo(b.GetInstanceID());
-    }
-
     private string GetDisplayNameFor(BoardComponent component)
     {
         if (component == null || component.gameObject == null)
@@ -400,5 +352,27 @@ public class ComponentUIController : MonoBehaviour
         }
 
         return component.gameObject.name;
+    }
+
+    public void RefreshComponentOffers()
+    {
+        foreach(UpgradeComponents upgradeComponents in upgradeComponentList)
+        {
+            upgradeComponents.boardComponentDefinition = GetNewUpgrade();
+            upgradeComponents.Refresh();
+        }
+    }
+
+    BoardComponentDefinition GetNewUpgrade()
+    {
+        BoardComponentDefinition newDefinition = allComponentDefinitions[Random.Range(0, allComponentDefinitions.Count)];
+        foreach(UpgradeComponents upgradeComponents in upgradeComponentList)
+        {
+            if (upgradeComponents.boardComponentDefinition == newDefinition)
+            {
+                newDefinition = GetNewUpgrade();
+            }
+        }
+        return newDefinition;
     }
 }

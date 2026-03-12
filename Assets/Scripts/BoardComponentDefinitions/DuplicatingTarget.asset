@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Duplicating Target
   description: Every 10 times this target is hit, create a duplicate of the ball
     that hit it that can only hit a component 10 times before being destroyed.
-  componentType: 0
+  componentType: 1
   icon: {fileID: 0}
   prefab: {fileID: 8767137395333737936, guid: a28933c9f50610147a83f37c55c5cac7, type: 3}
   price: 10

@@ -50,6 +50,10 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private EventReference portalSound;
     [SerializeField] private EventReference ballLostSound;
     [SerializeField] private EventReference textWhooshSound;
+    [SerializeField] private EventReference shatterSound;
+    [SerializeField] private EventReference eggCrackSound;
+    [SerializeField] private EventReference explosionSound;
+    [SerializeField] private EventReference ballSplitSound;
 
     [Header("Scoring Sounds")]
     [SerializeField] private EventReference pointsAddEvent;
@@ -59,11 +63,17 @@ public class AudioManager : MonoBehaviour
     [Header("Continuous Sounds")]
     [Tooltip("Looping rolling sound to play based on speed.")]
     [SerializeField] private EventReference rollingSoundEvent;
+    [Tooltip("Looping burning sound.")]
+    [SerializeField] private EventReference burningSoundEvent;
 
     private EventInstance musicInstance;
     private EventInstance rollingSoundInstance;
     private EventInstance alienShipRumbleInstance;
+    private EventInstance burningSoundInstance;
+    
     private int alienType = 0;
+    private int activeBurnCount = 0;
+    
     private FMOD.Studio.Bus masterBus;
     private FMOD.Studio.Bus musicBus;
     private FMOD.Studio.Bus sfxBus;
@@ -297,6 +307,12 @@ public class AudioManager : MonoBehaviour
     public void PlayBallLost() => PlayOneShot(ballLostSound);
     public void PlayWhoosh() => PlayOneShot(textWhooshSound);
 
+    // Uncategorized Sounds
+    public void PlayShatter(Vector3 position = default) => PlayOneShot(shatterSound, position);
+    public void PlayEggCrack(Vector3 position = default) => PlayOneShot(eggCrackSound, position);
+    public void PlayExplosion(Vector3 position = default) => PlayOneShot(explosionSound, position);
+    public void PlayBallSplit(Vector3 position = default) => PlayOneShot(ballSplitSound, position);
+
     // Scoring Logic
 
     public void PlayPointsAdd(int compTriggered)
@@ -365,6 +381,42 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    // Continuous Burning Sound
+    public void StartBurningSound()
+    {
+        if (burningSoundEvent.IsNull) return;
+
+        activeBurnCount++; // Keep track of how many items are burning
+
+        if (!burningSoundInstance.isValid())
+        {
+            burningSoundInstance = RuntimeManager.CreateInstance(burningSoundEvent);
+        }
+
+        burningSoundInstance.getPlaybackState(out PLAYBACK_STATE state);
+        if (state != PLAYBACK_STATE.PLAYING)
+        {
+            burningSoundInstance.start();
+        }
+    }
+
+    public void StopBurningSound()
+    {
+        activeBurnCount--; 
+
+        // Only actually stop the sound if nothing else is still burning
+        if (activeBurnCount <= 0)
+        {
+            activeBurnCount = 0; // Prevent negative values just in case
+            if (burningSoundInstance.isValid())
+            {
+                burningSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                burningSoundInstance.release();
+                burningSoundInstance.clearHandle();
+            }
+        }
+    }
+
     // Volume Controls 
 
     public void SetMasterVolume(float volume) => masterBus.setVolume(volume);
@@ -383,6 +435,10 @@ public class AudioManager : MonoBehaviour
 
             StopRollingSound();
             StopAlienShipRumble();
+
+            // Clear burn state and stop sound if the manager gets destroyed
+            activeBurnCount = 0; 
+            StopBurningSound(); 
         }
     }
 }

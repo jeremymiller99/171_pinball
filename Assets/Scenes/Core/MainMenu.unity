@@ -474,6 +474,34 @@ MonoBehaviour:
       Data3: 2135438226
       Data4: -687054736
     Path: event:/score_whoosh
+  shatterSound:
+    Guid:
+      Data1: 1974778032
+      Data2: 1274169599
+      Data3: 1571443588
+      Data4: 483197188
+    Path: event:/shatter
+  eggCrackSound:
+    Guid:
+      Data1: -594006670
+      Data2: 1148274283
+      Data3: 337896107
+      Data4: 443241191
+    Path: event:/egg_crack
+  explosionSound:
+    Guid:
+      Data1: -443525517
+      Data2: 1146733699
+      Data3: -475829607
+      Data4: 578126555
+    Path: event:/explosion
+  ballSplitSound:
+    Guid:
+      Data1: 254898797
+      Data2: 1153007387
+      Data3: 1274781323
+      Data4: 948996533
+    Path: event:/ball_split
   pointsAddEvent:
     Guid:
       Data1: -418338245
@@ -502,6 +530,13 @@ MonoBehaviour:
       Data3: 1619588757
       Data4: -575593883
     Path: event:/ball_rolling
+  burningSoundEvent:
+    Guid:
+      Data1: 1397659928
+      Data2: 1134302908
+      Data3: 305406608
+      Data4: -699711991
+    Path: event:/burning
 --- !u!4 &266196554
 Transform:
   m_ObjectHideFlags: 0

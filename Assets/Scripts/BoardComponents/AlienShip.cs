@@ -28,6 +28,8 @@ public class AlienShip : MonoBehaviour
     [SerializeField] private List<GameObject> previousLastObjectsHit;
     [SerializeField] private ScoreManager scoreManager;
     [SerializeField] private GameRulesManager gameRulesManager;
+    [SerializeField] private GameObject[] modelPrefabs;
+    private GameObject currentModelInstance;
     private int currentTagIndex;
 
     void Awake()
@@ -129,6 +131,50 @@ public class AlienShip : MonoBehaviour
         coinsToGive = Random.Range(minCoinsToGive, maxCoinsToGive);
         currentTagIndex = Random.Range(0, 2);
         componentTagLookingFor = tagsOfComponents[currentTagIndex];
+
+        if (modelPrefabs != null && modelPrefabs.Length > 0)
+        {
+            if (currentModelInstance != null)
+            {
+                Destroy(currentModelInstance);
+                currentModelInstance = null;
+            }
+
+            GameObject prefab = modelPrefabs[Random.Range(0, modelPrefabs.Length)];
+            MeshRenderer defaultRenderer = GetComponent<MeshRenderer>();
+
+            if (prefab != null)
+            {
+                currentModelInstance = Instantiate(prefab, transform);
+                currentModelInstance.transform.localPosition = Vector3.zero;
+                currentModelInstance.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
+                currentModelInstance.transform.localScale = Vector3.one * 2f;
+
+                if (defaultRenderer != null)
+                {
+                    defaultRenderer.enabled = false;
+                }
+            }
+            else if (defaultRenderer != null)
+            {
+                defaultRenderer.enabled = true;
+            }
+        }
+        else
+        {
+            if (currentModelInstance != null)
+            {
+                Destroy(currentModelInstance);
+                currentModelInstance = null;
+            }
+
+            MeshRenderer defaultRenderer = GetComponent<MeshRenderer>();
+            if (defaultRenderer != null)
+            {
+                defaultRenderer.enabled = true;
+            }
+        }
+
         AudioManager.Instance.StartAlienShipRumble();
     }
 

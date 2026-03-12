@@ -16705,6 +16705,10 @@ PrefabInstance:
       value: Alien
       objectReference: {fileID: 0}
     - target: {fileID: 3954234383558218034, guid: e0490cf2daf3bda4f8f292f9c4d3025f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.83
+      objectReference: {fileID: 0}
+    - target: {fileID: 3954234383558218034, guid: e0490cf2daf3bda4f8f292f9c4d3025f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}

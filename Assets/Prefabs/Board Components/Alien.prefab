@@ -243,7 +243,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 36b81587536e1e64ab9a12f1d3ade2a0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 26384ff100407404182aa2e72d376047, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -746,6 +746,9 @@ MonoBehaviour:
   previousLastObjectsHit: []
   scoreManager: {fileID: 0}
   gameRulesManager: {fileID: 0}
+  modelPrefabs:
+  - {fileID: 919132149155446097, guid: c60b4a22faa09ba45bfcafd603a0c92a, type: 3}
+  - {fileID: 919132149155446097, guid: 9a4d3d6d24a9eae41af6b739abac86b7, type: 3}
 --- !u!1 &8903609073015373427
 GameObject:
   m_ObjectHideFlags: 0
@@ -838,8 +841,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.66
-  m_fontSizeBase: 0.66
+  m_fontSize: 1
+  m_fontSizeBase: 1
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

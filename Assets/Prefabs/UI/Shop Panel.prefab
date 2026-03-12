@@ -473,6 +473,8 @@ MonoBehaviour:
   replaceConfirmText: {fileID: 8123456789012345681}
   replaceCurrentBallIconImage: {fileID: 0}
   replaceIncomingBallIconImage: {fileID: 0}
+  replaceConfirmButton: {fileID: 8123456789012345694}
+  replaceCancelButton: {fileID: 8123456789012345704}
   offersContainer: {fileID: 184236130012438403}
   offerEntryPrefab: {fileID: 134859447829188089, guid: 75bfe4f409d1595449bc3c2cf186f42e, type: 3}
   offersPerShop: 3

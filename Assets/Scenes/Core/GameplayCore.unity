@@ -4880,6 +4880,7 @@ MonoBehaviour:
   canvas: {fileID: 912259833}
   targetCamera: {fileID: 248943762}
   spawnOffset: {x: 100, y: 0}
+  overallScaleMultiplier: 1.75
   enableSpawnStacking: 1
   spawnStackWindowSeconds: 0.2
   spawnStackStep: {x: 14, y: 18}
@@ -5770,10 +5771,115 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 912259834}
     m_Modifications:
+    - target: {fileID: 274547232314646309, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2178412876879182106, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_text
+      value: This is the type of level and what's coming next. Different level types
+        can introduce random effects.
+      objectReference: {fileID: 0}
+    - target: {fileID: 2178412876879182106, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSize
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2178412876879182106, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_lineSpacing
+      value: -14.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2178412876879182106, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2222060357162937436, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2430279979522798064, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_text
+      value: This is your pinball inventory, which can be updated in the shop.
+      objectReference: {fileID: 0}
+    - target: {fileID: 2430279979522798064, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSize
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2430279979522798064, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2508223747601102530, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSize
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 2508223747601102530, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 2658757963321633660, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
       propertyPath: m_text
       value: Reach the shop by completing atleast 1 level up. If you lose all of
         your pinballs before leveling up, you lose the game. Try to reach level 7!
+      objectReference: {fileID: 0}
+    - target: {fileID: 2658757963321633660, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSize
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 2658757963321633660, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 2755449505937501319, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2790960657225488441, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSize
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 2790960657225488441, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 3316532939533840073, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3476976482112665367, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSize
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 3476976482112665367, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 3582627436148533934, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSize
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 3582627436148533934, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4192932980480636039, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4273866935422784380, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_text
+      value: This shows your current level and progress
+      objectReference: {fileID: 0}
+    - target: {fileID: 4273866935422784380, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSize
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4273866935422784380, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4274095004220057259, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4442160442984780212, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
       propertyPath: nextSound.Path
@@ -5875,6 +5981,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5128178059278246745, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5630811846323021269, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
       propertyPath: m_Name
       value: Basic Tutorial Panel
@@ -5891,7 +6001,62 @@ PrefabInstance:
       propertyPath: m_fontColor.r
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5961593515326758379, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSize
+      value: 28
+      objectReference: {fileID: 0}
+    - target: {fileID: 5961593515326758379, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 28
+      objectReference: {fileID: 0}
+    - target: {fileID: 6498360326213010290, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6614348045160488329, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7025034694798522703, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7572792146322963448, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_text
+      value: 'Left/Right Arrows to control the flippers.
+
+        Down Arrow to control
+        the  launcher.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 7572792146322963448, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSize
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 7572792146322963448, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 7614607552274060036, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8118021236926230899, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8199166904666400612, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSize
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 8199166904666400612, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_lineSpacing
+      value: -12.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 8199166904666400612, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 8240270706579290227, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
@@ -5906,6 +6071,18 @@ PrefabInstance:
     - target: {fileID: 8412800544411986449, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
       propertyPath: m_fontColor.r
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8625295463319490752, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSize
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 8625295463319490752, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 8904648565773580605, guid: bbf34cfe19dbb7c4d93107965e61edeb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5923,9 +6100,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 912259834}
     m_Modifications:
+    - target: {fileID: 195716744371507793, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 045a29246241f5a44bf7e506b41c688c, type: 3}
+    - target: {fileID: 328339678917601119, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: f4251e3f058abbc4a81852c6eaf1aebf, type: 3}
     - target: {fileID: 411292097836914733, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: m_Name
       value: Shop Panel
+      objectReference: {fileID: 0}
+    - target: {fileID: 411292097836914733, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1894705960617574763, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3348201016743018332, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: m_Pivot.x
@@ -6007,6 +6200,118 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3392310373012325023, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_fontSize
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 3392310373012325023, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 4307660393837170516, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_Transition
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4307660393837170516, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_SpriteState.m_PressedSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: d482ad88996e29147948566fca1be902, type: 3}
+    - target: {fileID: 4307660393837170516, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_SpriteState.m_SelectedSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 290d1ea6f75bbf542a1af2770f6fcae6, type: 3}
+    - target: {fileID: 4659833701144511300, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 14db1cce051284f42a3742d03558c6c8, type: 3}
+    - target: {fileID: 4829389933189896726, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4829389933189896726, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4829389933189896726, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4829389933189896726, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4829389933189896726, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5153870464541396222, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_Transition
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5153870464541396222, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_SpriteState.m_PressedSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 03f757ffd6d61d543bf2f94a9b281918, type: 3}
+    - target: {fileID: 5153870464541396222, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_SpriteState.m_SelectedSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 290d1ea6f75bbf542a1af2770f6fcae6, type: 3}
+    - target: {fileID: 5464857294773175667, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464857294773175667, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464857294773175667, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464857294773175667, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464857294773175667, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6146807440524120631, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6146807440524120631, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6146807440524120631, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6146807440524120631, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6146807440524120631, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6176363554873563479, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_SpriteState.m_PressedSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 03f757ffd6d61d543bf2f94a9b281918, type: 3}
+    - target: {fileID: 6176363554873563479, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_SpriteState.m_SelectedSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 290d1ea6f75bbf542a1af2770f6fcae6, type: 3}
+    - target: {fileID: 6176363554873563479, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_SpriteState.m_HighlightedSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 03f757ffd6d61d543bf2f94a9b281918, type: 3}
+    - target: {fileID: 7217265571585700523, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: f4251e3f058abbc4a81852c6eaf1aebf, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

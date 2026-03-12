@@ -689,9 +689,25 @@ public sealed class ShopUIController : MonoBehaviour
             return;
         }
 
+        List<BallDefinition> loadout = rulesManager.GetBallLoadoutSnapshot();
+        BallDefinition oldBall = _pendingReplaceSlotIndex < loadout.Count ? loadout[_pendingReplaceSlotIndex] : null;
+
+        // Auto-sell the current ball first to add coins before spending.
+        if (oldBall != null)
+        {
+            int sellPrice = (Mathf.Max(0, oldBall.Price) + 1) / 2;
+            rulesManager.AddCoinsUnscaled(sellPrice);
+        }
+
         // Spend only at confirm-time.
         if (!rulesManager.TrySpendCoins(_pendingItem.Price))
         {
+            // Refund the sell if we just added it (restore previous state).
+            if (oldBall != null)
+            {
+                int sellPrice = (Mathf.Max(0, oldBall.Price) + 1) / 2;
+                rulesManager.TrySpendCoins(sellPrice);
+            }
             SetPrompt($"Not enough coins for {_pendingItem.GetSafeDisplayName()}.");
             RefreshUI();
             return;

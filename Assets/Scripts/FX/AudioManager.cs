@@ -166,6 +166,18 @@ public class AudioManager : MonoBehaviour
         hoverEntry.eventID = EventTriggerType.PointerEnter;
         hoverEntry.callback.AddListener((data) => { PlayButtonHover(); });
         trigger.triggers.Add(hoverEntry);
+
+        trigger.triggers.RemoveAll(entry => entry.eventID == EventTriggerType.Select);
+        EventTrigger.Entry selectEntry = new EventTrigger.Entry();
+        selectEntry.eventID = EventTriggerType.Select;
+        selectEntry.callback.AddListener((data) =>
+        {
+            if (HapticManager.Instance != null)
+            {
+                HapticManager.Instance.PlayUINavigationHaptic();
+            }
+        });
+        trigger.triggers.Add(selectEntry);
     }
 
     // General Audio Methods

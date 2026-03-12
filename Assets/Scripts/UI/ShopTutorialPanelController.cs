@@ -306,6 +306,17 @@ public sealed class ShopTutorialPanelController : MonoBehaviour
             return true;
         }
 
+        if (Gamepad.current != null &&
+            (Gamepad.current.aButton.wasPressedThisFrame ||
+             Gamepad.current.bButton.wasPressedThisFrame ||
+             Gamepad.current.xButton.wasPressedThisFrame ||
+             Gamepad.current.yButton.wasPressedThisFrame ||
+             Gamepad.current.startButton.wasPressedThisFrame ||
+             Gamepad.current.selectButton.wasPressedThisFrame))
+        {
+            return true;
+        }
+
         return false;
 #else
         return Input.anyKeyDown;

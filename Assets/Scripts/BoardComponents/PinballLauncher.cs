@@ -82,6 +82,10 @@ public sealed class PinballLauncher : MonoBehaviour
         _ballRb.AddForce(dir * _charge, ForceMode.Impulse);
         
         AudioManager.Instance.PlayLaunch(transform.position);
+        if (HapticManager.Instance != null)
+        {
+            HapticManager.Instance.PlayLaunchHaptic();
+        }
 
         _charge = 0f;
         UpdateVisual(0f);

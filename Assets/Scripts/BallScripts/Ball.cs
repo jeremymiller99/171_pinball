@@ -40,9 +40,14 @@ public class Ball : MonoBehaviour
     }
 
     virtual protected void OnCollisionEnter(Collision collision)
-    {   
+    {
         lastObjectHit = collision.gameObject;
         BoardComponent[] components = collision.collider.GetComponents<BoardComponent>();
+        if (components.Length > 0 && HapticManager.Instance != null)
+        {
+            HapticManager.Instance.PlayCollisionHaptic(true);
+        }
+
         if (components.Length > 0)
         {
             HandleParticles(collision);
@@ -70,6 +75,11 @@ public class Ball : MonoBehaviour
     {
         lastObjectHit = collider.gameObject;
         BoardComponent[] components = collider.GetComponents<BoardComponent>();
+        if (components.Length > 0 && HapticManager.Instance != null)
+        {
+            HapticManager.Instance.PlayCollisionHaptic(true);
+        }
+
         if (components.Length > 0)
         {
             bool scoredAnyComponent = false;

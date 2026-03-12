@@ -275,6 +275,7 @@ GameObject:
   m_Component:
   - component: {fileID: 266196554}
   - component: {fileID: 266196553}
+  - component: {fileID: 266196555}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -542,6 +543,33 @@ MonoBehaviour:
       Data3: 305406608
       Data4: -699711991
     Path: event:/burning
+--- !u!114 &266196555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 266196552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HapticManager
+  flipperLowFrequency: 0.3
+  flipperHighFrequency: 0.2
+  flipperDuration: 0.05
+  launcherLowFrequency: 0.4
+  launcherHighFrequency: 0.3
+  launcherDuration: 0.08
+  uiNavLowFrequency: 0.15
+  uiNavHighFrequency: 0.1
+  uiNavDuration: 0.03
+  collisionLowFrequency: 0.2
+  collisionHighFrequency: 0.15
+  collisionDuration: 0.04
+  componentLowFrequency: 0.6
+  componentHighFrequency: 0.5
+  componentDuration: 0.08
 --- !u!4 &266196554
 Transform:
   m_ObjectHideFlags: 0

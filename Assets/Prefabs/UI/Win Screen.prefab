@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: MENU
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -336,8 +336,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: You Win!
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -472,8 +472,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: You reached level X and scored x points.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

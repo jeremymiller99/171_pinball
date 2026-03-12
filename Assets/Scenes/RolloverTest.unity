@@ -253,8 +253,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 3
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -632,6 +632,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 25
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!65 &37594359
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -768,8 +770,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1201,8 +1203,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Menu
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1439,8 +1441,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1642,11 +1644,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc5299dc26faf25438106c6f5f7280a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinballFlipper
-  key: 62
-  extraKeys: 
-  useMouseLeftButton: 0
-  useMouseRightButton: 1
-  useMouseMiddleButton: 0
+  flipperAction: 1
   invertDirection: 0
   flipAngle: 45
   rotateSpeed: 900
@@ -2217,6 +2215,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &248005131
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2600,6 +2600,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 25
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!65 &275102299
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3132,6 +3134,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba129e542ec4bc744bd531b11bf00621, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraShake
+  decayExponent: 2
+  initialKickMultiplier: 1.8
+  shakeFrequency: 12
+  smoothing: 0.4
 --- !u!114 &330585549
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3312,19 +3318,108 @@ MonoBehaviour:
   points: 0
   mult: 0
   roundTotal: 0
+  levelProgressOffset: 0
   pointsText: {fileID: 1146335244}
   multText: {fileID: 2011285161}
+  gameRulesManager: {fileID: 0}
+  floatingTextSpawner: {fileID: 0}
+  cameraShake: {fileID: 0}
+  shakeBaseDuration: 0.22
+  shakePointsExponent: 0.75
+  shakeDurationPerPoint: 0.01
+  shakeMaxDuration: 0.65
+  shakeBaseMagnitude: 0.24
+  shakeMagnitudePerPoint: 0.02
+  shakeMaxMagnitude: 1
+  multShakeBaseDuration: 0.28
+  multShakeExponent: 0.75
+  multShakeDurationPerMult: 0.22
+  multShakeMaxDuration: 0.75
+  multShakeBaseMagnitude: 0.26
+  multShakeMagnitudePerMult: 0.28
+  multShakeMaxMagnitude: 0.85
   roundIndexText: {fileID: 141080452}
   roundTotalText: {fileID: 2132941054}
   goalText: {fileID: 782432820}
   ballsRemainingText: {fileID: 22796209}
   coinsText: {fileID: 55742561}
+  enableRoundIndexPop: 1
+  roundIndexPopDuration: 0.22
+  roundIndexPopPeakScale: 1.35
+  roundIndexPopYOffset: 12
+  roundIndexPopFlashColor: 1
+  roundIndexPopFlashTargetColor: {r: 1, g: 0.85, b: 0.2, a: 1}
+  roundIndexPopCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.22
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.52
+      value: -0.18
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.78
+      value: 0.12
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   scoringLocked: 0
   enableGoalTierScaling: 1
   speedIncreasePerGoalTier: 0.1
   scoreIncreasePerGoalTier: 0.5
   applySpeedToTimeScale: 1
+  baselineTimeScale: 1.05
+  externalTimeScaleMultiplier: 1
+  externalScoreAwardMultiplier: 1
+  maxTimeScale: 100
+  maxFixedDeltaTime: 0.1
   _goalTier: 0
+  pointMultiplier: 0
+  pointsModifierMultiplier: 0
+  multMultiplier: 0
+  multModifierMultiplier: 0
+  coinMultiplier: 0
+  coinModifierMultiplier: 0
+  modifierTimeScaleMultiplier: 1
+  roundsToAddToMultipliers: 0
+  amountToAddToMultipliers: 0
 --- !u!4 &349540275
 Transform:
   m_ObjectHideFlags: 0
@@ -3356,6 +3451,8 @@ MonoBehaviour:
   multText: {fileID: 2011285161}
   xText: {fileID: 968074746}
   roundTotalText: {fileID: 2132941054}
+  worldCamera: {fileID: 0}
+  scoreCanvas: {fileID: 0}
   moveToXDuration: 0.25
   holdAtXDuration: 0.5
   moveToRoundTotalDuration: 0.5
@@ -3623,8 +3720,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: prompt
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3784,6 +3881,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &397178734
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -4139,30 +4238,64 @@ MonoBehaviour:
   replacePanelRoot: {fileID: 1644103175}
   replaceSlotsContainer: {fileID: 589655654}
   replaceSlotEntryPrefab: {fileID: 1349654000483729274, guid: 8c7324a6784f14446ba23bc9d53ffad2, type: 3}
+  replaceConfirmText: {fileID: 0}
+  replaceCurrentBallIconImage: {fileID: 0}
+  replaceIncomingBallIconImage: {fileID: 0}
   offersContainer: {fileID: 136469275}
   offerEntryPrefab: {fileID: 134859447829188089, guid: 75bfe4f409d1595449bc3c2cf186f42e, type: 3}
   offersPerShop: 3
   coinsText: {fileID: 1464790362}
   promptText: {fileID: 371714674}
+  rerollButton: {fileID: 0}
+  rerollCost: 2
+  rerollButtonObjectName: Reroll Shop
+  selectedEmptyStateRoot: {fileID: 0}
+  selectedDetailsRoot: {fileID: 0}
+  selectedIconImage: {fileID: 0}
+  selectedNameText: {fileID: 0}
+  selectedPriceText: {fileID: 0}
+  selectedDescriptionText: {fileID: 0}
+  selectedRarityText: {fileID: 0}
+  selectedBuyButton: {fileID: 0}
+  selectedSellButton: {fileID: 0}
+  allBallDefinitions: []
   allBallItems:
   - displayName: Ball
     ballPrefab: {fileID: 5723297401256486482, guid: 033d99f73f115d846a140c40987ca5fe, type: 3}
     cost: 1
+    description: 
+    rarity: 0
+    iconOverride: {fileID: 0}
   - displayName: Blue Ball
     ballPrefab: {fileID: 5723297401256486482, guid: 9714808a9a4fd2a44ae2383169fcc525, type: 3}
     cost: 5
+    description: 
+    rarity: 0
+    iconOverride: {fileID: 0}
   - displayName: Red Ball
     ballPrefab: {fileID: 5723297401256486482, guid: 5c1b39ca37b837b4e946f6c9af173ffa, type: 3}
     cost: 5
+    description: 
+    rarity: 0
+    iconOverride: {fileID: 0}
   - displayName: Mult Ball
     ballPrefab: {fileID: 5723297401256486482, guid: 8f14b359d9507704a87dbcbf1f1289c3, type: 3}
     cost: 5
+    description: 
+    rarity: 0
+    iconOverride: {fileID: 0}
   - displayName: Multi Ball
     ballPrefab: {fileID: 5723297401256486482, guid: a01593e6a666487488d83ad40c8160a4, type: 3}
     cost: 5
+    description: 
+    rarity: 0
+    iconOverride: {fileID: 0}
   - displayName: Score Ball
     ballPrefab: {fileID: 5723297401256486482, guid: 0b2f4077d0fca1b438e6fa6723996428, type: 3}
     cost: 5
+    description: 
+    rarity: 0
+    iconOverride: {fileID: 0}
 --- !u!222 &460876980
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4262,6 +4395,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &474810405
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -4796,8 +4931,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: again
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5273,6 +5408,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &597584819
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -5795,11 +5932,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc5299dc26faf25438106c6f5f7280a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinballFlipper
-  key: 61
-  extraKeys: 
-  useMouseLeftButton: 1
-  useMouseRightButton: 0
-  useMouseMiddleButton: 0
+  flipperAction: 1
   invertDirection: 1
   flipAngle: 45
   rotateSpeed: 900
@@ -7051,8 +7184,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 000
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7193,6 +7326,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &799851296
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -7958,10 +8093,26 @@ MonoBehaviour:
   quickRunBoards: []
   challengeModes: []
   challengeBoards: []
+  mainMenuPanel: {fileID: 0}
+  runSelectorPanel: {fileID: 0}
+  settingsPanel: {fileID: 0}
+  profilePanel: {fileID: 0}
+  collectionPanel: {fileID: 0}
+  modeInfoPanel: {fileID: 0}
+  modeInfoTitleText: {fileID: 0}
+  modeInfoDescriptionText: {fileID: 0}
+  modeInfoWinConditionText: {fileID: 0}
+  modeInfoPlayButton: {fileID: 0}
+  modeInfoCloseButton: {fileID: 0}
   startRunButton: {fileID: 0}
+  settingsButton: {fileID: 0}
+  profileButton: {fileID: 0}
+  collectionButton: {fileID: 0}
+  quitButton: {fileID: 0}
   challengeButtonsRoot: {fileID: 0}
   challengeButtonTemplate: {fileID: 0}
-  startRunLabel: {fileID: 0}
+  returnToMainMenuButton: {fileID: 0}
+  currentPanel: 0
 --- !u!1 &924146523
 GameObject:
   m_ObjectHideFlags: 0
@@ -8286,10 +8437,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Portal
   camShake: {fileID: 330585548}
   portalExit: {fileID: 2145936060}
+  canTeleportFromThisPortal: 1
   exitOffset: 0
   exitRandomAngle: 5
   overrideExitSpeed: 0
   exitSpeed: 10
+  extraExitSpeed: 5
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!65 &946027159
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8552,8 +8707,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -8977,8 +9132,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Continue
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9103,11 +9258,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc5299dc26faf25438106c6f5f7280a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinballFlipper
-  key: 61
-  extraKeys: 
-  useMouseLeftButton: 1
-  useMouseRightButton: 0
-  useMouseMiddleButton: 0
+  flipperAction: 1
   invertDirection: 1
   flipAngle: 45
   rotateSpeed: 900
@@ -9385,8 +9536,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9521,8 +9672,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: ROUND FAILED
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9663,6 +9814,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1228442107
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -9807,6 +9960,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1233534048
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -10089,6 +10244,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1259238411
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -10217,8 +10374,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1036147eaae702344a323b40b29bafad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  rb: {fileID: 0}
+  rigidBody: {fileID: 0}
   forceAdder: 2000
+  maxVelocity: 50
 --- !u!65 &1259486226
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10656,8 +10814,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: replace a ball
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -10798,6 +10956,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1373820371
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -11019,6 +11179,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameRulesManager
   scoreManager: {fileID: 349540274}
   scoreTallyAnimator: {fileID: 349540276}
+  pointsPerCoin: 100
+  floatingTextSpawner: {fileID: 0}
+  showLevelUpCoinsPopup: 1
+  goalScalingMode: 1
+  baseGoal: 500
+  goalGrowthPerLevel: 1.35
+  goalRoundingStep: 100
   goalByRound:
   - 500
   - 800
@@ -11027,11 +11194,14 @@ MonoBehaviour:
   - 2300
   - 3000
   - 4000
-  pointsPerCoin: 100
+  maxCoinsFromRoundTotal: 20
   startingMaxBalls: 5
   autoStartOnPlay: 1
+  coinsPerLevelUp: 10
   ballSpawner: {fileID: 1263309646}
+  boardLoader: {fileID: 0}
   startingBallLoadout: []
+  startingBallLoadoutDefinitions: []
   shopCanvasRoot: {fileID: 460876978}
   roundFailedUIRoot: {fileID: 1243198069}
   homeRunUIRoot: {fileID: 0}
@@ -11042,6 +11212,15 @@ MonoBehaviour:
   ballsRemaining: 0
   coins: 0
   roundTotal: 0
+  guaranteedBagSizeFallback: 7
+  defaultAngelPool: {fileID: 0}
+  defaultDevilPool: {fileID: 0}
+  quickRunAngelChance: 0.2
+  quickRunDevilChance: 0.2
+  quickRunNormalChance: 0.6
+  previewLookaheadRounds: 2
+  generatedRoundWindowStartIndex: 0
+  generatedRoundWindowEndIndex: 0
 --- !u!4 &1398822446
 Transform:
   m_ObjectHideFlags: 0
@@ -11122,6 +11301,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1417931063
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -11484,8 +11665,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -11607,13 +11788,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae80202d44594e94aad1e7d6ad84aa7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinballLauncher
-  clickZone: {fileID: 1521149805}
-  pixelsToFullPull: 180
-  pullScreenDirection: {x: 0, y: -1}
-  debugHover: 1
-  debugDrag: 1
-  allowKeyboardLaunch: 1
-  launchKey: 1
+  launchAction: {fileID: 0}
   launchDirection: {fileID: 0}
   maxLaunchForce: 200
   chargePerSecond: 100
@@ -11792,8 +11967,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Round:'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -12462,8 +12637,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Better luck next time
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -12598,8 +12773,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Total:'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -13715,8 +13890,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0.00 m/s
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -13968,6 +14143,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 25
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!65 &1938440444
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14415,8 +14592,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 000
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -14525,6 +14702,50 @@ MonoBehaviour:
   canvas: {fileID: 912259833}
   targetCamera: {fileID: 248943762}
   spawnOffset: {x: 100, y: 0}
+  enableSpawnStacking: 1
+  spawnStackWindowSeconds: 0.2
+  spawnStackStep: {x: 14, y: 18}
+  spawnStackCellSize: 70
+  spawnStackMaxCount: 6
+  enableFlyToScoreUi: 1
+  flyToOffset: {x: 0, y: 0}
+  enableCompactNumbers: 1
+  juiceOnArrival: 1
+  juiceScaleMultiplier: 1.25
+  juiceScaleDuration: 0.12
+  juiceRotationDegreesMax: 10
+  juiceRotationDuration: 0.1
+  pointsFontAsset: {fileID: 0}
+  pointsScaleMin: 0.6
+  pointsScaleMax: 1.2
+  pointsMaxValue: 100
+  multFontAsset: {fileID: 0}
+  multScaleMin: 0.6
+  multScaleMax: 1.3
+  multMaxValue: 3
+  goldFontAsset: {fileID: 0}
+  goldScaleMin: 0.6
+  goldScaleMax: 1.1
+  goldMaxValue: 5
+  goalMultPopupOffset: {x: 40, y: 18}
+  goalMultPopupScale: 1.1
+  goalMultPopupLifetime: 0.85
+  goalPraisePopupOffset: {x: 0, y: 0}
+  goalPraiseFontAsset: {fileID: 0}
+  goalPraisePopupScale: 0.95
+  goalPraisePopupLifetime: 0.85
+  goalPopupEnablePopIn: 1
+  goalPopupPopInStartScaleMultiplier: 1.18
+  goalPopupPopInDuration: 0.12
+  goalPraiseUseBouncePop: 1
+  goalPraisePopStartScaleMultiplier: 0.65
+  goalPraisePopPeakScaleMultiplier: 1.12
+  goalPraisePopRisePortion: 0.45
+  goalPraisePopDuration: 0.22
+  levelUpCoinsPopupEnabled: 1
+  levelUpCoinsPopupOffset: {x: 0, y: -60}
+  levelUpCoinsPopupScale: 0.95
+  levelUpCoinsPopupLifetime: 0.85
 --- !u!4 &1995152005
 Transform:
   m_ObjectHideFlags: 0
@@ -14605,6 +14826,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1997938095
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -14743,8 +14966,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 1
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -15550,8 +15773,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 000
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -15676,10 +15899,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Portal
   camShake: {fileID: 330585548}
   portalExit: {fileID: 2145936060}
+  canTeleportFromThisPortal: 1
   exitOffset: 0
   exitRandomAngle: 5
   overrideExitSpeed: 0
   exitSpeed: 10
+  extraExitSpeed: 5
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!65 &2145936062
 BoxCollider:
   m_ObjectHideFlags: 0

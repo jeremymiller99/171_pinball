@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Have you played before?
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -300,8 +300,8 @@ MonoBehaviour:
   m_text: This is your pinball inventory, which can be updated with new pinballs
     in the shop.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -569,8 +569,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Welcome to Pinballistic!
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -707,8 +707,8 @@ MonoBehaviour:
     3 level types: normal, angel and devil. Different level types can introduce random
     effects.'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1113,8 +1113,8 @@ MonoBehaviour:
     Use Down Arrow to
     control the pinball launcher.'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1436,8 +1436,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "When you are ready to move on, \nclick DONE"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1573,8 +1573,8 @@ MonoBehaviour:
   m_text: Reach the shop by completing atleast 1 level up. If you lose all of your
     pinballs before leveling up, you lose the game. Try to reach level 10!
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1709,8 +1709,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Here is the scoreboard and how much money you have.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2334,8 +2334,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Upgrade the pinballs or the board!
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2704,8 +2704,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Nice job! Welcome to the shop
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4045,8 +4045,8 @@ MonoBehaviour:
   m_text: This shows your current level, and how many points you need to get to the
     next.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4218,8 +4218,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\nGoodluck! \nPlease ask questions if you need assistance"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4354,8 +4354,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: YES
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4686,8 +4686,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: NO
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4859,8 +4859,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Buy new pinballs by clicking and dragging to your inventory
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

@@ -67,6 +67,7 @@ public class AudioManager : MonoBehaviour
 
         Instance = this;
         InitializeBuses();
+        ApplySavedVolumes();
         DontDestroyOnLoad(gameObject);
     }
 
@@ -88,11 +89,23 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    private const float DefaultVolume = 0.8f;
+
     private void InitializeBuses()
     {
         masterBus = RuntimeManager.GetBus(masterBusPath);
         musicBus = RuntimeManager.GetBus(musicBusPath);
         sfxBus = RuntimeManager.GetBus(sfxBusPath);
+    }
+
+    private void ApplySavedVolumes()
+    {
+        float master = PlayerPrefs.GetFloat("MasterVolume", DefaultVolume);
+        float music = PlayerPrefs.GetFloat("MusicVolume", DefaultVolume);
+        float sfx = PlayerPrefs.GetFloat("SFXVolume", DefaultVolume);
+        masterBus.setVolume(master);
+        musicBus.setVolume(music);
+        sfxBus.setVolume(sfx);
     }
 
     // Scene Load & Button Auto-Wiring

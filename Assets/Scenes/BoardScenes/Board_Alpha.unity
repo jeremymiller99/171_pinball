@@ -245,13 +245,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
   rulesManager: {fileID: 0}
   outsideBounds: 0
-  ballLostSound:
-    Guid:
-      Data1: -1893509061
-      Data2: 1112773022
-      Data3: -1794802512
-      Data4: -929301267
-    Path: event:/ball_lost
 --- !u!1001 &53043955
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -443,13 +436,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
   rulesManager: {fileID: 0}
   outsideBounds: 1
-  ballLostSound:
-    Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
 --- !u!65 &61075975
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1275,8 +1261,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2669,8 +2655,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 1
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3096,8 +3082,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -8291,8 +8277,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 000
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -8776,8 +8762,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: $0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9558,13 +9544,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
   rulesManager: {fileID: 0}
   outsideBounds: 1
-  ballLostSound:
-    Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
 --- !u!65 &765148992
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10190,13 +10169,6 @@ MonoBehaviour:
   meterColorMid: {r: 1, g: 0.5019608, b: 0, a: 1}
   meterColorFull: {r: 1, g: 0.052272934, b: 0, a: 1}
   meterColorMidPoint: 0.5
-  rollingSound:
-    Guid:
-      Data1: -1397201519
-      Data2: 1186788513
-      Data3: 1619588757
-      Data4: -575593883
-    Path: event:/ball_rolling
   debugInText: 0
 --- !u!4 &855862844
 Transform:
@@ -10494,8 +10466,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: X
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -10750,13 +10722,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
   rulesManager: {fileID: 0}
   outsideBounds: 1
-  ballLostSound:
-    Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
 --- !u!1 &910000010
 GameObject:
   m_ObjectHideFlags: 0
@@ -10825,13 +10790,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
   rulesManager: {fileID: 0}
   outsideBounds: 1
-  ballLostSound:
-    Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
 --- !u!1 &910000020
 GameObject:
   m_ObjectHideFlags: 0
@@ -10900,13 +10858,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
   rulesManager: {fileID: 0}
   outsideBounds: 1
-  ballLostSound:
-    Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
 --- !u!1 &910000030
 GameObject:
   m_ObjectHideFlags: 0
@@ -10975,13 +10926,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
   rulesManager: {fileID: 0}
   outsideBounds: 1
-  ballLostSound:
-    Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
 --- !u!1 &924146523
 GameObject:
   m_ObjectHideFlags: 0
@@ -13259,8 +13203,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 000
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -13506,8 +13450,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: x2
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -14082,8 +14026,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Level:'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
-  m_sharedMaterial: {fileID: 6923799701313336059, guid: b3b81a0c82714b4479ff983ebdd20f86, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -16040,8 +15984,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 3
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

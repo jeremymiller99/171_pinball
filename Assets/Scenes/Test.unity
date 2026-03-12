@@ -354,6 +354,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 919d41a318550de4cb8901ef1bb48391, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
+  rulesManager: {fileID: 0}
+  outsideBounds: 0
 --- !u!1 &173005615
 GameObject:
   m_ObjectHideFlags: 0
@@ -480,7 +482,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc5299dc26faf25438106c6f5f7280a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinballFlipper
-  key: 62
+  flipperAction: 1
   invertDirection: 0
   flipAngle: 45
   rotateSpeed: 900
@@ -672,6 +674,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MultAdder
   scoreManager: {fileID: 349540274}
   multToAdd: 0.1
+  floatingTextSpawner: {fileID: 0}
 --- !u!114 &275102298
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -684,7 +687,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
+  camShake: {fileID: 0}
   bounceForce: 25
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!65 &275102299
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -930,8 +936,109 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ScoreManager
   points: 0
   mult: 0
+  roundTotal: 0
+  levelProgressOffset: 0
   pointsText: {fileID: 1146335244}
   multText: {fileID: 2011285161}
+  gameRulesManager: {fileID: 0}
+  floatingTextSpawner: {fileID: 0}
+  cameraShake: {fileID: 0}
+  shakeBaseDuration: 0.22
+  shakePointsExponent: 0.75
+  shakeDurationPerPoint: 0.01
+  shakeMaxDuration: 0.65
+  shakeBaseMagnitude: 0.24
+  shakeMagnitudePerPoint: 0.02
+  shakeMaxMagnitude: 1
+  multShakeBaseDuration: 0.28
+  multShakeExponent: 0.75
+  multShakeDurationPerMult: 0.22
+  multShakeMaxDuration: 0.75
+  multShakeBaseMagnitude: 0.26
+  multShakeMagnitudePerMult: 0.28
+  multShakeMaxMagnitude: 0.85
+  roundIndexText: {fileID: 0}
+  roundTotalText: {fileID: 0}
+  goalText: {fileID: 0}
+  ballsRemainingText: {fileID: 0}
+  coinsText: {fileID: 0}
+  enableRoundIndexPop: 1
+  roundIndexPopDuration: 0.22
+  roundIndexPopPeakScale: 1.35
+  roundIndexPopYOffset: 12
+  roundIndexPopFlashColor: 1
+  roundIndexPopFlashTargetColor: {r: 1, g: 0.85, b: 0.2, a: 1}
+  roundIndexPopCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.22
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.52
+      value: -0.18
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.78
+      value: 0.12
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  scoringLocked: 0
+  enableGoalTierScaling: 1
+  speedIncreasePerGoalTier: 0.1
+  scoreIncreasePerGoalTier: 0.5
+  applySpeedToTimeScale: 1
+  baselineTimeScale: 1.05
+  externalTimeScaleMultiplier: 1
+  externalScoreAwardMultiplier: 1
+  maxTimeScale: 100
+  maxFixedDeltaTime: 0.1
+  _goalTier: 0
+  pointMultiplier: 0
+  pointsModifierMultiplier: 0
+  multMultiplier: 0
+  multModifierMultiplier: 0
+  coinMultiplier: 0
+  coinModifierMultiplier: 0
+  modifierTimeScaleMultiplier: 1
+  roundsToAddToMultipliers: 0
+  amountToAddToMultipliers: 0
 --- !u!4 &349540275
 Transform:
   m_ObjectHideFlags: 0
@@ -1358,7 +1465,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
+  camShake: {fileID: 0}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &474810405
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1704,6 +1814,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MultAdder
   scoreManager: {fileID: 349540274}
   multToAdd: 0.1
+  floatingTextSpawner: {fileID: 0}
 --- !u!114 &545431203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1716,7 +1827,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
+  camShake: {fileID: 0}
   bounceForce: 25
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!1 &597584815
 GameObject:
   m_ObjectHideFlags: 0
@@ -1779,7 +1893,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
+  camShake: {fileID: 0}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &597584819
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2046,7 +2163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc5299dc26faf25438106c6f5f7280a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinballFlipper
-  key: 61
+  flipperAction: 1
   invertDirection: 1
   flipAngle: 45
   rotateSpeed: 900
@@ -2411,7 +2528,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
+  camShake: {fileID: 0}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &799851296
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2983,8 +3103,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: X
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3298,7 +3418,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc5299dc26faf25438106c6f5f7280a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinballFlipper
-  key: 61
+  flipperAction: 1
   invertDirection: 1
   flipAngle: 45
   rotateSpeed: 900
@@ -3576,8 +3696,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3715,7 +3835,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
+  camShake: {fileID: 0}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1228442107
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -3857,7 +3980,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
+  camShake: {fileID: 0}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1233534048
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -3999,7 +4125,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
+  camShake: {fileID: 0}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1259238411
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -4141,7 +4270,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
+  camShake: {fileID: 0}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1373820371
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -4283,7 +4415,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
+  camShake: {fileID: 0}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1417931063
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -4520,7 +4655,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae80202d44594e94aad1e7d6ad84aa7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinballLauncher
-  launchKey: 1
+  launchAction: {fileID: 0}
   launchDirection: {fileID: 0}
   maxLaunchForce: 200
   chargePerSecond: 100
@@ -4930,6 +5065,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MultAdder
   scoreManager: {fileID: 349540274}
   multToAdd: 0.1
+  floatingTextSpawner: {fileID: 0}
 --- !u!114 &1938440443
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4942,7 +5078,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
+  camShake: {fileID: 0}
   bounceForce: 25
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!65 &1938440444
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5082,7 +5221,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
+  camShake: {fileID: 0}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1997938095
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -5221,8 +5363,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

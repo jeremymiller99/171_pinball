@@ -110,6 +110,12 @@ public class Portal : MonoBehaviour
 
         traveller.lastTeleportTime = Time.time;
 
+        IPortalTeleportListener listener = other.GetComponent<IPortalTeleportListener>();
+        if (listener != null)
+        {
+            listener.OnTeleportedThroughPortal();
+        }
+
         if (camShake == null || !camShake.isActiveAndEnabled)
         {
             ResolveCameraShake();

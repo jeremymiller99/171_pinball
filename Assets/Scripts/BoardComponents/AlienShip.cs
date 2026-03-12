@@ -131,11 +131,29 @@ public class AlienShip : MonoBehaviour
         currentTagIndex = Random.Range(0, tagsOfComponents.Length);
         componentTagLookingFor = tagsOfComponents[currentTagIndex];
 
-        // Hit goal range for aliens (Target/Portal) is half of what it is for Bumpers; seconds stay the same.
-        bool isBumper = componentTagLookingFor == "Bumper";
-        int hitMin = isBumper ? minHitsRequired : Mathf.Max(1, minHitsRequired / 2);
-        int hitMax = isBumper ? maxHitsRequired : Mathf.Max(hitMin, maxHitsRequired / 2);
-        hitsLeft = Random.Range(hitMin, hitMax);
+        // Hit goal range varies by component type: Bumper uses serialized range; Target 1-5; Portal 1-3.
+        int hitMin, hitMax;
+        if (componentTagLookingFor == "Bumper")
+        {
+            hitMin = minHitsRequired;
+            hitMax = maxHitsRequired;
+        }
+        else if (componentTagLookingFor == "Target")
+        {
+            hitMin = 1;
+            hitMax = 5;
+        }
+        else if (componentTagLookingFor == "Portal")
+        {
+            hitMin = 1;
+            hitMax = 3;
+        }
+        else
+        {
+            hitMin = Mathf.Max(1, minHitsRequired / 2);
+            hitMax = Mathf.Max(hitMin, maxHitsRequired / 2);
+        }
+        hitsLeft = Random.Range(hitMin, hitMax + 1);
         secondsLeft = Random.Range(minSecondsToHit, maxSecondsToHit);
 
         if (modelPrefabs != null && modelPrefabs.Length > 0)

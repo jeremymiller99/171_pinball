@@ -56,6 +56,10 @@ public sealed class BallReplaceSlotEntryUI : MonoBehaviour,
         {
             button.onClick.RemoveListener(OnClick);
             button.onClick.AddListener(OnClick);
+            if (button.GetComponent<ControllerFocusHighlight>() == null)
+            {
+                button.gameObject.AddComponent<ControllerFocusHighlight>();
+            }
         }
     }
 

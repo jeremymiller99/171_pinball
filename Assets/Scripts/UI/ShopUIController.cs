@@ -251,9 +251,11 @@ public sealed class ShopUIController : MonoBehaviour
         HookTabs();
         if (tabsController != null)
         {
-            // Default to balls screen every time the shop is opened.
-            tabsController.SetTab(ShopTabsController.Tab.Balls, notify: false);
+            tabsController.SetTab(ShopTabsController.Tab.Main, notify: false);
+            tabsController.DeferMainTabContent();
         }
+
+        HookOpenTransitionFinished();
 
         SetReplacePanelOpen(false);
         _pendingItem = null;
@@ -269,6 +271,32 @@ public sealed class ShopUIController : MonoBehaviour
     private void OnDisable()
     {
         UnhookTabs();
+        UnhookOpenTransitionFinished();
+    }
+
+    private void HookOpenTransitionFinished()
+    {
+        if (shopTransitionController == null)
+        {
+            if (tabsController != null)
+                tabsController.RevealMainTabContent();
+            return;
+        }
+
+        shopTransitionController.CameraPanFinished -= HandleCameraPanFinished;
+        shopTransitionController.CameraPanFinished += HandleCameraPanFinished;
+    }
+
+    private void UnhookOpenTransitionFinished()
+    {
+        if (shopTransitionController != null)
+            shopTransitionController.CameraPanFinished -= HandleCameraPanFinished;
+    }
+
+    private void HandleCameraPanFinished()
+    {
+        if (tabsController != null)
+            tabsController.RevealMainTabContent();
     }
 
     public void Open()
@@ -283,8 +311,8 @@ public sealed class ShopUIController : MonoBehaviour
 
         if (tabsController != null)
         {
-            // If another system opened us without OnEnable (rare), ensure we start on Balls.
-            tabsController.SetTab(ShopTabsController.Tab.Balls, notify: false);
+            // If another system opened us without OnEnable (rare), ensure we start on Main.
+            tabsController.SetTab(ShopTabsController.Tab.Main, notify: false);
         }
 
         RebuildReplaceSlots();

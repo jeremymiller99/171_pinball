@@ -94,6 +94,8 @@ public sealed class ShopTransitionController : MonoBehaviour
     private Vector2 _panelDoneHidden;
 
     public event Action OpenTransitionFinished;
+    /// <summary>Fires when the camera pan completes (before panel slides). Use for Main panel reveal.</summary>
+    public event Action CameraPanFinished;
 
     private bool _isOpen;
     private bool _isTransitioning;
@@ -261,6 +263,8 @@ public sealed class ShopTransitionController : MonoBehaviour
             toCam: _cameraShopLocalPos,
             duration: Mathf.Max(0.001f, panDuration)
         );
+
+        CameraPanFinished?.Invoke();
 
         // Then panels slide in, in the requested order.
         yield return SlidePanelsInSequence();

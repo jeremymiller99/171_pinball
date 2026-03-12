@@ -502,6 +502,10 @@ public class ScoreManager : MonoBehaviour
         gameRulesManager.AddCoinsUnscaled(applied);
         UpdateStoredScores();
         floatingTextSpawner?.SpawnGoldText(pos.position, "+$" + applied, applied);
+
+        // Ensure total money text updates immediately (e.g. alien rewards) even if floating text fails to spawn.
+        if (coinsText != null && gameRulesManager != null)
+            coinsText.text = $"${gameRulesManager.Coins}";
     }
 
     public void PlayStaggeredCoinSounds(int amount)
@@ -802,6 +806,8 @@ public class ScoreManager : MonoBehaviour
             roundTotalText.text = FormatPointsCompact(roundTotal);
         if (goalText != null)
             goalText.text = FormatPointsCompact(CumulativeGoal);
+        if (coinsText != null && gameRulesManager != null)
+            coinsText.text = $"${gameRulesManager.Coins}";
     }
 
     private void CaptureRoundIndexJuiceBaselineIfNeeded()

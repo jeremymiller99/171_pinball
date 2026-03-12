@@ -16,6 +16,7 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
 {
     private const string CardRootName = "Modifier Card";
     private const string LegacyBgObjectName = "BG";
+    private const string NormalBgObjectName = "Normal BG";
     private const string AngelBgObjectName = "Angel BG";
     private const string DevilBgObjectName = "Devil BG";
     private const string AngelCardSpriteName = "Angel Card";
@@ -71,6 +72,7 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
     [SerializeField] private bool isVisible;
 
     private Transform _cardRoot;
+    private GameObject _normalBgObject;
     private GameObject _angelBgObject;
     private GameObject _devilBgObject;
     private Image _legacyBgImage;
@@ -193,12 +195,12 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
 
         if (modNameText != null)
         {
-            modNameText.text = roundData.GetModifierDisplayName();
+            modNameText.text = roundData.type == RoundType.Normal ? "No Modifier" : roundData.GetModifierDisplayName();
         }
 
         if (descriptionText != null)
         {
-            descriptionText.text = roundData.GetModifierDescription();
+            descriptionText.text = roundData.type == RoundType.Normal ? "N/A" : roundData.GetModifierDescription();
         }
 
         ApplyBgForRoundType(roundData.type);
@@ -366,6 +368,15 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
             _cardBaseLocalScale = _cardRect.localScale;
         }
 
+        if (_normalBgObject == null)
+        {
+            Transform normal = FindChildRecursive(_cardRoot, NormalBgObjectName);
+            if (normal != null)
+            {
+                _normalBgObject = normal.gameObject;
+            }
+        }
+
         if (_angelBgObject == null)
         {
             Transform angel = FindChildRecursive(_cardRoot, AngelBgObjectName);
@@ -486,10 +497,20 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
 
     private void ApplyBgForRoundType(RoundType type)
     {
+        if (_normalBgObject != null)
+        {
+            _normalBgObject.SetActive(type == RoundType.Normal);
+        }
+
         if (_angelBgObject != null && _devilBgObject != null)
         {
             _angelBgObject.SetActive(type == RoundType.Angel);
             _devilBgObject.SetActive(type == RoundType.Devil);
+            return;
+        }
+
+        if (_normalBgObject != null)
+        {
             return;
         }
 

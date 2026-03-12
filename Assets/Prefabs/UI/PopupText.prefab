@@ -168,6 +168,6 @@ MonoBehaviour:
   flyFadeStartNormalized: 0.75
   destroyOnFlyComplete: 1
   clampFontSize: 1
-  maxFontSize: 64
-  maxScale: 1.35
+  maxFontSize: 112
+  maxScale: 2.36
   scoreManager: {fileID: 0}

@@ -28,6 +28,7 @@ public class UpgradeComponents : MonoBehaviour
         componentUIController.buyingComponentDefinition = boardComponentDefinition;
         uiScript.SelectComponents();
         componentUIController.Refresh();
+        Refresh();
     }
 
     public void OnHover()

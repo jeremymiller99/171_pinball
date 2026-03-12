@@ -334,6 +334,55 @@ MonoBehaviour:
       Data3: -900643699
       Data4: 455003607
     Path: event:/window_whoosh
+  cuteAlienArrivalSound:
+    Guid:
+      Data1: 331439149
+      Data2: 1179495449
+      Data3: -1437539916
+      Data4: 1226548392
+    Path: event:/alien_cute_arrival
+  cuteAlienDepartureSound:
+    Guid:
+      Data1: 1182159553
+      Data2: 1121171833
+      Data3: 1692957073
+      Data4: -340043874
+    Path: event:/alien_cute_depart
+  bugAlienArrivalSound:
+    Guid:
+      Data1: -1317320040
+      Data2: 1303161001
+      Data3: 323139764
+      Data4: -508386712
+    Path: event:/alien_bug_arrival
+  bugAlienDepartureSound:
+    Guid:
+      Data1: 1022283784
+      Data2: 1268108813
+      Data3: 1157193904
+      Data4: 774257519
+    Path: event:/alien_bug_depart
+  gruntAlienArrivalSound:
+    Guid:
+      Data1: 856783982
+      Data2: 1210481034
+      Data3: -1990526837
+      Data4: -125381865
+    Path: event:/alien_grunt_arrival
+  gruntAlienDepartureSound:
+    Guid:
+      Data1: -2068575877
+      Data2: 1279670738
+      Data3: -1671986015
+      Data4: -1221889887
+    Path: event:/alien_grunt_depart
+  alienShipRumbleSound:
+    Guid:
+      Data1: 1182453803
+      Data2: 1150127601
+      Data3: 1037176971
+      Data4: -1923247708
+    Path: event:/ship_flying
   purchaseSound:
     Guid:
       Data1: -1951192067
@@ -376,6 +425,13 @@ MonoBehaviour:
       Data3: -1154293597
       Data4: -2036301457
     Path: event:/collide_points
+  multHitSound:
+    Guid:
+      Data1: 52175844
+      Data2: 1280125249
+      Data3: -157741152
+      Data4: 1337080504
+    Path: event:/collide_mult
   flipperUpSound:
     Guid:
       Data1: -1860561248

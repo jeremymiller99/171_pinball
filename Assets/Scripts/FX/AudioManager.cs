@@ -25,6 +25,15 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private EventReference tabSwitchSound;
     [SerializeField] private EventReference transitionSound;
 
+    [Header("Alien Sounds")]
+    [SerializeField] private EventReference cuteAlienArrivalSound;
+    [SerializeField] private EventReference cuteAlienDepartureSound;
+    [SerializeField] private EventReference bugAlienArrivalSound;
+    [SerializeField] private EventReference bugAlienDepartureSound;
+    [SerializeField] private EventReference gruntAlienArrivalSound;
+    [SerializeField] private EventReference gruntAlienDepartureSound;
+    [SerializeField] private EventReference alienShipRumbleSound;
+
     [Header("Shop & Meta Sounds")]
     [SerializeField] private EventReference purchaseSound;
     [SerializeField] private EventReference failedPurchaseSound;
@@ -53,6 +62,8 @@ public class AudioManager : MonoBehaviour
 
     private EventInstance musicInstance;
     private EventInstance rollingSoundInstance;
+    private EventInstance alienShipRumbleInstance;
+    private int alienType = 0;
     private FMOD.Studio.Bus masterBus;
     private FMOD.Studio.Bus musicBus;
     private FMOD.Studio.Bus sfxBus;
@@ -201,6 +212,67 @@ public class AudioManager : MonoBehaviour
     public void PlayTabSwitch() => PlayOneShot(tabSwitchSound);
     public void PlayTransition() => PlayOneShot(transitionSound);
 
+    // Aliens
+
+    public void PlayAlienArrival(int type)
+    {
+        alienType = type;
+        if (alienType == 0)
+        {
+            PlayOneShot(cuteAlienArrivalSound);
+        }
+        else if (alienType == 1)
+        {
+            PlayOneShot(gruntAlienArrivalSound);
+        }
+        else if (alienType == 2)
+        {
+            PlayOneShot(bugAlienArrivalSound);
+        }
+    }
+
+    public void PlayAlienDeparture()
+    {
+        if (alienType == 0)
+        {
+            PlayOneShot(cuteAlienDepartureSound);
+        }
+        else if (alienType == 1)
+        {
+            PlayOneShot(gruntAlienDepartureSound);
+        }
+        else if (alienType == 2)
+        {
+            PlayOneShot(bugAlienDepartureSound);
+        }
+    }
+
+    public void StartAlienShipRumble()
+    {
+        if (alienShipRumbleSound.IsNull) return;
+
+        if (!alienShipRumbleInstance.isValid())
+        {
+            alienShipRumbleInstance = RuntimeManager.CreateInstance(alienShipRumbleSound);
+        }
+        
+        alienShipRumbleInstance.getPlaybackState(out PLAYBACK_STATE state);
+        if (state != PLAYBACK_STATE.PLAYING)
+        {
+            alienShipRumbleInstance.start();
+        }
+    }
+
+    public void StopAlienShipRumble()
+    {
+        if (alienShipRumbleInstance.isValid())
+        {
+            alienShipRumbleInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            alienShipRumbleInstance.release();
+            alienShipRumbleInstance.clearHandle();
+        }
+    }
+
     // Shop & Meta
     public void PlayPurchase() => PlayOneShot(purchaseSound);
     public void PlayFailedPurchase() => PlayOneShot(failedPurchaseSound);
@@ -310,6 +382,7 @@ public class AudioManager : MonoBehaviour
             }
 
             StopRollingSound();
+            StopAlienShipRumble();
         }
     }
 }

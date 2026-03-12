@@ -44,6 +44,7 @@ public sealed class ShopUIController : MonoBehaviour
     [SerializeField] private GameObject shopCanvasRoot;
     [Tooltip("Optional: tab controller used to switch between Balls and Board Components screens.")]
     [SerializeField] private ShopTabsController tabsController;
+    [SerializeField] private ComponentUIController componentUIController;
 
     [Header("UI (optional)")]
     [Tooltip("Shown when a replacement slot must be chosen.")]
@@ -58,6 +59,10 @@ public sealed class ShopUIController : MonoBehaviour
     [SerializeField] private Image replaceCurrentBallIconImage;
     [Tooltip("Optional: image in the replace confirmation panel that shows the incoming/offer ball.")]
     [SerializeField] private Image replaceIncomingBallIconImage;
+    [Tooltip("Confirm button in the replace panel. Used for controller focus trap.")]
+    [SerializeField] private Button replaceConfirmButton;
+    [Tooltip("Cancel button in the replace panel. Used for controller focus trap.")]
+    [SerializeField] private Button replaceCancelButton;
 
     [Header("Shop offers (dynamic)")]
     [Tooltip("Parent transform that will receive 3 instantiated offer entries each shop visit.")]
@@ -111,6 +116,7 @@ public sealed class ShopUIController : MonoBehaviour
 
     private void Awake()
     {
+
         if (rulesManager == null)
         {
 #if UNITY_2022_2_OR_NEWER
@@ -248,9 +254,11 @@ public sealed class ShopUIController : MonoBehaviour
         HookTabs();
         if (tabsController != null)
         {
-            // Default to balls screen every time the shop is opened.
-            tabsController.SetTab(ShopTabsController.Tab.Balls, notify: false);
+            tabsController.SetTab(ShopTabsController.Tab.Main, notify: false);
+            tabsController.DeferMainTabContent();
         }
+
+        HookOpenTransitionFinished();
 
         SetReplacePanelOpen(false);
         _pendingItem = null;
@@ -258,6 +266,10 @@ public sealed class ShopUIController : MonoBehaviour
         _pendingOfferIndex = -1;
         ClearReplaceConfirmationVisuals();
         RebuildReplaceSlots();
+        if (componentUIController != null)
+        {
+            componentUIController.RefreshComponentOffers();
+        }
         RebuildOffers();
         RefreshUI();
     }
@@ -265,6 +277,32 @@ public sealed class ShopUIController : MonoBehaviour
     private void OnDisable()
     {
         UnhookTabs();
+        UnhookOpenTransitionFinished();
+    }
+
+    private void HookOpenTransitionFinished()
+    {
+        if (shopTransitionController == null)
+        {
+            if (tabsController != null)
+                tabsController.RevealMainTabContent();
+            return;
+        }
+
+        shopTransitionController.CameraPanFinished -= HandleCameraPanFinished;
+        shopTransitionController.CameraPanFinished += HandleCameraPanFinished;
+    }
+
+    private void UnhookOpenTransitionFinished()
+    {
+        if (shopTransitionController != null)
+            shopTransitionController.CameraPanFinished -= HandleCameraPanFinished;
+    }
+
+    private void HandleCameraPanFinished()
+    {
+        if (tabsController != null)
+            tabsController.RevealMainTabContent();
     }
 
     public void Open()
@@ -279,8 +317,8 @@ public sealed class ShopUIController : MonoBehaviour
 
         if (tabsController != null)
         {
-            // If another system opened us without OnEnable (rare), ensure we start on Balls.
-            tabsController.SetTab(ShopTabsController.Tab.Balls, notify: false);
+            // If another system opened us without OnEnable (rare), ensure we start on Main.
+            tabsController.SetTab(ShopTabsController.Tab.Main, notify: false);
         }
 
         RebuildReplaceSlots();
@@ -973,6 +1011,94 @@ public sealed class ShopUIController : MonoBehaviour
         if (replacePanelRoot != null)
         {
             replacePanelRoot.SetActive(open);
+            if (open)
+            {
+                SetupReplacePanelFocusTrap();
+            }
+        }
+    }
+
+    private void SetupReplacePanelFocusTrap()
+    {
+        ResolveReplacePanelButtonsIfNeeded();
+        if (replaceConfirmButton == null || replaceCancelButton == null)
+        {
+            return;
+        }
+
+        var navConfirm = replaceConfirmButton.navigation;
+        navConfirm.mode = Navigation.Mode.Explicit;
+        navConfirm.selectOnLeft = replaceCancelButton;
+        navConfirm.selectOnRight = replaceCancelButton;
+        navConfirm.selectOnUp = replaceCancelButton;
+        navConfirm.selectOnDown = replaceCancelButton;
+        replaceConfirmButton.navigation = navConfirm;
+
+        var navCancel = replaceCancelButton.navigation;
+        navCancel.mode = Navigation.Mode.Explicit;
+        navCancel.selectOnLeft = replaceConfirmButton;
+        navCancel.selectOnRight = replaceConfirmButton;
+        navCancel.selectOnUp = replaceConfirmButton;
+        navCancel.selectOnDown = replaceConfirmButton;
+        replaceCancelButton.navigation = navCancel;
+
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(replaceConfirmButton.gameObject);
+        }
+    }
+
+    private void ResolveReplacePanelButtonsIfNeeded()
+    {
+        if (replacePanelRoot == null)
+        {
+            return;
+        }
+
+        if (replaceConfirmButton == null || replaceCancelButton == null)
+        {
+            Button[] buttons = replacePanelRoot.GetComponentsInChildren<Button>(includeInactive: false);
+            foreach (Button b in buttons)
+            {
+                if (b.gameObject.name == "Confirm Button" && replaceConfirmButton == null)
+                {
+                    replaceConfirmButton = b;
+                }
+                else if (b.gameObject.name == "Cancel Button" && replaceCancelButton == null)
+                {
+                    replaceCancelButton = b;
+                }
+            }
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (replacePanelRoot == null || !replacePanelRoot.activeSelf)
+        {
+            return;
+        }
+
+        ResolveReplacePanelButtonsIfNeeded();
+        if (replaceConfirmButton == null || replaceCancelButton == null)
+        {
+            return;
+        }
+
+        EventSystem es = EventSystem.current;
+        if (es == null)
+        {
+            return;
+        }
+
+        GameObject selected = es.currentSelectedGameObject;
+        bool isValidSelection = selected != null &&
+            (selected == replaceConfirmButton.gameObject || selected.transform.IsChildOf(replaceConfirmButton.transform) ||
+             selected == replaceCancelButton.gameObject || selected.transform.IsChildOf(replaceCancelButton.transform));
+
+        if (!isValidSelection)
+        {
+            es.SetSelectedGameObject(replaceConfirmButton.gameObject);
         }
     }
 

@@ -92,14 +92,6 @@ public sealed class BoardLoader : MonoBehaviour
 
         currentBoardRoot.Initialize(board);
 
-        // Re-apply any run-persistent board-component upgrades after the board scene loads.
-        // This ensures upgrades persist even if boards are unloaded/reloaded mid-run.
-        var session = GameSession.Instance;
-        if (session != null)
-        {
-            session.ApplyBoardComponentUpgradesForScene(loadedScene.name);
-        }
-
         // Bind spawn/play point into core systems.
         // Convention:
         // - HandPathWaypoints[0] = queue start

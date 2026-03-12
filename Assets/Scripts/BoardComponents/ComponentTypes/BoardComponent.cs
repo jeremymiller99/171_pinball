@@ -2,17 +2,15 @@
 // Change: add selection outline + portal paired-exit outline.
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
-public class BoardComponent : MonoBehaviour
+public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
 {
     private const float defaultSelectionOutlineWidth = 8f;
 
     public TypeOfScore typeOfScore;
     public float amountToScore;
-    public GameObject leftObject;
-    public GameObject rightObject;
-    public GameObject upObject;
-    public GameObject downObject;
+    public BoardComponentType componentType;
     public List<GameObject> components = new List<GameObject>();
     public bool isConfirmed = false;
     public float maxPulseScale;
@@ -45,106 +43,8 @@ public class BoardComponent : MonoBehaviour
                 components.Add(newObject);
             }
         }
-
-        FindLeft();
-        FindRight();
-        FindUp();
-        FindDown();
-
-        if (!leftObject)
-        {
-            leftObject = rightObject;
-        }
-
-        if (!downObject)
-        {
-            downObject = upObject;
-        }
     }
 
-    void FindLeft()
-    {
-        foreach (GameObject obj in components)
-        {
-            Vector3 newPos = obj.transform.position;
-            Vector3 currentPos = transform.position;
-            if (newPos.x >= currentPos.x) continue;
-            if (!leftObject)
-            {
-                leftObject = obj;
-                continue;
-            }
-
-            Vector3 oldPos = leftObject.transform.position;
-            if (Vector3.Distance(currentPos, oldPos) > Vector3.Distance(currentPos, newPos))
-            {
-                leftObject = obj;
-            }
-        }
-    }
-
-    void FindRight()
-    {
-        foreach (GameObject obj in components)
-        {
-            Vector3 newPos = obj.transform.position;
-            Vector3 currentPos = transform.position;
-            if (newPos.x <= currentPos.x) continue;
-            if (!rightObject)
-            {
-                rightObject = obj;
-                continue;
-            }
-
-            Vector3 oldPos = rightObject.transform.position;
-            if (Vector3.Distance(currentPos, oldPos) > Vector3.Distance(currentPos, newPos))
-            {
-                rightObject = obj;
-            }
-        }
-    }
-
-    void FindUp()
-    {
-        foreach (GameObject obj in components)
-        {
-            Vector3 newPos = obj.transform.position;
-            Vector3 currentPos = transform.position;
-            if (newPos.z <= currentPos.z) continue;
-            if (!upObject)
-            {
-                upObject = obj;
-                continue;
-            }
-
-            Vector3 oldPos = upObject.transform.position;
-            if (Vector3.Distance(currentPos, oldPos) > Vector3.Distance(currentPos, newPos))
-            {
-                upObject = obj;
-            }
-        }
-    }
-
-    void FindDown()
-    {
-        foreach (GameObject obj in components)
-        {
-            Vector3 newPos = obj.transform.position;
-            Vector3 currentPos = transform.position;
-            if (newPos.z >= currentPos.z) continue;
-            if (!downObject)
-            {
-                downObject = obj;
-                continue;
-            }
-
-            Vector3 oldPos = downObject.transform.position;
-            if (Vector3.Distance(currentPos, oldPos) > Vector3.Distance(currentPos, newPos))
-            {
-                downObject = obj;
-            }
-        }
-    }
 
     public void FixedUpdate()
     {
@@ -253,34 +153,19 @@ public class BoardComponent : MonoBehaviour
         }
 
         EnsureSelectionOutline();
+        isConfirmed = true;
         selectionOutline.enabled = true;
         selectionOutline.OutlineMode = selectionOutlineMode;
-        selectionOutline.OutlineColor = selectionOutlineColor;
+        selectionOutline.OutlineColor = confirmOutlineColor;
         selectionOutline.OutlineWidth = selectionOutlineWidth;
         SetPortalExitOutlineEnabled(true);
     }
 
     public void DeSelect()
     {
-        if (!isConfirmed)
-        {
-            selectionOutline.enabled = false;
-            SetPortalExitOutlineEnabled(false);
-        }
-    }
-
-    public void Confirm()
-    {
-        selectionOutline.OutlineColor = confirmOutlineColor;
-        isConfirmed = true;
-    }
-
-    public void DeConfirm()
-    {
-        if (!isConfirmed) return;
-        selectionOutline.OutlineColor = selectionOutlineColor;
         isConfirmed = false;
         transform.localScale = startingSize;
+        EnsureSelectionOutline();
         selectionOutline.enabled = false;
         SetPortalExitOutlineEnabled(false);
     }
@@ -305,4 +190,22 @@ public class BoardComponent : MonoBehaviour
     {
         scoreManager.AddScore(amountToScore, typeOfScore, transform);
     }
+
+    public int CompareTo(BoardComponent otherComponent)
+    {
+        if (otherComponent.transform.position.z > transform.position.z)
+        {
+            return 1;
+        } else if (otherComponent.transform.position.z < transform.position.z)
+        {
+            return -1;
+        } else if (otherComponent.transform.position.x > transform.position.x)
+        {
+            return -1;
+        } else
+        {
+            return 1;
+        }
+    }
+
 }

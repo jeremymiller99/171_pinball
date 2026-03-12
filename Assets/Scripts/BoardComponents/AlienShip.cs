@@ -125,12 +125,36 @@ public class AlienShip : MonoBehaviour
 
     public void Spawn()
     {
+        transform.localRotation = Quaternion.identity;
         inPlay = true;
-        hitsLeft = Random.Range(minHitsRequired, maxHitsRequired);
-        secondsLeft = Random.Range(minSecondsToHit, maxSecondsToHit);
         coinsToGive = Random.Range(minCoinsToGive, maxCoinsToGive);
-        currentTagIndex = Random.Range(0, 2);
+        currentTagIndex = Random.Range(0, tagsOfComponents.Length);
         componentTagLookingFor = tagsOfComponents[currentTagIndex];
+
+        // Hit goal range varies by component type: Bumper uses serialized range; Target 1-5; Portal 1-3.
+        int hitMin, hitMax;
+        if (componentTagLookingFor == "Bumper")
+        {
+            hitMin = minHitsRequired;
+            hitMax = maxHitsRequired;
+        }
+        else if (componentTagLookingFor == "Target")
+        {
+            hitMin = 1;
+            hitMax = 5;
+        }
+        else if (componentTagLookingFor == "Portal")
+        {
+            hitMin = 1;
+            hitMax = 3;
+        }
+        else
+        {
+            hitMin = Mathf.Max(1, minHitsRequired / 2);
+            hitMax = Mathf.Max(hitMin, maxHitsRequired / 2);
+        }
+        hitsLeft = Random.Range(hitMin, hitMax + 1);
+        secondsLeft = Random.Range(minSecondsToHit, maxSecondsToHit);
 
         if (modelPrefabs != null && modelPrefabs.Length > 0)
         {
@@ -190,6 +214,7 @@ public class AlienShip : MonoBehaviour
     {
         docked = false;
         canvas.gameObject.SetActive(false);
+        transform.localRotation *= Quaternion.Euler(0f, 180f, 0f);
         despawning = true;
         AudioManager.Instance.PlayAlienDeparture();
         AudioManager.Instance.StartAlienShipRumble();

@@ -75,13 +75,6 @@ MonoBehaviour:
   bounceForce: 25
   shakeDuration: 0.22
   shakeMagnitude: 0.16
-  hitSound:
-    Guid:
-      Data1: 52175844
-      Data2: 1280125249
-      Data3: -157741152
-      Data4: 1337080504
-    Path: event:/collide_mult
 --- !u!114 &9000000000000000005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -114,10 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IComponent
   typeOfScore: 1
   amountToScore: 0.1
-  leftObject: {fileID: 0}
-  rightObject: {fileID: 0}
-  upObject: {fileID: 0}
-  downObject: {fileID: 0}
+  componentType: 1
   components: []
   isConfirmed: 0
   maxPulseScale: 1.25
@@ -170,7 +160,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
-  definition: {fileID: 11400000, guid: 7570651e72d2cca4ab8e3517281351a4, type: 2}
+  definition: {fileID: 11400000, guid: adf1dac8a000a604cbd27f9ebf5c24f2, type: 2}
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

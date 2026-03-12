@@ -10,13 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1965a039b036c804e95a533e2df9861b, type: 3}
-  m_Name: DuplicatingTarget
+  m_Name: DefaultTarget
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinition
-  id: Duplicating Target
-  displayName: Duplicating Target
-  description: Every 10 times this target is hit, create a duplicate of the ball
-    that hit it that can only hit a component 10 times before being destroyed.
+  id: Default Target
+  displayName: Default Target
+  description: Default target, scores 0.1 mult.
   componentType: 1
   icon: {fileID: 0}
-  prefab: {fileID: 8767137395333737936, guid: a28933c9f50610147a83f37c55c5cac7, type: 3}
-  price: 10
+  prefab: {fileID: 8767137395333737936, guid: 3f89df3362741d64e809018a4b0f5e3e, type: 3}
+  price: 1

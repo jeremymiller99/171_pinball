@@ -69,9 +69,17 @@ public class PinballFlipper : MonoBehaviour
             return;
 
         if (_pressed)
+        {
             AudioManager.Instance.PlayFlipperUp(transform.position);
+            if (HapticManager.Instance != null)
+            {
+                HapticManager.Instance.PlayFlipperHaptic();
+            }
+        }
         else
+        {
             AudioManager.Instance.PlayFlipperDown(transform.position);
+        }
 
         _previousPressed = _pressed;
     }

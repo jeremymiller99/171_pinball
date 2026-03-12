@@ -28,6 +28,7 @@ public class AlienShip : MonoBehaviour
     [SerializeField] private List<GameObject> previousLastObjectsHit;
     [SerializeField] private ScoreManager scoreManager;
     [SerializeField] private GameRulesManager gameRulesManager;
+    private int currentTagIndex;
 
     void Awake()
     {
@@ -56,6 +57,8 @@ public class AlienShip : MonoBehaviour
                 canvas.gameObject.SetActive(true);
                 SetText();
                 docked = true;
+                AudioManager.Instance.StopAlienShipRumble();
+                AudioManager.Instance.PlayAlienArrival(currentTagIndex);
             }
         }
 
@@ -113,6 +116,7 @@ public class AlienShip : MonoBehaviour
             {
                 inPlay = false;
                 despawning = false;
+                AudioManager.Instance.StopAlienShipRumble();
             }
         }
     }
@@ -123,7 +127,9 @@ public class AlienShip : MonoBehaviour
         hitsLeft = Random.Range(minHitsRequired, maxHitsRequired);
         secondsLeft = Random.Range(minSecondsToHit, maxSecondsToHit);
         coinsToGive = Random.Range(minCoinsToGive, maxCoinsToGive);
-        componentTagLookingFor = tagsOfComponents[Random.Range(0, 2)];
+        currentTagIndex = Random.Range(0, 2);
+        componentTagLookingFor = tagsOfComponents[currentTagIndex];
+        AudioManager.Instance.StartAlienShipRumble();
     }
 
     void SetText()
@@ -139,5 +145,7 @@ public class AlienShip : MonoBehaviour
         docked = false;
         canvas.gameObject.SetActive(false);
         despawning = true;
+        AudioManager.Instance.PlayAlienDeparture();
+        AudioManager.Instance.StartAlienShipRumble();
     }
 }

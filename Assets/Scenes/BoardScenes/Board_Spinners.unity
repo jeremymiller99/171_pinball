@@ -310,6 +310,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 25
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!65 &37594359
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1351,6 +1353,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &248005131
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1734,6 +1738,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 25
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!65 &275102299
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2185,6 +2191,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba129e542ec4bc744bd531b11bf00621, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraShake
+  decayExponent: 2
+  initialKickMultiplier: 1.8
+  shakeFrequency: 12
+  smoothing: 0.4
 --- !u!114 &330585549
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2599,8 +2609,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: X
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2852,6 +2862,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &397178734
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -3493,6 +3505,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &597584819
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -4141,8 +4155,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4900,8 +4914,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5153,6 +5167,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &799851296
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -6305,10 +6321,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Portal
   camShake: {fileID: 330585548}
   portalExit: {fileID: 2145936060}
+  canTeleportFromThisPortal: 1
   exitOffset: 0
   exitRandomAngle: 5
   overrideExitSpeed: 0
   exitSpeed: 10
+  extraExitSpeed: 5
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!65 &946027159
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6935,8 +6955,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7307,6 +7327,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1228442107
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -7451,6 +7473,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1233534048
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -7811,8 +7835,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Round:'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7953,6 +7977,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1373820371
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -8411,13 +8437,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae80202d44594e94aad1e7d6ad84aa7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinballLauncher
-  clickZone: {fileID: 1521149805}
-  pixelsToFullPull: 180
-  pullScreenDirection: {x: 0, y: -1}
-  debugHover: 1
-  debugDrag: 1
-  allowKeyboardLaunch: 1
-  launchKey: 1
+  launchAction: {fileID: 0}
   launchDirection: {fileID: 0}
   maxLaunchForce: 200
   chargePerSecond: 100
@@ -8929,8 +8949,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 000
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9176,8 +9196,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9762,6 +9782,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 25
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!65 &1938440444
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10309,6 +10331,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   camShake: {fileID: 330585548}
   bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!136 &1997938095
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -10860,8 +10884,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 3
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -10986,10 +11010,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Portal
   camShake: {fileID: 330585548}
   portalExit: {fileID: 2145936060}
+  canTeleportFromThisPortal: 1
   exitOffset: 0
   exitRandomAngle: 5
   overrideExitSpeed: 0
   exitSpeed: 10
+  extraExitSpeed: 5
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
 --- !u!65 &2145936062
 BoxCollider:
   m_ObjectHideFlags: 0

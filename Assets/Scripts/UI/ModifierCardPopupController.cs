@@ -10,6 +10,7 @@ public sealed class ModifierCardPopupController : MonoBehaviour
     private const string PanelObjectName = "Modifier Card Panel";
 
     [Header("Visibility")]
+    [SerializeField] private bool showOnNormalRounds = true;
     [SerializeField] private bool showOnAngelRounds = true;
     [SerializeField] private bool showOnDevilRounds = true;
 
@@ -187,7 +188,7 @@ public sealed class ModifierCardPopupController : MonoBehaviour
             return;
         }
 
-        if (data.type != RoundType.Angel && data.type != RoundType.Devil)
+        if (data.type == RoundType.Normal && !showOnNormalRounds)
         {
             return;
         }
@@ -204,6 +205,12 @@ public sealed class ModifierCardPopupController : MonoBehaviour
 
         int levelIndex = Mathf.Max(0, _rules.LevelIndex);
         if (levelIndex == lastShownLevelIndex)
+        {
+            return;
+        }
+
+        // Don't show modifier card on first round when player is getting the tutorial (first-time prompt).
+        if (levelIndex == 0 && !ProfileService.HasAnsweredFirstTimePlayingPrompt())
         {
             return;
         }

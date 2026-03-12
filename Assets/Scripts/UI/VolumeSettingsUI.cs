@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 public class VolumeSettingsUI : MonoBehaviour
 {
+    private const float DefaultVolume = 0.8f;
+
     [Header("UI Sliders")]
     [SerializeField] private Slider masterSlider;
     [SerializeField] private Slider musicSlider;
@@ -10,9 +12,9 @@ public class VolumeSettingsUI : MonoBehaviour
 
     private void Start()
     {
-        float savedMaster = PlayerPrefs.GetFloat("MasterVolume", 1f);
-        float savedMusic = PlayerPrefs.GetFloat("MusicVolume", 1f);
-        float savedSFX = PlayerPrefs.GetFloat("SFXVolume", 1f);
+        float savedMaster = PlayerPrefs.GetFloat("MasterVolume", DefaultVolume);
+        float savedMusic = PlayerPrefs.GetFloat("MusicVolume", DefaultVolume);
+        float savedSFX = PlayerPrefs.GetFloat("SFXVolume", DefaultVolume);
 
         if (masterSlider != null) masterSlider.value = savedMaster;
         if (musicSlider != null) musicSlider.value = savedMusic;
@@ -34,20 +36,26 @@ public class VolumeSettingsUI : MonoBehaviour
 
     private void ApplyMasterVolume(float value)
     {
-        AudioManager.Instance.SetMasterVolume(value);
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.SetMasterVolume(value);
         PlayerPrefs.SetFloat("MasterVolume", value);
+        PlayerPrefs.Save();
     }
 
     private void ApplyMusicVolume(float value)
     {
-        AudioManager.Instance.SetMusicVolume(value);
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.SetMusicVolume(value);
         PlayerPrefs.SetFloat("MusicVolume", value);
+        PlayerPrefs.Save();
     }
 
     private void ApplySFXVolume(float value)
     {
-        AudioManager.Instance.SetSFXVolume(value);
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.SetSFXVolume(value);
         PlayerPrefs.SetFloat("SFXVolume", value);
+        PlayerPrefs.Save();
     }
 
     private void OnDestroy()

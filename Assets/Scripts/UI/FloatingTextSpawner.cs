@@ -14,6 +14,10 @@ public class FloatingTextSpawner : MonoBehaviour
     [SerializeField] private Camera targetCamera;
     [SerializeField] private Vector2 spawnOffset = new Vector2(20f, 0f);
 
+    [Header("Overall Size")]
+    [Tooltip("Multiplier applied to all floating popup text. 1.0 = default, 1.75 = 75% larger.")]
+    [SerializeField] private float overallScaleMultiplier = 1.75f;
+
     [Header("Spawn Stacking (avoid overlapping popups)")]
     [SerializeField] private bool enableSpawnStacking = true;
     [Tooltip("If multiple popups spawn near the same screen position within this window, they will be offset.")]
@@ -376,7 +380,7 @@ public class FloatingTextSpawner : MonoBehaviour
             ft.SetFontAsset(fontAsset);
         }
         
-        ft.SetScale(scale);
+        ft.SetScale(scale * overallScaleMultiplier);
 
         if (flyToTarget != FlyToTarget.None
             && enableFlyToScoreUi
@@ -574,7 +578,7 @@ public class FloatingTextSpawner : MonoBehaviour
             ft.SetFontAsset(fontAsset);
         }
 
-        float safeScale = Mathf.Max(0.0001f, scale);
+        float safeScale = Mathf.Max(0.0001f, scale * overallScaleMultiplier);
         ft.SetScale(safeScale);
         ft.SetLifetime(lifetime);
         ft.SetFadeOutDuration(lifetime);
@@ -618,7 +622,7 @@ public class FloatingTextSpawner : MonoBehaviour
         if (colorOverride.HasValue)
             ft.SetColor(colorOverride.Value);
 
-        float safeScale = Mathf.Max(0.0001f, scale);
+        float safeScale = Mathf.Max(0.0001f, scale * overallScaleMultiplier);
         ft.SetScale(safeScale);
         ft.SetLifetime(lifetime);
         ft.SetFadeOutDuration(lifetime);

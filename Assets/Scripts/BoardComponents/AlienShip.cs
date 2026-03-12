@@ -28,6 +28,9 @@ public class AlienShip : MonoBehaviour
     [SerializeField] private List<GameObject> previousLastObjectsHit;
     [SerializeField] private ScoreManager scoreManager;
     [SerializeField] private GameRulesManager gameRulesManager;
+    [SerializeField] private GameObject[] modelPrefabs;
+    private GameObject currentModelInstance;
+    private int currentTagIndex;
 
     void Awake()
     {
@@ -56,6 +59,8 @@ public class AlienShip : MonoBehaviour
                 canvas.gameObject.SetActive(true);
                 SetText();
                 docked = true;
+                AudioManager.Instance.StopAlienShipRumble();
+                AudioManager.Instance.PlayAlienArrival(currentTagIndex);
             }
         }
 
@@ -113,6 +118,7 @@ public class AlienShip : MonoBehaviour
             {
                 inPlay = false;
                 despawning = false;
+                AudioManager.Instance.StopAlienShipRumble();
             }
         }
     }
@@ -123,7 +129,53 @@ public class AlienShip : MonoBehaviour
         hitsLeft = Random.Range(minHitsRequired, maxHitsRequired);
         secondsLeft = Random.Range(minSecondsToHit, maxSecondsToHit);
         coinsToGive = Random.Range(minCoinsToGive, maxCoinsToGive);
-        componentTagLookingFor = tagsOfComponents[Random.Range(0, 2)];
+        currentTagIndex = Random.Range(0, 2);
+        componentTagLookingFor = tagsOfComponents[currentTagIndex];
+
+        if (modelPrefabs != null && modelPrefabs.Length > 0)
+        {
+            if (currentModelInstance != null)
+            {
+                Destroy(currentModelInstance);
+                currentModelInstance = null;
+            }
+
+            GameObject prefab = modelPrefabs[Random.Range(0, modelPrefabs.Length)];
+            MeshRenderer defaultRenderer = GetComponent<MeshRenderer>();
+
+            if (prefab != null)
+            {
+                currentModelInstance = Instantiate(prefab, transform);
+                currentModelInstance.transform.localPosition = Vector3.zero;
+                currentModelInstance.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
+                currentModelInstance.transform.localScale = Vector3.one * 2f;
+
+                if (defaultRenderer != null)
+                {
+                    defaultRenderer.enabled = false;
+                }
+            }
+            else if (defaultRenderer != null)
+            {
+                defaultRenderer.enabled = true;
+            }
+        }
+        else
+        {
+            if (currentModelInstance != null)
+            {
+                Destroy(currentModelInstance);
+                currentModelInstance = null;
+            }
+
+            MeshRenderer defaultRenderer = GetComponent<MeshRenderer>();
+            if (defaultRenderer != null)
+            {
+                defaultRenderer.enabled = true;
+            }
+        }
+
+        AudioManager.Instance.StartAlienShipRumble();
     }
 
     void SetText()
@@ -139,5 +191,7 @@ public class AlienShip : MonoBehaviour
         docked = false;
         canvas.gameObject.SetActive(false);
         despawning = true;
+        AudioManager.Instance.PlayAlienDeparture();
+        AudioManager.Instance.StartAlienShipRumble();
     }
 }

@@ -68,8 +68,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: +0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
-  m_sharedMaterial: {fileID: 3371922777799870729, guid: 7eab6b46abc3b3a4ca0b8c8902121210, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
+  m_sharedMaterial: {fileID: 2764843867352267864, guid: 37e7a9be8cbd63342a985668f728a465, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -157,13 +157,6 @@ MonoBehaviour:
   flySpeed: 800
   flyDurationMin: 0.75
   flyDurationMax: 1.5
-  whooshSound:
-    Guid:
-      Data1: -154778767
-      Data2: 1103640199
-      Data3: 2135438226
-      Data4: -687054736
-    Path: event:/score_whoosh
   flyEaseInExponent: 2.6
   flyPreRiseDuration: 0.2
   flyPreRiseDistance: 10
@@ -175,6 +168,6 @@ MonoBehaviour:
   flyFadeStartNormalized: 0.75
   destroyOnFlyComplete: 1
   clampFontSize: 1
-  maxFontSize: 64
-  maxScale: 1.35
+  maxFontSize: 112
+  maxScale: 2.36
   scoreManager: {fileID: 0}

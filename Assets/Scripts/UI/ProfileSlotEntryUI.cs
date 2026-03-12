@@ -1,4 +1,5 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
+// Delete button fallback added by Cursor on 2026-03-12.
 using System.Globalization;
 using TMPro;
 using UnityEngine;
@@ -30,6 +31,16 @@ public sealed class ProfileSlotEntryUI : MonoBehaviour
         {
             selectButton.onClick.RemoveListener(OnSelectPressed);
             selectButton.onClick.AddListener(OnSelectPressed);
+        }
+
+        // Fallback: if resetButton not assigned in inspector, find Delete button by name
+        if (resetButton == null)
+        {
+            var deleteBtn = transform.Find("Delete")?.GetComponent<Button>();
+            if (deleteBtn != null)
+            {
+                resetButton = deleteBtn;
+            }
         }
 
         if (resetButton != null)

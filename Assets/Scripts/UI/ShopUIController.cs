@@ -117,7 +117,6 @@ public sealed class ShopUIController : MonoBehaviour
     private void Awake()
     {
 
-        componentUIController = FindAnyObjectByType<ComponentUIController>();
         if (rulesManager == null)
         {
 #if UNITY_2022_2_OR_NEWER

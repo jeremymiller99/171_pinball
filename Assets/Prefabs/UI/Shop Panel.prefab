@@ -466,7 +466,7 @@ MonoBehaviour:
   shopTransitionController: {fileID: 0}
   shopCanvasRoot: {fileID: 0}
   tabsController: {fileID: 0}
-  componentUIController: {fileID: 0}
+  componentUIController: {fileID: 7880029343774438804}
   replacePanelRoot: {fileID: 7307714046733031942}
   replaceSlotsContainer: {fileID: 6911415551926332014}
   replaceSlotEntryPrefab: {fileID: 1349654000483729274, guid: 8c7324a6784f14446ba23bc9d53ffad2, type: 3}

@@ -1,8 +1,9 @@
 using System;
 using UnityEngine;
 using TMPro;
+using UnityEngine.EventSystems;
 
-public class UpgradeComponents : MonoBehaviour
+public class UpgradeComponents : MonoBehaviour, IPointerEnterHandler, ISelectHandler
 {
     public BoardComponentDefinition boardComponentDefinition;
     [SerializeField] private ComponentUIController componentUIController;
@@ -26,12 +27,17 @@ public class UpgradeComponents : MonoBehaviour
     public void OnClick()
     {
         componentUIController.buyingComponentDefinition = boardComponentDefinition;
+        buyingComponentText.text = boardComponentDefinition.Description;
         uiScript.SelectComponents();
         componentUIController.Refresh();
-        Refresh();
     }
 
-    public void OnHover()
+    public void OnSelect(BaseEventData eventData)
+    {
+        buyingComponentText.text = boardComponentDefinition.Description;
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
     {
         buyingComponentText.text = boardComponentDefinition.Description;
     }

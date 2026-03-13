@@ -122,7 +122,7 @@ public class ComponentUIController : MonoBehaviour
         Vector2 moveVector = context.Get<Vector2>();
         if (selectingButtons) return;
 
-        if (moveVector.x >= movementTreshold || moveVector.y >= movementTreshold)
+        if (moveVector.x >= movementTreshold)
         {
             if (keepMoving)
             {
@@ -132,7 +132,7 @@ public class ComponentUIController : MonoBehaviour
                 Refresh();
             }
 
-        } else if (moveVector.x <= -movementTreshold || moveVector.y <= -movementTreshold)
+        } else if (moveVector.x <= -movementTreshold)
         {
             if (keepMoving)
             {
@@ -156,7 +156,8 @@ public class ComponentUIController : MonoBehaviour
         GameObject newComponent = Instantiate(buyingComponentDefinition.Prefab, chosenComponent.transform.parent);
         newComponent.transform.position = chosenComponent.transform.position;
         newComponent.transform.rotation = chosenComponent.transform.rotation;
-        newComponent.transform.localScale = chosenComponent.transform.localScale;
+        newComponent.transform.localScale = chosenComponent.startingSize;
+        newComponent.GetComponent<BoardComponent>().startingSize = chosenComponent.startingSize;
         if (newComponent.GetComponent<BoardComponent>().componentType == BoardComponentType.Bumper)
         {
             bumpers.Add(newComponent.GetComponent<BoardComponent>());

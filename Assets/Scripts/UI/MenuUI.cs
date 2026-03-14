@@ -17,7 +17,8 @@ public class MainMenuUI : MonoBehaviour
         RunSelector = 1,
         Settings = 2,
         Profile = 3,
-        Collection = 4
+        Collection = 4,
+        Credits
     }
 
     [Header("Gameplay scene names")]
@@ -49,6 +50,7 @@ public class MainMenuUI : MonoBehaviour
 
     [Tooltip("Collection screen panel.")]
     [SerializeField] private GameObject collectionPanel;
+    [SerializeField] private GameObject creditPanel;
 
     [Header("Mode Info Panel (shows challenge mode details before starting)")]
     [Tooltip("Panel that displays mode info (description, win condition) before starting.")]
@@ -626,6 +628,11 @@ public class MainMenuUI : MonoBehaviour
         SetPanel(MenuPanel.Collection);
     }
 
+    public void OpenCreditPanel()
+    {
+        SetPanel(MenuPanel.Credits);
+    }
+
     public void QuitGame()
     {
 #if UNITY_EDITOR
@@ -742,6 +749,7 @@ public class MainMenuUI : MonoBehaviour
         if (settingsPanel != null) settingsPanel.SetActive(panel == MenuPanel.Settings);
         if (profilePanel != null) profilePanel.SetActive(panel == MenuPanel.Profile);
         if (collectionPanel != null) collectionPanel.SetActive(panel == MenuPanel.Collection);
+        if (creditPanel != null) creditPanel.SetActive(panel == MenuPanel.Credits);
 
         if (modeInfoPanel != null) modeInfoPanel.SetActive(false);
     }

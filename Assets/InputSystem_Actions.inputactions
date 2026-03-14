@@ -187,6 +187,17 @@
                 },
                 {
                     "name": "",
+                    "id": "06b8023e-a843-400c-8d8b-7f527e2a5f75",
+                    "path": "<Gamepad>/rightStick/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Launch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "ed819b20-4b07-4de9-9c40-670c925eaf0d",
                     "path": "<Keyboard>/backquote",
                     "interactions": "",

@@ -9,6 +9,7 @@ public class UIScript : MonoBehaviour
     [SerializeField] private EventSystem eventSystem;
     [SerializeField] private bool selectingComponents = false;
     [SerializeField] private GameObject selectedObject;
+    [SerializeField] private string firstButtonTag = "FirstButton";
 
     void Awake()
     {
@@ -33,7 +34,13 @@ public class UIScript : MonoBehaviour
 
         eventSystem.sendNavigationEvents = true;
         selectingComponents = false;
-        Button firstButton = FindFirstObjectByType<Button>();
+        GameObject firstButtonObject = GameObject.FindWithTag(firstButtonTag);
+        Button firstButton = FindAnyObjectByType<Button>();;
+        if (firstButtonObject)
+        {
+            firstButton = firstButtonObject.GetComponent<Button>();
+        }
+
         if (!firstButton) return;
         firstButton.enabled = true;
         eventSystem.SetSelectedGameObject(firstButton.gameObject);

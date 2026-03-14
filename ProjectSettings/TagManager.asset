@@ -10,6 +10,7 @@ TagManager:
   - Bumper
   - Floor
   - Ceiling
+  - FirstButton
   layers:
   - Default
   - TransparentFX

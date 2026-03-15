@@ -32,10 +32,12 @@ public sealed class BallAntiStallAssist : MonoBehaviour
     [SerializeField] private BoardRoot boardRoot;
 
     private Rigidbody rb;
+    private ScoreManager _scoreManager;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        ResolveScoreManagerIfNeeded();
         ResolveBoardRootIfNeeded();
 
         if (rb != null)
@@ -57,6 +59,7 @@ public sealed class BallAntiStallAssist : MonoBehaviour
             return;
         }
 
+        ResolveScoreManagerIfNeeded();
         ResolveBoardRootIfNeeded();
 
         float speedMps = GetSpeedMps(rb);
@@ -76,8 +79,9 @@ public sealed class BallAntiStallAssist : MonoBehaviour
 
     private float EvaluateAssistAcceleration(float speedMps)
     {
-        float maxA = Mathf.Max(0f, maxAssistAcceleration);
-        float minA = Mathf.Max(0f, minAssistAcceleration);
+        float assistBonus = _scoreManager != null ? _scoreManager.ComponentHitAssistAccelerationBonus : 0f;
+        float maxA = Mathf.Max(0f, maxAssistAcceleration + assistBonus);
+        float minA = Mathf.Max(0f, minAssistAcceleration + assistBonus);
 
         if (maxA <= 0f && minA <= 0f)
         {
@@ -98,6 +102,20 @@ public sealed class BallAntiStallAssist : MonoBehaviour
 
         float t = Mathf.Clamp01(Mathf.InverseLerp(a, b, Mathf.Max(0f, speedMps)));
         return Mathf.Lerp(minA, maxA, t);
+    }
+
+    private void ResolveScoreManagerIfNeeded()
+    {
+        if (_scoreManager != null)
+        {
+            return;
+        }
+
+#if UNITY_2022_2_OR_NEWER
+        _scoreManager = FindFirstObjectByType<ScoreManager>();
+#else
+        _scoreManager = FindObjectOfType<ScoreManager>();
+#endif
     }
 
     private void ResolveBoardRootIfNeeded()

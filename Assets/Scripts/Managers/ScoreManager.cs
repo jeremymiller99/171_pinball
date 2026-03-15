@@ -161,7 +161,20 @@ public class ScoreManager : MonoBehaviour
     [Tooltip("Caps Time.fixedDeltaTime after applying timeScale (prevents huge physics steps at high timeScale).")]
     [Min(0.0001f)]
     [SerializeField] private float maxFixedDeltaTime = 0.1f;
-    
+
+    [Header("Component Hit Bonuses (Post-Level)")]
+    [Tooltip("After completing a level, each component hit adds this much to ball anti-stall assist acceleration (scaled back).")]
+    [SerializeField] private float componentHitAssistAccelerationIncrement = 2f;
+    [Tooltip("After completing a level, each component hit adds this much to Time.timeScale (e.g. 0.02 = +2% per hit).")]
+    [SerializeField] private float componentHitTimeScaleIncrement = 0.02f;
+    [Tooltip("After completing a level, each component hit adds this much to the score multiplier (e.g. 0.05 = +5% per hit).")]
+    [SerializeField] private float componentHitScoreIncrement = 0.05f;
+
+    private float _componentHitAssistAccelerationBonus;
+    private float _componentHitTimeScaleBonus;
+    private float _componentHitScoreBonus;
+    private bool _hasCompletedLevelThisRound;
+
     private int compTriggered = 35;
     private int framesSinceLastScore = 0;
     private const int FramesToResetAudio = 200;
@@ -246,6 +259,11 @@ public class ScoreManager : MonoBehaviour
     public float LiveLevelProgress => Mathf.Max(0f, LiveRoundTotal - levelProgressOffset);
 
     /// <summary>
+    /// Bonus added to ball anti-stall max assist acceleration after level complete (each component hit adds more).
+    /// </summary>
+    public float ComponentHitAssistAccelerationBonus => _componentHitAssistAccelerationBonus;
+
+    /// <summary>
     /// Additional multiplier applied on top of tier-based SpeedMultiplier when writing Time.timeScale.
     /// </summary>
     public float ExternalTimeScaleMultiplier => externalTimeScaleMultiplier;
@@ -303,8 +321,27 @@ public class ScoreManager : MonoBehaviour
         return rawAmount * pointMultiplier * pointsModifierMultiplier;
     }
 
+    /// <summary>
+    /// Called when the ball hits a scoring component. After completing a level this round, each hit adds to game speed.
+    /// </summary>
+    public void RegisterComponentHit()
+    {
+        if (_hasCompletedLevelThisRound)
+        {
+            _componentHitAssistAccelerationBonus += componentHitAssistAccelerationIncrement;
+            _componentHitTimeScaleBonus += componentHitTimeScaleIncrement;
+            _componentHitScoreBonus += componentHitScoreIncrement;
+            float newTimeScale = baselineTimeScale + _componentHitTimeScaleBonus;
+            Debug.Log($"Speed up! {newTimeScale:0.##}x, assist +{_componentHitAssistAccelerationBonus:0.##}");
+            ApplySpeedFromTier(force: true);
+        }
+    }
+
     public void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)
     {
+        RegisterComponentHit();
+        float componentScoreMult = _hasCompletedLevelThisRound ? (1f + _componentHitScoreBonus) : 1f;
+        amount *= componentScoreMult;
         switch(typeOfScore)
         {
             case TypeOfScore.points:
@@ -618,6 +655,9 @@ public class ScoreManager : MonoBehaviour
         ResetAudioPitch();
         points = 0f;
         mult = 1f;
+        _componentHitAssistAccelerationBonus = 0f;
+        _componentHitTimeScaleBonus = 0f;
+        _componentHitScoreBonus = 0f;
 
         UpdateGoalTierAndApplySpeed();
         RefreshScoreUI();
@@ -636,12 +676,27 @@ public class ScoreManager : MonoBehaviour
         ResetAudioPitch();
         mult = 1f;
         _goalTier = 0;
+        _componentHitAssistAccelerationBonus = 0f;
+        _componentHitTimeScaleBonus = 0f;
+        _componentHitScoreBonus = 0f;
+        _hasCompletedLevelThisRound = false;
 
         // Reset game speed back to baseline at the start of each round.
         ApplySpeedFromTier(force: true);
 
         RefreshScoreUI();
         ScoreChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Resets component-hit bonuses and game speed to baseline. Call when returning from shop.
+    /// </summary>
+    public void ResetGameSpeedOnShopReturn()
+    {
+        _componentHitAssistAccelerationBonus = 0f;
+        _componentHitTimeScaleBonus = 0f;
+        _componentHitScoreBonus = 0f;
+        ApplySpeedFromTier(force: true);
     }
 
     /// <summary>
@@ -658,6 +713,7 @@ public class ScoreManager : MonoBehaviour
         }
 
         levelProgressOffset = Mathf.Max(0f, levelProgressOffset + a);
+        _hasCompletedLevelThisRound = true;
         UpdateGoalTierAndApplySpeed();
         RefreshScoreUI();
         ScoreChanged?.Invoke();
@@ -947,12 +1003,13 @@ public class ScoreManager : MonoBehaviour
             return;
         }
 
-        // Target is baseline * tier multiplier.
+        // Target is baseline * tier multiplier + component-hit time scale bonus.
         // Slow-mo removed: never allow any multiplier to reduce speed below baseline.
         float requestMult = Mathf.Max(1f, _timeScaleRequestMin);
         float extMult = Mathf.Max(1f, externalTimeScaleMultiplier);
         float modTimeScale = Mathf.Max(0.1f, modifierTimeScaleMultiplier);
-        float targetScale = _baseTimeScale * Mathf.Max(0f, SpeedMultiplier) * extMult * requestMult * modTimeScale;
+        float effectiveBase = _baseTimeScale + _componentHitTimeScaleBonus;
+        float targetScale = effectiveBase * Mathf.Max(0f, SpeedMultiplier) * extMult * requestMult * modTimeScale;
         if (maxTimeScale > 0f)
         {
             targetScale = Mathf.Min(targetScale, maxTimeScale);

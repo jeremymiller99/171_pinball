@@ -1515,6 +1515,9 @@ public class GameRulesManager : MonoBehaviour
             return;
         }
 
+        ResolveScoreManager(logIfMissing: false);
+        scoreManager?.ResetGameSpeedOnShopReturn();
+
         SetShopOpen(false);
         shopOpen = false;
         ShopClosed?.Invoke();

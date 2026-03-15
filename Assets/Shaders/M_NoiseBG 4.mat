@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_NoiseBG 1
+  m_Name: M_NoiseBG 4
   m_Shader: {fileID: 4800000, guid: ad722ea69551b664bb2955e224591137, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -49,36 +49,36 @@ Material:
     - _CoordMode: 0
     - _EmissionStrength: 1
     - _Gain: 0.5
-    - _Lacunarity: 2
+    - _Lacunarity: 3.52
     - _Metallic: 0
-    - _Octaves: 4
+    - _Octaves: 5
     - _PaletteCount: 4
-    - _Scale: 80
+    - _Scale: 41.2
     - _ScrollSpeed: 0.0009
     - _Seed: 24680
     - _Smoothness: 0.5
-    - _Speed: 0.42
-    - _SpinDegPerSec: 1
+    - _Speed: 0.2
+    - _SpinDegPerSec: 0.33
     - _SpinEnabled: 1
-    - _SwirlDegrees: 250
+    - _SwirlDegrees: 119.4
     - _SwirlEnabled: 1
-    - _SwirlFalloff: 1.6
+    - _SwirlFalloff: 1
     - _T: 0
     - _UseObjectSpace: 0
     - _UsePalette: 1
     - _WarpAmp: 18
     - _WarpEnabled: 1
     - _WarpOctaves: 3
-    - _WarpScale: 141.3
+    - _WarpScale: 55
     - _WarpSeed: 13579
     - _WorldCoordScale: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Palette0: {r: 1, g: 0.82157975, b: 0, a: 1}
-    - _Palette1: {r: 0.4056604, g: 0.04970922, b: 0.024875412, a: 1}
-    - _Palette2: {r: 0.6, g: 0.10196079, b: 0.019607844, a: 1}
-    - _Palette3: {r: 0.9490197, g: 0.3803922, b: 0.050980397, a: 1}
+    - _Palette0: {r: 0.11372549, g: 0.101960786, b: 0.19215687, a: 1}
+    - _Palette1: {r: 0.3019608, g: 0.1764706, b: 0.32156864, a: 1}
+    - _Palette2: {r: 0.6039216, g: 0.29803923, b: 0.58431375, a: 1}
+    - _Palette3: {r: 0.9411765, g: 0.54901963, b: 0.68235296, a: 1}
     - _Resolution: {r: 512, g: 288, b: 0, a: 0}
     - _ScrollDir: {r: 0.35, g: 1, b: 0, a: 0}
     - _Tiling: {r: 1, g: 1, b: 0, a: 0}

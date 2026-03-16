@@ -72,17 +72,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
+  bumperCollider: {fileID: 0}
   camShake: {fileID: 0}
   bounceForce: 25
   shakeDuration: 0.22
   shakeMagnitude: 0.16
-  hitSound:
-    Guid:
-      Data1: 52175844
-      Data2: 1280125249
-      Data3: -157741152
-      Data4: 1337080504
-    Path: event:/collide_mult
 --- !u!114 &5209088111457011690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,6 +115,13 @@ MonoBehaviour:
   popUpDurationSeconds: 0.06
   popDownDurationSeconds: 0.08
   minTriggerIntervalSeconds: 0.04
+  hitSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!114 &520263348088857629
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,10 +136,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IComponent
   typeOfScore: 1
   amountToScore: 0.1
-  leftObject: {fileID: 0}
-  rightObject: {fileID: 0}
-  upObject: {fileID: 0}
-  downObject: {fileID: 0}
+  componentType: 2
   components: []
   isConfirmed: 0
   maxPulseScale: 0
@@ -149,9 +147,10 @@ MonoBehaviour:
   scoreManager: {fileID: 0}
   useSelectionOutline: 1
   selectionOutlineMode: 1
+  defaultOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWidth: 6
   confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  selectionOutlineWidth: 8
 --- !u!54 &-8025225607555112495
 Rigidbody:
   m_ObjectHideFlags: 0

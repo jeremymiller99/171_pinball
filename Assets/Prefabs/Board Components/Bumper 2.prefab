@@ -275,6 +275,13 @@ MonoBehaviour:
   popUpDurationSeconds: 0.06
   popDownDurationSeconds: 0.08
   minTriggerIntervalSeconds: 0.04
+  hitSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!114 &4557565589446098188
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289,7 +296,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IComponent
   typeOfScore: 0
   amountToScore: 5
-  componentType: 0
+  componentType: 8
   components: []
   isConfirmed: 0
   maxPulseScale: 1.25

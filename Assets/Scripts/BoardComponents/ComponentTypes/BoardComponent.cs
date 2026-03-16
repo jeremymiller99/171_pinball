@@ -153,7 +153,7 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
         {
             ApplyDefaultOutlineSettings(portalExitOutline);
         }
-        portalExitOutline.enabled = isEnabled;
+        portalExitOutline.enabled = true;
     }
 
     private void ApplyDefaultOutlineSettings(Outline outline)

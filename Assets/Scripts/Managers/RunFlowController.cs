@@ -225,9 +225,8 @@ public sealed class RunFlowController : MonoBehaviour
         BoardDefinition next = session.GetNextBoard();
         if (next == null)
         {
-            // Run complete. Show Win Screen.
+            // Run complete. Show Win Screen. Session is not reset so user can choose Endless Mode.
             ProfileService.RecordRunCompleted();
-            session.ResetSession();
 
             yield return StartCoroutine(CloseShopTransitionAndWait());
 

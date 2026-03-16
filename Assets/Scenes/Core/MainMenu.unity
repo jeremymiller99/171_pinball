@@ -2092,13 +2092,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuUI
   gameplayCoreSceneName: GameplayCore
   quickRunBoards:
-  - {fileID: 11400000, guid: 6c3ed43778e1f254490b8b449bd4076a, type: 2}
   - {fileID: 11400000, guid: 94aa8e7624e37f943a9d60f03d1c0ab7, type: 2}
   challengeModes:
-  - {fileID: 11400000, guid: b2349c469a3ecdf4c93edc8b993a3d5e, type: 2}
   - {fileID: 11400000, guid: c6c36835797ddde498dc8b023c3108df, type: 2}
   challengeBoards:
-  - {fileID: 11400000, guid: 6c3ed43778e1f254490b8b449bd4076a, type: 2}
   - {fileID: 11400000, guid: 94aa8e7624e37f943a9d60f03d1c0ab7, type: 2}
   mainMenuPanel: {fileID: 622060392}
   runSelectorPanel: {fileID: 1147841084}

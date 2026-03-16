@@ -26,6 +26,13 @@ public sealed class GameSession : MonoBehaviour
     [Header("Runtime (debug)")]
     [SerializeField] private StartType startType = StartType.None;
     [SerializeField] private int seed;
+    [SerializeField] private bool endlessMode;
+
+    /// <summary>
+    /// When true, the run never ends; GetNextBoard returns the current board when at the last one.
+    /// </summary>
+    public bool IsEndlessMode => endlessMode;
+
     [SerializeField] private RunPlan activeRunPlan = new RunPlan();
     [SerializeField] private int currentBoardIndex;
 
@@ -146,8 +153,23 @@ public sealed class GameSession : MonoBehaviour
     {
         if (activeRunPlan?.boards == null) return null;
         int next = currentBoardIndex + 1;
-        if (next < 0 || next >= activeRunPlan.boards.Count) return null;
+        if (next < 0 || next >= activeRunPlan.boards.Count)
+        {
+            if (endlessMode && currentBoardIndex >= 0 && currentBoardIndex < activeRunPlan.boards.Count)
+            {
+                return activeRunPlan.boards[currentBoardIndex];
+            }
+            return null;
+        }
         return activeRunPlan.boards[next];
+    }
+
+    /// <summary>
+    /// Enables endless mode so the run continues indefinitely (leveling until you die).
+    /// </summary>
+    public void EnterEndlessMode()
+    {
+        endlessMode = true;
     }
 
     public bool AdvanceToNextBoard()
@@ -305,6 +327,7 @@ public sealed class GameSession : MonoBehaviour
     {
         startType = StartType.None;
         seed = 0;
+        endlessMode = false;
         activeRunPlan = new RunPlan();
         currentBoardIndex = 0;
         activeChallenge = null;

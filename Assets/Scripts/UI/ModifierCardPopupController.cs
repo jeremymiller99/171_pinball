@@ -10,7 +10,7 @@ public sealed class ModifierCardPopupController : MonoBehaviour
     private const string PanelObjectName = "Modifier Card Panel";
 
     [Header("Visibility")]
-    [SerializeField] private bool showOnNormalRounds = true;
+    [SerializeField] private bool showOnNormalRounds = false;
     [SerializeField] private bool showOnAngelRounds = true;
     [SerializeField] private bool showOnDevilRounds = true;
 

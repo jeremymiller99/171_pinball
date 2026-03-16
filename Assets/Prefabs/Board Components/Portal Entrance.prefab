@@ -106,9 +106,10 @@ MonoBehaviour:
   scoreManager: {fileID: 0}
   useSelectionOutline: 1
   selectionOutlineMode: 1
+  defaultOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWidth: 6
   confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  selectionOutlineWidth: 8
 --- !u!114 &-5120152879258555716
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -22,7 +22,7 @@ public class UIScript : MonoBehaviour
         {
             selectedObject = eventSystem.currentSelectedGameObject;
             return;
-        } 
+        }
         if (!selectingComponents && (Gamepad.all.Count != 0 && Gamepad.current.wasUpdatedThisFrame || Keyboard.current.wasUpdatedThisFrame))
         {
             SelectButton();
@@ -35,10 +35,11 @@ public class UIScript : MonoBehaviour
         eventSystem.sendNavigationEvents = true;
         selectingComponents = false;
         GameObject firstButtonObject = GameObject.FindWithTag(firstButtonTag);
-        Button firstButton = FindAnyObjectByType<Button>();;
+        Button firstButton = FindAnyObjectByType<Button>();
         if (firstButtonObject)
         {
             firstButton = firstButtonObject.GetComponent<Button>();
+            Debug.Log(firstButton);
         }
 
         if (!firstButton) return;

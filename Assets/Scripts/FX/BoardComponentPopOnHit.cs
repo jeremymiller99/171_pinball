@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FMODUnity;
 
 public class BoardComponentPopOnHit : MonoBehaviour
 {
@@ -22,6 +23,10 @@ public class BoardComponentPopOnHit : MonoBehaviour
     [SerializeField] private float popUpDurationSeconds = DefaultPopUpDurationSeconds;
     [SerializeField] private float popDownDurationSeconds = DefaultPopDownDurationSeconds;
     [SerializeField] private float minTriggerIntervalSeconds = DefaultMinTriggerIntervalSeconds;
+
+    [Header("Sound")]
+    [Tooltip("Optional: plays when ball hits (e.g. target/rollover sound).")]
+    [SerializeField] private EventReference hitSound;
 
     private Transform[] popTargets;
     private Vector3[] baseScales;
@@ -136,6 +141,11 @@ public class BoardComponentPopOnHit : MonoBehaviour
         }
 
         lastTriggerTimeSeconds = Time.time;
+
+        if (!hitSound.IsNull)
+        {
+            RuntimeManager.PlayOneShot(hitSound, transform.position);
+        }
 
         if (popTargets == null || baseScales == null || popTargets.Length != baseScales.Length)
         {

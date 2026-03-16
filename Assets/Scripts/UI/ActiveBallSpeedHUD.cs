@@ -89,9 +89,9 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
 
     // Meter baseline state (so we can anchor one end while scaling).
     private Vector3 _meterBaseLocalScale;
-    private Vector3 _meterBaseLocalPos;
     private float _meterMeshUnitSize = 1f; // mesh length along axis at scale = 1
     private bool _meterInit;
+    private Transform _meterAnchor; // pivot parent at bar's "bottom" - prevents drift
     private float _meterUnitsSmoothed;
     private Renderer _meterRenderer;
     private MaterialPropertyBlock _meterMPB;
@@ -147,9 +147,23 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
 
         _meterInit = true;
         _meterBaseLocalScale = meterFill.localScale;
-        _meterBaseLocalPos = meterFill.localPosition;
         _meterMeshUnitSize = Mathf.Max(0.0001f, GetMeshUnitSizeAlongAxis(meterFill, meterAxis));
         _meterUnitsSmoothed = 0f;
+
+        // Pivot-wrapper: create anchor at bar's "bottom", reparent meter fill so it scales from that end without drift.
+        Vector3 axisDir = GetLocalAxisDir(meterAxis) * (meterPositiveDirection ? 1f : -1f);
+        float baseScaleAxis = GetAxisValue(_meterBaseLocalScale, meterAxis);
+        float baseLen = _meterMeshUnitSize * baseScaleAxis;
+        Vector3 worldAxisDir = meterFill.TransformDirection(axisDir);
+        Vector3 anchorWorldPos = meterFill.position - worldAxisDir * (baseLen * 0.5f);
+
+        var anchorGo = new GameObject(meterFill.name + "_Anchor");
+        anchorGo.transform.SetParent(meterFill.parent, worldPositionStays: false);
+        anchorGo.transform.position = anchorWorldPos;
+        anchorGo.transform.rotation = meterFill.rotation;
+        _meterAnchor = anchorGo.transform;
+
+        meterFill.SetParent(_meterAnchor, worldPositionStays: true);
 
         // Cache renderer + baseline alpha so we can tint via MaterialPropertyBlock (no material instancing).
         _meterRenderer = meterFill.GetComponent<Renderer>();
@@ -257,19 +271,15 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         // Convert desired length (units) into a scale along the axis, based on mesh size at scale=1.
         float targetScaleAxis = _meterUnitsSmoothed / _meterMeshUnitSize;
 
-        // Anchor the "bottom" (negative end) by shifting position by half the length delta.
+        // Pivot-wrapper: anchor is at bar's bottom; meter fill's local position keeps bottom fixed.
         Vector3 axisDir = GetLocalAxisDir(meterAxis) * (meterPositiveDirection ? 1f : -1f);
-
-        float baseScaleAxis = GetAxisValue(_meterBaseLocalScale, meterAxis);
-        float baseLen = _meterMeshUnitSize * baseScaleAxis;
         float newLen = _meterMeshUnitSize * targetScaleAxis;
-        float deltaLen = newLen - baseLen;
 
         Vector3 newScale = _meterBaseLocalScale;
         newScale = SetAxisValue(newScale, meterAxis, targetScaleAxis);
 
         meterFill.localScale = newScale;
-        meterFill.localPosition = _meterBaseLocalPos + axisDir * (deltaLen * 0.5f);
+        meterFill.localPosition = axisDir * (newLen * 0.5f);
 
         // Drive fill color based on current fill percent (use smoothed units to match visuals).
         float fill01 = meterMaxUnits > 0.0001f ? Mathf.Clamp01(_meterUnitsSmoothed / meterMaxUnits) : 0f;

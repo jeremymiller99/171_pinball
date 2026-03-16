@@ -273,6 +273,14 @@ public class ScoreManager : MonoBehaviour
     /// </summary>
     public float ExternalScoreAwardMultiplier => externalScoreAwardMultiplier;
 
+    /// <summary>
+    /// Sets the external score award multiplier (e.g. 1.5 for +50% when all drop targets down).
+    /// </summary>
+    public void SetExternalScoreAwardMultiplier(float multiplier)
+    {
+        externalScoreAwardMultiplier = Mathf.Max(0f, multiplier);
+    }
+
     // Multiple systems can request slow-mo. Effective request is the MIN of active requests.
     private readonly Dictionary<int, float> _timeScaleRequestBySourceId = new Dictionary<int, float>();
     private float _timeScaleRequestMin = 1f;
@@ -345,14 +353,14 @@ public class ScoreManager : MonoBehaviour
         switch(typeOfScore)
         {
             case TypeOfScore.points:
-                AddPoints(amount * pointMultiplier * pointsModifierMultiplier, pos);
+                AddPoints(amount * pointMultiplier * pointsModifierMultiplier * externalScoreAwardMultiplier, pos);
                 break;
             case TypeOfScore.mult:
                 AudioManager.Instance.PlayMultHit(new Vector3(0f, 0f, 0f), 0);
-                AddMult(amount * multMultiplier * multModifierMultiplier, pos);
+                AddMult(amount * multMultiplier * multModifierMultiplier * externalScoreAwardMultiplier, pos);
                 break;
             case TypeOfScore.coins:
-                AddCoins(Mathf.RoundToInt(amount * coinMultiplier * coinModifierMultiplier), pos);
+                AddCoins(Mathf.RoundToInt(amount * coinMultiplier * coinModifierMultiplier * externalScoreAwardMultiplier), pos);
                 break;
         }
     }

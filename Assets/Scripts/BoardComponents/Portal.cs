@@ -1,5 +1,6 @@
 // Generated with Cursor AI (GPT-5.2), by OpenAI, 2026-02-17.
 // Change: add configurable portal exit speed boost.
+// Change: fixed spawn position and predictable exit velocity (entry direction/speed ignored).
 using UnityEngine;
 public class Portal : MonoBehaviour
 {
@@ -8,19 +9,19 @@ public class Portal : MonoBehaviour
     [SerializeField] private bool canTeleportFromThisPortal = true;
 
     [Header("Settings")]
-    [Tooltip("How far in front of the exit portal to place the object after teleport.")]
-    public float exitOffset = 1f;
+    [Tooltip("How far in front of the exit portal to place the object after teleport. Ball always spawns at exit center + this offset (entry position ignored).")]
+    public float exitOffset = 0.5f;
 
-    [Tooltip("Maximum random angle (in degrees) to deviate from the exact forward direction of the exit portal.")]
-    public float exitRandomAngle = 5f;
+    [Tooltip("Maximum random angle (in degrees) to deviate from the exact forward direction. Use 0 for fully predictable exit.")]
+    public float exitRandomAngle = 0f;
 
-    [Tooltip("If true, use this fixed exit speed instead of preserving the incoming speed.")]
-    public bool overrideExitSpeed = false;
+    [Tooltip("If true, use fixed exit speed (entry speed ignored). Recommended for predictable behavior.")]
+    public bool overrideExitSpeed = true;
 
     [Tooltip("Speed to use when overrideExitSpeed is true.")]
     public float exitSpeed = 10f;
 
-    [Tooltip("Additional speed added when exiting the portal.")]
+    [Tooltip("Additional speed added when overrideExitSpeed is false (entry speed + this). Ignored when override is true.")]
     [SerializeField] private float extraExitSpeed = 5f;
 
     [Header("FX")]
@@ -65,48 +66,35 @@ public class Portal : MonoBehaviour
         if (Time.time - traveller.lastTeleportTime < traveller.teleportCooldown)
             return;
 
-        // --- POSITION ---
-        Vector3 localPos = transform.InverseTransformPoint(other.transform.position);
-        Vector3 newWorldPos = portalExit.TransformPoint(localPos);
-        newWorldPos += portalExit.forward * exitOffset;
+        // --- POSITION: Fixed spawn at exit center (entry position ignored for predictability) ---
+        float spawnDist = exitOffset > 0.001f ? exitOffset : 0.5f;
+        Vector3 newWorldPos = portalExit.position + portalExit.forward * spawnDist;
         if (other.transform.position != newWorldPos)
         {
             AudioManager.Instance.PlayPortal(transform.position);
         }
         other.transform.position = newWorldPos;
 
-        // --- ROTATION (optional  keeps orientation relative to portals) ---
+        // --- ROTATION: Align with exit portal ---
         Quaternion portalDeltaRot = portalExit.rotation * Quaternion.Inverse(transform.rotation);
         other.transform.rotation = portalDeltaRot * other.transform.rotation;
 
-        // --- VELOCITY: ALWAYS SHOOT FORWARD WITH SMALL RANDOM SPREAD ---
-        // Get current speed (magnitude) to preserve momentum
-        float currentSpeed = rb.linearVelocity.magnitude;
-        if (overrideExitSpeed)
+        // --- VELOCITY: Fixed direction and speed (entry direction and speed ignored) ---
+        float finalSpeed = overrideExitSpeed ? exitSpeed : Mathf.Max(0f, rb.linearVelocity.magnitude + extraExitSpeed);
+
+        // Direction: straight out of exit portal, with optional random spread
+        Vector3 exitDir = portalExit.forward;
+        if (exitRandomAngle > 0.001f)
         {
-            currentSpeed = exitSpeed;
+            float yaw = Random.Range(-exitRandomAngle, exitRandomAngle);
+            exitDir = Quaternion.Euler(0f, yaw, 0f) * exitDir;
         }
-
-        currentSpeed = Mathf.Max(0f, currentSpeed + extraExitSpeed);
-
-        // Base direction is straight out of the exit portal
-        Vector3 baseDir = portalExit.forward;
-
-        // Random small spread in local yaw/pitch, but always generally forward
-        float yaw = Random.Range(-exitRandomAngle, exitRandomAngle);     // left/right
-
-        // Apply the random yaw/pitch around the exit portal's local axes
-        Quaternion spreadRot = Quaternion.Euler(0f, yaw, 0f);
-        Vector3 exitDir = spreadRot * baseDir;
         exitDir.Normalize();
 
-        // Final velocity
-        rb.linearVelocity = exitDir * currentSpeed;
+        rb.linearVelocity = exitDir * finalSpeed;
 
-        // Optional: still rotate angular velocity to match portal orientation
-        Vector3 localAngularVel = transform.InverseTransformDirection(rb.angularVelocity);
-        Vector3 newWorldAngularVel = portalExit.TransformDirection(localAngularVel);
-        rb.angularVelocity = newWorldAngularVel;
+        // Zero angular velocity for predictable trajectory (no spin from entry)
+        rb.angularVelocity = Vector3.zero;
 
         traveller.lastTeleportTime = Time.time;
 

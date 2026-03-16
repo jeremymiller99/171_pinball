@@ -100,7 +100,7 @@ GameObject:
   - component: {fileID: 3231450140396049377}
   - component: {fileID: 8064486034908173218}
   - component: {fileID: 5885484091617713942}
-  - component: {fileID: 2280458416419738261}
+  - component: {fileID: 6842937984643501220}
   m_Layer: 0
   m_Name: KickerIsosceles
   m_TagString: Untagged
@@ -180,14 +180,14 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &2280458416419738261
+--- !u!64 &6842937984643501220
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3839525879348735739}
-  m_Material: {fileID: 13400000, guid: 9d296fb8a57060d459366db2931a8336, type: 2}
+  m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -199,7 +199,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -2715974854309983004, guid: d0b88cf01f372f34eaca1ccbefb9ac8f, type: 3}
 --- !u!1 &4978443779249624864
@@ -252,6 +252,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
+  bumperCollider: {fileID: 0}
   camShake: {fileID: 0}
   bounceForce: 50
   shakeDuration: 0.22
@@ -299,9 +300,10 @@ MonoBehaviour:
   scoreManager: {fileID: 0}
   useSelectionOutline: 1
   selectionOutlineMode: 1
+  defaultOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWidth: 6
   confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  outlineWidth: 6
 --- !u!54 &7374129119119500375
 Rigidbody:
   m_ObjectHideFlags: 0

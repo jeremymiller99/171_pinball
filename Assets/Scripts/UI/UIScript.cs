@@ -39,7 +39,6 @@ public class UIScript : MonoBehaviour
         if (firstButtonObject)
         {
             firstButton = firstButtonObject.GetComponent<Button>();
-            Debug.Log(firstButton);
         }
 
         if (!firstButton) return;

@@ -340,7 +340,6 @@ public class ScoreManager : MonoBehaviour
             _componentHitTimeScaleBonus += componentHitTimeScaleIncrement;
             _componentHitScoreBonus += componentHitScoreIncrement;
             float newTimeScale = baselineTimeScale + _componentHitTimeScaleBonus;
-            Debug.Log($"Speed up! {newTimeScale:0.##}x, assist +{_componentHitAssistAccelerationBonus:0.##}");
             ApplySpeedFromTier(force: true);
         }
     }

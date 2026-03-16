@@ -183,7 +183,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IComponent
   typeOfScore: 0
   amountToScore: 2
-  componentType: 0
+  componentType: 5
   components: []
   isConfirmed: 0
   maxPulseScale: 1.25

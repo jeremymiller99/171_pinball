@@ -186,6 +186,21 @@ public class FloatingTextSpawner : MonoBehaviour
     }
 
     /// <summary>
+    /// Spawns floating text at the given world position with a custom font (e.g. Jersey 10).
+    /// </summary>
+    /// <param name="worldPosition">World position to spawn the text.</param>
+    /// <param name="text">The text to display.</param>
+    /// <param name="fontAsset">Font to use. If null, uses points font.</param>
+    /// <param name="scale">Scale multiplier for the popup. Default 0.85.</param>
+    /// <param name="anchorOffset">Extra offset in canvas units (e.g. (0, -100) to move down 100 px).</param>
+    public void SpawnText(Vector3 worldPosition, string text, TMP_FontAsset fontAsset, float scale = 0.85f,
+        Vector2 anchorOffset = default)
+    {
+        TMP_FontAsset font = fontAsset != null ? fontAsset : pointsFontAsset;
+        SpawnTextInternal(worldPosition, text, font, scale, FlyToTarget.None, null, anchorOffset);
+    }
+
+    /// <summary>
     /// Spawns floating text for points using the points font asset, size based on value.
     /// </summary>
     public void SpawnPointsText(Vector3 worldPosition, string text, float pointsValue)
@@ -198,10 +213,18 @@ public class FloatingTextSpawner : MonoBehaviour
     /// </summary>
     public void SpawnPointsText(Vector3 worldPosition, string text, float pointsValue, Action onArrive)
     {
+        SpawnPointsText(worldPosition, text, pointsValue, onArrive, Vector2.zero);
+    }
+
+    /// <summary>
+    /// Spawns points text with optional canvas offset.
+    /// </summary>
+    public void SpawnPointsText(Vector3 worldPosition, string text, float pointsValue, Action onArrive, Vector2 anchorOffset)
+    {
         string display = BuildCompactFromTemplate(text, pointsValue);
         float t = Mathf.Clamp01(pointsValue / pointsMaxValue);
         float scale = Mathf.Lerp(pointsScaleMin, pointsScaleMax, t);
-        SpawnTextInternal(worldPosition, display, pointsFontAsset, scale, FlyToTarget.Points, onArrive);
+        SpawnTextInternal(worldPosition, display, pointsFontAsset, scale, FlyToTarget.Points, onArrive, anchorOffset);
     }
 
     /// <summary>
@@ -350,7 +373,8 @@ public class FloatingTextSpawner : MonoBehaviour
         TMP_FontAsset fontAsset,
         float scale,
         FlyToTarget flyToTarget,
-        Action onArrive = null)
+        Action onArrive = null,
+        Vector2 anchorOffset = default)
     {
         if (floatingTextPrefab == null || canvas == null) return;
 
@@ -372,7 +396,7 @@ public class FloatingTextSpawner : MonoBehaviour
             out Vector2 anchoredPos);
 
         Vector2 stacked = GetSpawnStackOffset(anchoredPos);
-        rt.anchoredPosition = anchoredPos + spawnOffset + stacked;
+        rt.anchoredPosition = anchoredPos + spawnOffset + stacked + anchorOffset;
         ft.SetText(MaybeCompact(text));
         
         if (fontAsset != null)

@@ -347,20 +347,28 @@ public class ScoreManager : MonoBehaviour
 
     public void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)
     {
+        AddScore(amount, typeOfScore, pos, Vector2.zero);
+    }
+
+    public void AddScore(float amount, TypeOfScore typeOfScore, Transform pos, Vector2 popupAnchorOffset)
+    {
         RegisterComponentHit();
         float componentScoreMult = _hasCompletedLevelThisRound ? (1f + _componentHitScoreBonus) : 1f;
         amount *= componentScoreMult;
         switch(typeOfScore)
         {
             case TypeOfScore.points:
-                AddPoints(amount * pointMultiplier * pointsModifierMultiplier * externalScoreAwardMultiplier, pos);
+                AddPoints(amount * pointMultiplier * pointsModifierMultiplier * externalScoreAwardMultiplier, pos,
+                    popupAnchorOffset);
                 break;
             case TypeOfScore.mult:
                 AudioManager.Instance.PlayMultHit(new Vector3(0f, 0f, 0f), 0);
                 AddMult(amount * multMultiplier * multModifierMultiplier * externalScoreAwardMultiplier, pos);
                 break;
             case TypeOfScore.coins:
-                AddCoins(Mathf.RoundToInt(amount * coinMultiplier * coinModifierMultiplier * externalScoreAwardMultiplier), pos);
+                AddCoins(
+                    Mathf.RoundToInt(amount * coinMultiplier * coinModifierMultiplier *
+                        externalScoreAwardMultiplier), pos);
                 break;
         }
     }
@@ -492,7 +500,7 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    private void AddPoints(float applied, Transform pos)
+    private void AddPoints(float applied, Transform pos, Vector2 popupAnchorOffset = default)
     {
         if (scoringLocked || applied == 0) return;
 
@@ -500,7 +508,7 @@ public class ScoreManager : MonoBehaviour
 
         points += applied;
         UpdateStoredScores();
-        floatingTextSpawner.SpawnPointsText(pos.position, "+" + applied, applied);
+        floatingTextSpawner.SpawnPointsText(pos.position, "+" + applied, applied, null, popupAnchorOffset);
 
         // Trigger camera shake scaled by the points earned (only for positive scores).
         if (applied > 0f)

@@ -1020,11 +1020,11 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   scoringLocked: 0
-  enableGoalTierScaling: 1
+  enableGoalTierScaling: 0
   speedIncreasePerGoalTier: 0.1
   scoreIncreasePerGoalTier: 0.5
   applySpeedToTimeScale: 1
-  baselineTimeScale: 1.05
+  baselineTimeScale: 1.1
   externalTimeScaleMultiplier: 1
   externalScoreAwardMultiplier: 1
   maxTimeScale: 100

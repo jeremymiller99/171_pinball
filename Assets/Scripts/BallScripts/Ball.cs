@@ -42,7 +42,7 @@ public class Ball : MonoBehaviour
     virtual protected void OnCollisionEnter(Collision collision)
     {
         lastObjectHit = collision.gameObject;
-        BoardComponent[] components = collision.collider.GetComponents<BoardComponent>();
+        BoardComponent[] components = GetBoardComponentsForScoring(collision.collider);
         if (components.Length > 0 && HapticManager.Instance != null)
         {
             HapticManager.Instance.PlayCollisionHaptic(true);
@@ -74,7 +74,7 @@ public class Ball : MonoBehaviour
     void OnTriggerEnter(Collider collider)
     {
         lastObjectHit = collider.gameObject;
-        BoardComponent[] components = collider.GetComponents<BoardComponent>();
+        BoardComponent[] components = GetBoardComponentsForScoring(collider);
         if (components.Length > 0 && HapticManager.Instance != null)
         {
             HapticManager.Instance.PlayCollisionHaptic(true);
@@ -107,9 +107,22 @@ public class Ball : MonoBehaviour
         return component != null;
     }
 
+    /// <summary>
+    /// Gets BoardComponents for scoring. Checks the collider's GameObject first, then parent hierarchy
+    /// (for bumpers/targets whose collider is on a child, e.g. visual mesh).
+    /// </summary>
+    private static BoardComponent[] GetBoardComponentsForScoring(Collider collider)
+    {
+        BoardComponent[] components = collider.GetComponents<BoardComponent>();
+        if (components.Length > 0)
+            return components;
+        BoardComponent parentComponent = collider.GetComponentInParent<BoardComponent>();
+        return parentComponent != null ? new[] { parentComponent } : System.Array.Empty<BoardComponent>();
+    }
+
     protected void HandleParticles(Collision collision)
     {
-        if (!collision.collider.GetComponent<BoardComponent>()) return;
+        if (GetBoardComponentsForScoring(collision.collider).Length == 0) return;
         GameObject emitterObj = pool.Pop();
         ParticleSystem emitter = emitterObj.GetComponent<ParticleSystem>();
         emitter.transform.position = transform.position;

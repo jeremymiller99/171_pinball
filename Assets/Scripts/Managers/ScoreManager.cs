@@ -122,7 +122,7 @@ public class ScoreManager : MonoBehaviour
     [Header("Round Goal Tier Scaling")]
     [Tooltip("If enabled: each time LiveRoundTotal crosses another multiple of Goal (Goal * N), " +
              "the game speeds up and points awarded are increased additively.")]
-    [SerializeField] private bool enableGoalTierScaling = true;
+    [SerializeField] private bool enableGoalTierScaling = false;
 
     [Tooltip("Game speed increases by this amount per goal tier (additive). Example: 0.10 => +10% per tier.")]
     [Min(0f)]
@@ -137,9 +137,9 @@ public class ScoreManager : MonoBehaviour
 
     [Header("Global Baseline Speed")]
     [Tooltip("Baseline game speed applied via Time.timeScale before any tier or external multipliers.\n" +
-             "Set to 1.05 to make the whole game run 5% faster.")]
+             "Set to 1.1 to make the whole game run 10% faster.")]
     [Min(0f)]
-    [SerializeField] private float baselineTimeScale = 1.05f;
+    [SerializeField] private float baselineTimeScale = 1.1f;
 
     [Header("External Multipliers (runtime)")]
     [Tooltip("Additional multiplier applied on top of tier-based SpeedMultiplier when writing Time.timeScale.\n" +
@@ -164,11 +164,11 @@ public class ScoreManager : MonoBehaviour
 
     [Header("Component Hit Bonuses (Post-Level)")]
     [Tooltip("After completing a level, each component hit adds this much to ball anti-stall assist acceleration (scaled back).")]
-    [SerializeField] private float componentHitAssistAccelerationIncrement = 2f;
+    [SerializeField] private float componentHitAssistAccelerationIncrement = 0f;
     [Tooltip("After completing a level, each component hit adds this much to Time.timeScale (e.g. 0.02 = +2% per hit).")]
-    [SerializeField] private float componentHitTimeScaleIncrement = 0.02f;
+    [SerializeField] private float componentHitTimeScaleIncrement = 0f;
     [Tooltip("After completing a level, each component hit adds this much to the score multiplier (e.g. 0.05 = +5% per hit).")]
-    [SerializeField] private float componentHitScoreIncrement = 0.05f;
+    [SerializeField] private float componentHitScoreIncrement = 0f;
 
     private float _componentHitAssistAccelerationBonus;
     private float _componentHitTimeScaleBonus;

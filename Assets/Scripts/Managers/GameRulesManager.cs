@@ -1508,7 +1508,8 @@ public class GameRulesManager : MonoBehaviour
     /// Close the shop UI and advance the round index, but do not start the next round.
     /// Used by RunFlowController so it can load/unload boards before starting the next round.
     /// </summary>
-    public void CloseShopAndAdvanceIndexOnly()
+    /// <param name="hideUi">When true, deactivates the shop immediately. When false, leaves the shop visible so the transition controller can animate it closed.</param>
+    public void CloseShopAndAdvanceIndexOnly(bool hideUi = true)
     {
         if (!runActive)
         {
@@ -1518,7 +1519,10 @@ public class GameRulesManager : MonoBehaviour
         ResolveScoreManager(logIfMissing: false);
         scoreManager?.ResetGameSpeedOnShopReturn();
 
-        SetShopOpen(false);
+        if (hideUi)
+        {
+            SetShopOpen(false);
+        }
         shopOpen = false;
         ShopClosed?.Invoke();
     }

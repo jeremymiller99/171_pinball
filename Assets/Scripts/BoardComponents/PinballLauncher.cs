@@ -1,3 +1,4 @@
+// Change: add 10 width black outline to plunger visual to match board components.
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -34,6 +35,10 @@ public sealed class PinballLauncher : MonoBehaviour
     private Vector3 _visualStartLocalPos;
     private Vector3 _visualPullLocalDir = Vector3.back;
 
+    private const float outlineWidth = 6f;
+    private const int outlineRenderQueueOffset = 100;
+    private const int outlineStencilRef = 2;
+
     private void Awake()
     {
         if (launchDirection == null)
@@ -48,7 +53,26 @@ public sealed class PinballLauncher : MonoBehaviour
                 _visualPullLocalDir = plungerVisual.parent.InverseTransformDirection(pullWorldDir).normalized;
             else
                 _visualPullLocalDir = pullWorldDir.normalized;
+
+            EnsurePlungerOutline();
         }
+    }
+
+    private void EnsurePlungerOutline()
+    {
+        if (plungerVisual == null) return;
+
+        Outline outline = plungerVisual.GetComponent<Outline>();
+        if (outline == null)
+        {
+            outline = plungerVisual.gameObject.AddComponent<Outline>();
+        }
+        outline.RenderQueueOffset = outlineRenderQueueOffset;
+        outline.StencilRef = outlineStencilRef;
+        outline.OutlineMode = Outline.Mode.OutlineVisible;
+        outline.OutlineColor = Color.black;
+        outline.OutlineWidth = outlineWidth;
+        outline.enabled = true;
     }
 
     private void Update()

@@ -1,12 +1,15 @@
 // Generated with Cursor AI (GPT-5.2), by OpenAI, 2026-02-24.
 // Change: add selection outline + portal paired-exit outline.
+// Change: always show 10 width black outline; shop highlight uses selection colors.
 using UnityEngine;
 using System.Collections.Generic;
 using System;
 
 public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
 {
-    private const float defaultSelectionOutlineWidth = 8f;
+    private const float defaultOutlineWidth = 6f;
+    private const int outlineRenderQueueOffset = 100;
+    private const int outlineStencilRef = 2;
 
     public TypeOfScore typeOfScore;
     public float amountToScore;
@@ -20,12 +23,15 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
     [SerializeField] protected int ballHits = 0;
     [SerializeField] protected ScoreManager scoreManager;
 
-    [Header("Selection Outline")]
+    [Header("Outline (always visible)")]
     [SerializeField] private bool useSelectionOutline = true;
-    [SerializeField] private Outline.Mode selectionOutlineMode = Outline.Mode.OutlineAll;
+    [SerializeField] private Outline.Mode selectionOutlineMode = Outline.Mode.OutlineVisible;
+    [SerializeField] private Color defaultOutlineColor = Color.black;
+    [SerializeField, Range(0f, 10f)] private float outlineWidth = defaultOutlineWidth;
+
+    [Header("Shop Highlight")]
     [SerializeField] private Color confirmOutlineColor = Color.white;
     [SerializeField] private Color selectionOutlineColor = Color.gray;
-    [SerializeField, Range(0f, 10f)] private float selectionOutlineWidth = defaultSelectionOutlineWidth;
 
     private Outline selectionOutline;
     private Outline portalExitOutline;
@@ -41,6 +47,16 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
             GameObject newObject = boardComponent.gameObject;
             if (!components.Contains(newObject) && gameObject != newObject) {
                 components.Add(newObject);
+            }
+        }
+
+        if (useSelectionOutline)
+        {
+            EnsureSelectionOutline();
+            if (selectionOutline != null)
+            {
+                ApplyDefaultOutlineSettings(selectionOutline);
+                selectionOutline.enabled = true;
             }
         }
     }
@@ -79,8 +95,8 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
             return;
         }
 
-        ApplySelectionOutlineSettings(selectionOutline);
-        selectionOutline.enabled = false;
+        ApplyDefaultOutlineSettings(selectionOutline);
+        selectionOutline.enabled = true;
 
         SetPortalExitOutlineEnabled(false);
     }
@@ -129,20 +145,43 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
             }
         }
 
-        ApplySelectionOutlineSettings(portalExitOutline);
+        if (isEnabled)
+        {
+            ApplyHighlightOutlineSettings(portalExitOutline, confirmOutlineColor);
+        }
+        else
+        {
+            ApplyDefaultOutlineSettings(portalExitOutline);
+        }
         portalExitOutline.enabled = isEnabled;
     }
 
-    private void ApplySelectionOutlineSettings(Outline outline)
+    private void ApplyDefaultOutlineSettings(Outline outline)
     {
         if (outline == null)
         {
             return;
         }
 
+        outline.RenderQueueOffset = outlineRenderQueueOffset;
+        outline.StencilRef = outlineStencilRef;
         outline.OutlineMode = selectionOutlineMode;
-        outline.OutlineColor = selectionOutlineColor;
-        outline.OutlineWidth = selectionOutlineWidth;
+        outline.OutlineColor = defaultOutlineColor;
+        outline.OutlineWidth = outlineWidth;
+    }
+
+    private void ApplyHighlightOutlineSettings(Outline outline, Color color)
+    {
+        if (outline == null)
+        {
+            return;
+        }
+
+        outline.RenderQueueOffset = outlineRenderQueueOffset;
+        outline.StencilRef = outlineStencilRef;
+        outline.OutlineMode = selectionOutlineMode;
+        outline.OutlineColor = color;
+        outline.OutlineWidth = outlineWidth;
     }
 
     public void Select()
@@ -155,9 +194,7 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
         EnsureSelectionOutline();
         isConfirmed = true;
         selectionOutline.enabled = true;
-        selectionOutline.OutlineMode = selectionOutlineMode;
-        selectionOutline.OutlineColor = confirmOutlineColor;
-        selectionOutline.OutlineWidth = selectionOutlineWidth;
+        ApplyHighlightOutlineSettings(selectionOutline, confirmOutlineColor);
         SetPortalExitOutlineEnabled(true);
     }
 
@@ -166,7 +203,8 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
         isConfirmed = false;
         transform.localScale = startingSize;
         EnsureSelectionOutline();
-        selectionOutline.enabled = false;
+        ApplyDefaultOutlineSettings(selectionOutline);
+        selectionOutline.enabled = true;
         SetPortalExitOutlineEnabled(false);
     }
 

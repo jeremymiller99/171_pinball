@@ -16,6 +16,11 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
 
     private static readonly int ColorId = Shader.PropertyToID("_Color");
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+    private static readonly int TintColorId = Shader.PropertyToID("_TintColor");
+    private static readonly int MainColorId = Shader.PropertyToID("_MainColor");
+    private static readonly int UnlitColorId = Shader.PropertyToID("_UnlitColor");
+    private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
+    private static readonly int EmissiveColorId = Shader.PropertyToID("_EmissiveColor");
 
     [Header("UI")]
     [SerializeField] private TMP_Text speedText;
@@ -72,6 +77,10 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField] private float meterColorMidPoint = 0.5f;
 
+    [Header("Color Application (debug / compatibility)")]
+    [Tooltip("If enabled, also writes colors directly to Renderer.material. Use if your shader ignores MaterialPropertyBlock.")]
+    [SerializeField] private bool forceMaterialColorUpdates = true;
+
     [Header("Debug")]
     [SerializeField] private bool debugInText = true;
 
@@ -87,6 +96,7 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     private Renderer _meterRenderer;
     private MaterialPropertyBlock _meterMPB;
     private float _meterBaseAlpha = 1f;
+    private Material _meterMaterialInstance;
 
     private void Awake()
     {
@@ -289,10 +299,36 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         c.a = _meterBaseAlpha;
 
         _meterRenderer.GetPropertyBlock(_meterMPB);
-        // Support both built-in/Standard (_Color) and URP/Lit (_BaseColor).
         _meterMPB.SetColor(ColorId, c);
         _meterMPB.SetColor(BaseColorId, c);
+        _meterMPB.SetColor(TintColorId, c);
+        _meterMPB.SetColor(MainColorId, c);
+        _meterMPB.SetColor(UnlitColorId, c);
+        _meterMPB.SetColor(EmissionColorId, c);
+        _meterMPB.SetColor(EmissiveColorId, c);
         _meterRenderer.SetPropertyBlock(_meterMPB);
+
+        if (forceMaterialColorUpdates)
+        {
+            if (!_meterMaterialInstance && _meterRenderer)
+                _meterMaterialInstance = _meterRenderer.material;
+            if (_meterMaterialInstance)
+            {
+                SetColorIfPresent(_meterMaterialInstance, ColorId, c);
+                SetColorIfPresent(_meterMaterialInstance, BaseColorId, c);
+                SetColorIfPresent(_meterMaterialInstance, TintColorId, c);
+                SetColorIfPresent(_meterMaterialInstance, MainColorId, c);
+                SetColorIfPresent(_meterMaterialInstance, UnlitColorId, c);
+                SetColorIfPresent(_meterMaterialInstance, EmissionColorId, c);
+                SetColorIfPresent(_meterMaterialInstance, EmissiveColorId, c);
+            }
+        }
+    }
+
+    private static void SetColorIfPresent(Material m, int propertyId, Color c)
+    {
+        if (m != null && m.HasProperty(propertyId))
+            m.SetColor(propertyId, c);
     }
 
     private Color EvaluateMeterColor(float fill01)

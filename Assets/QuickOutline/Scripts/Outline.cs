@@ -1,4 +1,4 @@
-﻿//
+//
 //  Outline.cs
 //  QuickOutline
 //
@@ -48,6 +48,22 @@ public class Outline : MonoBehaviour {
     }
   }
 
+  public int RenderQueueOffset {
+    get { return renderQueueOffset; }
+    set {
+      renderQueueOffset = value;
+      needsUpdate = true;
+    }
+  }
+
+  public int StencilRef {
+    get { return stencilRef; }
+    set {
+      stencilRef = value;
+      needsUpdate = true;
+    }
+  }
+
   [Serializable]
   private class ListVector3 {
     public List<Vector3> data;
@@ -63,6 +79,12 @@ public class Outline : MonoBehaviour {
   private float outlineWidth = 2f;
 
   [Header("Optional")]
+
+  [SerializeField, Tooltip("Offset added to render queue so this outline draws on top of others. Use 100+ for board components so they render above the board outline.")]
+  private int renderQueueOffset = 0;
+
+  [SerializeField, Tooltip("Stencil ref for this outline. Use different values (e.g. 2) for overlapping outlines so they don't overwrite each other.")]
+  private int stencilRef = 1;
 
   [SerializeField, Tooltip("Precompute enabled: Per-vertex calculations are performed in the editor and serialized with the object. "
   + "Precompute disabled: Per-vertex calculations are performed at runtime in Awake(). This may cause a pause for large meshes.")]
@@ -270,6 +292,15 @@ public class Outline : MonoBehaviour {
   }
 
   void UpdateMaterialProperties() {
+
+    // Apply render queue offset so this outline can draw on top of others (e.g. board components above board)
+    int baseMaskQueue = 3100;
+    int baseFillQueue = 3110;
+    outlineMaskMaterial.renderQueue = baseMaskQueue + renderQueueOffset;
+    outlineFillMaterial.renderQueue = baseFillQueue + renderQueueOffset;
+
+    outlineMaskMaterial.SetInt("_StencilRef", stencilRef);
+    outlineFillMaterial.SetInt("_StencilRef", stencilRef);
 
     // Apply properties according to mode
     outlineFillMaterial.SetColor("_OutlineColor", outlineColor);

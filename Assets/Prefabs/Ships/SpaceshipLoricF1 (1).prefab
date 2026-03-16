@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1483951067505320320}
   - component: {fileID: 3922423017803608352}
   - component: {fileID: 4530063500947282426}
+  - component: {fileID: 1274174379021449175}
   m_Layer: 0
   m_Name: SpaceshipLoricF1 (1)
   m_TagString: Untagged
@@ -112,6 +113,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpaceShip
   moveSpeed: 2
+  velocitySmoothSpeed: 4
   waypointArrivalThreshold: 2
   perceptionRadius: 5
   separationRadius: 2
@@ -123,6 +125,25 @@ MonoBehaviour:
   movementPlane: 1
   rotationOffsetDegrees: 0
   rotationSmoothSpeed: 8
+  maxXRotationDegrees: 15
+--- !u!114 &1274174379021449175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 260427457679054806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWidth: 10
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &3192570224292818374
 GameObject:
   m_ObjectHideFlags: 0

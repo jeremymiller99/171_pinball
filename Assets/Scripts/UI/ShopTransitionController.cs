@@ -86,13 +86,6 @@ public sealed class ShopTransitionController : MonoBehaviour
     private Vector2 _panelBallsHome;
     private Vector2 _panelDoneHome;
 
-    private Vector2 _panelTitleHidden;
-    private Vector2 _panelTabsHidden;
-    private Vector2 _panelMoneyHidden;
-    private Vector2 _panelGumballHidden;
-    private Vector2 _panelBallsHidden;
-    private Vector2 _panelDoneHidden;
-
     public event Action OpenTransitionFinished;
     /// <summary>Fires when the camera pan completes (before panel slides). Use for Main panel reveal.</summary>
     public event Action CameraPanFinished;
@@ -110,7 +103,6 @@ public sealed class ShopTransitionController : MonoBehaviour
         AutoResolveRefs();
         CacheHomeIfNeeded(force: true);
         CachePanelHomesIfNeeded(force: true);
-        RecomputePanelHiddenPositions();
     }
 
     private void OnEnable()
@@ -119,7 +111,6 @@ public sealed class ShopTransitionController : MonoBehaviour
         AutoResolveRefs();
         CacheHomeIfNeeded(force: false);
         CachePanelHomesIfNeeded(force: false);
-        RecomputePanelHiddenPositions();
     }
 
     private void OnDisable()
@@ -167,9 +158,9 @@ public sealed class ShopTransitionController : MonoBehaviour
             shopCanvasRoot.SetActive(true);
 
         EnsureShopLayout();
-        CachePanelHomesIfNeeded(force: false);
-        RecomputePanelHiddenPositions();
-        SnapPanelsToHidden();
+        CachePanelHomesIfNeeded(force: true);
+        EnsurePanelsActive();
+        SnapPanelsToHome();
 
         StartTransition(OpenRoutine());
     }
@@ -181,11 +172,7 @@ public sealed class ShopTransitionController : MonoBehaviour
     public void CloseShopThen(Action afterClosed)
     {
         AutoResolveRefs();
-        // Do NOT recache home here; we want to return to the gameplay-home pose.
         CacheHomeIfNeeded(force: false);
-        EnsureShopLayout();
-        CachePanelHomesIfNeeded(force: false);
-        RecomputePanelHiddenPositions();
 
         if (_isTransitioning)
             return;
@@ -256,7 +243,10 @@ public sealed class ShopTransitionController : MonoBehaviour
     {
         _isTransitioning = true;
 
-        // Camera pans first while the shop panels remain hidden.
+        // Wait one frame for layout to settle after activation (Unity may return zero rects in the same frame).
+        yield return null;
+
+        // Camera pans to shop view. Panels are already at home (no slide-in animation).
         AudioManager.Instance.PlayTransition();
         yield return AnimateCamera(
             fromCam: _cameraHomeLocalPos,
@@ -266,9 +256,6 @@ public sealed class ShopTransitionController : MonoBehaviour
 
         CameraPanFinished?.Invoke();
 
-        // Then panels slide in, in the requested order.
-        yield return SlidePanelsInSequence();
-
         _isTransitioning = false;
         OpenTransitionFinished?.Invoke();
     }
@@ -277,18 +264,18 @@ public sealed class ShopTransitionController : MonoBehaviour
     {
         _isTransitioning = true;
 
-        // Panels exit first (opposite direction of their entry), then camera pans back to the board.
-        yield return SlidePanelsOutAll();
         if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMuffled(false);
 
+        // Hide shop UI before camera pans so the board is visible during the transition.
+        if (shopCanvasRoot != null)
+            shopCanvasRoot.SetActive(false);
+
+        // Camera pans back to the board (no panel slide-out animation).
         yield return AnimateCamera(
             fromCam: cameraRig != null ? cameraRig.localPosition : _cameraShopLocalPos,
             toCam: _cameraHomeLocalPos,
             duration: Mathf.Max(0.001f, panDuration)
         );
-
-        if (shopCanvasRoot != null)
-            shopCanvasRoot.SetActive(false);
 
         _isOpen = false;
         _isTransitioning = false;
@@ -315,99 +302,6 @@ public sealed class ShopTransitionController : MonoBehaviour
 
         if (cameraRig != null)
             cameraRig.localPosition = toCam;
-    }
-
-    private IEnumerator AnimatePanel(RectTransform panel, Vector2 from, Vector2 to, float duration)
-    {
-        if (panel == null)
-            yield break;
-
-        float d = Mathf.Max(0.001f, duration);
-        float t = 0f;
-        while (t < d)
-        {
-            float dt = Time.unscaledDeltaTime;
-            t += dt;
-            float n = Mathf.Clamp01(t / d);
-
-            float uiN = uiEase != null ? uiEase.Evaluate(n) : n;
-            panel.anchoredPosition = Vector2.LerpUnclamped(from, to, uiN);
-
-            yield return null;
-        }
-
-        panel.anchoredPosition = to;
-    }
-
-    private IEnumerator SlidePanelsInSequence()
-    {
-        const int phase1PanelCount = 3;
-        const int phase2PanelCount = 2;
-
-        float fallback = Mathf.Max(0.001f, uiSlideDuration);
-
-        float p1Total = phase1TotalDuration > 0f ? phase1TotalDuration : fallback;
-        float p2Total = phase2TotalDuration > 0f ? phase2TotalDuration : fallback;
-        float p3 = phase3Duration > 0f ? phase3Duration : fallback;
-
-        float phase1 = Mathf.Max(0.001f, p1Total / phase1PanelCount);
-        float phase2 = Mathf.Max(0.001f, p2Total / phase2PanelCount);
-        float final = Mathf.Max(0.001f, p3);
-        AudioManager.Instance.PlayTransition();
-        yield return AnimatePanel(panelTitle, _panelTitleHidden, _panelTitleHome, phase1);
-        AudioManager.Instance.PlayTransition();
-        yield return AnimatePanel(panelTabs, _panelTabsHidden, _panelTabsHome, phase1);
-        AudioManager.Instance.PlayTransition();
-        yield return AnimatePanel(panelMoney, _panelMoneyHidden, _panelMoneyHome, phase1);
-
-        AudioManager.Instance.PlayTransition();
-        yield return AnimatePanel(panelGumball, _panelGumballHidden, _panelGumballHome, phase2);
-        AudioManager.Instance.PlayTransition();
-        yield return AnimatePanel(panelBalls, _panelBallsHidden, _panelBallsHome, phase2);
-
-        
-        yield return AnimatePanel(panelDone, _panelDoneHidden, _panelDoneHome, final);
-        AudioManager.Instance.PlayTransition();
-    }
-
-    private IEnumerator SlidePanelsOutAll()
-    {
-        const int phase1PanelCount = 3;
-        const int phase2PanelCount = 2;
-
-        float fallback = Mathf.Max(0.001f, uiSlideDuration);
-
-        float p1Total = phase1TotalDuration > 0f ? phase1TotalDuration : fallback;
-        float p2Total = phase2TotalDuration > 0f ? phase2TotalDuration : fallback;
-        float p3 = phase3Duration > 0f ? phase3Duration : fallback;
-
-        float phase1 = Mathf.Max(0.001f, p1Total / phase1PanelCount);
-        float phase2 = Mathf.Max(0.001f, p2Total / phase2PanelCount);
-        float final = Mathf.Max(0.001f, p3);
-
-        Vector2 titleFrom = panelTitle != null ? panelTitle.anchoredPosition : _panelTitleHome;
-        Vector2 tabsFrom = panelTabs != null ? panelTabs.anchoredPosition : _panelTabsHome;
-        Vector2 moneyFrom = panelMoney != null ? panelMoney.anchoredPosition : _panelMoneyHome;
-        Vector2 gumballFrom = panelGumball != null ? panelGumball.anchoredPosition : _panelGumballHome;
-        Vector2 ballsFrom = panelBalls != null ? panelBalls.anchoredPosition : _panelBallsHome;
-        Vector2 doneFrom = panelDone != null ? panelDone.anchoredPosition : _panelDoneHome;
-
-        if (panelTitle != null) StartCoroutine(AnimatePanel(panelTitle, titleFrom, _panelTitleHidden, phase1));
-        if (panelTabs != null) StartCoroutine(AnimatePanel(panelTabs, tabsFrom, _panelTabsHidden, phase1));
-        if (panelMoney != null) StartCoroutine(AnimatePanel(panelMoney, moneyFrom, _panelMoneyHidden, phase1));
-        if (panelGumball != null) StartCoroutine(AnimatePanel(panelGumball, gumballFrom, _panelGumballHidden, phase2));
-        if (panelBalls != null) StartCoroutine(AnimatePanel(panelBalls, ballsFrom, _panelBallsHidden, phase2));
-        if (panelDone != null) StartCoroutine(AnimatePanel(panelDone, doneFrom, _panelDoneHidden, final));
-
-        float maxDuration = Mathf.Max(phase1, Mathf.Max(phase2, final));
-        float t = 0f;
-        while (t < maxDuration)
-        {
-            t += Time.unscaledDeltaTime;
-            yield return null;
-        }
-
-        SnapPanelsToHidden();
     }
 
     private void LockGameplayInput()
@@ -570,42 +464,24 @@ public sealed class ShopTransitionController : MonoBehaviour
             panelDone != null;
     }
 
-    private void RecomputePanelHiddenPositions()
+    private void EnsurePanelsActive()
     {
-        AutoResolveRefs();
-        EnsureShopLayout();
-
-        RectTransform boundsRect = shopPanelRect != null ? shopPanelRect : (panelTitle != null ? panelTitle.parent as RectTransform : null);
-        float boundsWidth = GetSafeRectWidth(boundsRect);
-        float boundsHeight = GetSafeRectHeight(boundsRect);
-
-        float pad = Mathf.Max(0f, uiOffscreenPadding);
-
-        float titleUp = GetHiddenOffsetY(boundsHeight, GetSafeRectHeight(panelTitle), pad);
-        float tabsUp = GetHiddenOffsetY(boundsHeight, GetSafeRectHeight(panelTabs), pad);
-        float moneyUp = GetHiddenOffsetY(boundsHeight, GetSafeRectHeight(panelMoney), pad);
-
-        float gumballLeft = GetHiddenOffsetX(boundsWidth, GetSafeRectWidth(panelGumball), pad);
-        float ballsRight = GetHiddenOffsetX(boundsWidth, GetSafeRectWidth(panelBalls), pad);
-        float doneRight = GetHiddenOffsetX(boundsWidth, GetSafeRectWidth(panelDone), pad);
-
-        _panelTitleHidden = _panelTitleHome + Vector2.up * titleUp;
-        _panelTabsHidden = _panelTabsHome + Vector2.up * tabsUp;
-        _panelMoneyHidden = _panelMoneyHome + Vector2.up * moneyUp;
-
-        _panelGumballHidden = _panelGumballHome + Vector2.left * gumballLeft;
-        _panelBallsHidden = _panelBallsHome + Vector2.right * ballsRight;
-        _panelDoneHidden = _panelDoneHome + Vector2.right * doneRight;
+        if (panelTitle != null && !panelTitle.gameObject.activeSelf) panelTitle.gameObject.SetActive(true);
+        if (panelTabs != null && !panelTabs.gameObject.activeSelf) panelTabs.gameObject.SetActive(true);
+        if (panelMoney != null && !panelMoney.gameObject.activeSelf) panelMoney.gameObject.SetActive(true);
+        // Do NOT activate panelGumball or panelBalls here — they are tab content managed by ShopTabsController.
+        // Activating them would show the Balls panel during the camera transition instead of waiting for Main panel.
+        if (panelDone != null && !panelDone.gameObject.activeSelf) panelDone.gameObject.SetActive(true);
     }
 
-    private void SnapPanelsToHidden()
+    private void SnapPanelsToHome()
     {
-        if (panelTitle != null) panelTitle.anchoredPosition = _panelTitleHidden;
-        if (panelTabs != null) panelTabs.anchoredPosition = _panelTabsHidden;
-        if (panelMoney != null) panelMoney.anchoredPosition = _panelMoneyHidden;
-        if (panelGumball != null) panelGumball.anchoredPosition = _panelGumballHidden;
-        if (panelBalls != null) panelBalls.anchoredPosition = _panelBallsHidden;
-        if (panelDone != null) panelDone.anchoredPosition = _panelDoneHidden;
+        if (panelTitle != null) panelTitle.anchoredPosition = _panelTitleHome;
+        if (panelTabs != null) panelTabs.anchoredPosition = _panelTabsHome;
+        if (panelMoney != null) panelMoney.anchoredPosition = _panelMoneyHome;
+        if (panelGumball != null) panelGumball.anchoredPosition = _panelGumballHome;
+        if (panelBalls != null) panelBalls.anchoredPosition = _panelBallsHome;
+        if (panelDone != null) panelDone.anchoredPosition = _panelDoneHome;
     }
 
     private void EnsureShopLayout()
@@ -615,52 +491,6 @@ public sealed class ShopTransitionController : MonoBehaviour
             LayoutRebuilder.ForceRebuildLayoutImmediate(shopPanelRect);
         }
         Canvas.ForceUpdateCanvases();
-    }
-
-    private static float GetSafeRectWidth(RectTransform rt)
-    {
-        if (rt == null)
-        {
-            return Mathf.Max(800f, Screen.width);
-        }
-
-        float w = rt.rect.width;
-        if (w > 0.01f)
-        {
-            return w;
-        }
-
-        return Mathf.Max(800f, Screen.width);
-    }
-
-    private static float GetSafeRectHeight(RectTransform rt)
-    {
-        if (rt == null)
-        {
-            return Mathf.Max(600f, Screen.height);
-        }
-
-        float h = rt.rect.height;
-        if (h > 0.01f)
-        {
-            return h;
-        }
-
-        return Mathf.Max(600f, Screen.height);
-    }
-
-    private static float GetHiddenOffsetX(float boundsWidth, float panelWidth, float padding)
-    {
-        float w = boundsWidth > 0.01f ? boundsWidth : Mathf.Max(800f, Screen.width);
-        float p = panelWidth > 0.01f ? panelWidth : w * 0.5f;
-        return (w * 0.5f) + (p * 0.5f) + padding;
-    }
-
-    private static float GetHiddenOffsetY(float boundsHeight, float panelHeight, float padding)
-    {
-        float h = boundsHeight > 0.01f ? boundsHeight : Mathf.Max(600f, Screen.height);
-        float p = panelHeight > 0.01f ? panelHeight : h * 0.5f;
-        return (h * 0.5f) + (p * 0.5f) + padding;
     }
 
     private static RectTransform FindRectTransformByName(Transform root, string targetName)

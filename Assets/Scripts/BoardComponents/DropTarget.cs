@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Drop target: on ball hit, moves down on Y by a fixed amount with smooth Lerp. When fully down,
-/// you choose one: disable collider, swap to a flat collider, or use non-bouncy physics material.
+/// the collider is disabled so the ball passes through until the target is reactivated and returns up.
 /// Put this on the same GameObject that has the Collider the ball hits.
 /// </summary>
 public class DropTarget : MonoBehaviour
@@ -133,15 +133,15 @@ public class DropTarget : MonoBehaviour
 
     private void ApplyWhenFullyDown()
     {
+        // Always disable collider when lowered so ball passes through until reactivated
+        if (_mainCollider != null)
+            _mainCollider.enabled = false;
+
         switch (whenFullyDown)
         {
             case WhenFullyDownMode.DisableCollider:
-                if (_mainCollider != null)
-                    _mainCollider.enabled = false;
                 break;
             case WhenFullyDownMode.SwapToFlatCollider:
-                if (_mainCollider != null)
-                    _mainCollider.enabled = false;
                 if (flatColliderWhenDown != null)
                     flatColliderWhenDown.enabled = true;
                 break;
@@ -159,17 +159,17 @@ public class DropTarget : MonoBehaviour
 
     private void FinishReturn()
     {
+        // Re-enable collider when target has returned to up position
+        if (_mainCollider != null)
+            _mainCollider.enabled = true;
+
         switch (whenFullyDown)
         {
             case WhenFullyDownMode.DisableCollider:
-                if (_mainCollider != null)
-                    _mainCollider.enabled = true;
                 break;
             case WhenFullyDownMode.SwapToFlatCollider:
                 if (flatColliderWhenDown != null)
                     flatColliderWhenDown.enabled = false;
-                if (_mainCollider != null)
-                    _mainCollider.enabled = true;
                 break;
             case WhenFullyDownMode.NonBouncyMaterial:
                 if (_mainCollider != null && _originalMaterial != null)

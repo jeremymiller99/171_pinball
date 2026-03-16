@@ -93,29 +93,6 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
     // can exist in serialized scenes without confusing the inspector.
     [SerializeField, HideInInspector] private bool tieredMeterEnabled = true;
 
-    [Tooltip("Optional background mesh behind the fill. When tiered, its color becomes the previous tier's 'full' color.")]
-    [SerializeField] private Transform meterBackground;
-    [SerializeField] private bool autoFindMeterBackgroundInChildren = true;
-    [SerializeField] private bool autoFindMeterBackgroundByName = false;
-    [SerializeField] private string meterBackgroundObjectName = "MeterBackground";
-
-    [Tooltip("If no background is assigned, this does nothing.")]
-    [SerializeField] private bool meterBackgroundColorEnabled = true;
-
-    [Tooltip("Background color to use before the first goal is completed (tier 0).")]
-    [SerializeField] private Color meterBackgroundDefaultColor = new Color(0.05f, 0.05f, 0.05f, 1f);
-
-    [Header("Palette integration (optional)")]
-    [Tooltip("If assigned, meter background tier-0 default color will be pulled from this palette switcher (so resets match board palette).")]
-    [SerializeField] private BoardAlphaPaletteSwitcher paletteSwitcher;
-
-    [Tooltip("Which target index in the palette switcher should drive the meter background default color (usually your BG target).")]
-    [Min(0)]
-    [SerializeField] private int paletteTargetIndexForMeterBackgroundDefault = 0;
-
-    [Tooltip("If true, overwrite meterBackgroundDefaultColor from the palette switcher on Awake/Enable.")]
-    [SerializeField] private bool pullMeterBackgroundDefaultFromPalette = true;
-
     [Tooltip("If true, uses Palettes By Tier below. Otherwise auto-generates palettes by hue shifting your base colors.")]
     [SerializeField] private bool usePalettesByTier = false;
 
@@ -140,11 +117,6 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
     private float _meterBaseAlpha = 1f;
     private Material _meterMaterialInstance;
 
-    private Renderer _bgRenderer;
-    private MaterialPropertyBlock _bgMPB;
-    private float _bgBaseAlpha = 1f;
-    private Material _bgMaterialInstance;
-
     [Header("Color Application (debug / compatibility)")]
     [Tooltip("If enabled, also writes colors directly to Renderer.material (creates a material instance at runtime). " +
              "Use this if your shader ignores MaterialPropertyBlock updates.")]
@@ -159,14 +131,12 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
         if (!meterColorEnabled || !tieredMeterEnabled) { }
 
         ResolveRefs();
-        PullMeterBackgroundDefaultFromPalette();
         InitMeterIfNeeded();
     }
 
     private void OnEnable()
     {
         ResolveRefs();
-        PullMeterBackgroundDefaultFromPalette();
         if (scoreManager != null)
         {
             scoreManager.ScoreChanged += OnScoreChanged;
@@ -190,9 +160,6 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
     {
         if (scoreManager == null)
             scoreManager = FindFirstObjectByType<ScoreManager>();
-
-        if (paletteSwitcher == null)
-            paletteSwitcher = FindFirstObjectByType<BoardAlphaPaletteSwitcher>();
 
         if (!roundTotalText)
         {
@@ -218,23 +185,6 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
                 var go = GameObject.Find(meterFillObjectName);
                 if (go) meterFill = go.transform;
             }
-        }
-
-        if (!meterBackground)
-        {
-            if (autoFindMeterBackgroundInChildren)
-                meterBackground = FindLikelyMeterBackgroundInChildren();
-
-            if (!meterBackground && autoFindMeterBackgroundByName && !string.IsNullOrWhiteSpace(meterBackgroundObjectName))
-            {
-                var go = GameObject.Find(meterBackgroundObjectName);
-                if (go) meterBackground = go.transform;
-            }
-
-            // Fallback: if the fill is assigned somewhere else in the scene,
-            // try to find a sibling "background" object near it.
-            if (!meterBackground && meterFill)
-                meterBackground = FindLikelyMeterBackgroundNearFill(meterFill);
         }
     }
 
@@ -336,9 +286,6 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
             // Grab (and thus create) the renderer material instance once.
             _meterMaterialInstance = _meterRenderer.material;
         }
-
-        InitBackgroundIfNeeded();
-        UpdateBackgroundForTier(_displayTier);
     }
 
     private void UpdateMeterUnits(float targetUnits, float fill01, int tier)
@@ -431,68 +378,6 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
         // When wrapping tiers, reset smoothing so the bar doesn't "lerp backward" from full to empty.
         _displayTier = newTier;
         _meterUnitsSmoothed = 0f;
-
-        // Keep this very simple: just update colors on tier change.
-        UpdateBackgroundForTier(_displayTier);
-    }
-
-    private void InitBackgroundIfNeeded()
-    {
-        if (_bgRenderer || !meterBackground)
-            return;
-
-        _bgRenderer = meterBackground.GetComponent<Renderer>();
-        if (!_bgRenderer)
-            _bgRenderer = meterBackground.GetComponentInChildren<Renderer>();
-
-        _bgMPB ??= new MaterialPropertyBlock();
-        _bgBaseAlpha = 1f;
-        if (_bgRenderer && _bgRenderer.sharedMaterial)
-        {
-            var mat = _bgRenderer.sharedMaterial;
-            if (mat.HasProperty(BaseColorId))
-                _bgBaseAlpha = mat.GetColor(BaseColorId).a;
-            else if (mat.HasProperty(ColorId))
-                _bgBaseAlpha = mat.GetColor(ColorId).a;
-        }
-
-        _bgMaterialInstance = null;
-        if (forceMaterialColorUpdates && _bgRenderer)
-        {
-            _bgMaterialInstance = _bgRenderer.material;
-        }
-    }
-
-    private void PullMeterBackgroundDefaultFromPalette()
-    {
-        if (!pullMeterBackgroundDefaultFromPalette)
-            return;
-
-        if (paletteSwitcher == null)
-            return;
-
-        if (paletteSwitcher.TryGetCurrentColor(paletteTargetIndexForMeterBackgroundDefault, out Color c))
-        {
-            // Alpha is driven by the background material/base alpha anyway.
-            meterBackgroundDefaultColor = c;
-        }
-    }
-
-    private void UpdateBackgroundForTier(int tier)
-    {
-        if (!meterBackgroundColorEnabled)
-            return;
-
-        InitBackgroundIfNeeded();
-        if (!_bgRenderer)
-            return;
-
-        // Background becomes the previous tier's FULL color to create a stacked look.
-        // Tier 0 uses the configured default background color.
-        Color c = tier <= 0 ? meterBackgroundDefaultColor : GetPaletteForTier(tier - 1).full;
-        c.a = _bgBaseAlpha;
-
-        ApplyColorToRenderer(_bgRenderer, _bgMPB, c, ref _bgMaterialInstance);
     }
 
     private void ApplyColorToRenderer(Renderer r, MaterialPropertyBlock mpb, Color c, ref Material materialInstance)
@@ -661,61 +546,6 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
             if (!r) continue;
             if (r.GetComponent<TMP_Text>()) continue;
             return r.transform;
-        }
-
-        return null;
-    }
-
-    private Transform FindLikelyMeterBackgroundInChildren()
-    {
-        // Heuristic: first renderer transform that is NOT the fill (and not TMP).
-        // If your HUD has multiple renderers, consider using name-based lookup.
-        var renderers = GetComponentsInChildren<Renderer>(includeInactive: true);
-        foreach (var r in renderers)
-        {
-            if (!r) continue;
-            if (r.GetComponent<TMP_Text>()) continue;
-            if (meterFill != null && (r.transform == meterFill || r.transform.IsChildOf(meterFill))) continue;
-            return r.transform;
-        }
-
-        return null;
-    }
-
-    private static Transform FindLikelyMeterBackgroundNearFill(Transform fill)
-    {
-        if (!fill)
-            return null;
-
-        Transform parent = fill.parent;
-        if (!parent)
-            return null;
-
-        // Prefer name hints among siblings.
-        for (int i = 0; i < parent.childCount; i++)
-        {
-            Transform t = parent.GetChild(i);
-            if (!t || t == fill) continue;
-
-            string n = t.name ?? string.Empty;
-            bool nameHint =
-                n.IndexOf("background", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
-                n.IndexOf("back", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
-                n.IndexOf("bg", System.StringComparison.OrdinalIgnoreCase) >= 0;
-
-            if (!nameHint) continue;
-
-            var r = t.GetComponent<Renderer>();
-            if (r) return t;
-        }
-
-        // Fallback: first renderer sibling that isn't the fill.
-        for (int i = 0; i < parent.childCount; i++)
-        {
-            Transform t = parent.GetChild(i);
-            if (!t || t == fill) continue;
-            var r = t.GetComponent<Renderer>();
-            if (r) return t;
         }
 
         return null;

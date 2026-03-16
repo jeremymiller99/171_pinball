@@ -182,8 +182,8 @@ public sealed class RunFlowController : MonoBehaviour
 
         var session = GameSession.Instance;
 
-        // NOW close shop and advance round index
-        rulesManager.CloseShopAndAdvanceIndexOnly();
+        // Advance round index but leave shop visible so the transition can animate it closed.
+        rulesManager.CloseShopAndAdvanceIndexOnly(hideUi: false);
 
         bool boardCleared = boardLoader != null && boardLoader.CurrentBoardRoot != null && boardLoader.CurrentBoardRoot.IsCleared(rulesManager);
         if (!boardCleared)

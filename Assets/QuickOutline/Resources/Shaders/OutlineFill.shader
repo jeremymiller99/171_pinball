@@ -1,4 +1,4 @@
-﻿//
+//
 //  OutlineFill.shader
 //  QuickOutline
 //
@@ -9,6 +9,7 @@
 Shader "Custom/Outline Fill" {
   Properties {
     [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("ZTest", Float) = 0
+    _StencilRef("Stencil Ref", Float) = 1
 
     _OutlineColor("Outline Color", Color) = (1, 1, 1, 1)
     _OutlineWidth("Outline Width", Range(0, 10)) = 2
@@ -30,7 +31,7 @@ Shader "Custom/Outline Fill" {
       ColorMask RGB
 
       Stencil {
-        Ref 1
+        Ref [_StencilRef]
         Comp NotEqual
       }
 

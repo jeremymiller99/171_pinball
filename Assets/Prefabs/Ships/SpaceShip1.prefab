@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2384548987876449010}
   - component: {fileID: 6775933648561269133}
   - component: {fileID: 5426864900932849721}
+  - component: {fileID: 4014420190551433232}
   m_Layer: 0
   m_Name: SpaceShip1
   m_TagString: Untagged
@@ -111,6 +112,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpaceShip
   moveSpeed: 10
+  velocitySmoothSpeed: 4
   waypointArrivalThreshold: 2
   perceptionRadius: 5
   separationRadius: 2
@@ -122,6 +124,25 @@ MonoBehaviour:
   movementPlane: 1
   rotationOffsetDegrees: 90
   rotationSmoothSpeed: 8
+  maxXRotationDegrees: 15
+--- !u!114 &4014420190551433232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 393496853300476306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWidth: 10
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &6470996421910494930
 GameObject:
   m_ObjectHideFlags: 0

@@ -314,6 +314,7 @@ GameObject:
   - component: {fileID: 8252065078588390325}
   - component: {fileID: 1710281368364477269}
   - component: {fileID: 2711629709586354759}
+  - component: {fileID: 7859095438991009556}
   m_Layer: 0
   m_Name: SpaceshipSilverwolf
   m_TagString: Untagged
@@ -413,6 +414,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpaceShip
   moveSpeed: 2
+  velocitySmoothSpeed: 4
   waypointArrivalThreshold: 8
   perceptionRadius: 5
   separationRadius: 2
@@ -424,6 +426,25 @@ MonoBehaviour:
   movementPlane: 1
   rotationOffsetDegrees: 0
   rotationSmoothSpeed: 8
+  maxXRotationDegrees: 15
+--- !u!114 &7859095438991009556
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5566029595203772779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWidth: 10
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &6711589413085390475
 GameObject:
   m_ObjectHideFlags: 0

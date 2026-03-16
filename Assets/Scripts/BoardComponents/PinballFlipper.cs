@@ -1,5 +1,6 @@
 // Modified by Cursor AI (GPT-5.2) for jjmil on 2026-02-15.
 // Fix: flipper up/down SFX now triggers for centralized bindings + new input system.
+// Change: add 10 width black outline to match board components.
 
 using UnityEngine;
 
@@ -10,6 +11,9 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody))]
 public class PinballFlipper : MonoBehaviour
 {
+    private const float outlineWidth = 6f;
+    private const int outlineRenderQueueOffset = 100;
+    private const int outlineStencilRef = 2;
     public enum FlipperInputAction
     {
         LeftFlipper,
@@ -48,7 +52,23 @@ public class PinballFlipper : MonoBehaviour
         {
             flipAction = InputSystem.actions.FindAction("RightFlip");
         }
-        
+
+        EnsureOutline();
+    }
+
+    private void EnsureOutline()
+    {
+        Outline outline = GetComponent<Outline>();
+        if (outline == null)
+        {
+            outline = gameObject.AddComponent<Outline>();
+        }
+        outline.RenderQueueOffset = outlineRenderQueueOffset;
+        outline.StencilRef = outlineStencilRef;
+        outline.OutlineMode = Outline.Mode.OutlineVisible;
+        outline.OutlineColor = Color.black;
+        outline.OutlineWidth = outlineWidth;
+        outline.enabled = true;
     }
 
     private void Update()

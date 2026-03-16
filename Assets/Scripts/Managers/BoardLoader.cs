@@ -92,6 +92,10 @@ public sealed class BoardLoader : MonoBehaviour
 
         currentBoardRoot.Initialize(board);
 
+        // Disable duplicate Main Camera and EventSystem in the board scene.
+        // GameplayCore provides the main view; additive boards must not have competing cameras/input.
+        DisableBoardSceneDuplicates(loadedScene);
+
         // Bind spawn/play point into core systems.
         // Convention:
         // - HandPathWaypoints[0] = queue start
@@ -130,6 +134,35 @@ public sealed class BoardLoader : MonoBehaviour
             }
         }
         return null;
+    }
+
+    /// <summary>
+    /// Disables Main Camera and EventSystem in the board scene so GameplayCore's instances are used.
+    /// Prevents second-shop-entry bugs from duplicate cameras/input.
+    /// </summary>
+    private static void DisableBoardSceneDuplicates(Scene scene)
+    {
+        var roots = scene.GetRootGameObjects();
+        for (int i = 0; i < roots.Length; i++)
+        {
+            var cameras = roots[i].GetComponentsInChildren<Camera>(includeInactive: true);
+            for (int c = 0; c < cameras.Length; c++)
+            {
+                if (cameras[c] != null && cameras[c].CompareTag("MainCamera"))
+                {
+                    cameras[c].gameObject.SetActive(false);
+                }
+            }
+
+            var eventSystems = roots[i].GetComponentsInChildren<UnityEngine.EventSystems.EventSystem>(includeInactive: true);
+            for (int e = 0; e < eventSystems.Length; e++)
+            {
+                if (eventSystems[e] != null)
+                {
+                    eventSystems[e].gameObject.SetActive(false);
+                }
+            }
+        }
     }
 }
 

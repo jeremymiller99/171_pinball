@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 7218764734407977045}
   - component: {fileID: 8123456789012345674}
   - component: {fileID: 6754550638101695226}
+  - component: {fileID: 4006387634790845837}
   m_Layer: 0
   m_Name: Red Two
   m_TagString: Ball
@@ -329,6 +330,27 @@ MonoBehaviour:
   pointMultiplier: 1
   multMultiplier: 2
   coinMultiplier: 1
+  lastObjectHit: {fileID: 0}
+--- !u!114 &4006387634790845837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWidth: 6
+  renderQueueOffset: 100
+  stencilRef: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &6285238752131022734
 GameObject:
   m_ObjectHideFlags: 0

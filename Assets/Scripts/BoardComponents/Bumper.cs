@@ -1,7 +1,12 @@
+// Generated with Cursor AI, 2025-03-15.
+// Change: add optional bumperCollider for bumpers whose collider is on a child (e.g. visual).
 using UnityEngine;
 
 public class Bumper : MonoBehaviour
 {
+    [Tooltip("Assign when the collider is on a child (e.g. visual). Leave empty if collider is on this GameObject.")]
+    [SerializeField] public Collider bumperCollider;
+
     [SerializeField] private CameraShake camShake;
     [SerializeField] private float bounceForce = 10f;
     private float baseBounceForce;
@@ -41,10 +46,11 @@ public class Bumper : MonoBehaviour
         if (collision.collider.CompareTag("Ball"))
         {
             Rigidbody rb = collision.rigidbody;
-            
-            AudioManager.Instance.PlayBumperHit(transform.position);
+            Vector3 bumperCenter = bumperCollider != null ? bumperCollider.bounds.center : transform.position;
 
-            Vector3 forceDir = (collision.transform.position - transform.position).normalized;
+            AudioManager.Instance.PlayBumperHit(bumperCenter);
+
+            Vector3 forceDir = (collision.transform.position - bumperCenter).normalized;
             rb.AddForce(forceDir * baseBounceForce, ForceMode.Impulse);
 
             if (camShake == null || !camShake.isActiveAndEnabled)

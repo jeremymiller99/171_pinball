@@ -181,7 +181,7 @@ MonoBehaviour:
   multMultiplier: 1
   coinMultiplier: 1
   lastObjectHit: {fileID: 0}
-  wallMaterial: {fileID: 13400000, guid: 2538733681627dc44ab2109ad5e3bdcb, type: 2}
+  wallMaterial: {fileID: 13400000, guid: edd228ba44584a74584a151f825a5587, type: 2}
   camShake: {fileID: 0}
   bounceForce: 50
   pointsOnWall: 1

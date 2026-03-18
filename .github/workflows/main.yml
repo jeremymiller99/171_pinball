@@ -57,6 +57,10 @@ jobs:
           - StandaloneLinux64 # Build a Linux 64-bit standalone.
           - WebGL
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
       - name: Get current date
         id: date
         run: echo "date=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV

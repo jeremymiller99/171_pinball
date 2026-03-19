@@ -243,13 +243,14 @@ public sealed class RunFlowController : MonoBehaviour
         }
 
         session.AdvanceToNextBoard();
+        
 
         // Close shop transition before loading new board
         yield return StartCoroutine(CloseShopTransitionAndWait());
 
         if (boardLoader != null)
         {
-            yield return StartCoroutine(boardLoader.LoadBoard(next));
+            // yield return StartCoroutine(boardLoader.LoadBoard(next));
         }
 
         // Show board UI after new board loads
@@ -257,7 +258,6 @@ public sealed class RunFlowController : MonoBehaviour
         {
             shopTransitionController.ShowBoardUI();
         }
-
         rulesManager.StartRound();
         if (shopTransitionController != null)
         {

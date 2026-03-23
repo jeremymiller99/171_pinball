@@ -243,7 +243,12 @@ public sealed class GoalPassedPopupHUD : MonoBehaviour
                 canvas = canvasGO.AddComponent<Canvas>();
                 canvas.renderMode = RenderMode.ScreenSpaceOverlay;
                 canvas.sortingOrder = 200;
-                canvasGO.AddComponent<CanvasScaler>();
+                var scaler = canvasGO.AddComponent<CanvasScaler>();
+                scaler.uiScaleMode =
+                    CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                scaler.referenceResolution =
+                    new Vector2(1920f, 1080f);
+                scaler.matchWidthOrHeight = 0.5f;
                 canvasGO.AddComponent<GraphicRaycaster>();
             }
 

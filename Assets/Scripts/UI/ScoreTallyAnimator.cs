@@ -115,6 +115,11 @@ public class ScoreTallyAnimator : MonoBehaviour
         EnsureTextBindings();
     }
 
+    public void ResetCachedPositions()
+    {
+        _initialized = false;
+    }
+
     private void CacheInitialStateIfNeeded()
     {
         if (_initialized) return;

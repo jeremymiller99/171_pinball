@@ -939,13 +939,26 @@ public sealed class ShopUIController : MonoBehaviour
 
     private IList<BallDefinition> GetCatalog()
     {
-        if (allBallDefinitions != null && allBallDefinitions.Count != 0)
+        IList<BallDefinition> raw;
+
+        if (allBallDefinitions != null
+            && allBallDefinitions.Count != 0)
         {
-            return allBallDefinitions;
+            raw = allBallDefinitions;
+        }
+        else
+        {
+            BuildLegacyRuntimeDefinitionsIfNeeded();
+            raw = _legacyRuntimeDefinitions;
         }
 
-        BuildLegacyRuntimeDefinitionsIfNeeded();
-        return _legacyRuntimeDefinitions;
+        if (ProgressionService.Instance != null)
+        {
+            return ProgressionService.Instance
+                .GetUnlockedBallDefinitions(raw);
+        }
+
+        return raw;
     }
 
     private void BuildLegacyRuntimeDefinitionsIfNeeded()

@@ -1,5 +1,7 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
+// Modified by Cursor AI for jjmil on 2026-03-22.
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -7,7 +9,7 @@ using UnityEngine;
 public sealed class ProfileService : MonoBehaviour
 {
     private const int slotCount = 3;
-    private const int currentVersion = 2;
+    private const int currentVersion = 3;
 
     private const string activeSlotKey = "ActiveProfileSlot_v1";
     private const string directoryName = "profiles";
@@ -180,6 +182,43 @@ public sealed class ProfileService : MonoBehaviour
 
         Instance.SaveSlot(Instance.activeSlot);
         ProfileChanged?.Invoke(Instance.activeSlot);
+    }
+
+    public static bool AddUnlockedBall(string ballId)
+    {
+        if (Instance == null) return false;
+        if (string.IsNullOrEmpty(ballId)) return false;
+
+        ProfileSaveData p = Instance.GetOrCreateActiveProfile();
+        if (p == null) return false;
+
+        if (p.unlockedBallIds == null)
+        {
+            p.unlockedBallIds = new List<string>();
+        }
+
+        if (p.unlockedBallIds.Contains(ballId))
+        {
+            return false;
+        }
+
+        p.unlockedBallIds.Add(ballId);
+        Instance.SaveSlot(Instance.activeSlot);
+        ProfileChanged?.Invoke(Instance.activeSlot);
+        return true;
+    }
+
+    public static List<string> GetUnlockedBallIds()
+    {
+        if (Instance == null) return new List<string>();
+
+        ProfileSaveData p = Instance.GetOrCreateActiveProfile();
+        if (p == null || p.unlockedBallIds == null)
+        {
+            return new List<string>();
+        }
+
+        return new List<string>(p.unlockedBallIds);
     }
 
     public static bool ConsumeCleanFirstRunSkipIfNeeded()
@@ -358,11 +397,18 @@ public sealed class ProfileService : MonoBehaviour
 
         if (data.version > currentVersion)
         {
-            // Future version; keep as-is.
             return;
         }
 
-        // v1 is current. Future migrations go here.
+        // v2 -> v3: add unlockedBallIds list.
+        if (data.version < 3)
+        {
+            if (data.unlockedBallIds == null)
+            {
+                data.unlockedBallIds = new List<string>();
+            }
+        }
+
         data.version = currentVersion;
     }
 

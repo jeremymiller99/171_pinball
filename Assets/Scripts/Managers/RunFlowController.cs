@@ -228,6 +228,11 @@ public sealed class RunFlowController : MonoBehaviour
             // Run complete. Show Win Screen. Session is not reset so user can choose Endless Mode.
             ProfileService.RecordRunCompleted();
 
+            if (ProgressionService.Instance != null)
+            {
+                ProgressionService.Instance.CheckAndGrantUnlocks();
+            }
+
             yield return StartCoroutine(CloseShopTransitionAndWait());
 
             if (shopTransitionController != null)

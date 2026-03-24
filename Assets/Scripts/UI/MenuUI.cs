@@ -17,7 +17,7 @@ public class MainMenuUI : MonoBehaviour
         RunSelector = 1,
         Settings = 2,
         Profile = 3,
-        Collection = 4,
+        Progression = 4,
         Credits
     }
 
@@ -48,8 +48,8 @@ public class MainMenuUI : MonoBehaviour
     [Tooltip("Profile screen panel.")]
     [SerializeField] private GameObject profilePanel;
 
-    [Tooltip("Collection screen panel.")]
-    [SerializeField] private GameObject collectionPanel;
+    [Tooltip("Progression screen panel.")]
+    [SerializeField] private GameObject progressionPanel;
     [SerializeField] private GameObject creditPanel;
 
     [Header("Mode Info Panel (shows challenge mode details before starting)")]
@@ -81,8 +81,8 @@ public class MainMenuUI : MonoBehaviour
     [Tooltip("Main Menu 'Profile' button (opens Profile panel).")]
     [SerializeField] private Button profileButton;
 
-    [Tooltip("Main Menu 'Collection' button (opens Collection panel).")]
-    [SerializeField] private Button collectionButton;
+    [Tooltip("Main Menu 'Progression' button (opens Progression panel).")]
+    [SerializeField] private Button progressionButton;
 
     [Tooltip("Main Menu 'Quit' button (quits the application).")]
     [SerializeField] private Button quitButton;
@@ -188,10 +188,13 @@ public class MainMenuUI : MonoBehaviour
             if (go != null) profilePanel = go;
         }
 
-        if (collectionPanel == null)
+        if (progressionPanel == null)
         {
-            var go = FindPanelLikeObject("Collection") ?? FindPanelLikeObject("Collection Panel");
-            if (go != null) collectionPanel = go;
+            var go = FindPanelLikeObject("Progression")
+                ?? FindPanelLikeObject("Progression Panel")
+                ?? FindPanelLikeObject("Collection")
+                ?? FindPanelLikeObject("Collection Panel");
+            if (go != null) progressionPanel = go;
         }
 
         if (modeInfoPanel == null)
@@ -210,8 +213,9 @@ public class MainMenuUI : MonoBehaviour
             settingsButton = FindButtonUnder(mainMenuPanel, "Settings");
         if (profileButton == null)
             profileButton = FindButtonUnder(mainMenuPanel, "Profile");
-        if (collectionButton == null)
-            collectionButton = FindButtonUnder(mainMenuPanel, "Collection");
+        if (progressionButton == null)
+            progressionButton = FindButtonUnder(mainMenuPanel, "Progression")
+                ?? FindButtonUnder(mainMenuPanel, "Collection");
         if (quitButton == null)
             quitButton = FindButtonUnder(mainMenuPanel, "Quit");
 
@@ -227,10 +231,10 @@ public class MainMenuUI : MonoBehaviour
             profileButton.onClick.AddListener(OpenProfilePanel);
         }
 
-        if (collectionButton != null)
+        if (progressionButton != null)
         {
-            collectionButton.onClick.RemoveListener(OpenCollectionPanel);
-            collectionButton.onClick.AddListener(OpenCollectionPanel);
+            progressionButton.onClick.RemoveListener(OpenProgressionPanel);
+            progressionButton.onClick.AddListener(OpenProgressionPanel);
         }
 
         if (quitButton != null)
@@ -623,9 +627,9 @@ public class MainMenuUI : MonoBehaviour
         SetPanel(MenuPanel.Profile);
     }
 
-    public void OpenCollectionPanel()
+    public void OpenProgressionPanel()
     {
-        SetPanel(MenuPanel.Collection);
+        SetPanel(MenuPanel.Progression);
     }
 
     public void OpenCreditPanel()
@@ -748,7 +752,7 @@ public class MainMenuUI : MonoBehaviour
         if (runSelectorPanel != null) runSelectorPanel.SetActive(panel == MenuPanel.RunSelector);
         if (settingsPanel != null) settingsPanel.SetActive(panel == MenuPanel.Settings);
         if (profilePanel != null) profilePanel.SetActive(panel == MenuPanel.Profile);
-        if (collectionPanel != null) collectionPanel.SetActive(panel == MenuPanel.Collection);
+        if (progressionPanel != null) progressionPanel.SetActive(panel == MenuPanel.Progression);
         if (creditPanel != null) creditPanel.SetActive(panel == MenuPanel.Credits);
 
         if (modeInfoPanel != null) modeInfoPanel.SetActive(false);

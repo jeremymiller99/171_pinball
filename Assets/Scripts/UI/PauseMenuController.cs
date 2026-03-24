@@ -269,6 +269,11 @@ public sealed class PauseMenuController : MonoBehaviour
     {
         Close();
 
+        if (ProgressionService.Instance != null)
+        {
+            ProgressionService.Instance.CheckAndGrantUnlocks();
+        }
+
         if (string.IsNullOrWhiteSpace(mainMenuSceneName))
         {
             return;

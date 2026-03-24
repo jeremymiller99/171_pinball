@@ -2665,7 +2665,7 @@ MonoBehaviour:
   runSelectorPanel: {fileID: 0}
   settingsPanel: {fileID: 0}
   profilePanel: {fileID: 0}
-  collectionPanel: {fileID: 0}
+  progressionPanel: {fileID: 0}
   creditPanel: {fileID: 0}
   modeInfoPanel: {fileID: 0}
   modeInfoTitleText: {fileID: 0}
@@ -2676,7 +2676,7 @@ MonoBehaviour:
   startRunButton: {fileID: 0}
   settingsButton: {fileID: 0}
   profileButton: {fileID: 0}
-  collectionButton: {fileID: 0}
+  progressionButton: {fileID: 0}
   quitButton: {fileID: 0}
   challengeButtonsRoot: {fileID: 0}
   challengeButtonTemplate: {fileID: 0}

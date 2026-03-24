@@ -1548,6 +1548,11 @@ public class GameRulesManager : MonoBehaviour
 
         ProfileService.RecordRunCompleted();
 
+        if (ProgressionService.Instance != null)
+        {
+            ProgressionService.Instance.CheckAndGrantUnlocks();
+        }
+
         runActive = false;
         shopOpen = false;
         _shopBallSaveAvailable = false;

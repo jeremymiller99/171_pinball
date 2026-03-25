@@ -1,9 +1,11 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-17.
+// Modified by Cursor AI (claude-4.6-opus) for jjmil on 2026-03-24.
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityEngine.EventSystems; // Added for EventTrigger (Hover sounds)
+using UnityEngine.EventSystems;
 using TMPro;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -93,6 +95,9 @@ public class MainMenuUI : MonoBehaviour
     [Tooltip("Button prefab/template used for challenge buttons. If not set, the Start Run button is cloned.")]
     [SerializeField] private Button challengeButtonTemplate;
 
+    [Tooltip("Optional prefab for challenge cards. Must have a ChallengeCardUI component. If not set, cards are built from code.")]
+    [SerializeField] private GameObject challengeCardPrefab;
+
     [Header("Run selector extras (optional - auto-wired / auto-created)")]
     [Tooltip("Optional: Return button on the Run Selector panel. If not set, the script will try to find one, but will NOT create it.")]
     [SerializeField] private Button returnToMainMenuButton;
@@ -121,31 +126,67 @@ public class MainMenuUI : MonoBehaviour
     private void Start()
     {
         BuildMenuIfNeeded();
+
+        ProfileService.ProfileChanged += OnProfileChanged;
+        ProfileService.ActiveSlotChanged += OnActiveSlotChanged;
+    }
+
+    private void OnDestroy()
+    {
+        ProfileService.ProfileChanged -= OnProfileChanged;
+        ProfileService.ActiveSlotChanged -= OnActiveSlotChanged;
+    }
+
+    private void OnProfileChanged(ProfileSlotId slot)
+    {
+        if (currentPanel == MenuPanel.RunSelector)
+        {
+            BuildChallengeButtons();
+        }
+    }
+
+    private void OnActiveSlotChanged(ProfileSlotId slot)
+    {
+        if (currentPanel == MenuPanel.RunSelector)
+        {
+            BuildChallengeButtons();
+        }
     }
 
     private void Update()
     {
-        // Allow Esc to return from sub-panels.
-        if (WasEscapePressedThisFrame())
+        if (WasBackPressedThisFrame())
         {
-
-            // First check if mode info overlay is open.
-            if (modeInfoPanel != null && modeInfoPanel.activeSelf)
+            if (modeInfoPanel != null
+                && modeInfoPanel.activeSelf)
             {
                 CloseModeInfoPanel();
             }
             else if (currentPanel != MenuPanel.MainMenu)
             {
-                // From other sub-panels, go back to main menu.
                 OpenMainMenuPanel();
             }
         }
     }
 
-    private static bool WasEscapePressedThisFrame()
+    private static bool WasBackPressedThisFrame()
     {
 #if ENABLE_INPUT_SYSTEM
-        return Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame;
+        if (Keyboard.current != null
+            && Keyboard.current.escapeKey
+                .wasPressedThisFrame)
+        {
+            return true;
+        }
+
+        if (Gamepad.current != null
+            && Gamepad.current.buttonEast
+                .wasPressedThisFrame)
+        {
+            return true;
+        }
+
+        return false;
 #else
         return Input.GetKeyDown(KeyCode.Escape);
 #endif
@@ -262,10 +303,14 @@ public class MainMenuUI : MonoBehaviour
     {
         if (challengeButtonsRoot != null) return;
 
-        var existing = FindAnyGameObjectByNameIncludingInactive("Challenges");
+        var existing =
+            FindAnyGameObjectByNameIncludingInactive(
+                "Challenges");
+
         if (existing != null)
         {
-            challengeButtonsRoot = existing.GetComponent<RectTransform>();
+            challengeButtonsRoot =
+                existing.GetComponent<RectTransform>();
         }
 
         if (challengeButtonsRoot == null)
@@ -278,27 +323,49 @@ public class MainMenuUI : MonoBehaviour
 #endif
             if (canvas != null)
             {
-                var go = new GameObject("Challenges", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
-                go.transform.SetParent(canvas.transform, false);
+                var go = new GameObject(
+                    "Challenges",
+                    typeof(RectTransform),
+                    typeof(VerticalLayoutGroup),
+                    typeof(ContentSizeFitter));
 
-                challengeButtonsRoot = go.GetComponent<RectTransform>();
-                challengeButtonsRoot.anchorMin = new Vector2(0.5f, 0.5f);
-                challengeButtonsRoot.anchorMax = new Vector2(0.5f, 0.5f);
-                challengeButtonsRoot.pivot = new Vector2(0.5f, 0.5f);
-                challengeButtonsRoot.anchoredPosition = new Vector2(250f, 125f);
-                challengeButtonsRoot.sizeDelta = new Vector2(400f, 400f);
+                go.transform.SetParent(
+                    canvas.transform, false);
 
-                var vlg = go.GetComponent<VerticalLayoutGroup>();
-                vlg.childAlignment = TextAnchor.UpperCenter;
-                vlg.childControlWidth = true;
-                vlg.childControlHeight = true;
-                vlg.childForceExpandWidth = true;
+                challengeButtonsRoot =
+                    go.GetComponent<RectTransform>();
+
+                challengeButtonsRoot.anchorMin =
+                    new Vector2(0.5f, 0.5f);
+                challengeButtonsRoot.anchorMax =
+                    new Vector2(0.5f, 0.5f);
+                challengeButtonsRoot.pivot =
+                    new Vector2(0.5f, 0.5f);
+                challengeButtonsRoot.anchoredPosition =
+                    new Vector2(250f, 50f);
+                challengeButtonsRoot.sizeDelta =
+                    new Vector2(800f, 600f);
+
+                var vlg = go.GetComponent<
+                    VerticalLayoutGroup>();
+                vlg.childAlignment =
+                    TextAnchor.UpperCenter;
+                vlg.childControlWidth = false;
+                vlg.childControlHeight = false;
+                vlg.childForceExpandWidth = false;
                 vlg.childForceExpandHeight = false;
-                vlg.spacing = 12f;
+                vlg.spacing = 16f;
+                vlg.padding =
+                    new RectOffset(10, 10, 10, 10);
 
-                var fitter = go.GetComponent<ContentSizeFitter>();
-                fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-                fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+                var fitter = go.GetComponent<
+                    ContentSizeFitter>();
+                fitter.horizontalFit =
+                    ContentSizeFitter.FitMode
+                        .Unconstrained;
+                fitter.verticalFit =
+                    ContentSizeFitter.FitMode
+                        .PreferredSize;
             }
         }
 
@@ -511,17 +578,41 @@ public class MainMenuUI : MonoBehaviour
         return null;
     }
 
+    [SerializeField] private float cardWidth = 700f;
+    [SerializeField] private float cardHeight = 120f;
+
+    private static readonly Color cardBgColor =
+        new Color(0.14f, 0.14f, 0.18f, 0.95f);
+
+    private static readonly Color cardHoverColor =
+        new Color(0.22f, 0.22f, 0.28f, 0.95f);
+
+    private static readonly Color filledStarColor =
+        new Color(1f, 0.85f, 0.1f, 1f);
+
+    private static readonly Color emptyStarColor =
+        new Color(0.4f, 0.4f, 0.4f, 0.6f);
+
+    private const string filledStar = "\u2605";
+    private const string emptyStar = "\u2606";
+
     private void BuildChallengeButtons()
     {
-        if (challengeButtonsRoot == null || challengeButtonTemplate == null)
+        if (challengeButtonsRoot == null)
         {
             return;
         }
 
-        for (int i = challengeButtonsRoot.childCount - 1; i >= 0; i--)
+        for (int i =
+            challengeButtonsRoot.childCount - 1;
+            i >= 0; i--)
         {
-            var child = challengeButtonsRoot.GetChild(i);
-            if (child != null && child.name.StartsWith("ChallengeButton_"))
+            var child =
+                challengeButtonsRoot.GetChild(i);
+
+            if (child != null
+                && child.name.StartsWith(
+                    "ChallengeButton_"))
             {
                 Destroy(child.gameObject);
             }
@@ -529,59 +620,482 @@ public class MainMenuUI : MonoBehaviour
 
         int created = 0;
 
-        if (challengeModes != null && challengeModes.Length > 0)
+        if (challengeModes != null
+            && challengeModes.Length > 0)
         {
-            for (int i = 0; i < challengeModes.Length; i++)
+            for (int i = 0;
+                i < challengeModes.Length; i++)
             {
                 var mode = challengeModes[i];
+
                 if (mode == null) continue;
 
                 var boards = mode.boards;
-                if (boards == null || boards.Length == 0) continue;
+
+                if (boards == null
+                    || boards.Length == 0)
+                {
+                    continue;
+                }
 
                 var capturedMode = mode;
-                CreateChallengeButton(mode.displayName, () => ShowModeInfoPanel(capturedMode));
+
+                CreateChallengeCard(
+                    capturedMode,
+                    () => ShowModeInfoPanel(
+                        capturedMode));
+
                 created++;
             }
         }
 
-        if (created == 0 && challengeBoards != null && challengeBoards.Length > 0)
+        if (created == 0
+            && challengeBoards != null
+            && challengeBoards.Length > 0)
         {
-            for (int i = 0; i < challengeBoards.Length; i++)
+            for (int i = 0;
+                i < challengeBoards.Length; i++)
             {
                 var board = challengeBoards[i];
+
                 if (board == null) continue;
-                string label = string.IsNullOrWhiteSpace(board.displayName) ? "Challenge" : board.displayName;
+
                 var capturedBoard = board;
-                CreateChallengeButton(label, () => ShowModeInfoPanelForBoard(capturedBoard));
+
+                CreateFallbackChallengeCard(
+                    capturedBoard,
+                    () => ShowModeInfoPanelForBoard(
+                        capturedBoard));
             }
         }
     }
 
-    private void CreateChallengeButton(string label, UnityEngine.Events.UnityAction onClick)
+    private void CreateChallengeCard(
+        ChallengeModeDefinition mode,
+        UnityEngine.Events.UnityAction onClick)
     {
-        var btn = Instantiate(challengeButtonTemplate, challengeButtonsRoot);
-        btn.name = $"ChallengeButton_{label}";
-        ColorBlock buttonColors = btn.colors;
-        buttonColors.selectedColor = Color.gray;
-        btn.colors = buttonColors;
+        long bestScore =
+            ProfileService.GetChallengeBestScore(
+                mode.displayName);
+
+        RunRank rank = RunRankUtility.Calculate(
+            bestScore,
+            mode.cRankThreshold,
+            mode.bRankThreshold,
+            mode.aRankThreshold,
+            mode.sRankThreshold,
+            mode.sPlusThreshold);
+
+        int stars = bestScore > 0L
+            ? RunRankUtility.GetStarCount(rank)
+            : 0;
+
+        string rankLabel = bestScore > 0L
+            ? RunRankUtility.GetLabel(rank)
+            : "--";
+
+        var card = BuildCardGameObject(
+            mode.displayName,
+            mode.icon,
+            bestScore,
+            rankLabel,
+            stars,
+            onClick);
+
+        card.name =
+            $"ChallengeButton_{mode.displayName}";
+    }
+
+    private void CreateFallbackChallengeCard(
+        BoardDefinition board,
+        UnityEngine.Events.UnityAction onClick)
+    {
+        string label =
+            string.IsNullOrWhiteSpace(
+                board.displayName)
+                ? "Challenge"
+                : board.displayName;
+
+        var card = BuildCardGameObject(
+            label, null, 0L, "--", 0, onClick);
+
+        card.name = $"ChallengeButton_{label}";
+    }
+
+    private GameObject BuildCardGameObject(
+        string displayName,
+        Sprite icon,
+        long bestScore,
+        string rankLabel,
+        int starCount,
+        UnityEngine.Events.UnityAction onClick)
+    {
+        if (challengeCardPrefab != null)
+        {
+            return BuildCardFromPrefab(
+                displayName, icon,
+                bestScore, rankLabel,
+                starCount, onClick);
+        }
+
+        return BuildCardFromCode(
+            displayName, icon,
+            bestScore, rankLabel,
+            starCount, onClick);
+    }
+
+    private GameObject BuildCardFromPrefab(
+        string displayName,
+        Sprite icon,
+        long bestScore,
+        string rankLabel,
+        int starCount,
+        UnityEngine.Events.UnityAction onClick)
+    {
+        var cardGo = Instantiate(
+            challengeCardPrefab,
+            challengeButtonsRoot);
+
+        var card =
+            cardGo.GetComponent<ChallengeCardUI>();
+
+        if (card != null)
+        {
+            if (card.gradeText != null)
+            {
+                card.gradeText.text = rankLabel;
+                card.gradeText.color = bestScore > 0L
+                    ? GetRankColor(rankLabel)
+                    : new Color(
+                        0.4f, 0.4f, 0.4f, 0.6f);
+            }
+
+            if (card.bestScoreText != null)
+            {
+                card.bestScoreText.text =
+                    bestScore > 0L
+                        ? FormatScoreValue(bestScore)
+                        : "0";
+            }
+
+            if (card.starImages != null)
+            {
+                for (int i = 0;
+                    i < card.starImages.Length; i++)
+                {
+                    if (card.starImages[i] == null)
+                        continue;
+
+                    card.starImages[i].sprite =
+                        i < starCount
+                            ? card.filledStarSprite
+                            : card.emptyStarSprite;
+                }
+            }
+
+            if (card.nameText != null)
+            {
+                card.nameText.text = displayName;
+            }
+
+        }
+
+        var btn =
+            cardGo.GetComponentInChildren<Button>();
+
+        if (btn != null && onClick != null)
+        {
+            btn.onClick.AddListener(onClick);
+        }
+
+        if (btn != null
+            && AudioManager.Instance != null)
+        {
+            AudioManager.Instance
+                .WireButtonAudio(btn);
+        }
+
+        return cardGo;
+    }
+
+    private GameObject BuildCardFromCode(
+        string displayName,
+        Sprite icon,
+        long bestScore,
+        string rankLabel,
+        int starCount,
+        UnityEngine.Events.UnityAction onClick)
+    {
+        var cardGo = new GameObject(
+            "Card",
+            typeof(RectTransform),
+            typeof(Image),
+            typeof(Button),
+            typeof(LayoutElement));
+
+        cardGo.transform.SetParent(
+            challengeButtonsRoot, false);
+
+        var cardRect =
+            cardGo.GetComponent<RectTransform>();
+        cardRect.sizeDelta =
+            new Vector2(cardWidth, cardHeight);
+
+        var le = cardGo.GetComponent<LayoutElement>();
+        le.preferredWidth = cardWidth;
+        le.preferredHeight = cardHeight;
+
+        var cardBg = cardGo.GetComponent<Image>();
+        cardBg.color = cardBgColor;
+
+        var btn = cardGo.GetComponent<Button>();
+
+        ColorBlock colors = btn.colors;
+        colors.normalColor = Color.white;
+        colors.highlightedColor =
+            new Color(1.3f, 1.3f, 1.4f, 1f);
+        colors.selectedColor =
+            new Color(1.2f, 1.2f, 1.3f, 1f);
+        colors.pressedColor =
+            new Color(0.9f, 0.9f, 0.9f, 1f);
+        btn.colors = colors;
+        btn.targetGraphic = cardBg;
 
         if (onClick != null)
         {
-            btn.onClick.RemoveListener(onClick);
             btn.onClick.AddListener(onClick);
         }
 
         if (AudioManager.Instance != null)
         {
-            AudioManager.Instance.WireButtonAudio(btn);
+            AudioManager.Instance
+                .WireButtonAudio(btn);
         }
 
-        var text = btn.GetComponentInChildren<TMP_Text>(true);
-        if (text != null)
+        float iconAreaWidth = cardHeight - 16f;
+
+        var iconGo = new GameObject(
+            "Icon",
+            typeof(RectTransform),
+            typeof(Image));
+
+        iconGo.transform.SetParent(
+            cardGo.transform, false);
+
+        var iconRect =
+            iconGo.GetComponent<RectTransform>();
+        iconRect.anchorMin = new Vector2(0f, 0f);
+        iconRect.anchorMax = new Vector2(0f, 1f);
+        iconRect.pivot = new Vector2(0f, 0.5f);
+        iconRect.anchoredPosition =
+            new Vector2(12f, 0f);
+        iconRect.sizeDelta =
+            new Vector2(iconAreaWidth, -16f);
+
+        var iconImg = iconGo.GetComponent<Image>();
+
+        if (icon != null)
         {
-            text.text = label;
+            iconImg.sprite = icon;
+            iconImg.preserveAspect = true;
         }
+        else
+        {
+            iconImg.color =
+                new Color(0.3f, 0.3f, 0.3f, 0.5f);
+        }
+
+        float textLeftEdge = iconAreaWidth + 24f;
+
+        var nameGo = new GameObject(
+            "Name",
+            typeof(RectTransform),
+            typeof(TextMeshProUGUI));
+
+        nameGo.transform.SetParent(
+            cardGo.transform, false);
+
+        var nameRect =
+            nameGo.GetComponent<RectTransform>();
+        nameRect.anchorMin = new Vector2(0f, 0.55f);
+        nameRect.anchorMax = new Vector2(0.6f, 0.95f);
+        nameRect.offsetMin =
+            new Vector2(textLeftEdge, 0f);
+        nameRect.offsetMax = new Vector2(0f, -4f);
+
+        var nameTmp =
+            nameGo.GetComponent<TextMeshProUGUI>();
+        nameTmp.text = displayName;
+        nameTmp.fontSize = 28f;
+        nameTmp.fontStyle = FontStyles.Bold;
+        nameTmp.alignment =
+            TextAlignmentOptions.BottomLeft;
+        nameTmp.color = Color.white;
+        nameTmp.textWrappingMode =
+            TextWrappingModes.NoWrap;
+        nameTmp.overflowMode =
+            TextOverflowModes.Ellipsis;
+
+        var scoreGo = new GameObject(
+            "BestScore",
+            typeof(RectTransform),
+            typeof(TextMeshProUGUI));
+
+        scoreGo.transform.SetParent(
+            cardGo.transform, false);
+
+        var scoreRect =
+            scoreGo.GetComponent<RectTransform>();
+        scoreRect.anchorMin = new Vector2(0f, 0.1f);
+        scoreRect.anchorMax = new Vector2(0.6f, 0.5f);
+        scoreRect.offsetMin =
+            new Vector2(textLeftEdge, 0f);
+        scoreRect.offsetMax = new Vector2(0f, 0f);
+
+        var scoreTmp =
+            scoreGo.GetComponent<TextMeshProUGUI>();
+
+        scoreTmp.text = bestScore > 0L
+            ? $"Best: {FormatScoreValue(bestScore)}"
+            : "No attempts yet";
+
+        scoreTmp.fontSize = 18f;
+        scoreTmp.alignment =
+            TextAlignmentOptions.TopLeft;
+        scoreTmp.color = bestScore > 0L
+            ? new Color(0.8f, 0.8f, 0.8f, 1f)
+            : new Color(0.5f, 0.5f, 0.5f, 0.8f);
+        scoreTmp.textWrappingMode =
+            TextWrappingModes.NoWrap;
+
+        var rankGo = new GameObject(
+            "Rank",
+            typeof(RectTransform),
+            typeof(TextMeshProUGUI));
+
+        rankGo.transform.SetParent(
+            cardGo.transform, false);
+
+        var rankRect =
+            rankGo.GetComponent<RectTransform>();
+        rankRect.anchorMin =
+            new Vector2(0.62f, 0.15f);
+        rankRect.anchorMax =
+            new Vector2(0.78f, 0.85f);
+        rankRect.offsetMin = Vector2.zero;
+        rankRect.offsetMax = Vector2.zero;
+
+        var rankTmp =
+            rankGo.GetComponent<TextMeshProUGUI>();
+        rankTmp.text = rankLabel;
+        rankTmp.fontSize = 36f;
+        rankTmp.fontStyle = FontStyles.Bold;
+        rankTmp.alignment =
+            TextAlignmentOptions.Center;
+        rankTmp.textWrappingMode =
+            TextWrappingModes.NoWrap;
+
+        rankTmp.color = bestScore > 0L
+            ? GetRankColor(rankLabel)
+            : new Color(0.4f, 0.4f, 0.4f, 0.6f);
+
+        var starsGo = new GameObject(
+            "Stars",
+            typeof(RectTransform),
+            typeof(TextMeshProUGUI));
+
+        starsGo.transform.SetParent(
+            cardGo.transform, false);
+
+        var starsRect =
+            starsGo.GetComponent<RectTransform>();
+        starsRect.anchorMin =
+            new Vector2(0.8f, 0.15f);
+        starsRect.anchorMax =
+            new Vector2(0.98f, 0.85f);
+        starsRect.offsetMin = Vector2.zero;
+        starsRect.offsetMax = Vector2.zero;
+
+        var starsTmp =
+            starsGo.GetComponent<TextMeshProUGUI>();
+
+        string starStr = "";
+
+        for (int i = 0; i < 3; i++)
+        {
+            starStr += i < starCount
+                ? filledStar
+                : emptyStar;
+        }
+
+        starsTmp.text = starStr;
+        starsTmp.fontSize = 32f;
+        starsTmp.alignment =
+            TextAlignmentOptions.Center;
+        starsTmp.textWrappingMode =
+            TextWrappingModes.NoWrap;
+        starsTmp.enableAutoSizing = true;
+        starsTmp.fontSizeMin = 20f;
+        starsTmp.fontSizeMax = 32f;
+
+        starsTmp.color = starCount > 0
+            ? filledStarColor
+            : emptyStarColor;
+
+        return cardGo;
+    }
+
+    private static Color GetRankColor(string label)
+    {
+        if (string.IsNullOrEmpty(label)
+            || label == "--")
+        {
+            return new Color(0.4f, 0.4f, 0.4f, 0.6f);
+        }
+
+        char letter = label[0];
+
+        switch (letter)
+        {
+            case 'S':
+                return new Color(
+                    1f, 0.85f, 0.1f, 1f);
+            case 'A':
+                return new Color(
+                    0.3f, 0.9f, 0.4f, 1f);
+            case 'B':
+                return new Color(
+                    0.3f, 0.6f, 1f, 1f);
+            case 'C':
+                return new Color(
+                    0.85f, 0.85f, 0.85f, 1f);
+            default:
+                return new Color(
+                    0.6f, 0.6f, 0.6f, 1f);
+        }
+    }
+
+    private static string FormatScoreValue(
+        long value)
+    {
+        if (value >= 1000000L)
+        {
+            double m = value / 1000000.0;
+            return m.ToString(
+                "F1", CultureInfo.InvariantCulture)
+                + "M";
+        }
+
+        if (value >= 1000L)
+        {
+            double k = value / 1000.0;
+            return k.ToString(
+                "F1", CultureInfo.InvariantCulture)
+                + "K";
+        }
+
+        return value.ToString(
+            "N0", CultureInfo.InvariantCulture);
     }
 
     public void StartQuickRun()
@@ -609,6 +1123,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void OpenRunSelectorPanel()
     {
+        BuildChallengeButtons();
         SetPanel(MenuPanel.RunSelector);
     }
 

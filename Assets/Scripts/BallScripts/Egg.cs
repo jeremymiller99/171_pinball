@@ -8,7 +8,6 @@ public class EggBall : Ball
     [SerializeField] private float nextBallMultMultiplier;
     [SerializeField] private int nextBallCoinMultiplier;
     [SerializeField] private BallSpawner ballSpawner;
-    [SerializeField] private FloatingTextSpawner floatingTextSpawner;
     [SerializeField] private bool applyOnUseOnly = true;
 
     private bool wasUsed;
@@ -30,7 +29,6 @@ public class EggBall : Ball
     {
         base.Awake();
         ballSpawner = FindFirstObjectByType<BallSpawner>();
-        floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
         stackedNextBallPointMultiplier = 1f;
         stackedNextBallMultMultiplier = 1f;
         stackedNextBallCoinMultiplier = 1;

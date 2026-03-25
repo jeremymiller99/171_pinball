@@ -1,3 +1,4 @@
+// Updated with Cursor (claude-4.6-opus) by jjmil on 2026-03-24.
 using System.Collections;
 using UnityEngine;
 
@@ -25,6 +26,9 @@ public class FireComponent : BoardComponent
         if (collision.collider.GetComponent<Ball>())
         {
             ballHits++;
+            if (enableHitCountPopup)
+                SpawnBoardHitCountPopup(ballHits, 0);
+
             if (!onFire)
             {
                 preFireBallHitsInLastSeconds++;

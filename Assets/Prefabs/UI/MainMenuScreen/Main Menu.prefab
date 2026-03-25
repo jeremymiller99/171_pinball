@@ -32,8 +32,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 438292854554276384}
-  - {fileID: 2720918475877743193}
   - {fileID: 5658481037728183965}
+  - {fileID: 2720918475877743193}
   - {fileID: 1097282877601028498}
   m_Father: {fileID: 4679854218974633987}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -592,6 +592,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 678383841541002622, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
+      propertyPath: m_UpdateString.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 678383841541002622, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
       propertyPath: m_StringReference.m_TableReference.m_TableCollectionName
       value: 
       objectReference: {fileID: 0}
@@ -613,11 +617,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4426287773363330665, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
       propertyPath: m_Name
-      value: Collection Button
+      value: Progression Button
       objectReference: {fileID: 0}
     - target: {fileID: 4582733711460541707, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
       propertyPath: m_text
-      value: Collection
+      value: Progression
       objectReference: {fileID: 0}
     - target: {fileID: 7412342444153923411, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
       propertyPath: m_Pivot.x

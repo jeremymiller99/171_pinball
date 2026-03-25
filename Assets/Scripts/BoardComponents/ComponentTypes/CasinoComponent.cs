@@ -1,3 +1,4 @@
+// Updated with Cursor (claude-4.6-opus) by jjmil on 2026-03-24.
 using System.IO;
 using UnityEngine;
 
@@ -14,6 +15,9 @@ public class CasinoComponent : BoardComponent
         if (collision.collider.GetComponent<Ball>())
         {
             ballHits++;
+            if (enableHitCountPopup)
+                SpawnBoardHitCountPopup(ballHits, 0);
+
             if (ballHits % ballHitsToGamble == 0)
             {
                 AddScore();

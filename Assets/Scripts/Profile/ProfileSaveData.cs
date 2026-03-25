@@ -1,7 +1,14 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
-// Modified by Cursor AI for jjmil on 2026-03-22.
+// Modified by Cursor AI for jjmil on 2026-03-24.
 using System;
 using System.Collections.Generic;
+
+[Serializable]
+public sealed class ChallengeBestEntry
+{
+    public string challengeName;
+    public long bestScore;
+}
 
 [Serializable]
 public sealed class ProfileSaveData
@@ -12,13 +19,17 @@ public sealed class ProfileSaveData
 
     public ProfileStats stats = new ProfileStats();
 
-    // Tutorial / first-time flags (per profile slot)
     public bool hasConsumedCleanFirstRunSkip;
     public bool hasAnsweredFirstTimePlayingPrompt;
     public bool isFirstTimePlayingAnswerYes;
     public bool hasSeenShopTutorial;
 
-    // Progression: ball IDs unlocked via the battle-pass track.
     public List<string> unlockedBallIds = new List<string>();
+
+    public List<string> unlockedComponentIds =
+        new List<string>();
+
+    public List<ChallengeBestEntry> challengeBests =
+        new List<ChallengeBestEntry>();
 }
 

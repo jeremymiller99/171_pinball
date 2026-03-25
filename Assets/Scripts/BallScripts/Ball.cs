@@ -1,10 +1,11 @@
-// Updated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-17.
+// Updated with Cursor (claude-4.6-opus) by jjmil on 2026-03-24.
 using System.Collections.Generic;
 using System.Collections;
 using System.Drawing;
 using Unity.Mathematics;
 using UnityEngine;
 using FMODUnity;
+using TMPro;
 using System;
 
 public class Ball : MonoBehaviour
@@ -22,12 +23,23 @@ public class Ball : MonoBehaviour
     public int coinMultiplier = 1;
     public GameObject lastObjectHit;
 
+    [Header("Hit Count Popup")]
+    [Tooltip("Font for the hit count popup. If null, uses the spawner's default (Jersey 10).")]
+    [SerializeField] protected TMP_FontAsset hitCountFontAsset;
+    [SerializeField] protected float hitCountPopupScale = 0.7f;
+    [SerializeField] protected Vector2 hitCountPopupOffset = new Vector2(0f, 40f);
+
+    protected FloatingTextSpawner floatingTextSpawner;
+
+    protected virtual int HitIntervalForPopup => 0;
+
     public virtual float PointsAwardMultiplier => pointMultiplier;
 
     virtual protected void Awake()
     {
         trailRenderer = GetComponent<TrailRenderer>();
         scoreManager = FindFirstObjectByType<ScoreManager>();
+        floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
     }
 
     virtual protected void Start()
@@ -66,6 +78,7 @@ public class Ball : MonoBehaviour
             if (scoredAnyComponent)
             {
                 componentHits++;
+                TrySpawnHitCountPopup();
             }
         }
 
@@ -97,9 +110,29 @@ public class Ball : MonoBehaviour
             if (scoredAnyComponent)
             {
                 componentHits++;
+                TrySpawnHitCountPopup();
             }
         }
         
+    }
+
+    private void TrySpawnHitCountPopup()
+    {
+        int interval = HitIntervalForPopup;
+        if (interval <= 0) return;
+
+        int progress = ((componentHits - 1) % interval) + 1;
+        SpawnHitCountPopup(progress, interval);
+    }
+
+    protected void SpawnHitCountPopup(int current, int total)
+    {
+        if (floatingTextSpawner == null)
+            floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
+        if (floatingTextSpawner == null) return;
+
+        string text = current.ToString();
+        floatingTextSpawner.SpawnText(transform.position, text, hitCountFontAsset, hitCountPopupScale, hitCountPopupOffset);
     }
 
     protected virtual bool ShouldScoreBoardComponent(BoardComponent component)

@@ -1,4 +1,4 @@
-// Updated with Cursor (claude-4.6-opus) by assistant on 2026-02-25.
+// Updated with Cursor (claude-4.6-opus) by jjmil on 2026-03-24.
 using UnityEngine;
 
 public class MultiBall : Ball
@@ -13,6 +13,8 @@ public class MultiBall : Ball
     [SerializeField] private int componentHitsToSplit = 5;
 
     [SerializeField] private bool hasSplit;
+
+    protected override int HitIntervalForPopup => hasSplit ? 0 : componentHitsToSplit;
 
 
     new void Awake()
@@ -57,6 +59,7 @@ public class MultiBall : Ball
         if (componentHits >= componentHitsToSplit && !hasSplit)
         {
             SplitNow();
+            componentHits = 0;
         }
         
         base.AddScore(amount, typeOfScore, pos);

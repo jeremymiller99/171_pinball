@@ -1222,7 +1222,8 @@ public class FloatingTextSpawner : MonoBehaviour
     {
         if (abs < 1000f)
         {
-            return Mathf.RoundToInt(abs).ToString(CultureInfo.InvariantCulture);
+            float rounded1 = Mathf.Round(abs * 10f) / 10f;
+            return rounded1.ToString("0.#", CultureInfo.InvariantCulture);
         }
 
         float scale = 1000f;

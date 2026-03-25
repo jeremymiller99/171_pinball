@@ -53,7 +53,8 @@ public class ScoreTallyAnimator : MonoBehaviour
         float abs = Mathf.Abs(value);
         if (abs < 1000f)
         {
-            return Mathf.RoundToInt(value).ToString(CultureInfo.InvariantCulture);
+            float rounded1 = Mathf.Round(value * 10f) / 10f;
+            return rounded1.ToString("0.0", CultureInfo.InvariantCulture);
         }
 
         float scale = 1000f;

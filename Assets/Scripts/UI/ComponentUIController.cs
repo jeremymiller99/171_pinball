@@ -357,23 +357,95 @@ public class ComponentUIController : MonoBehaviour
 
     public void RefreshComponentOffers()
     {
-        foreach(UpgradeComponents upgradeComponents in upgradeComponentList)
+        List<BoardComponentDefinition> unlocked =
+            GetUnlockedDefinitions();
+
+        if (unlocked.Count == 0)
         {
-            upgradeComponents.boardComponentDefinition = GetNewUpgrade();
-            upgradeComponents.Refresh();
+            foreach (UpgradeComponents uc
+                in upgradeComponentList)
+            {
+                uc.gameObject.SetActive(false);
+            }
+
+            return;
+        }
+
+        foreach (UpgradeComponents uc
+            in upgradeComponentList)
+        {
+            uc.gameObject.SetActive(true);
+            uc.boardComponentDefinition =
+                GetNewUpgrade(unlocked);
+            uc.Refresh();
         }
     }
 
-    BoardComponentDefinition GetNewUpgrade()
+    private BoardComponentDefinition GetNewUpgrade(
+        List<BoardComponentDefinition> pool)
     {
-        BoardComponentDefinition newDefinition = allComponentDefinitions[Random.Range(0, allComponentDefinitions.Count)];
-        foreach(UpgradeComponents upgradeComponents in upgradeComponentList)
+        const int maxAttempts = 30;
+
+        for (int attempt = 0;
+            attempt < maxAttempts;
+            attempt++)
         {
-            if (upgradeComponents.boardComponentDefinition == newDefinition)
+            BoardComponentDefinition candidate =
+                pool[Random.Range(0, pool.Count)];
+
+            bool duplicate = false;
+
+            foreach (UpgradeComponents uc
+                in upgradeComponentList)
             {
-                newDefinition = GetNewUpgrade();
+                if (uc.boardComponentDefinition
+                    == candidate)
+                {
+                    duplicate = true;
+                    break;
+                }
+            }
+
+            if (!duplicate)
+            {
+                return candidate;
             }
         }
-        return newDefinition;
+
+        return pool[Random.Range(0, pool.Count)];
+    }
+
+    private List<BoardComponentDefinition>
+        GetUnlockedDefinitions()
+    {
+        var result =
+            new List<BoardComponentDefinition>();
+
+        if (ProgressionService.Instance == null)
+        {
+            return new List<BoardComponentDefinition>(
+                allComponentDefinitions);
+        }
+
+        for (int i = 0;
+            i < allComponentDefinitions.Count;
+            i++)
+        {
+            BoardComponentDefinition def =
+                allComponentDefinitions[i];
+
+            if (def == null)
+            {
+                continue;
+            }
+
+            if (ProgressionService.Instance
+                .IsComponentUnlocked(def.Id))
+            {
+                result.Add(def);
+            }
+        }
+
+        return result;
     }
 }

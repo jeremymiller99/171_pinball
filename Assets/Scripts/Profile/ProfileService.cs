@@ -1,5 +1,5 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
-// Modified by Cursor AI for jjmil on 2026-03-22.
+// Modified by Cursor AI (claude-4.6-opus) for jjmil on 2026-03-24.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +9,7 @@ using UnityEngine;
 public sealed class ProfileService : MonoBehaviour
 {
     private const int slotCount = 3;
-    private const int currentVersion = 3;
+    private const int currentVersion = 5;
 
     private const string activeSlotKey = "ActiveProfileSlot_v1";
     private const string directoryName = "profiles";
@@ -212,13 +212,144 @@ public sealed class ProfileService : MonoBehaviour
     {
         if (Instance == null) return new List<string>();
 
-        ProfileSaveData p = Instance.GetOrCreateActiveProfile();
+        ProfileSaveData p =
+            Instance.GetOrCreateActiveProfile();
+
         if (p == null || p.unlockedBallIds == null)
         {
             return new List<string>();
         }
 
         return new List<string>(p.unlockedBallIds);
+    }
+
+    public static bool AddUnlockedComponent(
+        string componentId)
+    {
+        if (Instance == null) return false;
+        if (string.IsNullOrEmpty(componentId)) return false;
+
+        ProfileSaveData p =
+            Instance.GetOrCreateActiveProfile();
+
+        if (p == null) return false;
+
+        if (p.unlockedComponentIds == null)
+        {
+            p.unlockedComponentIds = new List<string>();
+        }
+
+        if (p.unlockedComponentIds.Contains(componentId))
+        {
+            return false;
+        }
+
+        p.unlockedComponentIds.Add(componentId);
+        Instance.SaveSlot(Instance.activeSlot);
+        ProfileChanged?.Invoke(Instance.activeSlot);
+        return true;
+    }
+
+    public static List<string> GetUnlockedComponentIds()
+    {
+        if (Instance == null) return new List<string>();
+
+        ProfileSaveData p =
+            Instance.GetOrCreateActiveProfile();
+
+        if (p == null
+            || p.unlockedComponentIds == null)
+        {
+            return new List<string>();
+        }
+
+        return new List<string>(p.unlockedComponentIds);
+    }
+
+    public static long GetChallengeBestScore(
+        string challengeName)
+    {
+        if (Instance == null) return 0L;
+
+        if (string.IsNullOrEmpty(challengeName))
+        {
+            return 0L;
+        }
+
+        ProfileSaveData p =
+            Instance.GetOrCreateActiveProfile();
+
+        if (p == null || p.challengeBests == null)
+        {
+            return 0L;
+        }
+
+        for (int i = 0; i < p.challengeBests.Count; i++)
+        {
+            if (p.challengeBests[i] != null
+                && p.challengeBests[i].challengeName
+                    == challengeName)
+            {
+                return p.challengeBests[i].bestScore;
+            }
+        }
+
+        return 0L;
+    }
+
+    public static bool RecordChallengeBestScore(
+        string challengeName, long score)
+    {
+        if (Instance == null) return false;
+
+        if (string.IsNullOrEmpty(challengeName))
+        {
+            return false;
+        }
+
+        if (score <= 0L) return false;
+
+        ProfileSaveData p =
+            Instance.GetOrCreateActiveProfile();
+
+        if (p == null) return false;
+
+        if (p.challengeBests == null)
+        {
+            p.challengeBests =
+                new List<ChallengeBestEntry>();
+        }
+
+        for (int i = 0; i < p.challengeBests.Count; i++)
+        {
+            if (p.challengeBests[i] != null
+                && p.challengeBests[i].challengeName
+                    == challengeName)
+            {
+                if (score <= p.challengeBests[i].bestScore)
+                {
+                    return false;
+                }
+
+                p.challengeBests[i].bestScore = score;
+                Instance.SaveSlot(Instance.activeSlot);
+                ProfileChanged?.Invoke(
+                    Instance.activeSlot);
+
+                return true;
+            }
+        }
+
+        p.challengeBests.Add(new ChallengeBestEntry
+        {
+            challengeName = challengeName,
+            bestScore = score
+        });
+
+        Instance.SaveSlot(Instance.activeSlot);
+        ProfileChanged?.Invoke(Instance.activeSlot);
+
+        return true;
     }
 
     public static bool ConsumeCleanFirstRunSkipIfNeeded()
@@ -400,12 +531,29 @@ public sealed class ProfileService : MonoBehaviour
             return;
         }
 
-        // v2 -> v3: add unlockedBallIds list.
         if (data.version < 3)
         {
             if (data.unlockedBallIds == null)
             {
                 data.unlockedBallIds = new List<string>();
+            }
+        }
+
+        if (data.version < 4)
+        {
+            if (data.unlockedComponentIds == null)
+            {
+                data.unlockedComponentIds =
+                    new List<string>();
+            }
+        }
+
+        if (data.version < 5)
+        {
+            if (data.challengeBests == null)
+            {
+                data.challengeBests =
+                    new List<ChallengeBestEntry>();
             }
         }
 

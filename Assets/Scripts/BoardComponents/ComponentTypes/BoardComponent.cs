@@ -1,8 +1,9 @@
-// Generated with Cursor AI (GPT-5.2), by OpenAI, 2026-02-24.
+// Updated with Cursor (claude-4.6-opus) by jjmil on 2026-03-24.
 // Change: add selection outline + portal paired-exit outline.
 // Change: always show 10 width black outline; shop highlight uses selection colors.
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
 using System;
 
 public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
@@ -22,6 +23,15 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
     [SerializeField] private int directionOfPulse = 1;
     [SerializeField] protected int ballHits = 0;
     [SerializeField] protected ScoreManager scoreManager;
+
+    [Header("Hit Count Popup")]
+    [Tooltip("When enabled, spawns a floating hit-count number on each ball hit.")]
+    [SerializeField] protected bool enableHitCountPopup = false;
+    [Tooltip("Font for the hit count popup. If null, uses the spawner's default (Jersey 10).")]
+    [SerializeField] protected TMP_FontAsset hitCountFontAsset;
+    [SerializeField] protected float hitCountPopupScale = 0.7f;
+    [SerializeField] protected Vector2 hitCountPopupOffset = new Vector2(0f, 40f);
+    protected FloatingTextSpawner floatingTextSpawner;
 
     [Header("Outline (always visible)")]
     [SerializeField] private bool useSelectionOutline = true;
@@ -213,6 +223,8 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
         if (other.GetComponent<Ball>())
         {
             ballHits++;
+            if (enableHitCountPopup)
+                SpawnBoardHitCountPopup(ballHits, 0);
         }
     }
 
@@ -221,12 +233,24 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
         if (collision.collider.GetComponent<Ball>())
         {
             ballHits++;
+            if (enableHitCountPopup)
+                SpawnBoardHitCountPopup(ballHits, 0);
         }
     }
 
     virtual public void AddScore()
     {
         scoreManager.AddScore(amountToScore, typeOfScore, transform);
+    }
+
+    protected void SpawnBoardHitCountPopup(int current, int total)
+    {
+        if (floatingTextSpawner == null)
+            floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
+        if (floatingTextSpawner == null) return;
+
+        string text = current.ToString();
+        floatingTextSpawner.SpawnText(transform.position, text, hitCountFontAsset, hitCountPopupScale, hitCountPopupOffset);
     }
 
     public int CompareTo(BoardComponent otherComponent)

@@ -1,5 +1,4 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant for jjmil on 2026-02-24.
-// RestoreAndHide added by Cursor for jjmil on 2026-03-15.
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -208,18 +207,6 @@ public sealed class WinScreenController : MonoBehaviour
         }
 
         RestorePauseAndInput();
-    }
-
-    /// <summary>
-    /// Restores pause state and hides the win screen. Call when entering endless mode.
-    /// </summary>
-    public void RestoreAndHide()
-    {
-        RestorePauseAndInput();
-        if (gameObject != null)
-        {
-            gameObject.SetActive(false);
-        }
     }
 
     private void DisableGameplayInputBehaviours()

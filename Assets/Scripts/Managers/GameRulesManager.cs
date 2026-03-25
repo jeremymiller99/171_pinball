@@ -1,5 +1,4 @@
 // Updated with Cursor (GPT-5.2) by OpenAI assistant for jjmil on 2026-02-19.
-// Endless mode added by Cursor for jjmil on 2026-03-15.
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -87,6 +86,7 @@ public class GameRulesManager : MonoBehaviour
     private bool shopOpen;
     private bool _drainProcessing;
     private bool _levelUpProcessing;
+    private float _runStartTime;
 
     // If true, the NEXT drain after at least one level-up will not consume the ball from the loadout.
     private bool _shopBallSaveAvailable;
@@ -171,6 +171,8 @@ public class GameRulesManager : MonoBehaviour
 
     public int LevelIndex => roundIndex;
     public float TotalScore => roundTotal;
+    public float RunElapsedTime =>
+        Time.unscaledTime - _runStartTime;
 
     public int RoundIndex => roundIndex;
     public int MaxBalls => maxBalls;
@@ -258,108 +260,6 @@ public class GameRulesManager : MonoBehaviour
     public void TriggerRoundFailed()
     {
         ShowRoundFailed();
-    }
-
-    /// <summary>
-    /// Call from a button when the round-failed (game over) screen is showing.
-    /// Enters endless mode: refills balls and continues playing until you die.
-    /// </summary>
-    public void EnterEndlessMode()
-    {
-        if (roundFailedUIRoot == null || !roundFailedUIRoot.activeSelf)
-        {
-            return;
-        }
-
-        var session = GameSession.Instance;
-        if (session != null)
-        {
-            session.EnterEndlessMode();
-        }
-
-        TryAddFallbackBallsToLoadout(Mathf.Max(1, startingMaxBalls));
-        EnsureLoadoutWithinCapacity();
-        ballsRemaining = BallLoadoutCount;
-
-        ResolveScoreManager(logIfMissing: false);
-        if (scoreManager != null)
-        {
-            scoreManager.SetBallsRemaining(ballsRemaining);
-        }
-
-        SetRoundFailedOpen(false);
-
-        ResolveBallSpawner(logIfMissing: false);
-        if (ballSpawner != null)
-        {
-            ballSpawner.ClearAll();
-            ballSpawner.BuildHandFromPrefabs(GetBallLoadoutPrefabSnapshot());
-        }
-
-        _activeBallSlotIndex = -1;
-        SpawnBall();
-
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.SetMusicMuffled(false);
-        }
-    }
-
-    /// <summary>
-    /// Call from a button when the win screen is showing.
-    /// Enters endless mode: continues on the current board, leveling until you die.
-    /// </summary>
-    public void EnterEndlessModeFromWin()
-    {
-        var session = GameSession.Instance;
-        if (session == null)
-        {
-            return;
-        }
-
-        session.EnterEndlessMode();
-
-#if UNITY_2022_2_OR_NEWER
-        var winController = FindFirstObjectByType<WinScreenController>(FindObjectsInactive.Include);
-#else
-        var winController = FindObjectOfType<WinScreenController>(includeInactive: true);
-#endif
-        if (winController != null)
-        {
-            winController.RestoreAndHide();
-        }
-
-        runActive = true;
-        shopOpen = false;
-        _shopBallSaveAvailable = false;
-        _drainProcessing = false;
-        _levelUpProcessing = false;
-
-        SetShopOpen(false);
-        SetRoundFailedOpen(false);
-
-        ResolveScoreManager(logIfMissing: false);
-        if (scoreManager != null)
-        {
-            scoreManager.SetScoringLocked(false);
-        }
-
-        TryAddFallbackBallsToLoadout(Mathf.Max(1, startingMaxBalls));
-        EnsureLoadoutWithinCapacity();
-        ballsRemaining = BallLoadoutCount;
-
-        ResolveScoreManager(logIfMissing: false);
-        if (scoreManager != null)
-        {
-            scoreManager.SetBallsRemaining(ballsRemaining);
-        }
-
-        StartRound();
-
-        if (shopTransitionController != null)
-        {
-            shopTransitionController.ResumeGameplayInput();
-        }
     }
 
     private void ResolveBallSpawner(bool logIfMissing)
@@ -617,6 +517,7 @@ public class GameRulesManager : MonoBehaviour
         _levelUpProcessing = false;
         _shopBallSaveAvailable = false;
         _activeBallSlotIndex = -1;
+        _runStartTime = Time.unscaledTime;
         roundIndex = 0;
         coins = 0;
         maxBalls = Mathf.Max(1, startingMaxBalls);
@@ -1376,7 +1277,6 @@ public class GameRulesManager : MonoBehaviour
                 ApplyCurrentRoundFromWindow();
 
                 scoreManager.SetRoundIndex(roundIndex);
-                scoreManager.OnNewRound(roundIndex); 
                 scoreManager.SetGoal(CurrentGoal);
 
                 _shopBallSaveAvailable = true;
@@ -1520,8 +1420,19 @@ public class GameRulesManager : MonoBehaviour
 
     private bool ShouldCompleteRunNow()
     {
+        var session = GameSession.Instance;
+
+        if (session != null
+            && session.ActiveChallenge != null)
+        {
+            return false;
+        }
+
         ResolveBoardLoader(logIfMissing: false);
-        BoardRoot root = boardLoader != null ? boardLoader.CurrentBoardRoot : null;
+        BoardRoot root = boardLoader != null
+            ? boardLoader.CurrentBoardRoot
+            : null;
+
         if (root == null)
         {
             return false;
@@ -1532,7 +1443,6 @@ public class GameRulesManager : MonoBehaviour
             return false;
         }
 
-        var session = GameSession.Instance;
         if (session == null)
         {
             return false;
@@ -2061,7 +1971,43 @@ public class GameRulesManager : MonoBehaviour
     private void ShowRoundFailed()
     {
         ClearAllBalls();
-        SetRoundFailedOpen(true);
+
+        var session = GameSession.Instance;
+        var challenge = session != null
+            ? session.ActiveChallenge
+            : null;
+
+        var panel = roundFailedUIRoot != null
+            ? roundFailedUIRoot
+                .GetComponent<
+                    RoundFailedPanelController>()
+            : null;
+
+        if (panel != null)
+        {
+            panel.Show(
+                roundTotal,
+                CurrentGoal,
+                roundIndex,
+                ballsRemaining,
+                coins,
+                RunElapsedTime,
+                challenge);
+        }
+        else
+        {
+            SetRoundFailedOpen(true);
+        }
+
+        if (challenge != null)
+        {
+            long score = (long)System.Math.Round(
+                System.Math.Max(0f, roundTotal));
+
+            ProfileService.RecordChallengeBestScore(
+                challenge.displayName,
+                score);
+        }
     }
 
     private void SetShopOpen(bool open)
@@ -2074,10 +2020,42 @@ public class GameRulesManager : MonoBehaviour
 
     private void SetRoundFailedOpen(bool open)
     {
-        if (roundFailedUIRoot != null)
+        if (roundFailedUIRoot == null)
         {
-            roundFailedUIRoot.SetActive(open);
+            return;
         }
+
+        var panel = roundFailedUIRoot
+            .GetComponent<
+                RoundFailedPanelController>();
+
+        if (panel != null)
+        {
+            if (open)
+            {
+                var session =
+                    GameSession.Instance;
+
+                panel.Show(
+                    roundTotal,
+                    CurrentGoal,
+                    roundIndex,
+                    ballsRemaining,
+                    coins,
+                    RunElapsedTime,
+                    session != null
+                        ? session.ActiveChallenge
+                        : null);
+            }
+            else
+            {
+                panel.Hide();
+            }
+
+            return;
+        }
+
+        roundFailedUIRoot.SetActive(open);
     }
 
     private GameObject SpawnBall()

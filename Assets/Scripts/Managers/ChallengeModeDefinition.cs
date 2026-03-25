@@ -22,6 +22,9 @@ public sealed class ChallengeModeDefinition : ScriptableObject
     [Header("UI")]
     public string displayName = "Challenge";
 
+    [Tooltip("Icon shown on the run select card.")]
+    public Sprite icon;
+
     [TextArea(2, 6)]
     public string description;
 
@@ -66,18 +69,51 @@ public sealed class ChallengeModeDefinition : ScriptableObject
     [Min(0)]
     public int guaranteedDevils = 2;
 
+    [Header("Run Ranking Thresholds")]
+    [Tooltip(
+        "Score needed to reach C- rank. "
+        + "Below this is D tier.")]
+    [Min(0)]
+    public int cRankThreshold = 5000;
+
+    [Tooltip("Score needed to reach B- rank.")]
+    [Min(0)]
+    public int bRankThreshold = 15000;
+
+    [Tooltip("Score needed to reach A- rank.")]
+    [Min(0)]
+    public int aRankThreshold = 35000;
+
+    [Tooltip("Score needed to reach S- rank.")]
+    [Min(0)]
+    public int sRankThreshold = 60000;
+
+    [Tooltip(
+        "Score at or above which the player "
+        + "earns S+ rank.")]
+    [Min(0)]
+    public int sPlusThreshold = 100000;
+
     /// <summary>
-    /// Returns the effective total rounds, using the provided default if totalRounds is 0.
+    /// Returns the effective total rounds,
+    /// using the provided default if
+    /// totalRounds is 0.
     /// </summary>
     public int GetTotalRounds(int defaultRounds)
     {
-        return totalRounds > 0 ? totalRounds : defaultRounds;
+        return totalRounds > 0
+            ? totalRounds
+            : defaultRounds;
     }
 
     /// <summary>
-    /// Returns true if this challenge has any modifier pools configured.
+    /// Returns true if this challenge has any
+    /// modifier pools configured.
     /// </summary>
-    public bool HasModifierPools => (angelPool != null && angelPool.ValidCount > 0) ||
-                                     (devilPool != null && devilPool.ValidCount > 0);
+    public bool HasModifierPools =>
+        (angelPool != null
+            && angelPool.ValidCount > 0)
+        || (devilPool != null
+            && devilPool.ValidCount > 0);
 }
 

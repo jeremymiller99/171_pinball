@@ -1,3 +1,4 @@
+// Updated with Cursor (claude-4.6-opus) by jjmil on 2026-03-24.
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,15 +22,15 @@ public class BombComponent : BoardComponent
         if (collision.collider.GetComponent<Ball>())
         {
             ballHits++;
-            if (ballHits %  ballHitsToExplode == 0)
+            SpawnBoardHitCountPopup(ballHits, ballHitsToExplode);
+            if (ballHits % ballHitsToExplode == 0)
             {
+                ballHits = 0;
                 explosion.SetActive(true);
                 explosion.GetComponent<Bomb>().Explode();
                 StartCoroutine("DespawnExplosion");
             }
-
         }
-        
     }
 
     private IEnumerator DespawnExplosion()

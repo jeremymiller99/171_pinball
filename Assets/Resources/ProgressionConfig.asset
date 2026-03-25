@@ -13,9 +13,53 @@ MonoBehaviour:
   m_Name: ProgressionConfig
   m_EditorClassIdentifier: Assembly-CSharp::ProgressionConfig
   starterBalls:
+  - {fileID: 11400000, guid: 3831bb0ffd737894da5e6bb0fdeb873a, type: 2}
+  - {fileID: 11400000, guid: b9a62e857df0eb845b4d8cb26d631061, type: 2}
+  - {fileID: 11400000, guid: ce44953e6cc764326b992043cf27aba5, type: 2}
+  - {fileID: 11400000, guid: 93f997505f7a1458389450c24a44587d, type: 2}
+  - {fileID: 11400000, guid: 028c0ddc6ebf40943ba8e3c97524eaa6, type: 2}
+  - {fileID: 11400000, guid: f35bd4ffe10094a47bf0d293cdf9a5d6, type: 2}
   - {fileID: 11400000, guid: 4b14eb5ea0e14ea469f9dc777aade6eb, type: 2}
   - {fileID: 11400000, guid: c1d8ad878e4616b4bbd42ef637c67545, type: 2}
-  - {fileID: 11400000, guid: bc5c7467f0bb6f64f988fb888cbecd97, type: 2}
+  starterComponents:
+  - {fileID: 11400000, guid: 2e273d8f0ebdcd4468266621efe53fbc, type: 2}
+  - {fileID: 11400000, guid: de01d113460379245af3316a58b26496, type: 2}
+  - {fileID: 11400000, guid: 17e438f1b4d78114e82945f1a1505113, type: 2}
+  - {fileID: 11400000, guid: 2c99ec52697a8a840a8f0ce2c523e050, type: 2}
   tiers:
-  - xpThreshold: 1000
-    rewardBall: {fileID: 11400000, guid: f35bd4ffe10094a47bf0d293cdf9a5d6, type: 2}
+  - xpThreshold: 10000
+    rewardBall: {fileID: 11400000, guid: c5d187ab5d6fe49339d3b893bd17a9c6, type: 2}
+    rewardComponent: {fileID: 0}
+  - xpThreshold: 20000
+    rewardBall: {fileID: 0}
+    rewardComponent: {fileID: 11400000, guid: ca442fffa8476264d94780ba67994e3f, type: 2}
+  - xpThreshold: 30000
+    rewardBall: {fileID: 11400000, guid: d0595fc864dad404d8c3c89b73f794b7, type: 2}
+    rewardComponent: {fileID: 0}
+  - xpThreshold: 40000
+    rewardBall: {fileID: 0}
+    rewardComponent: {fileID: 11400000, guid: 78be3238a08a20f4fa5be324b0c8657e, type: 2}
+  - xpThreshold: 50000
+    rewardBall: {fileID: 11400000, guid: 81c71a33b8bf04cf1b30eea0435ec7f8, type: 2}
+    rewardComponent: {fileID: 0}
+  - xpThreshold: 60000
+    rewardBall: {fileID: 0}
+    rewardComponent: {fileID: 11400000, guid: 02d1ef1d206898948a8bc7704e5bad27, type: 2}
+  - xpThreshold: 70000
+    rewardBall: {fileID: 11400000, guid: bc5c7467f0bb6f64f988fb888cbecd97, type: 2}
+    rewardComponent: {fileID: 0}
+  - xpThreshold: 80000
+    rewardBall: {fileID: 0}
+    rewardComponent: {fileID: 11400000, guid: cc4abed5aa9e62b49b36e019a7e85a3a, type: 2}
+  - xpThreshold: 90000
+    rewardBall: {fileID: 11400000, guid: cea58c17d5a2d46c1baff2d288a8ac96, type: 2}
+    rewardComponent: {fileID: 0}
+  - xpThreshold: 100000
+    rewardBall: {fileID: 0}
+    rewardComponent: {fileID: 11400000, guid: f22b0a11bcce1314889410572c6f5dc9, type: 2}
+  - xpThreshold: 110000
+    rewardBall: {fileID: 11400000, guid: 5e268c55c6e0e4e1fa52229fb8702861, type: 2}
+    rewardComponent: {fileID: 0}
+  - xpThreshold: 120000
+    rewardBall: {fileID: 0}
+    rewardComponent: {fileID: 11400000, guid: f22b0a11bcce1314889410572c6f5dc9, type: 2}

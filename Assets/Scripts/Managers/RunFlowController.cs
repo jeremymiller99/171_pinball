@@ -185,65 +185,116 @@ public sealed class RunFlowController : MonoBehaviour
         // Advance round index but leave shop visible so the transition can animate it closed.
         rulesManager.CloseShopAndAdvanceIndexOnly(hideUi: false);
 
-        bool boardCleared = boardLoader != null && boardLoader.CurrentBoardRoot != null && boardLoader.CurrentBoardRoot.IsCleared(rulesManager);
+        bool boardCleared = boardLoader != null
+            && boardLoader.CurrentBoardRoot != null
+            && boardLoader.CurrentBoardRoot
+                .IsCleared(rulesManager);
+
+        bool isChallenge = session != null
+            && session.ActiveChallenge != null;
+
+        if (isChallenge)
+        {
+            boardCleared = false;
+        }
+
         if (!boardCleared)
         {
-            // Close shop transition (camera pans back to board)
-            yield return StartCoroutine(CloseShopTransitionAndWait());
+            yield return StartCoroutine(
+                CloseShopTransitionAndWait());
 
-            // Show board UI after camera returns
             if (shopTransitionController != null)
             {
-                shopTransitionController.ShowBoardUI();
+                shopTransitionController
+                    .ShowBoardUI();
             }
 
             rulesManager.StartRound();
+
             if (shopTransitionController != null)
             {
-                shopTransitionController.ResumeGameplayInput();
+                shopTransitionController
+                    .ResumeGameplayInput();
             }
+
             yield break;
         }
 
         if (session == null)
         {
-            yield return StartCoroutine(CloseShopTransitionAndWait());
+            yield return StartCoroutine(
+                CloseShopTransitionAndWait());
 
             if (shopTransitionController != null)
             {
-                shopTransitionController.ShowBoardUI();
+                shopTransitionController
+                    .ShowBoardUI();
             }
 
             rulesManager.StartRound();
+
             if (shopTransitionController != null)
             {
-                shopTransitionController.ResumeGameplayInput();
+                shopTransitionController
+                    .ResumeGameplayInput();
             }
+
             yield break;
         }
 
-        BoardDefinition next = session.GetNextBoard();
+        BoardDefinition next =
+            session.GetNextBoard();
+
         if (next == null)
         {
-            // Run complete. Show Win Screen. Session is not reset so user can choose Endless Mode.
             ProfileService.RecordRunCompleted();
+
+            if (session.ActiveChallenge != null
+                && rulesManager != null)
+            {
+                long runScore = (long)Mathf.Round(
+                    rulesManager.TotalScore);
+
+                ProfileService
+                    .RecordChallengeBestScore(
+                        session.ActiveChallenge
+                            .displayName,
+                        runScore);
+            }
 
             if (ProgressionService.Instance != null)
             {
-                ProgressionService.Instance.CheckAndGrantUnlocks();
+                ProgressionService.Instance
+                    .CheckAndGrantUnlocks();
             }
 
-            yield return StartCoroutine(CloseShopTransitionAndWait());
+            yield return StartCoroutine(
+                CloseShopTransitionAndWait());
 
             if (shopTransitionController != null)
             {
-                shopTransitionController.ShowBoardUI();
-                shopTransitionController.ResumeGameplayInput();
+                shopTransitionController
+                    .ShowBoardUI();
+                shopTransitionController
+                    .ResumeGameplayInput();
             }
 
-            int levelReached = rulesManager != null ? Mathf.Max(1, rulesManager.LevelIndex + 1) : 1;
-            long points = rulesManager != null ? (long)Mathf.Round(rulesManager.TotalScore) : 0L;
-            WinScreenController.Show(levelReached, points);
+            int levelReached =
+                rulesManager != null
+                    ? Mathf.Max(
+                        1,
+                        rulesManager.LevelIndex + 1)
+                    : 1;
+
+            long points =
+                rulesManager != null
+                    ? (long)Mathf.Round(
+                        rulesManager.TotalScore)
+                    : 0L;
+
+            WinScreenController.Show(
+                levelReached, points);
+
             yield break;
         }
 

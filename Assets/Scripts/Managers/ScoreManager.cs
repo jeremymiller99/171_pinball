@@ -175,6 +175,8 @@ public class ScoreManager : MonoBehaviour
     private float _componentHitScoreBonus;
     private bool _hasCompletedLevelThisRound;
 
+    [SerializeField] private int totalComponentHits;
+
     private int compTriggered = 35;
     private int framesSinceLastScore = 0;
     private const int FramesToResetAudio = 200;
@@ -302,8 +304,6 @@ public class ScoreManager : MonoBehaviour
     /// <summary>Time scale multiplier from the active round modifier (e.g. Turbo = 2). Set by GameRulesManager.</summary>
     public float modifierTimeScaleMultiplier = 1f;
 
-    [SerializeField] private int roundsToAddToMultipliers;
-    [SerializeField] private float amountToAddToMultipliers;
 
     private Queue<float> pointQueue = new Queue<float>();
     private Queue<float> multQueue = new Queue<float>();
@@ -330,16 +330,27 @@ public class ScoreManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Called when the ball hits a scoring component. After completing a level this round, each hit adds to game speed.
+    /// Total component hits across the entire run.
+    /// </summary>
+    public int TotalComponentHits => totalComponentHits;
+
+    /// <summary>
+    /// Called when the ball hits a scoring component.
     /// </summary>
     public void RegisterComponentHit()
     {
+        totalComponentHits++;
+
         if (_hasCompletedLevelThisRound)
         {
-            _componentHitAssistAccelerationBonus += componentHitAssistAccelerationIncrement;
-            _componentHitTimeScaleBonus += componentHitTimeScaleIncrement;
-            _componentHitScoreBonus += componentHitScoreIncrement;
-            float newTimeScale = baselineTimeScale + _componentHitTimeScaleBonus;
+            _componentHitAssistAccelerationBonus +=
+                componentHitAssistAccelerationIncrement;
+            _componentHitTimeScaleBonus +=
+                componentHitTimeScaleIncrement;
+            _componentHitScoreBonus +=
+                componentHitScoreIncrement;
+            float newTimeScale = baselineTimeScale
+                + _componentHitTimeScaleBonus;
             ApplySpeedFromTier(force: true);
         }
     }
@@ -372,14 +383,6 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    public void OnNewRound(int round)
-    {   
-        if (round % roundsToAddToMultipliers == 0)
-        {
-            pointMultiplier += amountToAddToMultipliers;
-            multMultiplier += amountToAddToMultipliers;
-        }
-    }
     
     private const string ScorePanelRootName = "Score Panel";
     private const string RoundInfoPanelRootName = "Round Info Panel";
@@ -398,7 +401,8 @@ public class ScoreManager : MonoBehaviour
         float abs = Mathf.Abs(value);
         if (abs < 1000f)
         {
-            return Mathf.RoundToInt(value).ToString(CultureInfo.InvariantCulture);
+            float rounded1 = Mathf.Round(value * 10f) / 10f;
+            return rounded1.ToString("0.#", CultureInfo.InvariantCulture);
         }
 
         float scale = 1000f;
@@ -445,6 +449,38 @@ public class ScoreManager : MonoBehaviour
         // Under 100 show up to 1 decimal, dropping trailing .0: 1K, 1.1K, 10K, 10.1K, ...
         string core = scaledRounded1.ToString("0.#", CultureInfo.InvariantCulture) + suffix;
         return value < 0f ? "-" + core : core;
+    }
+
+    private static string FormatPointsOneDecimal(
+        float value)
+    {
+        float abs = Mathf.Abs(value);
+
+        if (abs < 1000f)
+        {
+            float r = Mathf.Round(value * 10f) / 10f;
+            return r.ToString(
+                "0.0",
+                CultureInfo.InvariantCulture);
+        }
+
+        return FormatPointsCompact(value);
+    }
+
+    private static string FormatRoundTotalWhole(
+        float value)
+    {
+        float abs = Mathf.Abs(value);
+
+        if (abs < 1000f)
+        {
+            int w = Mathf.CeilToInt(value);
+            return w.ToString(
+                "N0",
+                CultureInfo.InvariantCulture);
+        }
+
+        return FormatPointsCompact(value);
     }
 
     private static string FormatMultiplier(float value)
@@ -598,7 +634,7 @@ public class ScoreManager : MonoBehaviour
                 pointsActuallyChanged = true;
                 pointsUiDisplayed = newPoints;
             }
-            pointsText.text = FormatPointsCompact(newPoints);
+            pointsText.text = FormatPointsOneDecimal(newPoints);
         }
 
         // Process Multiplier
@@ -691,6 +727,7 @@ public class ScoreManager : MonoBehaviour
         ResetAudioPitch();
         mult = 1f;
         _goalTier = 0;
+        totalComponentHits = 0;
         _componentHitAssistAccelerationBonus = 0f;
         _componentHitTimeScaleBonus = 0f;
         _componentHitScoreBonus = 0f;
@@ -870,11 +907,11 @@ public class ScoreManager : MonoBehaviour
         pointsUiDisplayed = points;
         multUiDisplayed = mult;
         if (pointsText != null)
-            pointsText.text = FormatPointsCompact(pointsUiDisplayed);
+            pointsText.text = FormatPointsOneDecimal(pointsUiDisplayed);
         if (multText != null)
             multText.text = FormatMultiplier(multUiDisplayed);
         if (roundTotalText != null)
-            roundTotalText.text = FormatPointsCompact(roundTotal);
+            roundTotalText.text = FormatRoundTotalWhole(roundTotal);
         if (goalText != null)
             goalText.text = FormatPointsCompact(CumulativeGoal);
         if (coinsText != null && gameRulesManager != null)

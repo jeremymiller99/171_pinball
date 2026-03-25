@@ -1,3 +1,4 @@
+// Updated with Cursor (claude-4.6-opus) by jjmil on 2026-03-24.
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,16 +23,16 @@ public class DuplicatingComponent : BoardComponent
         if (ball)
         {
             ballHits++;
+            SpawnBoardHitCountPopup(ballHits, ballHitsToDuplicate);
             if (ballHits % ballHitsToDuplicate == 0)
             {
+                ballHits = 0;
                 Ball newBall = Instantiate(ball);
                 duplicatedBalls.Add(newBall);
                 newBall.componentHits = 0;
                 gameRulesManager.ActiveBalls.Add(newBall.gameObject);
             }
-
         }
-        
     }
 
     void Update()

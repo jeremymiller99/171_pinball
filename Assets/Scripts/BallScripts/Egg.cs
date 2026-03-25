@@ -66,28 +66,33 @@ public class EggBall : Ball
         return component != null && component.GetComponent<Portal>() == null;
     }
 
-    void OnDestroy()
+    protected override void OnDestroy()
     {
-        if (applyOnUseOnly && !wasUsed) return;
-        if (ballSpawner == null) return;
-        if (ballSpawner.HandCount <= 0) return;
-
-        GameObject nextBallObject = ballSpawner.ActivateNextBall();
-        if (nextBallObject == null) return;
-
-        Ball nextBall = nextBallObject.GetComponent<Ball>();
-        if (nextBall == null) return;
-
-        GetEffectiveNextBallFactors(out float pointFactor, out float multFactor, out int coinFactor);
-
-        nextBall.pointMultiplier *= pointFactor;
-        nextBall.multMultiplier *= multFactor;
-        nextBall.coinMultiplier *= coinFactor;
-
-        if (nextBall is EggBall nextEgg)
+        if (!(applyOnUseOnly && !wasUsed)
+            && ballSpawner != null
+            && ballSpawner.HandCount > 0)
         {
-            nextEgg.StackEggEffect(pointFactor, multFactor, coinFactor);
+            GameObject nextBallObject = ballSpawner.ActivateNextBall();
+            if (nextBallObject != null)
+            {
+                Ball nextBall = nextBallObject.GetComponent<Ball>();
+                if (nextBall != null)
+                {
+                    GetEffectiveNextBallFactors(out float pointFactor, out float multFactor, out int coinFactor);
+
+                    nextBall.pointMultiplier *= pointFactor;
+                    nextBall.multMultiplier *= multFactor;
+                    nextBall.coinMultiplier *= coinFactor;
+
+                    if (nextBall is EggBall nextEgg)
+                    {
+                        nextEgg.StackEggEffect(pointFactor, multFactor, coinFactor);
+                    }
+                }
+            }
         }
+
+        base.OnDestroy();
     }
 
     public void StackEggEffect(float pointFactor, float multFactor, int coinFactor)

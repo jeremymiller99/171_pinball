@@ -31,6 +31,8 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
     [SerializeField] protected TMP_FontAsset hitCountFontAsset;
     [SerializeField] protected float hitCountPopupScale = 0.7f;
     [SerializeField] protected Vector2 hitCountPopupOffset = new Vector2(0f, 40f);
+    [Tooltip("Color for the hit count popup text. Set per component to match its associated ball color.")]
+    [SerializeField] protected Color hitCountPopupColor = Color.white;
     protected FloatingTextSpawner floatingTextSpawner;
 
     [Header("Outline (always visible)")]
@@ -250,7 +252,7 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
         if (floatingTextSpawner == null) return;
 
         string text = current.ToString();
-        floatingTextSpawner.SpawnText(transform.position, text, hitCountFontAsset, hitCountPopupScale, hitCountPopupOffset);
+        floatingTextSpawner.SpawnText(transform.position, text, hitCountFontAsset, hitCountPopupScale, hitCountPopupOffset, hitCountPopupColor);
     }
 
     public int CompareTo(BoardComponent otherComponent)

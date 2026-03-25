@@ -28,6 +28,7 @@ public class DuplicatingComponent : BoardComponent
             {
                 ballHits = 0;
                 Ball newBall = Instantiate(ball);
+                Ball.EnsureOwnMaterials(newBall.gameObject);
                 duplicatedBalls.Add(newBall);
                 newBall.componentHits = 0;
                 gameRulesManager.ActiveBalls.Add(newBall.gameObject);

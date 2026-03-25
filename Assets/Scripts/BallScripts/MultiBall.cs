@@ -39,6 +39,8 @@ public class MultiBall : Ball
         }
 
         GameObject newBall = Instantiate(prefab, transform.position, transform.rotation);
+        EnsureOwnMaterials(newBall);
+
         MultiBall child = newBall.GetComponent<MultiBall>();
         if (child != null)
         {

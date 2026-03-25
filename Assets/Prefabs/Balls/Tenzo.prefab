@@ -74,7 +74,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 2bf6d822e28432c46b7da73bee4a5b32, type: 2}
+  - {fileID: 4874126678125670354, guid: b5cac654607f236469b253e4f8e27ed8, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -330,6 +330,10 @@ MonoBehaviour:
   multMultiplier: 1
   coinMultiplier: 1
   lastObjectHit: {fileID: 0}
+  hitCountFontAsset: {fileID: 0}
+  hitCountPopupScale: 0.7
+  hitCountPopupOffset: {x: 0, y: 40}
+  hitCountPopupColor: {r: 0.7176471, g: 0.29803923, b: 0.18431373, a: 1}
   pointsToAdd: 100
   multToAdd: 0.2
   componentHitsPerTenzo: 10

@@ -47,6 +47,8 @@ public class ChaosBall : Ball
             float angle = (i / 9f) * 360f * Mathf.Deg2Rad;
             Vector3 offset = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * spawnRadius;
             GameObject go = Instantiate(chaosBallPrefab, center + offset, Quaternion.identity);
+            EnsureOwnMaterials(go);
+
             var cb = go.GetComponent<ChaosBall>();
             if (cb != null)
             {
@@ -75,10 +77,12 @@ public class ChaosBall : Ball
             r.material.color = color;
     }
 
-    void OnDestroy()
+    protected override void OnDestroy()
     {
         ChaosRoundTracker.Unregister(this);
         if (ChaosRoundTracker.RemainingCount == 0)
             ChaosRoundTracker.ClearRound();
+
+        base.OnDestroy();
     }
 }

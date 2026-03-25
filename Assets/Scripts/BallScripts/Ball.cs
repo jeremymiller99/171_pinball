@@ -1,7 +1,7 @@
 // Updated with Cursor (claude-4.6-opus) by jjmil on 2026-03-24.
 using System.Collections.Generic;
 using System.Collections;
-using System.Drawing;
+
 using Unity.Mathematics;
 using UnityEngine;
 using FMODUnity;
@@ -28,6 +28,8 @@ public class Ball : MonoBehaviour
     [SerializeField] protected TMP_FontAsset hitCountFontAsset;
     [SerializeField] protected float hitCountPopupScale = 0.7f;
     [SerializeField] protected Vector2 hitCountPopupOffset = new Vector2(0f, 40f);
+    [Tooltip("Color for the hit count popup text. Set per ball to match its visual color.")]
+    [SerializeField] protected Color hitCountPopupColor = Color.white;
 
     protected FloatingTextSpawner floatingTextSpawner;
 
@@ -132,7 +134,7 @@ public class Ball : MonoBehaviour
         if (floatingTextSpawner == null) return;
 
         string text = current.ToString();
-        floatingTextSpawner.SpawnText(transform.position, text, hitCountFontAsset, hitCountPopupScale, hitCountPopupOffset);
+        floatingTextSpawner.SpawnText(transform.position, text, hitCountFontAsset, hitCountPopupScale, hitCountPopupOffset, hitCountPopupColor);
     }
 
     protected virtual bool ShouldScoreBoardComponent(BoardComponent component)
@@ -171,11 +173,40 @@ public class Ball : MonoBehaviour
         pool.Push(emitterObj);
     }
 
-    void OnDestroy()
+    /// <summary>
+    /// Creates independent material copies on every Renderer so this ball
+    /// is not affected when another ball sharing the same material is destroyed.
+    /// Call after Instantiate for any duplicated / split ball.
+    /// </summary>
+    public static void EnsureOwnMaterials(GameObject ball)
     {
-        for (int i = 0; i < poolSize; i++)
+        if (ball == null) return;
+
+        foreach (var r in ball.GetComponentsInChildren<Renderer>(true))
         {
-            Destroy(pool.Pop());
+            if (r == null) continue;
+            var shared = r.sharedMaterials;
+            if (shared == null || shared.Length == 0) continue;
+
+            var copies = new Material[shared.Length];
+            for (int i = 0; i < shared.Length; i++)
+                copies[i] = shared[i] != null ? new Material(shared[i]) : null;
+            r.materials = copies;
+        }
+    }
+
+    protected virtual void OnDestroy()
+    {
+        CleanupParticlePool();
+    }
+
+    protected void CleanupParticlePool()
+    {
+        if (pool == null) return;
+        while (pool.Count > 0)
+        {
+            var obj = pool.Pop();
+            if (obj != null) Destroy(obj);
         }
     }
 

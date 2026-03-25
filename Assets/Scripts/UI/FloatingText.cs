@@ -40,8 +40,8 @@ public class FloatingText : MonoBehaviour
 
     [Header("Readability Caps")]
     [SerializeField] private bool clampFontSize = true;
-    [SerializeField] private float maxFontSize = 112f;
-    [SerializeField] private float maxScale = 2.36f;
+    [SerializeField] private float maxFontSize = 160f;
+    [SerializeField] private float maxScale = 4f;
     
     [SerializeField] private ScoreManager scoreManager;
 

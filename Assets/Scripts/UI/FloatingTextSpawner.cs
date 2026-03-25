@@ -50,26 +50,26 @@ public class FloatingTextSpawner : MonoBehaviour
     [Header("Points")]
     [Tooltip("TMP Font Asset for points text (blue style).")]
     [SerializeField] private TMP_FontAsset pointsFontAsset;
-    [SerializeField] private float pointsScaleMin = 0.6f;
-    [SerializeField] private float pointsScaleMax = 1.2f;
+    [SerializeField] private float pointsScaleMin = 0.85f;
+    [SerializeField] private float pointsScaleMax = 2.0f;
     [Tooltip("Points value at which scale reaches max.")]
-    [SerializeField] private float pointsMaxValue = 100f;
+    [SerializeField] private float pointsMaxValue = 500f;
 
     [Header("Multiplier")]
     [Tooltip("TMP Font Asset for multiplier text (red style).")]
     [SerializeField] private TMP_FontAsset multFontAsset;
-    [SerializeField] private float multScaleMin = 0.6f;
-    [SerializeField] private float multScaleMax = 1.3f;
+    [SerializeField] private float multScaleMin = 0.85f;
+    [SerializeField] private float multScaleMax = 2.2f;
     [Tooltip("Mult value at which scale reaches max.")]
-    [SerializeField] private float multMaxValue = 3f;
+    [SerializeField] private float multMaxValue = 10f;
 
     [Header("Gold/Coins")]
     [Tooltip("TMP Font Asset for gold/coins text (yellow style).")]
     [SerializeField] private TMP_FontAsset goldFontAsset;
-    [SerializeField] private float goldScaleMin = 0.6f;
-    [SerializeField] private float goldScaleMax = 1.1f;
+    [SerializeField] private float goldScaleMin = 0.8f;
+    [SerializeField] private float goldScaleMax = 1.8f;
     [Tooltip("Gold value at which scale reaches max.")]
-    [SerializeField] private float goldMaxValue = 5f;
+    [SerializeField] private float goldMaxValue = 15f;
 
     [Header("Goal Passed Popups (UI anchored)")]
     [SerializeField] private Vector2 goalMultPopupOffset = new Vector2(40f, 18f);
@@ -193,11 +193,12 @@ public class FloatingTextSpawner : MonoBehaviour
     /// <param name="fontAsset">Font to use. If null, uses points font.</param>
     /// <param name="scale">Scale multiplier for the popup. Default 0.85.</param>
     /// <param name="anchorOffset">Extra offset in canvas units (e.g. (0, -100) to move down 100 px).</param>
+    /// <param name="textColor">Optional color override for the popup text.</param>
     public void SpawnText(Vector3 worldPosition, string text, TMP_FontAsset fontAsset, float scale = 0.85f,
-        Vector2 anchorOffset = default)
+        Vector2 anchorOffset = default, Color? textColor = null)
     {
         TMP_FontAsset font = fontAsset != null ? fontAsset : pointsFontAsset;
-        SpawnTextInternal(worldPosition, text, font, scale, FlyToTarget.None, null, anchorOffset);
+        SpawnTextInternal(worldPosition, text, font, scale, FlyToTarget.None, null, anchorOffset, textColor);
     }
 
     /// <summary>
@@ -222,7 +223,7 @@ public class FloatingTextSpawner : MonoBehaviour
     public void SpawnPointsText(Vector3 worldPosition, string text, float pointsValue, Action onArrive, Vector2 anchorOffset)
     {
         string display = BuildCompactFromTemplate(text, pointsValue);
-        float t = Mathf.Clamp01(pointsValue / pointsMaxValue);
+        float t = Mathf.Sqrt(Mathf.Clamp01(pointsValue / pointsMaxValue));
         float scale = Mathf.Lerp(pointsScaleMin, pointsScaleMax, t);
         SpawnTextInternal(worldPosition, display, pointsFontAsset, scale, FlyToTarget.Points, onArrive, anchorOffset);
     }
@@ -240,7 +241,7 @@ public class FloatingTextSpawner : MonoBehaviour
     /// </summary>
     public void SpawnMultText(Vector3 worldPosition, string text, float multValue, Action onArrive)
     {
-        float t = Mathf.Clamp01(multValue / multMaxValue);
+        float t = Mathf.Sqrt(Mathf.Clamp01(multValue / multMaxValue));
         float scale = Mathf.Lerp(multScaleMin, multScaleMax, t);
         SpawnTextInternal(worldPosition, MaybeCompact(text), multFontAsset, scale, FlyToTarget.Mult, onArrive);
     }
@@ -250,7 +251,7 @@ public class FloatingTextSpawner : MonoBehaviour
     /// </summary>
     public void SpawnGoldText(Vector3 worldPosition, string text, float goldValue)
     {
-        float t = Mathf.Clamp01(goldValue / goldMaxValue);
+        float t = Mathf.Sqrt(Mathf.Clamp01(goldValue / goldMaxValue));
         float scale = Mathf.Lerp(goldScaleMin, goldScaleMax, t);
         string display = BuildCompactFromTemplate(text, goldValue);
         SpawnTextInternal(worldPosition, display, goldFontAsset, scale, FlyToTarget.Coins);
@@ -262,7 +263,7 @@ public class FloatingTextSpawner : MonoBehaviour
     /// </summary>
     public void SpawnGoldText(Vector3 worldPosition, string text, float goldValue, Action onArrive)
     {
-        float t = Mathf.Clamp01(goldValue / goldMaxValue);
+        float t = Mathf.Sqrt(Mathf.Clamp01(goldValue / goldMaxValue));
         float scale = Mathf.Lerp(goldScaleMin, goldScaleMax, t);
         string display = BuildCompactFromTemplate(text, goldValue);
         SpawnTextInternal(worldPosition, display, goldFontAsset, scale, FlyToTarget.Coins, onArrive);
@@ -374,7 +375,8 @@ public class FloatingTextSpawner : MonoBehaviour
         float scale,
         FlyToTarget flyToTarget,
         Action onArrive = null,
-        Vector2 anchorOffset = default)
+        Vector2 anchorOffset = default,
+        Color? textColor = null)
     {
         if (floatingTextPrefab == null || canvas == null) return;
 
@@ -402,6 +404,11 @@ public class FloatingTextSpawner : MonoBehaviour
         if (fontAsset != null)
         {
             ft.SetFontAsset(fontAsset);
+        }
+
+        if (textColor.HasValue)
+        {
+            ft.SetColor(textColor.Value);
         }
         
         ft.SetScale(scale * overallScaleMultiplier);

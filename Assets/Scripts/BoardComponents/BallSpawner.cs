@@ -336,9 +336,10 @@ public sealed class BallSpawner : MonoBehaviour
             DespawnBall(_activeBalls[0]);
         }
 
-        _activeBalls[0] = Instantiate(ballPrefab, spawnPoint.position, spawnPoint.rotation);
-        _activeBalls[0].name = $"{ballPrefab.name}_ActiveBall";
-        return _activeBalls[0];
+        GameObject newBall = Instantiate(ballPrefab, spawnPoint.position, spawnPoint.rotation);
+        newBall.name = $"{ballPrefab.name}_ActiveBall";
+        _activeBalls.Add(newBall);
+        return newBall;
     }
 
     private void LayoutHandImmediate()

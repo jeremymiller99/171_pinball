@@ -583,11 +583,11 @@ public class GameRulesManager : MonoBehaviour
         if (ballsRemaining > 0)
         {
             _activeBallSlotIndex = -1;
-            SpawnBall();
-            return;
+            GameObject firstBall = SpawnBall();
+            if (firstBall != null)
+                return;
         }
 
-        // If the player has no balls to start the round, they immediately lose the round.
         ShowRoundFailed();
     }
 
@@ -1408,9 +1408,12 @@ public class GameRulesManager : MonoBehaviour
         if (ballsRemaining > 0)
         {
             _activeBallSlotIndex = -1;
-            SpawnBall();
-            _drainProcessing = false;
-            yield break;
+            GameObject nextBall = SpawnBall();
+            if (nextBall != null)
+            {
+                _drainProcessing = false;
+                yield break;
+            }
         }
 
         ShowRoundFailed();
@@ -1490,8 +1493,8 @@ public class GameRulesManager : MonoBehaviour
         int slotIndex = _activeBallSlotIndex;
         if (slotIndex >= 0 && slotIndex < _ballLoadout.Count)
         {
-            TryRemoveBallFromLoadoutAt(slotIndex, out _);
-            return;
+            if (TryRemoveBallFromLoadoutAt(slotIndex, out _))
+                return;
         }
 
         for (int i = 0; i < _ballLoadout.Count; i++)

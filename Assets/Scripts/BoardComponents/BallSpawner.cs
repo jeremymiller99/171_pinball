@@ -74,6 +74,7 @@ public sealed class BallSpawner : MonoBehaviour
     private List<GameObject> _activeBalls = new List<GameObject>();
 
     public List<GameObject> ActiveBalls => _activeBalls;
+    public System.Collections.Generic.IReadOnlyList<GameObject> HandBalls => _handBalls;
     public int HandCount => _handBalls.Count;
     public GameObject DefaultBallPrefab => ballPrefab;
 

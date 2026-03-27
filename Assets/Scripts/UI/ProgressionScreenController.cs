@@ -76,10 +76,6 @@ public sealed class ProgressionScreenController
 
     private static Sprite _circleSprite;
 
-    private GameObject _tooltipPanel;
-    private TMP_Text _tooltipName;
-    private TMP_Text _tooltipDesc;
-
     private GameObject _lastSelected;
     private int _selectedNodeIndex = -1;
 
@@ -117,7 +113,6 @@ public sealed class ProgressionScreenController
     {
         EnsureConfig();
         EnsureTrackLayout();
-        EnsureTooltip();
         RebuildNodes();
         UpdateNodeStates();
         UpdateHeaderTexts();
@@ -1223,96 +1218,6 @@ public sealed class ProgressionScreenController
             Mathf.Clamp01(targetX / maxScroll);
     }
 
-    private void EnsureTooltip()
-    {
-        if (_tooltipPanel != null)
-        {
-            return;
-        }
-
-        var panelGo = new GameObject(
-            "Tooltip",
-            typeof(RectTransform),
-            typeof(Image),
-            typeof(VerticalLayoutGroup),
-            typeof(ContentSizeFitter),
-            typeof(CanvasGroup));
-
-        panelGo.transform.SetParent(
-            transform, false);
-
-        var panelRect =
-            panelGo.GetComponent<RectTransform>();
-        panelRect.pivot = new Vector2(0.5f, 0f);
-        panelRect.anchorMin =
-            new Vector2(0.5f, 0.5f);
-        panelRect.anchorMax =
-            new Vector2(0.5f, 0.5f);
-        panelRect.sizeDelta =
-            new Vector2(220f, 0f);
-
-        var bg = panelGo.GetComponent<Image>();
-        bg.color =
-            new Color(0.12f, 0.12f, 0.14f, 0.95f);
-
-        var vlg = panelGo
-            .GetComponent<VerticalLayoutGroup>();
-        vlg.padding =
-            new RectOffset(12, 12, 10, 10);
-        vlg.spacing = 4f;
-        vlg.childAlignment = TextAnchor.UpperLeft;
-        vlg.childControlWidth = true;
-        vlg.childControlHeight = true;
-        vlg.childForceExpandWidth = true;
-        vlg.childForceExpandHeight = false;
-
-        var csf = panelGo
-            .GetComponent<ContentSizeFitter>();
-        csf.horizontalFit =
-            ContentSizeFitter.FitMode.Unconstrained;
-        csf.verticalFit =
-            ContentSizeFitter.FitMode.PreferredSize;
-
-        var cg =
-            panelGo.GetComponent<CanvasGroup>();
-        cg.blocksRaycasts = false;
-
-        var nameGo = new GameObject(
-            "TooltipName",
-            typeof(RectTransform),
-            typeof(TextMeshProUGUI));
-
-        nameGo.transform.SetParent(
-            panelGo.transform, false);
-
-        _tooltipName =
-            nameGo.GetComponent<TextMeshProUGUI>();
-        _tooltipName.fontSize = 18f;
-        _tooltipName.fontStyle = FontStyles.Bold;
-        _tooltipName.color = Color.white;
-        _tooltipName.textWrappingMode =
-            TextWrappingModes.Normal;
-
-        var descGo = new GameObject(
-            "TooltipDesc",
-            typeof(RectTransform),
-            typeof(TextMeshProUGUI));
-
-        descGo.transform.SetParent(
-            panelGo.transform, false);
-
-        _tooltipDesc =
-            descGo.GetComponent<TextMeshProUGUI>();
-        _tooltipDesc.fontSize = 14f;
-        _tooltipDesc.color =
-            new Color(0.78f, 0.78f, 0.78f, 1f);
-        _tooltipDesc.textWrappingMode =
-            TextWrappingModes.Normal;
-
-        _tooltipPanel = panelGo;
-        _tooltipPanel.SetActive(false);
-    }
-
     private void AttachTooltipEvents(TierNodeRefs node)
     {
         var trigger = node.root.gameObject
@@ -1340,82 +1245,32 @@ public sealed class ProgressionScreenController
 
     private void ShowTooltip(TierNodeRefs node)
     {
-        if (_tooltipPanel == null)
-        {
-            return;
-        }
-
-        string tooltipName = null;
-        string tooltipDesc = null;
+        string title = null;
+        string desc = null;
 
         if (node.ball != null)
         {
-            tooltipName =
-                node.ball.GetSafeDisplayName();
-            tooltipDesc = node.ball.Description;
+            title = node.ball.GetSafeDisplayName();
+            desc = node.ball.Description;
         }
         else if (node.component != null)
         {
-            tooltipName =
+            title =
                 node.component.GetSafeDisplayName();
-            tooltipDesc = node.component.Description;
+            desc = node.component.Description;
         }
 
-        if (tooltipName == null)
+        if (title == null)
         {
             return;
         }
 
-        _tooltipName.text = tooltipName;
-
-        _tooltipDesc.text =
-            string.IsNullOrWhiteSpace(tooltipDesc)
-                ? "No description."
-                : tooltipDesc;
-
-        _tooltipPanel.SetActive(true);
-
-        var panelRect = _tooltipPanel
-            .GetComponent<RectTransform>();
-
-        Canvas canvas =
-            GetComponentInParent<Canvas>();
-
-        if (canvas == null)
-        {
-            return;
-        }
-
-        Vector2 screenPos =
-            RectTransformUtility
-                .WorldToScreenPoint(
-                    canvas.worldCamera,
-                    node.root.position);
-
-        RectTransformUtility
-            .ScreenPointToLocalPointInRectangle(
-                transform as RectTransform,
-                screenPos,
-                canvas.worldCamera,
-                out Vector2 localPos);
-
-        float yOffset =
-            node.root.rect.height * 0.55f;
-
-        panelRect.anchoredPosition =
-            new Vector2(
-                localPos.x,
-                localPos.y + yOffset);
-
-        panelRect.SetAsLastSibling();
+        TooltipManager.Show(title, desc);
     }
 
     private void HideTooltip()
     {
-        if (_tooltipPanel != null)
-        {
-            _tooltipPanel.SetActive(false);
-        }
+        TooltipManager.Hide();
     }
 
     private static string FormatXp(double value)

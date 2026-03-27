@@ -415,6 +415,51 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 6185042261157656338, guid: 8a296ceb5329fc147b7ba83dfd216bce, type: 3}
   m_PrefabInstance: {fileID: 89050503846600629}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &233671280
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 233671282}
+  - component: {fileID: 233671281}
+  m_Layer: 0
+  m_Name: Tooltip Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &233671281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 233671280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f542682ae2118f44b41b1c7bc76a8f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TooltipManager
+  tooltipPrefab: {fileID: 8121696025988882554, guid: 41d9a5f0f3433e44caf0bcbe28b1544a, type: 3}
+--- !u!4 &233671282
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 233671280}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -10.19992, y: -0.92242, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &266196552
 GameObject:
   m_ObjectHideFlags: 0
@@ -1931,7 +1976,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1060062389
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2047,7 +2092,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1147841085
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5491,3 +5536,4 @@ SceneRoots:
   - {fileID: 1147941000}
   - {fileID: 1499176169}
   - {fileID: 266196554}
+  - {fileID: 233671282}

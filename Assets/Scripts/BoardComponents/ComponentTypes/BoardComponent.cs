@@ -45,9 +45,13 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
     [SerializeField] private Color confirmOutlineColor = Color.white;
     [SerializeField] private Color selectionOutlineColor = Color.gray;
 
+    [Header("Hover Highlight")]
+    [SerializeField] private Color hoverOutlineColor = Color.white;
+
     private Outline selectionOutline;
     private Outline portalExitOutline;
     private Transform cachedPortalExit;
+    private bool _isHoverHighlighted;
 
     virtual protected void Awake()
     {
@@ -218,6 +222,32 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
         ApplyDefaultOutlineSettings(selectionOutline);
         selectionOutline.enabled = true;
         SetPortalExitOutlineEnabled(false);
+    }
+
+    public void HighlightHover()
+    {
+        if (!useSelectionOutline || isConfirmed)
+        {
+            return;
+        }
+
+        EnsureSelectionOutline();
+        _isHoverHighlighted = true;
+        ApplyHighlightOutlineSettings(
+            selectionOutline, hoverOutlineColor);
+    }
+
+    public void UnhighlightHover()
+    {
+        if (!useSelectionOutline || isConfirmed)
+        {
+            _isHoverHighlighted = false;
+            return;
+        }
+
+        _isHoverHighlighted = false;
+        EnsureSelectionOutline();
+        ApplyDefaultOutlineSettings(selectionOutline);
     }
 
     protected virtual void OnTriggerEnter(Collider other)

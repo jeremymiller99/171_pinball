@@ -102,12 +102,14 @@ public class ScoreTallyAnimator : MonoBehaviour
 
     private void OnEnable()
     {
+        ServiceLocator.Register<ScoreTallyAnimator>(this);
         SceneManager.sceneLoaded += HandleSceneLoaded;
         EnsureTextBindings();
     }
 
     private void OnDisable()
     {
+        ServiceLocator.Unregister<ScoreTallyAnimator>();
         SceneManager.sceneLoaded -= HandleSceneLoaded;
     }
 
@@ -318,11 +320,7 @@ public class ScoreTallyAnimator : MonoBehaviour
         // Additive scenes can leave Camera.main null if the camera isn't tagged MainCamera
         // or is temporarily disabled. Fall back to any enabled camera.
         Camera[] cams;
-#if UNITY_2022_2_OR_NEWER
         cams = FindObjectsByType<Camera>(FindObjectsSortMode.None);
-#else
-        cams = FindObjectsOfType<Camera>(includeInactive: false);
-#endif
 
         if (cams == null || cams.Length == 0)
             return null;

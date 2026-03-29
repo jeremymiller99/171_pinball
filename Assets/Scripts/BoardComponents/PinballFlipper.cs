@@ -44,7 +44,7 @@ public class PinballFlipper : MonoBehaviour
         _baseLocalRotation = transform.localRotation;
         _currentOffset = 0f;
         _previousPressed = false;
-        _gameRulesManager = FindFirstObjectByType<GameRulesManager>();
+        _gameRulesManager = ServiceLocator.Get<GameRulesManager>();
         if (flipperAction == FlipperInputAction.LeftFlipper)
         {
             flipAction = InputSystem.actions.FindAction("LeftFlip");

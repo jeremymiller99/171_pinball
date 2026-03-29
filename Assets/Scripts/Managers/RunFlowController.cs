@@ -34,41 +34,34 @@ public sealed class RunFlowController : MonoBehaviour
 
     private void Awake()
     {
+        ServiceLocator.Register<RunFlowController>(this);
+
         if (rulesManager == null)
         {
-#if UNITY_2022_2_OR_NEWER
-            rulesManager = FindFirstObjectByType<GameRulesManager>();
-#else
-            rulesManager = FindObjectOfType<GameRulesManager>();
-#endif
+            rulesManager = ServiceLocator.Get<GameRulesManager>();
         }
 
         if (boardLoader == null)
         {
-#if UNITY_2022_2_OR_NEWER
-            boardLoader = FindFirstObjectByType<BoardLoader>();
-#else
-            boardLoader = FindObjectOfType<BoardLoader>();
-#endif
+            boardLoader = ServiceLocator.Get<BoardLoader>();
         }
 
         if (shopTransitionController == null)
         {
-#if UNITY_2022_2_OR_NEWER
-            shopTransitionController = FindFirstObjectByType<ShopTransitionController>();
-#else
-            shopTransitionController = FindObjectOfType<ShopTransitionController>();
-#endif
+            shopTransitionController =
+                ServiceLocator.Get<ShopTransitionController>();
         }
 
         if (roundPreviewPanel == null)
         {
-#if UNITY_2022_2_OR_NEWER
-            roundPreviewPanel = FindFirstObjectByType<RoundPreviewPanel>(FindObjectsInactive.Include);
-#else
-            roundPreviewPanel = FindObjectOfType<RoundPreviewPanel>(includeInactive: true);
-#endif
+            roundPreviewPanel =
+                ServiceLocator.Get<RoundPreviewPanel>();
         }
+    }
+
+    private void OnDisable()
+    {
+        ServiceLocator.Unregister<RunFlowController>();
     }
 
     private void Start()
@@ -165,7 +158,7 @@ public sealed class RunFlowController : MonoBehaviour
     }
 
     /// <summary>
-    /// Called by ShopUIController when the player clicks Continue.
+    /// Called by UnifiedShopController when the player clicks Continue.
     /// Shows round preview over the shop first, then closes shop and starts round.
     /// </summary>
     public void ContinueAfterShop()

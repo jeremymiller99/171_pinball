@@ -203,21 +203,13 @@ public class DropTargetsScoringMode : MonoBehaviour
 
         if (floatingTextSpawner == null)
         {
-#if UNITY_2022_2_OR_NEWER
-            floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
-#else
-            floatingTextSpawner = FindObjectOfType<FloatingTextSpawner>();
-#endif
+            floatingTextSpawner = ServiceLocator.Get<FloatingTextSpawner>();
         }
     }
 
     private static ScoreManager FindScoreManagerInGameplayCore()
     {
-#if UNITY_2022_2_OR_NEWER
         ScoreManager[] all = FindObjectsByType<ScoreManager>(FindObjectsSortMode.None);
-#else
-        ScoreManager[] all = FindObjectsOfType<ScoreManager>();
-#endif
         for (int i = 0; i < all.Length; i++)
         {
             ScoreManager sm = all[i];
@@ -240,10 +232,6 @@ public class DropTargetsScoringMode : MonoBehaviour
             }
         }
 
-#if UNITY_2022_2_OR_NEWER
-        return FindFirstObjectByType<ScoreManager>();
-#else
-        return FindObjectOfType<ScoreManager>();
-#endif
+        return ServiceLocator.Get<ScoreManager>();
     }
 }

@@ -300,6 +300,10 @@ MonoBehaviour:
   multMultiplier: 1
   coinMultiplier: 1
   lastObjectHit: {fileID: 0}
+  hitCountFontAsset: {fileID: 0}
+  hitCountPopupScale: 0.7
+  hitCountPopupOffset: {x: 0, y: 40}
+  hitCountPopupColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &7213457856092857174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -346,7 +350,7 @@ MonoBehaviour:
   outlineColor: {r: 0, g: 0, b: 0, a: 1}
   outlineWidth: 6
   renderQueueOffset: 100
-  stencilRef: 2
+  stencilRef: 3
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []

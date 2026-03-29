@@ -32,7 +32,7 @@ public sealed class BoardRoundResetter : MonoBehaviour
     {
         if (_rules != null) return;
 
-        _rules = FindFirstObjectByType<GameRulesManager>();
+        _rules = ServiceLocator.Get<GameRulesManager>();
     }
 
 

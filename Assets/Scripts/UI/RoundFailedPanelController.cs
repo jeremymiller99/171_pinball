@@ -265,7 +265,7 @@ public sealed class RoundFailedPanelController
             return;
         }
 
-        _rules = FindFirstObjectByType<
+        _rules = ServiceLocator.Get<
             GameRulesManager>();
     }
 

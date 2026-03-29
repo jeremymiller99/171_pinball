@@ -34,11 +34,7 @@ public class Bumper : MonoBehaviour
             return;
         }
 
-#if UNITY_2022_2_OR_NEWER
-        camShake = FindFirstObjectByType<CameraShake>();
-#else
-        camShake = FindObjectOfType<CameraShake>();
-#endif
+        camShake = ServiceLocator.Get<CameraShake>();
     }
 
     private void OnCollisionEnter(Collision collision)

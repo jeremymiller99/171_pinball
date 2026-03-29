@@ -91,7 +91,8 @@ public sealed class PauseMenuController : MonoBehaviour
             EnforcePausedIfNeeded();
         }
 
-        if (!pauseAction.action.WasPressedThisFrame())
+        if (pauseAction == null || pauseAction.action == null
+            || !pauseAction.action.WasPressedThisFrame())
         {
             return;
         }
@@ -384,7 +385,7 @@ public sealed class PauseMenuController : MonoBehaviour
 
     private static PauseMenuController FindAnyPauseMenuController()
     {
-        return FindFirstObjectByType<PauseMenuController>();
+        return ServiceLocator.Get<PauseMenuController>();
 
     }
 

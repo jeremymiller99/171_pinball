@@ -73,7 +73,7 @@ public class FloatingText : MonoBehaviour
     {
         text = GetComponent<TMP_Text>();
         rectTransform = GetComponent<RectTransform>();
-        scoreManager = FindFirstObjectByType<ScoreManager>();
+        scoreManager = ServiceLocator.Get<ScoreManager>();
         startColor = text.color;
         ageSeconds = 0f;
 

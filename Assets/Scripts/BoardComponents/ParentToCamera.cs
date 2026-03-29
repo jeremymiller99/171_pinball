@@ -66,11 +66,7 @@ public class ParentToCamera : MonoBehaviour
             return mainCamera.transform;
         }
 
-#if UNITY_2022_2_OR_NEWER
-        Camera anyCamera = FindFirstObjectByType<Camera>();
-#else
-        Camera anyCamera = FindObjectOfType<Camera>();
-#endif
+        Camera anyCamera = ServiceLocator.Get<Camera>();
 
         return anyCamera != null ? anyCamera.transform : null;
     }

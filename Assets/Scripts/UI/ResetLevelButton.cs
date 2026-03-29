@@ -34,12 +34,12 @@ public sealed class ResetLevelButton : MonoBehaviour
 
         if (gameRules == null)
         {
-            gameRules = FindFirstObjectByType<GameRulesManager>();
+            gameRules = ServiceLocator.Get<GameRulesManager>();
         }
 
         if (scoreManager == null)
         {
-            scoreManager = FindFirstObjectByType<ScoreManager>();
+            scoreManager = ServiceLocator.Get<ScoreManager>();
         }
     }
 
@@ -57,12 +57,12 @@ public sealed class ResetLevelButton : MonoBehaviour
     {
         if (gameRules == null)
         {
-            gameRules = FindFirstObjectByType<GameRulesManager>();
+            gameRules = ServiceLocator.Get<GameRulesManager>();
         }
 
         if (scoreManager == null)
         {
-            scoreManager = FindFirstObjectByType<ScoreManager>();
+            scoreManager = ServiceLocator.Get<ScoreManager>();
         }
 
         if (gameRules == null)

@@ -69,7 +69,7 @@ public sealed class RoundTypeIconStripUI : MonoBehaviour
             return;
         }
 
-        rulesManager = FindFirstObjectByType<GameRulesManager>();
+        rulesManager = ServiceLocator.Get<GameRulesManager>();
     }
 
     private void Subscribe()

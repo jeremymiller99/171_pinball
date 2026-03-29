@@ -46,7 +46,7 @@ public class Portal : MonoBehaviour
             return;
         }
 
-        camShake = FindFirstObjectByType<CameraShake>();
+        camShake = ServiceLocator.Get<CameraShake>();
     }
 
     private void OnTriggerEnter(Collider other)

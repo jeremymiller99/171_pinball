@@ -18,9 +18,9 @@ public class BallHideController : MonoBehaviour
     private void Awake()
     {
         if (gameRulesManager == null)
-            gameRulesManager = FindFirstObjectByType<GameRulesManager>();
+            gameRulesManager = ServiceLocator.Get<GameRulesManager>();
         if (ballSpawner == null)
-            ballSpawner = FindFirstObjectByType<BallSpawner>();
+            ballSpawner = ServiceLocator.Get<BallSpawner>();
     }
 
     private void LateUpdate()

@@ -87,11 +87,7 @@ public sealed class ShopTutorialPanelController : MonoBehaviour
             return;
         }
 
-#if UNITY_2022_2_OR_NEWER
-        shopTransitionController = FindFirstObjectByType<ShopTransitionController>();
-#else
-        shopTransitionController = FindObjectOfType<ShopTransitionController>();
-#endif
+        shopTransitionController = ServiceLocator.Get<ShopTransitionController>();
     }
 
     private void HandleOpenTransitionFinished()

@@ -111,11 +111,7 @@ public sealed class BallAntiStallAssist : MonoBehaviour
             return;
         }
 
-#if UNITY_2022_2_OR_NEWER
-        _scoreManager = FindFirstObjectByType<ScoreManager>();
-#else
-        _scoreManager = FindObjectOfType<ScoreManager>();
-#endif
+        _scoreManager = ServiceLocator.Get<ScoreManager>();
     }
 
     private void ResolveBoardRootIfNeeded()
@@ -125,11 +121,7 @@ public sealed class BallAntiStallAssist : MonoBehaviour
             return;
         }
 
-#if UNITY_2022_2_OR_NEWER
-        boardRoot = FindFirstObjectByType<BoardRoot>();
-#else
-        boardRoot = FindObjectOfType<BoardRoot>();
-#endif
+        boardRoot = ServiceLocator.Get<BoardRoot>();
         if (boardRoot != null)
         {
             return;
@@ -150,11 +142,7 @@ public sealed class BallAntiStallAssist : MonoBehaviour
 
     private static Vector3 GetVelocity(Rigidbody body)
     {
-#if UNITY_6000_0_OR_NEWER
         return body != null ? body.linearVelocity : Vector3.zero;
-#else
-        return body != null ? body.velocity : Vector3.zero;
-#endif
     }
 }
 

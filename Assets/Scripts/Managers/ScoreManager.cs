@@ -1,10 +1,8 @@
-// Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
+// Updated with Antigravity by jjmil on 2026-03-29.
+// Originally generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
 using UnityEngine;
-using TMPro;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using UnityEngine.SceneManagement;
 
 public enum TypeOfScore
 {
@@ -12,7 +10,6 @@ public enum TypeOfScore
     mult,
     coins
 }
-
 
 public class ScoreManager : MonoBehaviour
 {
@@ -28,93 +25,8 @@ public class ScoreManager : MonoBehaviour
     [SerializeField, Tooltip("Read-only at runtime. Tracks how much cumulative score has been consumed by level-ups.")]
     private float levelProgressOffset;
 
-    [SerializeField] private TMP_Text pointsText;
-    [SerializeField] private TMP_Text multText;
-
-    private float pointsUiDisplayed;
-    private float multUiDisplayed;
-    private bool deferPointsAndMultUiUpdates;
-    private int coinsUiDisplayed;
-
     [SerializeField] private GameRulesManager gameRulesManager;
     [SerializeField] private FloatingTextSpawner floatingTextSpawner;
-
-    [Header("Camera Shake on Score")]
-    [Tooltip("Reference to CameraShake. Auto-resolved if not set.")]
-    [SerializeField] private CameraShake cameraShake;
-    
-    [Header("Points Shake Settings")]
-    [Tooltip("Base duration of camera shake when earning points.")]
-    [SerializeField] private float shakeBaseDuration = 0.22f;
-
-    [Tooltip("Exponent applied to points before converting to shake. Lower (< 1) ramps sooner.")]
-    [Range(0.25f, 1.5f)]
-    [SerializeField] private float shakePointsExponent = 0.75f;
-
-    [Tooltip("How much to increase duration per shaped points. Shaped = points ^ exponent.")]
-    [SerializeField] private float shakeDurationPerPoint = 0.01f;
-
-    [Tooltip("Maximum shake duration cap for points.")]
-    [SerializeField] private float shakeMaxDuration = 0.65f;
-    [Tooltip("Base magnitude of camera shake when earning points.")]
-    [SerializeField] private float shakeBaseMagnitude = 0.24f;
-
-    [Tooltip("How much to scale shake magnitude per shaped points. Shaped = points ^ exponent.")]
-    [SerializeField] private float shakeMagnitudePerPoint = 0.02f;
-    [Tooltip("Maximum shake magnitude cap for points.")]
-    [SerializeField] private float shakeMaxMagnitude = 1.0f;
-    
-    [Header("Multiplier Shake Settings")]
-    [Tooltip("Base duration of camera shake when gaining multiplier.")]
-    [SerializeField] private float multShakeBaseDuration = 0.28f;
-
-    [Tooltip("Exponent applied to mult gain before converting to shake. Lower (< 1) ramps sooner.")]
-    [Range(0.25f, 1.5f)]
-    [SerializeField] private float multShakeExponent = 0.75f;
-
-    [Tooltip("How much to increase duration per shaped mult gain. Shaped = multGain ^ exponent.")]
-    [SerializeField] private float multShakeDurationPerMult = 0.22f;
-
-    [Tooltip("Maximum shake duration cap for multiplier.")]
-    [SerializeField] private float multShakeMaxDuration = 0.75f;
-    [Tooltip("Base magnitude of camera shake when gaining multiplier.")]
-    [SerializeField] private float multShakeBaseMagnitude = 0.26f;
-
-    [Tooltip("How much to scale shake magnitude per shaped mult gain. Shaped = multGain ^ exponent.")]
-    [SerializeField] private float multShakeMagnitudePerMult = 0.28f;
-    [Tooltip("Maximum shake magnitude cap for multiplier.")]
-    [SerializeField] private float multShakeMaxMagnitude = 0.85f;
-
-    // Optional UI hooks (wire in inspector if you have these labels).
-    [Header("Optional extra UI")]
-    [SerializeField] private TMP_Text roundIndexText;
-    [SerializeField] private TMP_Text roundTotalText;
-    [SerializeField] private TMP_Text goalText;
-    [SerializeField] private TMP_Text ballsRemainingText;
-    [SerializeField] private TMP_Text coinsText;
-
-    [Header("Round Index Juice (optional)")]
-    [Tooltip("If enabled, plays a 'pop' animation when the displayed round/level index increases.")]
-    [SerializeField] private bool enableRoundIndexPop = true;
-
-    [Min(0f)]
-    [SerializeField] private float roundIndexPopDuration = 0.22f;
-
-    [Min(1f)]
-    [SerializeField] private float roundIndexPopPeakScale = 1.35f;
-
-    [Tooltip("Optional vertical offset (anchoredPosition Y) applied during the pop.")]
-    [SerializeField] private float roundIndexPopYOffset = 12f;
-
-    [SerializeField] private bool roundIndexPopFlashColor = true;
-    [SerializeField] private Color roundIndexPopFlashTargetColor = new Color(1f, 0.85f, 0.2f, 1f);
-
-    [SerializeField] private AnimationCurve roundIndexPopCurve = new AnimationCurve(
-        new Keyframe(0f, 0f),
-        new Keyframe(0.22f, 1f),
-        new Keyframe(0.52f, -0.18f),
-        new Keyframe(0.78f, 0.12f),
-        new Keyframe(1f, 0f));
 
     [Header("Scoring Control")]
     [SerializeField] private bool scoringLocked;
@@ -177,22 +89,8 @@ public class ScoreManager : MonoBehaviour
 
     [SerializeField] private int totalComponentHits;
 
-    private int compTriggered = 35;
-    private int framesSinceLastScore = 0;
-    private const int FramesToResetAudio = 200;
-
-    // Stored goal value for the current round (set via SetGoal).
     private float _goal;
 
-    private int _roundIndexUiLast = -1;
-    private int _roundIndexJuiceTextInstanceId;
-    private bool _roundIndexJuiceBaselineCaptured;
-    private Vector3 _roundIndexBaseLocalScale;
-    private Vector2 _roundIndexBaseAnchoredPos;
-    private Color _roundIndexBaseColor;
-    private Coroutine _roundIndexPopRoutine;
-
-    // Tier is floor(LiveRoundTotal / Goal). Tier 0 means "not yet reached the goal".
     [SerializeField, Tooltip("Read-only at runtime. Increments at Goal * N.")]
     private int _goalTier;
 
@@ -200,100 +98,38 @@ public class ScoreManager : MonoBehaviour
     private float _baseTimeScale = 1f;
     private float _baseFixedDeltaTime = 0.02f;
 
-    /// <summary>
-    /// Fired whenever score-related values change (points/mult/roundTotal/goal).
-    /// Useful for non-TMP UI like meters/bars that should update immediately.
-    /// </summary>
-    public event Action ScoreChanged;
+    // Events
 
-    /// <summary>
-    /// Fired when the goal tier changes (crossing Goal * N thresholds).
-    /// </summary>
+    public event Action ScoreChanged;
     public event Action<int> GoalTierChanged;
 
-    /// <summary>
-    /// Current round goal (set by GameRulesManager via SetGoal).
-    /// </summary>
+    public event Action<float, float> PointsAdded; // (appliedAmount, currentStoredPoints)
+    public event Action<float, float> MultAdded; // (appliedAmount, currentStoredMult)
+    public event Action<int, int> CoinsAdded; // (appliedAmount, currentCoins)
+
+    // Properties
+
     public float Goal => _goal;
-
-    /// <summary>
-    /// Cumulative goal target (sum of all prior goals + current goal).
-    /// Useful for UI that wants to show an absolute score target rather than "remaining this level".
-    /// </summary>
     public float CumulativeGoal => Mathf.Max(0f, levelProgressOffset + _goal);
-
-    /// <summary>
-    /// Current goal tier, computed from LiveRoundTotal / Goal.
-    /// Tier 0 means LiveRoundTotal is below the goal.
-    /// </summary>
     public int GoalTier => _goalTier;
-
-    /// <summary>
-    /// Multiplier applied to awarded points (not to banking).
-    /// Computed additively per tier: 1 + tier * scoreIncreasePerGoalTier.
-    /// </summary>
     public float ScoreAwardMultiplier => 1f + (_goalTier * scoreIncreasePerGoalTier);
-
-    /// <summary>
-    /// Game speed multiplier, computed additively per tier: 1 + tier * speedIncreasePerGoalTier.
-    /// </summary>
     public float SpeedMultiplier => 1f + (_goalTier * speedIncreasePerGoalTier);
-
-    /// <summary>
-    /// Per-tier speed increase (e.g. 0.10 == +10% per tier).
-    /// </summary>
     public float SpeedIncreasePerGoalTier => speedIncreasePerGoalTier;
-
-    /// <summary>
-    /// Per-tier score increase (e.g. 0.50 == +50% per tier).
-    /// </summary>
     public float ScoreIncreasePerGoalTier => scoreIncreasePerGoalTier;
-
-    /// <summary>
-    /// Live round progress total: banked round total plus current ball's (points * mult).
-    /// </summary>
     public float LiveRoundTotal => roundTotal + (points * mult);
-
-    /// <summary>
-    /// Live progress toward the current level goal.
-    /// Computed as LiveRoundTotal minus the consumed progress offset from previous level-ups.
-    /// </summary>
     public float LiveLevelProgress => Mathf.Max(0f, LiveRoundTotal - levelProgressOffset);
-
-    /// <summary>
-    /// Bonus added to ball anti-stall max assist acceleration after level complete (each component hit adds more).
-    /// </summary>
     public float ComponentHitAssistAccelerationBonus => _componentHitAssistAccelerationBonus;
-
-    /// <summary>
-    /// Additional multiplier applied on top of tier-based SpeedMultiplier when writing Time.timeScale.
-    /// </summary>
     public float ExternalTimeScaleMultiplier => externalTimeScaleMultiplier;
-
-    /// <summary>
-    /// Additional multiplier applied to positive point awards (after tier + modifier scaling).
-    /// </summary>
     public float ExternalScoreAwardMultiplier => externalScoreAwardMultiplier;
 
-    /// <summary>
-    /// Sets the external score award multiplier (e.g. 1.5 for +50% when all drop targets down).
-    /// </summary>
     public void SetExternalScoreAwardMultiplier(float multiplier)
     {
         externalScoreAwardMultiplier = Mathf.Max(0f, multiplier);
     }
 
-    // Multiple systems can request slow-mo. Effective request is the MIN of active requests.
     private readonly Dictionary<int, float> _timeScaleRequestBySourceId = new Dictionary<int, float>();
     private float _timeScaleRequestMin = 1f;
- 
-    /// <summary>
-    /// Current effective requested time scale multiplier (min across active requests).
-    /// </summary>
     public float TimeScaleRequestMultiplier => _timeScaleRequestMin;
-
-    //multipliers for point, mult, and coins for the AddScore() function
-    //use the modifier multiplier SPECIFICALLY for modifiers.
 
     [SerializeField] private float pointMultiplier;
     public float pointsModifierMultiplier;
@@ -301,58 +137,56 @@ public class ScoreManager : MonoBehaviour
     public float multModifierMultiplier;
     [SerializeField] private int coinMultiplier;
     public float coinModifierMultiplier;
-    /// <summary>Time scale multiplier from the active round modifier (e.g. Turbo = 2). Set by GameRulesManager.</summary>
+
     public float modifierTimeScaleMultiplier = 1f;
-
-
-    private Queue<float> pointQueue = new Queue<float>();
-    private Queue<float> multQueue = new Queue<float>();
-    private Queue<int> coinQueue = new Queue<int>();
 
     void Awake()
     {
+        ServiceLocator.Register<ScoreManager>(this);
         EnsureRefs();
     }  
 
     void EnsureRefs()
     {
-        gameRulesManager = FindFirstObjectByType<GameRulesManager>();
-        floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
+        if (gameRulesManager == null)
+            gameRulesManager = ServiceLocator.Get<GameRulesManager>();
+
+        if (floatingTextSpawner == null)
+            floatingTextSpawner = ServiceLocator.Get<FloatingTextSpawner>();
     }
 
-    /// <summary>
-    /// Returns the points value that would be applied for display (after point multiplier and modifier).
-    /// Use this when showing floating text so the number matches what was actually added.
-    /// </summary>
     public float GetAppliedPointsForDisplay(float rawAmount)
     {
         return rawAmount * pointMultiplier * pointsModifierMultiplier;
     }
 
-    /// <summary>
-    /// Total component hits across the entire run.
-    /// </summary>
     public int TotalComponentHits => totalComponentHits;
 
-    /// <summary>
-    /// Called when the ball hits a scoring component.
-    /// </summary>
     public void RegisterComponentHit()
     {
         totalComponentHits++;
 
         if (_hasCompletedLevelThisRound)
         {
-            _componentHitAssistAccelerationBonus +=
-                componentHitAssistAccelerationIncrement;
-            _componentHitTimeScaleBonus +=
-                componentHitTimeScaleIncrement;
-            _componentHitScoreBonus +=
-                componentHitScoreIncrement;
-            float newTimeScale = baselineTimeScale
-                + _componentHitTimeScaleBonus;
+            _componentHitAssistAccelerationBonus += componentHitAssistAccelerationIncrement;
+            _componentHitTimeScaleBonus += componentHitTimeScaleIncrement;
+            _componentHitScoreBonus += componentHitScoreIncrement;
             ApplySpeedFromTier(force: true);
         }
+    }
+
+    private void Start()
+    {
+        points = 0f;
+        mult = 1f;
+        roundTotal = 0f;
+        _goal = 0f;
+        _goalTier = 0;
+
+        CaptureTimeBaseIfNeeded();
+        ApplySpeedFromTier(force: true);
+
+        ScoreChanged?.Invoke();
     }
 
     public void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)
@@ -365,173 +199,21 @@ public class ScoreManager : MonoBehaviour
         RegisterComponentHit();
         float componentScoreMult = _hasCompletedLevelThisRound ? (1f + _componentHitScoreBonus) : 1f;
         amount *= componentScoreMult;
+
         switch(typeOfScore)
         {
             case TypeOfScore.points:
-                AddPoints(amount * pointMultiplier * pointsModifierMultiplier * externalScoreAwardMultiplier, pos,
-                    popupAnchorOffset);
+                float appliedPts = amount * pointMultiplier * pointsModifierMultiplier * externalScoreAwardMultiplier;
+                AddPoints(appliedPts, pos, popupAnchorOffset);
                 break;
             case TypeOfScore.mult:
-                AudioManager.Instance.PlayMultHit(new Vector3(0f, 0f, 0f), 0);
-                AddMult(amount * multMultiplier * multModifierMultiplier * externalScoreAwardMultiplier, pos);
+                float appliedMult = amount * multMultiplier * multModifierMultiplier * externalScoreAwardMultiplier;
+                AddMult(appliedMult, pos);
                 break;
             case TypeOfScore.coins:
-                AddCoins(
-                    Mathf.RoundToInt(amount * coinMultiplier * coinModifierMultiplier *
-                        externalScoreAwardMultiplier), pos);
+                int appliedCoins = Mathf.RoundToInt(amount * coinMultiplier * coinModifierMultiplier * externalScoreAwardMultiplier);
+                AddCoins(appliedCoins, pos);
                 break;
-        }
-    }
-
-    
-    private const string ScorePanelRootName = "Score Panel";
-    private const string RoundInfoPanelRootName = "Round Info Panel";
-    private const string PointsObjectName = "Points";
-    private const string MultObjectName = "Mult";
-    private const string RoundIndexObjectName = "Round Index";
-    private const string RoundTotalObjectName = "RoundTotal";
-    private const string RoundScoreObjectName = "Round Score";
-    private const string GoalObjectName = "Goal";
-    private const string BallsRemainingObjectName = "Balls Remaining";
-    private const string CoinsObjectName = "Coins";
-
-    private static string FormatPointsCompact(float value)
-    {
-        // Keep 1-999 as-is, abbreviate at 4+ digits: 1K, 1.1K, ... 1M, 1.1M, ... 1B, 1.1B, ...
-        float abs = Mathf.Abs(value);
-        if (abs < 1000f)
-        {
-            float rounded1 = Mathf.Round(value * 10f) / 10f;
-            return rounded1.ToString("0.#", CultureInfo.InvariantCulture);
-        }
-
-        float scale = 1000f;
-        string suffix = "K";
-        if (abs >= 1000000000f)
-        {
-            scale = 1000000000f;
-            suffix = "B";
-        }
-        else if (abs >= 1000000f)
-        {
-            scale = 1000000f;
-            suffix = "M";
-        }
-
-        float scaled = abs / scale;
-        float scaledRounded1 = Mathf.Round(scaled * 10f) / 10f;
-
-        // If rounding pushes us to 1000 of the current unit, roll up to next unit.
-        if (scaledRounded1 >= 1000f)
-        {
-            if (suffix == "K")
-            {
-                scale = 1000000f;
-                suffix = "M";
-            }
-            else if (suffix == "M")
-            {
-                scale = 1000000000f;
-                suffix = "B";
-            }
-
-            scaled = abs / scale;
-            scaledRounded1 = Mathf.Round(scaled * 10f) / 10f;
-        }
-
-        // At 100+ of a unit show no decimal: 100K, 101K, 100M, ...
-        if (scaledRounded1 >= 100f)
-        {
-            string s = Mathf.RoundToInt(scaledRounded1).ToString(CultureInfo.InvariantCulture) + suffix;
-            return value < 0f ? "-" + s : s;
-        }
-
-        // Under 100 show up to 1 decimal, dropping trailing .0: 1K, 1.1K, 10K, 10.1K, ...
-        string core = scaledRounded1.ToString("0.#", CultureInfo.InvariantCulture) + suffix;
-        return value < 0f ? "-" + core : core;
-    }
-
-    private static string FormatPointsOneDecimal(
-        float value)
-    {
-        float abs = Mathf.Abs(value);
-
-        if (abs < 1000f)
-        {
-            float r = Mathf.Round(value * 10f) / 10f;
-            return r.ToString(
-                "0.0",
-                CultureInfo.InvariantCulture);
-        }
-
-        return FormatPointsCompact(value);
-    }
-
-    private static string FormatRoundTotalWhole(
-        float value)
-    {
-        float abs = Mathf.Abs(value);
-
-        if (abs < 1000f)
-        {
-            int w = Mathf.CeilToInt(value);
-            return w.ToString(
-                "N0",
-                CultureInfo.InvariantCulture);
-        }
-
-        return FormatPointsCompact(value);
-    }
-
-    private static string FormatMultiplier(float value)
-    {
-        // Prevent float artifacts like 2.9999999 in UI.
-        float rounded = Mathf.Round(value * 100f) / 100f;
-        return rounded.ToString("0.##", CultureInfo.InvariantCulture);
-    }
-
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += HandleSceneLoaded;
-        EnsureCoreScoreTextBindings();
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= HandleSceneLoaded;
-    }
-
-    private void Start()
-    {
-        // Keep existing defaults.
-        ResetAudioPitch();
-        points = 0f;
-        mult = 1f;
-        roundTotal = 0f;
-        _goal = 0f;
-        _goalTier = 0;
-
-        CaptureTimeBaseIfNeeded();
-        ApplySpeedFromTier(force: true);
-
-        EnsureCoreScoreTextBindings();
-        ResolveCameraShake();
-        RefreshScoreUI();
-        ScoreChanged?.Invoke();
-    }
-
-    private void Update()
-    {
-        // Increment the frame counter
-        if (framesSinceLastScore < FramesToResetAudio)
-        {
-            framesSinceLastScore++;
-            
-            // If we just hit the threshold, reset the pitch
-            if (framesSinceLastScore == FramesToResetAudio)
-            {
-                ResetAudioPitch();
-            }
         }
     }
 
@@ -539,22 +221,13 @@ public class ScoreManager : MonoBehaviour
     {
         if (scoringLocked || applied == 0) return;
 
-        EnsureCoreScoreTextBindings();
-
         points += applied;
-        UpdateStoredScores();
-        floatingTextSpawner.SpawnPointsText(pos.position, "+" + applied, applied, null, popupAnchorOffset);
+        
+        if (floatingTextSpawner != null)
+            floatingTextSpawner.SpawnPointsText(pos.position, "+" + applied, applied, null, popupAnchorOffset);
 
-        // Trigger camera shake scaled by the points earned (only for positive scores).
-        if (applied > 0f)
-        {
-            TriggerScoreShake(applied);
-        }
-
-        // Recompute tier and apply speed when crossing Goal * N thresholds.
+        PointsAdded?.Invoke(applied, points);
         UpdateGoalTierAndApplySpeed();
-
-
         ScoreChanged?.Invoke();
     }
 
@@ -562,22 +235,13 @@ public class ScoreManager : MonoBehaviour
     {
         if (scoringLocked || applied == 0) return;
 
-        EnsureCoreScoreTextBindings();
-
         mult += applied;
-        UpdateStoredScores();
-        floatingTextSpawner.SpawnMultText(pos.position, "x" + FormatMultiplier(applied), applied);
 
-        // Trigger camera shake scaled by the mult earned (only for positive scores).
-        if (applied > 0f)
-        {
-            TriggerMultShake(applied);
-        }
+        if (floatingTextSpawner != null)
+            floatingTextSpawner.SpawnMultText(pos.position, "x" + ScoreUIController.FormatMultiplier(applied), applied);
 
-        // Recompute tier and apply speed when crossing Goal * N thresholds.
+        MultAdded?.Invoke(applied, mult);
         UpdateGoalTierAndApplySpeed();
-
-
         ScoreChanged?.Invoke();
     }
 
@@ -585,20 +249,16 @@ public class ScoreManager : MonoBehaviour
     {
         if (scoringLocked || applied == 0) return;
 
-        EnsureCoreScoreTextBindings();
+        EnsureRefs();
+        if (gameRulesManager != null)
+            gameRulesManager.AddCoinsUnscaled(applied);
 
-        gameRulesManager.AddCoinsUnscaled(applied);
-        UpdateStoredScores();
-        floatingTextSpawner?.SpawnGoldText(pos.position, "+$" + applied, applied);
+        if (floatingTextSpawner != null)
+            floatingTextSpawner.SpawnGoldText(pos.position, "+$" + applied, applied);
 
-        // Ensure total money text updates immediately (e.g. alien rewards) even if floating text fails to spawn.
-        if (coinsText != null && gameRulesManager != null)
-            coinsText.text = $"${gameRulesManager.Coins}";
-    }
-
-    public void PlayStaggeredCoinSounds(int amount)
-    {
-        AudioManager.Instance.PlayStaggeredCoinSounds(amount);
+        int totalCoins = gameRulesManager != null ? gameRulesManager.Coins : 0;
+        CoinsAdded?.Invoke(applied, totalCoins);
+        ScoreChanged?.Invoke();
     }
 
     public void SetScoringLocked(bool locked)
@@ -606,94 +266,11 @@ public class ScoreManager : MonoBehaviour
         scoringLocked = locked;
     }
 
-    private void UpdateStoredScores()
-    {
-        pointQueue.Enqueue(points);
-        multQueue.Enqueue(mult);
-        coinQueue.Enqueue(gameRulesManager.Coins);
-    }
-
-    public void UpdateScoreText()
-    {
-        EnsureCoreScoreTextBindings();
-        if (gameRulesManager == null)
-        {
-            EnsureRefs();
-        }
-
-        bool pointsActuallyChanged = false;
-        bool multActuallyChanged = false;
-
-        // Process Points
-        if (pointsText != null && pointQueue.Count > 0)
-        {
-            float newPoints = pointQueue.Dequeue();
-            
-            if (newPoints != pointsUiDisplayed)
-            {
-                pointsActuallyChanged = true;
-                pointsUiDisplayed = newPoints;
-            }
-            pointsText.text = FormatPointsOneDecimal(newPoints);
-        }
-
-        // Process Multiplier
-        if (multText != null && multQueue.Count > 0)
-        {
-            float newMult = multQueue.Dequeue();
-            
-            if (newMult != multUiDisplayed)
-            {
-                multActuallyChanged = true;
-                multUiDisplayed = newMult;
-            }
-            multText.text = FormatMultiplier(newMult);
-        }
-
-        // Coins can change outside the per-popup queue (e.g. level-up awards), so always read the
-        // authoritative value to prevent the UI snapping back to stale queued values.
-        if (coinsText != null && gameRulesManager != null)
-            coinsText.text = $"${gameRulesManager.Coins}";
-
-        if (pointsActuallyChanged)
-        {
-            AudioManager.Instance.PlayPointsAdd(compTriggered);
-        }
-        if (multActuallyChanged)
-        {
-            AudioManager.Instance.PlayMultAdd(compTriggered);
-        }
-        
-        if (pointsActuallyChanged || multActuallyChanged)
-        {
-            framesSinceLastScore = 0;
-            if (compTriggered < 80)
-            {
-                compTriggered += 5;
-            }
-        }
-    }
-
-    public void ResetAudioPitch()
-    {
-        compTriggered = 35;
-    }
-
-
-    /// <summary>
-    /// Bank the current ball score into the round total and reset the per-ball score state.
-    /// Returns the banked amount (points * mult).
-    /// </summary>
     public float BankCurrentBallScore()
     {
         return BankCurrentBallScore(1f);
     }
 
-    /// <summary>
-    /// Bank the current ball score into the round total, multiplied by <paramref name="bankMultiplier"/>,
-    /// then reset the per-ball score state.
-    /// Returns the banked amount (points * mult * bankMultiplier).
-    /// </summary>
     public float BankCurrentBallScore(float bankMultiplier)
     {
         float m = bankMultiplier;
@@ -702,7 +279,6 @@ public class ScoreManager : MonoBehaviour
         float banked = points * mult * m;
         roundTotal += banked;
 
-        // Reset for next ball.
         ResetAudioPitch();
         points = 0f;
         mult = 1f;
@@ -711,14 +287,10 @@ public class ScoreManager : MonoBehaviour
         _componentHitScoreBonus = 0f;
 
         UpdateGoalTierAndApplySpeed();
-        RefreshScoreUI();
         ScoreChanged?.Invoke();
         return banked;
     }
 
-    /// <summary>
-    /// Reset round and per-ball scoring back to defaults.
-    /// </summary>
     public void ResetForNewRound()
     {
         levelProgressOffset = 0f;
@@ -733,16 +305,10 @@ public class ScoreManager : MonoBehaviour
         _componentHitScoreBonus = 0f;
         _hasCompletedLevelThisRound = false;
 
-        // Reset game speed back to baseline at the start of each round.
         ApplySpeedFromTier(force: true);
-
-        RefreshScoreUI();
         ScoreChanged?.Invoke();
     }
 
-    /// <summary>
-    /// Resets component-hit bonuses and game speed to baseline. Call when returning from shop.
-    /// </summary>
     public void ResetGameSpeedOnShopReturn()
     {
         _componentHitAssistAccelerationBonus = 0f;
@@ -751,67 +317,38 @@ public class ScoreManager : MonoBehaviour
         ApplySpeedFromTier(force: true);
     }
 
-    /// <summary>
-    /// Consumes level progress by advancing the internal offset.
-    /// Use this when a level goal is reached so overflow score continues into the next level.
-    /// This does NOT change points/mult or the banked total.
-    /// </summary>
     public void ConsumeLevelProgress(float amount)
     {
         float a = Mathf.Max(0f, amount);
-        if (a <= 0.0001f)
-        {
-            return;
-        }
+        if (a <= 0.0001f) return;
 
         levelProgressOffset = Mathf.Max(0f, levelProgressOffset + a);
         _hasCompletedLevelThisRound = true;
         UpdateGoalTierAndApplySpeed();
-        RefreshScoreUI();
         ScoreChanged?.Invoke();
     }
 
-    /// <summary>
-    /// Resets all score state, including level progress offset.
-    /// Intended for starting a new run.
-    /// </summary>
     public void ResetForNewRun()
     {
         ResetForNewRound();
     }
 
-    /// <summary>
-    /// Optional: If you're using extra labels, call these from your rules/UI layer.
-    /// </summary>
     public void SetGoal(float goal)
     {
         _goal = goal;
         UpdateGoalTierAndApplySpeed();
-        EnsureCoreScoreTextBindings();
-        if (goalText != null)
-            goalText.text = FormatPointsCompact(CumulativeGoal);
         ScoreChanged?.Invoke();
     }
 
-
-    /// <summary>
-    /// Registers/updates a time-scale request from a specific source (e.g. a ball proximity trigger).
-    /// The effective request is the MIN across all active requests.
-    /// Use multiplier=1 to mean "no slow-mo"; prefer ClearTimeScaleRequest when done.
-    /// </summary>
     public void SetTimeScaleRequest(UnityEngine.Object source, float multiplier)
     {
         if (source == null) return;
         int id = source.GetInstanceID();
-        // Slow-mo removed: treat any request below 1 as "no request".
         _timeScaleRequestBySourceId[id] = Mathf.Max(1f, multiplier);
         RecomputeTimeScaleRequestMin();
         ApplySpeedFromTier(force: true);
     }
 
-    /// <summary>
-    /// Clears a previously-set time-scale request from a specific source.
-    /// </summary>
     public void ClearTimeScaleRequest(UnityEngine.Object source)
     {
         if (source == null) return;
@@ -840,10 +377,6 @@ public class ScoreManager : MonoBehaviour
         _timeScaleRequestMin = min;
     }
 
-
-    /// <summary>
-    /// Resets external (runtime) multipliers back to defaults.
-    /// </summary>
     public void ResetExternalMultipliers()
     {
         externalTimeScaleMultiplier = 1f;
@@ -851,159 +384,6 @@ public class ScoreManager : MonoBehaviour
         modifierTimeScaleMultiplier = 1f;
         ClearAllTimeScaleRequests();
         ApplySpeedFromTier(force: true);
-    }
-
-    public void SetRoundIndex(int roundIndex)
-    {
-        EnsureCoreScoreTextBindings();
-        if (roundIndexText == null)
-            return;
-
-        int prev = _roundIndexUiLast;
-        _roundIndexUiLast = roundIndex;
-
-        roundIndexText.text = (roundIndex + 1).ToString();
-
-        bool shouldAnimate =
-            enableRoundIndexPop &&
-            prev >= 0 &&
-            roundIndex > prev;
-
-        if (shouldAnimate)
-        {
-            CaptureRoundIndexJuiceBaselineIfNeeded();
-            PlayRoundIndexPop();
-        }
-    }
-
-    public void SetBallsRemaining(int ballsRemaining)
-    {
-        EnsureCoreScoreTextBindings();
-        if (ballsRemainingText != null)
-            ballsRemainingText.text = ballsRemaining.ToString();
-    }
-
-    public void SetCoins(int coins)
-    {
-        EnsureCoreScoreTextBindings();
-        if (coinsText != null)
-            coinsText.text = $"${coins}";
-
-        coinsUiDisplayed = coins;
-    }
-
-    public void ApplyDeferredCoinsUi(int applied)
-    {
-        EnsureCoreScoreTextBindings();
-
-        coinsUiDisplayed += applied;
-        if (coinsText != null)
-            coinsText.text = $"${coinsUiDisplayed}";
-    }
-
-    private void RefreshScoreUI()
-    {
-        EnsureCoreScoreTextBindings();
-        pointsUiDisplayed = points;
-        multUiDisplayed = mult;
-        if (pointsText != null)
-            pointsText.text = FormatPointsOneDecimal(pointsUiDisplayed);
-        if (multText != null)
-            multText.text = FormatMultiplier(multUiDisplayed);
-        if (roundTotalText != null)
-            roundTotalText.text = FormatRoundTotalWhole(roundTotal);
-        if (goalText != null)
-            goalText.text = FormatPointsCompact(CumulativeGoal);
-        if (coinsText != null && gameRulesManager != null)
-            coinsText.text = $"${gameRulesManager.Coins}";
-    }
-
-    private void CaptureRoundIndexJuiceBaselineIfNeeded()
-    {
-        if (roundIndexText == null)
-            return;
-
-        int id = roundIndexText.GetInstanceID();
-        if (_roundIndexJuiceBaselineCaptured && id == _roundIndexJuiceTextInstanceId)
-            return;
-
-        _roundIndexJuiceTextInstanceId = id;
-        _roundIndexJuiceBaselineCaptured = true;
-
-        RectTransform rt = roundIndexText.rectTransform;
-        _roundIndexBaseLocalScale = rt.localScale;
-        _roundIndexBaseAnchoredPos = rt.anchoredPosition;
-        _roundIndexBaseColor = roundIndexText.color;
-    }
-
-    private void PlayRoundIndexPop()
-    {
-        if (roundIndexText == null)
-            return;
-
-        if (!_roundIndexJuiceBaselineCaptured)
-        {
-            CaptureRoundIndexJuiceBaselineIfNeeded();
-            if (!_roundIndexJuiceBaselineCaptured)
-                return;
-        }
-
-        if (_roundIndexPopRoutine != null)
-            StopCoroutine(_roundIndexPopRoutine);
-
-        _roundIndexPopRoutine = StartCoroutine(RoundIndexPopRoutine());
-    }
-
-    private System.Collections.IEnumerator RoundIndexPopRoutine()
-    {
-        TMP_Text text = roundIndexText;
-        if (text == null)
-            yield break;
-
-        RectTransform rt = text.rectTransform;
-        Vector3 baseScale = _roundIndexBaseLocalScale;
-        Vector2 basePos = _roundIndexBaseAnchoredPos;
-        Color baseColor = _roundIndexBaseColor;
-
-        float duration = Mathf.Max(0.01f, roundIndexPopDuration);
-        float amp = Mathf.Max(0f, roundIndexPopPeakScale - 1f);
-
-        float t = 0f;
-        while (t < duration)
-        {
-            if (text == null)
-                yield break;
-
-            float n = Mathf.Clamp01(t / duration);
-
-            float k = roundIndexPopCurve != null ? roundIndexPopCurve.Evaluate(n) : Mathf.Sin(n * Mathf.PI);
-            float scaleMul = 1f + (k * amp);
-
-            rt.localScale = baseScale * scaleMul;
-
-            if (!Mathf.Approximately(roundIndexPopYOffset, 0f))
-            {
-                rt.anchoredPosition = basePos + new Vector2(0f, roundIndexPopYOffset * k);
-            }
-
-            if (roundIndexPopFlashColor)
-            {
-                float flashT = Mathf.Clamp01(n / 0.35f);
-                text.color = Color.Lerp(roundIndexPopFlashTargetColor, baseColor, flashT);
-            }
-
-            t += Time.unscaledDeltaTime;
-            yield return null;
-        }
-
-        if (text != null)
-        {
-            rt.localScale = baseScale;
-            rt.anchoredPosition = basePos;
-            text.color = baseColor;
-        }
-
-        _roundIndexPopRoutine = null;
     }
 
     private void UpdateGoalTierAndApplySpeed()
@@ -1017,7 +397,6 @@ public class ScoreManager : MonoBehaviour
         }
         else
         {
-            // Keep speed in sync even if another system changed Time.timeScale.
             ApplySpeedFromTier(force: false);
         }
     }
@@ -1047,229 +426,65 @@ public class ScoreManager : MonoBehaviour
         if (!applySpeedToTimeScale) return;
         CaptureTimeBaseIfNeeded();
 
-        // Respect global pause via Time.timeScale.
-        // Other systems (pause menu, modifier cards, etc.) may set timeScale to 0 and expect it to
-        // stay there while their UI is open.
-        if (Time.timeScale <= 0f)
-        {
-            return;
-        }
+        if (Time.timeScale <= 0f) return;
 
-        // Target is baseline * tier multiplier + component-hit time scale bonus.
-        // Slow-mo removed: never allow any multiplier to reduce speed below baseline.
         float requestMult = Mathf.Max(1f, _timeScaleRequestMin);
         float extMult = Mathf.Max(1f, externalTimeScaleMultiplier);
         float modTimeScale = Mathf.Max(0.1f, modifierTimeScaleMultiplier);
         float effectiveBase = _baseTimeScale + _componentHitTimeScaleBonus;
         float targetScale = effectiveBase * Mathf.Max(0f, SpeedMultiplier) * extMult * requestMult * modTimeScale;
+        
         if (maxTimeScale > 0f)
-        {
             targetScale = Mathf.Min(targetScale, maxTimeScale);
-        }
+
         if (!force && Mathf.Approximately(Time.timeScale, targetScale))
             return;
 
         Time.timeScale = targetScale;
 
-        // Keep physics stepping consistent relative to scaled time.
-        // Standard approach: fixedDeltaTime scales with timeScale.
         float targetFixed = _baseFixedDeltaTime * Mathf.Max(0f, Time.timeScale);
         if (maxFixedDeltaTime > 0f)
-        {
             targetFixed = Mathf.Min(targetFixed, maxFixedDeltaTime);
-        }
+
         Time.fixedDeltaTime = Mathf.Max(0.0001f, targetFixed);
     }
 
-    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    // ==========================================
+    // Facade Methods for External Compatibility
+    // ==========================================
+
+    public void SetRoundIndex(int roundIndex)
     {
-        // In additive-scene setups, the Score UI may live in a different scene than this manager.
-        // Re-resolve references whenever a new scene is loaded.
-        EnsureCoreScoreTextBindings();
-        ResolveCameraShake();
-        RefreshScoreUI();
+        ServiceLocator.Get<ScoreUIController>()?.SetRoundIndex(roundIndex);
     }
 
-    private void ResolveCameraShake()
+    public void SetBallsRemaining(int ballsRemaining)
     {
-        if (cameraShake != null && cameraShake.isActiveAndEnabled){
-            return;
-        }
-
-        cameraShake = CameraShake.Instance;
-        if (cameraShake != null && cameraShake.isActiveAndEnabled){
-            return;
-        }
-
-        cameraShake = FindFirstObjectByType<CameraShake>();
-
+        ServiceLocator.Get<ScoreUIController>()?.SetBallsRemaining(ballsRemaining);
     }
 
-    private void TriggerScoreShake(float pointsEarned)
+    public void SetCoins(int coins)
     {
-        if (cameraShake == null || !cameraShake.isActiveAndEnabled)
-        {
-            ResolveCameraShake();
-        }
-
-        float shaped = ShapeShakeInput(pointsEarned, shakePointsExponent);
-
-        // Calculate duration based on points earned.
-        float duration = shakeBaseDuration + (shaped * shakeDurationPerPoint);
-        duration = Mathf.Clamp(duration, shakeBaseDuration, shakeMaxDuration);
-
-        // Calculate magnitude based on points earned.
-        float magnitude = shakeBaseMagnitude + (shaped * shakeMagnitudePerPoint);
-        magnitude = Mathf.Clamp(magnitude, shakeBaseMagnitude, shakeMaxMagnitude);
-
-        cameraShake.Shake(duration, magnitude);
+        ServiceLocator.Get<ScoreUIController>()?.SetCoins(coins);
     }
 
-    private void TriggerMultShake(float multGained)
+    public void ApplyDeferredCoinsUi(int applied)
     {
-        if (cameraShake == null || !cameraShake.isActiveAndEnabled)
-        {
-            ResolveCameraShake();
-        }
-
-        if (cameraShake == null || !cameraShake.isActiveAndEnabled)
-            return;
-
-        float shaped = ShapeShakeInput(multGained, multShakeExponent);
-
-        // Calculate duration based on multiplier gained.
-        float duration = multShakeBaseDuration + (shaped * multShakeDurationPerMult);
-        duration = Mathf.Clamp(duration, multShakeBaseDuration, multShakeMaxDuration);
-
-        // Calculate magnitude based on multiplier gained.
-        float magnitude = multShakeBaseMagnitude + (shaped * multShakeMagnitudePerMult);
-        magnitude = Mathf.Clamp(magnitude, multShakeBaseMagnitude, multShakeMaxMagnitude);
-
-        cameraShake.Shake(duration, magnitude);
+        ServiceLocator.Get<ScoreUIController>()?.ApplyDeferredCoinsUi(applied);
     }
 
-    private static float ShapeShakeInput(float value, float exponent)
+    public void UpdateScoreText()
     {
-        if (value <= 0f)
-        {
-            return 0f;
-        }
-
-        float safeExponent = Mathf.Max(0.0001f, exponent);
-        return Mathf.Pow(value, safeExponent);
+        ServiceLocator.Get<ScoreUIController>()?.UpdateScoreText();
     }
 
-    private void EnsureCoreScoreTextBindings()
+    public void PlayStaggeredCoinSounds(int amount)
     {
-        bool scorePanelBound = IsLiveSceneText(pointsText) && IsLiveSceneText(multText);
-        bool roundInfoBound = IsLiveSceneText(roundIndexText) && IsLiveSceneText(roundTotalText) 
-                              && IsLiveSceneText(goalText) && IsLiveSceneText(ballsRemainingText) 
-                              && IsLiveSceneText(coinsText);
-
-        if (scorePanelBound && roundInfoBound)
-            return;
-
-        // Prefer binding within a Score Panel root if present.
-        if (!scorePanelBound)
-        {
-            GameObject scorePanel = GameObject.Find(ScorePanelRootName);
-            if (scorePanel != null)
-            {
-                if (!IsLiveSceneText(pointsText))
-                    pointsText = FindTmpTextInChildrenByName(scorePanel.transform, PointsObjectName);
-                if (!IsLiveSceneText(multText))
-                    multText = FindTmpTextInChildrenByName(scorePanel.transform, MultObjectName);
-            }
-        }
-
-        // Prefer binding within Round Info Panel root if present.
-        if (!roundInfoBound)
-        {
-            GameObject roundInfoPanel = GameObject.Find(RoundInfoPanelRootName);
-            if (roundInfoPanel != null)
-            {
-                if (!IsLiveSceneText(roundIndexText))
-                    roundIndexText = FindTmpTextInChildrenByName(roundInfoPanel.transform, RoundIndexObjectName);
-                if (!IsLiveSceneText(roundTotalText))
-                {
-                    roundTotalText = FindTmpTextInChildrenByName(roundInfoPanel.transform, RoundTotalObjectName);
-                    if (!IsLiveSceneText(roundTotalText))
-                        roundTotalText = FindTmpTextInChildrenByName(roundInfoPanel.transform, RoundScoreObjectName);
-                }
-                if (!IsLiveSceneText(goalText))
-                    goalText = FindTmpTextInChildrenByName(roundInfoPanel.transform, GoalObjectName);
-                if (!IsLiveSceneText(ballsRemainingText))
-                    ballsRemainingText = FindTmpTextInChildrenByName(roundInfoPanel.transform, BallsRemainingObjectName);
-                if (!IsLiveSceneText(coinsText))
-                    coinsText = FindTmpTextInChildrenByName(roundInfoPanel.transform, CoinsObjectName);
-            }
-        }
-
-        // Recheck after panel-based search.
-        scorePanelBound = IsLiveSceneText(pointsText) && IsLiveSceneText(multText);
-        roundInfoBound = IsLiveSceneText(roundIndexText) && IsLiveSceneText(roundTotalText) 
-                         && IsLiveSceneText(goalText) && IsLiveSceneText(ballsRemainingText) 
-                         && IsLiveSceneText(coinsText);
-
-        if (scorePanelBound && roundInfoBound)
-            return;
-
-        // Fallback: search all loaded-scene TMP_Text objects (including inactive).
-        // Resources.FindObjectsOfTypeAll includes assets/prefabs too, so filter by valid scene.
-        TMP_Text[] allTexts = Resources.FindObjectsOfTypeAll<TMP_Text>();
-        for (int i = 0; i < allTexts.Length; i++)
-        {
-            TMP_Text t = allTexts[i];
-            if (t == null) continue;
-            if (!t.gameObject.scene.IsValid()) continue;
-            if (!t.gameObject.activeInHierarchy) continue;
-
-            string n = t.gameObject.name;
-            
-            // Score Panel elements
-            if (!IsLiveSceneText(pointsText) && string.Equals(n, PointsObjectName, StringComparison.OrdinalIgnoreCase))
-                pointsText = t;
-            else if (!IsLiveSceneText(multText) && string.Equals(n, MultObjectName, StringComparison.OrdinalIgnoreCase))
-                multText = t;
-            // Round Info Panel elements
-            else if (!IsLiveSceneText(roundIndexText) && string.Equals(n, RoundIndexObjectName, StringComparison.OrdinalIgnoreCase))
-                roundIndexText = t;
-            else if (!IsLiveSceneText(roundTotalText) && (
-                     string.Equals(n, RoundTotalObjectName, StringComparison.OrdinalIgnoreCase) ||
-                     string.Equals(n, RoundScoreObjectName, StringComparison.OrdinalIgnoreCase)))
-                roundTotalText = t;
-            else if (!IsLiveSceneText(goalText) && string.Equals(n, GoalObjectName, StringComparison.OrdinalIgnoreCase))
-                goalText = t;
-            else if (!IsLiveSceneText(ballsRemainingText) && string.Equals(n, BallsRemainingObjectName, StringComparison.OrdinalIgnoreCase))
-                ballsRemainingText = t;
-            else if (!IsLiveSceneText(coinsText) && string.Equals(n, CoinsObjectName, StringComparison.OrdinalIgnoreCase))
-                coinsText = t;
-        }
+        AudioManager.Instance?.PlayStaggeredCoinSounds(amount);
     }
 
-    private static TMP_Text FindTmpTextInChildrenByName(Transform root, string childName)
+    public void ResetAudioPitch()
     {
-        if (root == null) return null;
-
-        // Look for an exact name match (case-insensitive) and grab TMP on that object.
-        TMP_Text[] texts = root.GetComponentsInChildren<TMP_Text>(includeInactive: true);
-        for (int i = 0; i < texts.Length; i++)
-        {
-            TMP_Text t = texts[i];
-            if (t == null) continue;
-            if (!t.gameObject.activeInHierarchy) continue;
-            if (string.Equals(t.gameObject.name, childName, StringComparison.OrdinalIgnoreCase))
-                return t;
-        }
-
-        return null;
-    }
-
-    private static bool IsLiveSceneText(TMP_Text t)
-    {
-        if (t == null) return false;
-        if (!t.gameObject.scene.IsValid()) return false;
-        if (!t.gameObject.activeInHierarchy) return false;
-        return true;
+        ServiceLocator.Get<ScoreJuiceFeedback>()?.ResetAudioPitch();
     }
 }

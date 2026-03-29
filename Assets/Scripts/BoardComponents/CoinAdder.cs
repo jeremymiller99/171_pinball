@@ -22,20 +22,12 @@ public class CoinAdder : MonoBehaviour
     {
         if (gameRulesManager == null)
         {
-#if UNITY_2022_2_OR_NEWER
-            gameRulesManager = FindFirstObjectByType<GameRulesManager>();
-#else
-            gameRulesManager = FindObjectOfType<GameRulesManager>();
-#endif
+            gameRulesManager = ServiceLocator.Get<GameRulesManager>();
         }
 
         if (floatingTextSpawner == null)
         {
-#if UNITY_2022_2_OR_NEWER
-            floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
-#else
-            floatingTextSpawner = FindObjectOfType<FloatingTextSpawner>();
-#endif
+            floatingTextSpawner = ServiceLocator.Get<FloatingTextSpawner>();
         }
     }
 

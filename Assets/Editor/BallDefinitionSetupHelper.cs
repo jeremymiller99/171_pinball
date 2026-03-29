@@ -94,11 +94,11 @@ public static class BallDefinitionSetupHelper
             return;
         }
 
-        ShopUIController shop = root.GetComponentInChildren<ShopUIController>(includeInactive: true);
+        UnifiedShopController shop = root.GetComponentInChildren<UnifiedShopController>(includeInactive: true);
         if (shop == null)
         {
             PrefabUtility.UnloadPrefabContents(root);
-            Debug.LogWarning($"No {nameof(ShopUIController)} found in {ShopPanelPrefabPath}");
+            Debug.LogWarning($"No {nameof(UnifiedShopController)} found in {ShopPanelPrefabPath}");
             return;
         }
 

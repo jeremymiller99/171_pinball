@@ -240,13 +240,8 @@ internal static class FpsCounterHUDBootstrap
 
 #pragma warning disable CS0162 // Unreachable code
         // Avoid duplicates across domain reloads / scene reloads.
-#if UNITY_2022_2_OR_NEWER
-        if (Object.FindFirstObjectByType<FpsCounterHUDBootstrapper>() != null)
+        if (ServiceLocator.Get<FpsCounterHUDBootstrapper>() != null)
             return;
-#else
-        if (Object.FindObjectOfType<FpsCounterHUDBootstrapper>() != null)
-            return;
-#endif
 
         var go = new GameObject(nameof(FpsCounterHUDBootstrapper));
         Object.DontDestroyOnLoad(go);

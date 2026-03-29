@@ -20,7 +20,7 @@ public class MultiBall : Ball
     new void Awake()
     {
         base.Awake();
-        ballSpawner = FindFirstObjectByType<BallSpawner>();
+        ballSpawner = ServiceLocator.Get<BallSpawner>();
     }
 
     private void OnValidate()
@@ -35,7 +35,7 @@ public class MultiBall : Ball
 
         if (ballSpawner == null)
         {
-            ballSpawner = FindFirstObjectByType<BallSpawner>();
+            ballSpawner = ServiceLocator.Get<BallSpawner>();
         }
 
         GameObject newBall = Instantiate(prefab, transform.position, transform.rotation);

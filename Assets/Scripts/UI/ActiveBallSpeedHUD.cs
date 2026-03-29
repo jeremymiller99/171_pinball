@@ -121,10 +121,10 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         }
 
         if (!ballSpawner)
-            ballSpawner = FindFirstObjectByType<BallSpawner>();
+            ballSpawner = ServiceLocator.Get<BallSpawner>();
 
         if (!gameRules)
-            gameRules = FindFirstObjectByType<GameRulesManager>();
+            gameRules = ServiceLocator.Get<GameRulesManager>();
 
         if (!meterFill)
         {
@@ -396,11 +396,7 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
 
     private static Vector3 GetVelocity(Rigidbody rb)
     {
-#if UNITY_6000_0_OR_NEWER
         return rb ? rb.linearVelocity : Vector3.zero;
-#else
-        return rb ? rb.velocity : Vector3.zero;
-#endif
     }
 
     private static Vector3 GetLocalAxisDir(MeterAxis axis)

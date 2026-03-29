@@ -125,33 +125,21 @@ public sealed class GoalPassedPopupHUD : MonoBehaviour
     {
         if (score != null) return;
 
-#if UNITY_2022_2_OR_NEWER
-        score = FindFirstObjectByType<ScoreManager>();
-#else
-        score = FindObjectOfType<ScoreManager>();
-#endif
+        score = ServiceLocator.Get<ScoreManager>();
     }
 
     private void ResolveSpawner()
     {
         if (spawner != null) return;
 
-#if UNITY_2022_2_OR_NEWER
-        spawner = FindFirstObjectByType<FloatingTextSpawner>();
-#else
-        spawner = FindObjectOfType<FloatingTextSpawner>();
-#endif
+        spawner = ServiceLocator.Get<FloatingTextSpawner>();
     }
 
     private void ResolveRulesManager()
     {
         if (rules != null) return;
 
-#if UNITY_2022_2_OR_NEWER
-        rules = FindFirstObjectByType<GameRulesManager>();
-#else
-        rules = FindObjectOfType<GameRulesManager>();
-#endif
+        rules = ServiceLocator.Get<GameRulesManager>();
     }
 
     private void OnRoundStarted()
@@ -466,13 +454,8 @@ internal static class GoalPassedPopupBootstrap
     private static void Init()
     {
         // Avoid duplicates across domain reloads / scene reloads.
-#if UNITY_2022_2_OR_NEWER
-        if (UnityEngine.Object.FindFirstObjectByType<GoalPassedPopupBootstrapper>() != null)
+        if (ServiceLocator.Get<GoalPassedPopupBootstrapper>() != null)
             return;
-#else
-        if (UnityEngine.Object.FindObjectOfType<GoalPassedPopupBootstrapper>() != null)
-            return;
-#endif
 
         var go = new GameObject(nameof(GoalPassedPopupBootstrapper));
         go.hideFlags = HideFlags.HideInHierarchy;

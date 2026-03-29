@@ -30,9 +30,9 @@ public sealed class InstantWinButton : MonoBehaviour
 
         // Resolve once; additive scenes may create these later, so we'll also resolve on click.
         if (gameRules == null)
-            gameRules = FindFirstObjectByType<GameRulesManager>();
+            gameRules = ServiceLocator.Get<GameRulesManager>();
         if (scoreManager == null)
-            scoreManager = FindFirstObjectByType<ScoreManager>();
+            scoreManager = ServiceLocator.Get<ScoreManager>();
     }
 
     private void OnDisable()
@@ -44,9 +44,9 @@ public sealed class InstantWinButton : MonoBehaviour
     private void HandleClick()
     {
         if (gameRules == null)
-            gameRules = FindFirstObjectByType<GameRulesManager>();
+            gameRules = ServiceLocator.Get<GameRulesManager>();
         if (scoreManager == null)
-            scoreManager = FindFirstObjectByType<ScoreManager>();
+            scoreManager = ServiceLocator.Get<ScoreManager>();
 
         if (scoreManager == null)
         {

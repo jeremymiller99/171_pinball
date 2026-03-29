@@ -20,23 +20,22 @@ public sealed class BoardLoader : MonoBehaviour
 
     private void Awake()
     {
+        ServiceLocator.Register<BoardLoader>(this);
+
         if (rulesManager == null)
         {
-#if UNITY_2022_2_OR_NEWER
-            rulesManager = FindFirstObjectByType<GameRulesManager>();
-#else
-            rulesManager = FindObjectOfType<GameRulesManager>();
-#endif
+            rulesManager = ServiceLocator.Get<GameRulesManager>();
         }
 
         if (ballSpawner == null)
         {
-#if UNITY_2022_2_OR_NEWER
-            ballSpawner = FindFirstObjectByType<BallSpawner>();
-#else
-            ballSpawner = FindObjectOfType<BallSpawner>();
-#endif
+            ballSpawner = ServiceLocator.Get<BallSpawner>();
         }
+    }
+
+    private void OnDisable()
+    {
+        ServiceLocator.Unregister<BoardLoader>();
     }
 
     public IEnumerator LoadBoard(BoardDefinition board)

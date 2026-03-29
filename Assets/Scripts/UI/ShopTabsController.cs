@@ -4,11 +4,11 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// 3-tab controller for the Shop panel.
-/// - Main (default), Balls, BoardComponents tab buttons
-/// - Three content roots (enable one, disable the others)
-/// - Optional "selected" visuals per tab
+/// DEPRECATED -- the unified shop no longer uses tabs.
+/// Replaced by <see cref="UnifiedShopController"/>.
+/// Remove this component from the Shop Panel prefab.
 /// </summary>
+[System.Obsolete("Unified shop no longer uses tabs. Use UnifiedShopController instead.")]
 [DisallowMultipleComponent]
 public sealed class ShopTabsController : MonoBehaviour
 {

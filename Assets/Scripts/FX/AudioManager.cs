@@ -88,6 +88,7 @@ public class AudioManager : MonoBehaviour
         }
 
         Instance = this;
+        ServiceLocator.Register<AudioManager>(this);
         InitializeBuses();
         ApplySavedVolumes();
         DontDestroyOnLoad(gameObject);

@@ -29,7 +29,7 @@ public sealed class NextPaletteButton : MonoBehaviour
 
         // Resolve once on enable (scenes may be loaded additively).
         if (paletteSwitcher == null)
-            paletteSwitcher = FindFirstObjectByType<BoardAlphaPaletteSwitcher>();
+            paletteSwitcher = ServiceLocator.Get<BoardAlphaPaletteSwitcher>();
     }
 
     private void OnDisable()
@@ -41,7 +41,7 @@ public sealed class NextPaletteButton : MonoBehaviour
     private void HandleClick()
     {
         if (paletteSwitcher == null)
-            paletteSwitcher = FindFirstObjectByType<BoardAlphaPaletteSwitcher>();
+            paletteSwitcher = ServiceLocator.Get<BoardAlphaPaletteSwitcher>();
 
         if (paletteSwitcher == null)
         {

@@ -18,7 +18,7 @@ public class ChaosBall : Ball
     new void Awake()
     {
         base.Awake();
-        _spawner = FindFirstObjectByType<BallSpawner>();
+        _spawner = ServiceLocator.Get<BallSpawner>();
     }
 
     override protected void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)

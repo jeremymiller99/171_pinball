@@ -152,6 +152,7 @@ public class FloatingTextSpawner : MonoBehaviour
 
     private void OnEnable()
     {
+        ServiceLocator.Register<FloatingTextSpawner>(this);
         SceneManager.sceneLoaded += HandleSceneLoaded;
         SceneManager.sceneUnloaded += HandleSceneUnloaded;
 
@@ -160,6 +161,7 @@ public class FloatingTextSpawner : MonoBehaviour
 
     private void OnDisable()
     {
+        ServiceLocator.Unregister<FloatingTextSpawner>();
         SceneManager.sceneLoaded -= HandleSceneLoaded;
         SceneManager.sceneUnloaded -= HandleSceneUnloaded;
     }

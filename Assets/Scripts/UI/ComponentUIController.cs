@@ -1,5 +1,6 @@
 // Generated with Cursor AI (GPT-5.2), by OpenAI, 2026-02-24.
 // Change: prewarm selection outlines for board components.
+// DEPRECATED: replaced by UnifiedShopController (2026-03-27).
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -7,6 +8,11 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 
+/// <summary>
+/// DEPRECATED -- replaced by <see cref="UnifiedShopController"/>.
+/// Board-pose and component-replacement logic has been moved into UnifiedShopController.
+/// </summary>
+[System.Obsolete("Use UnifiedShopController instead.")]
 public class ComponentUIController : MonoBehaviour
 {
     [SerializeField] private Vector3 newBoardPosition;

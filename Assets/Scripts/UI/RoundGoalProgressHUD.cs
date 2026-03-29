@@ -159,7 +159,7 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
     private void ResolveRefs()
     {
         if (scoreManager == null)
-            scoreManager = FindFirstObjectByType<ScoreManager>();
+            scoreManager = ServiceLocator.Get<ScoreManager>();
 
         if (!roundTotalText)
         {

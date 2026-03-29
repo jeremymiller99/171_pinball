@@ -1,6 +1,7 @@
-// Updated with Cursor (claude-4.6-opus) by jjmil on 2026-03-24.
+// Updated with Cursor (claude-4.6-opus) by jjmil on 2026-03-27.
 // Change: add selection outline + portal paired-exit outline.
 // Change: always show 10 width black outline; shop highlight uses selection colors.
+// Change: add HighlightDragTarget / UnhighlightDragTarget for drag-to-replace hover.
 using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
@@ -48,6 +49,9 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
     [Header("Hover Highlight")]
     [SerializeField] private Color hoverOutlineColor = Color.white;
 
+    [Header("Drag Target Highlight")]
+    [SerializeField] private Color dragTargetOutlineColor = new Color(0.3f, 1f, 0.3f);
+
     private Outline selectionOutline;
     private Outline portalExitOutline;
     private Transform cachedPortalExit;
@@ -56,7 +60,7 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
     virtual protected void Awake()
     {
         startingSize = transform.localScale;
-        scoreManager = FindAnyObjectByType<ScoreManager>();
+        scoreManager = ServiceLocator.Get<ScoreManager>();
         BoardComponent[] boardComponents = FindObjectsByType<BoardComponent>(FindObjectsSortMode.InstanceID);
         foreach (BoardComponent boardComponent in boardComponents)
         {
@@ -250,6 +254,36 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
         ApplyDefaultOutlineSettings(selectionOutline);
     }
 
+    /// <summary>
+    /// Stronger highlight applied to the specific component under the cursor
+    /// during a drag-to-replace or placement hover. Works even when isConfirmed.
+    /// </summary>
+    public void HighlightDragTarget()
+    {
+        EnsureSelectionOutline();
+        if (selectionOutline != null)
+        {
+            ApplyHighlightOutlineSettings(selectionOutline, dragTargetOutlineColor);
+        }
+    }
+
+    /// <summary>
+    /// Reverts <see cref="HighlightDragTarget"/>. Restores the appropriate
+    /// outline state depending on whether the component is currently Selected.
+    /// </summary>
+    public void UnhighlightDragTarget()
+    {
+        EnsureSelectionOutline();
+        if (isConfirmed)
+        {
+            ApplyHighlightOutlineSettings(selectionOutline, confirmOutlineColor);
+        }
+        else
+        {
+            ApplyDefaultOutlineSettings(selectionOutline);
+        }
+    }
+
     protected virtual void OnTriggerEnter(Collider other)
     {
         if (other.GetComponent<Ball>())
@@ -278,7 +312,7 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
     protected void SpawnBoardHitCountPopup(int current, int total)
     {
         if (floatingTextSpawner == null)
-            floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
+            floatingTextSpawner = ServiceLocator.Get<FloatingTextSpawner>();
         if (floatingTextSpawner == null) return;
 
         string text = current.ToString();

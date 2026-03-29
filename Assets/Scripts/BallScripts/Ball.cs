@@ -40,8 +40,6 @@ public class Ball : MonoBehaviour
     virtual protected void Awake()
     {
         trailRenderer = GetComponent<TrailRenderer>();
-        scoreManager = FindFirstObjectByType<ScoreManager>();
-        floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
     }
 
     virtual protected void Start()
@@ -130,7 +128,7 @@ public class Ball : MonoBehaviour
     protected void SpawnHitCountPopup(int current, int total)
     {
         if (floatingTextSpawner == null)
-            floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
+            floatingTextSpawner = ServiceLocator.Get<FloatingTextSpawner>();
         if (floatingTextSpawner == null) return;
 
         string text = current.ToString();
@@ -212,6 +210,11 @@ public class Ball : MonoBehaviour
 
     virtual protected void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)
     {
+        if (scoreManager == null)
+            scoreManager = ServiceLocator.Get<ScoreManager>();
+            
+        if (scoreManager == null) return;
+
         switch (typeOfScore)
         {
             case TypeOfScore.points:

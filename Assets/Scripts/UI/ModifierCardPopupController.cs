@@ -93,11 +93,7 @@ public sealed class ModifierCardPopupController : MonoBehaviour
 
         _rules = null;
 
-#if UNITY_2022_2_OR_NEWER
         GameRulesManager[] all = FindObjectsByType<GameRulesManager>(FindObjectsSortMode.None);
-#else
-        GameRulesManager[] all = FindObjectsOfType<GameRulesManager>();
-#endif
         for (int i = 0; i < all.Length; i++)
         {
             GameRulesManager r = all[i];
@@ -282,17 +278,10 @@ internal static class ModifierCardPopupBootstrap
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Init()
     {
-#if UNITY_2022_2_OR_NEWER
-        if (UnityEngine.Object.FindFirstObjectByType<ModifierCardPopupBootstrapper>() != null)
+        if (ServiceLocator.Get<ModifierCardPopupBootstrapper>() != null)
         {
             return;
         }
-#else
-        if (UnityEngine.Object.FindObjectOfType<ModifierCardPopupBootstrapper>() != null)
-        {
-            return;
-        }
-#endif
 
         var go = new GameObject(nameof(ModifierCardPopupBootstrapper));
         go.hideFlags = HideFlags.HideInHierarchy;

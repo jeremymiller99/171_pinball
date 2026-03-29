@@ -355,7 +355,7 @@ MonoBehaviour:
   outlineColor: {r: 0, g: 0, b: 0, a: 1}
   outlineWidth: 6
   renderQueueOffset: 100
-  stencilRef: 2
+  stencilRef: 3
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []

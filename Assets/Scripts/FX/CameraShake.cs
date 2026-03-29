@@ -26,6 +26,7 @@ public class CameraShake : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            ServiceLocator.Register<CameraShake>(this);
         }
         else if (Instance != this)
         {
@@ -33,6 +34,14 @@ public class CameraShake : MonoBehaviour
             // Don't destroy to avoid surprises; just don't register.
         }
         originalPos = transform.localPosition;
+    }
+
+    private void OnDisable()
+    {
+        if (Instance == this)
+        {
+            ServiceLocator.Unregister<CameraShake>();
+        }
     }
 
     public void Shake(float duration, float magnitude)

@@ -30,20 +30,12 @@ public class PointAdder : MonoBehaviour
     {
         if (scoreManager == null)
         {
-#if UNITY_2022_2_OR_NEWER
-            scoreManager = FindFirstObjectByType<ScoreManager>();
-#else
-            scoreManager = FindObjectOfType<ScoreManager>();
-#endif
+            scoreManager = ServiceLocator.Get<ScoreManager>();
         }
 
         if (floatingTextSpawner == null)
         {
-#if UNITY_2022_2_OR_NEWER
-            floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
-#else
-            floatingTextSpawner = FindObjectOfType<FloatingTextSpawner>();
-#endif
+            floatingTextSpawner = ServiceLocator.Get<FloatingTextSpawner>();
         }
     }
 

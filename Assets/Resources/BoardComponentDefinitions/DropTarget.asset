@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinition
   id: Drop Target
   displayName: Drop Target
-  description: When hit, score 0.2x mult and drop for 15 seconds. Score 50 points
-    and apply 1.5x scoring to all components while all 3 targets are down.
+  description: When hit, score 0.2x mult and drop for 15 seconds.
   componentType: 2
   icon: {fileID: 0}
   prefab: {fileID: 0}

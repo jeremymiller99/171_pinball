@@ -316,11 +316,7 @@ public class MainMenuUI : MonoBehaviour
         if (challengeButtonsRoot == null)
         {
             Canvas canvas;
-#if UNITY_2022_2_OR_NEWER
-            canvas = FindFirstObjectByType<Canvas>();
-#else
-            canvas = FindObjectOfType<Canvas>();
-#endif
+            canvas = ServiceLocator.Get<Canvas>();
             if (canvas != null)
             {
                 var go = new GameObject(
@@ -406,11 +402,7 @@ public class MainMenuUI : MonoBehaviour
         if (modeInfoPanel == null)
         {
             Canvas canvas;
-#if UNITY_2022_2_OR_NEWER
-            canvas = FindFirstObjectByType<Canvas>();
-#else
-            canvas = FindObjectOfType<Canvas>();
-#endif
+            canvas = ServiceLocator.Get<Canvas>();
             if (canvas != null)
             {
                 modeInfoPanel = CreateModeInfoPanelUI(canvas.transform);
@@ -1334,13 +1326,9 @@ public class MainMenuUI : MonoBehaviour
     {
         Transform[] all;
 
-#if UNITY_2022_2_OR_NEWER
         all = Object.FindObjectsByType<Transform>(
             includeInactive ? FindObjectsInactive.Include : FindObjectsInactive.Exclude,
             FindObjectsSortMode.None);
-#else
-        all = Resources.FindObjectsOfTypeAll<Transform>();
-#endif
 
         var result = new List<Transform>(all.Length);
         for (int i = 0; i < all.Length; i++)
@@ -1348,10 +1336,6 @@ public class MainMenuUI : MonoBehaviour
             var t = all[i];
             if (t == null) continue;
             if (!t.gameObject.scene.IsValid() || !t.gameObject.scene.isLoaded) continue;
-#if !UNITY_2022_2_OR_NEWER
-            if ((t.hideFlags & HideFlags.NotEditable) != 0) continue;
-            if ((t.hideFlags & HideFlags.HideAndDontSave) != 0) continue;
-#endif
             if (!includeInactive && !t.gameObject.activeInHierarchy) continue;
 
             result.Add(t);

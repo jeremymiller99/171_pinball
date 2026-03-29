@@ -73,11 +73,7 @@ public sealed class BoardBackgroundMaterialSwitcher : MonoBehaviour
     {
         if (rules != null) return;
 
-#if UNITY_2022_2_OR_NEWER
-        rules = FindFirstObjectByType<GameRulesManager>();
-#else
-        rules = FindObjectOfType<GameRulesManager>();
-#endif
+        rules = ServiceLocator.Get<GameRulesManager>();
     }
 
     private void Hook()

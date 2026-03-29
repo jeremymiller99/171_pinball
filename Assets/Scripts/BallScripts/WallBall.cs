@@ -30,7 +30,7 @@ public class WallBall : Ball
             return;
         }
 
-        camShake = FindFirstObjectByType<CameraShake>();
+        camShake = ServiceLocator.Get<CameraShake>();
     }
 
     new void OnCollisionEnter(Collision collision)

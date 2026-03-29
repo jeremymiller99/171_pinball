@@ -1,8 +1,13 @@
+#pragma warning disable CS0618 // Internal references to other deprecated types
 using System;
 using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// DEPRECATED -- replaced by <see cref="ShopOffer3DEntry"/>.
+/// </summary>
+[System.Obsolete("Use ShopOffer3DEntry instead.")]
 public class UpgradeComponents : MonoBehaviour, IPointerEnterHandler, ISelectHandler
 {
     public BoardComponentDefinition boardComponentDefinition;

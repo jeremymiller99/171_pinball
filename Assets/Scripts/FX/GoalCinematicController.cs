@@ -95,20 +95,12 @@ public sealed class GoalCinematicController : MonoBehaviour
     {
         if (_score == null)
         {
-#if UNITY_2022_2_OR_NEWER
-            _score = FindFirstObjectByType<ScoreManager>();
-#else
-            _score = FindObjectOfType<ScoreManager>();
-#endif
+            _score = ServiceLocator.Get<ScoreManager>();
         }
 
         if (_rules == null)
         {
-#if UNITY_2022_2_OR_NEWER
-            _rules = FindFirstObjectByType<GameRulesManager>();
-#else
-            _rules = FindObjectOfType<GameRulesManager>();
-#endif
+            _rules = ServiceLocator.Get<GameRulesManager>();
         }
     }
 
@@ -270,13 +262,8 @@ internal static class GoalCinematicControllerBootstrap
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Init()
     {
-#if UNITY_2022_2_OR_NEWER
-        if (UnityEngine.Object.FindFirstObjectByType<GoalCinematicControllerBootstrapper>() != null)
+        if (ServiceLocator.Get<GoalCinematicControllerBootstrapper>() != null)
             return;
-#else
-        if (UnityEngine.Object.FindObjectOfType<GoalCinematicControllerBootstrapper>() != null)
-            return;
-#endif
 
         var go = new GameObject(nameof(GoalCinematicControllerBootstrapper));
         UnityEngine.Object.DontDestroyOnLoad(go);

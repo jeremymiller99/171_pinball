@@ -70,6 +70,7 @@ public sealed class FrenzyController : MonoBehaviour
             return;
         }
         Instance = this;
+        ServiceLocator.Register<FrenzyController>(this);
     }
 
     private void OnEnable()
@@ -87,6 +88,7 @@ public sealed class FrenzyController : MonoBehaviour
 
     private void OnDisable()
     {
+        ServiceLocator.Unregister<FrenzyController>();
         SceneManager.sceneLoaded -= OnSceneLoaded;
 
         if (_score != null)
@@ -106,20 +108,12 @@ public sealed class FrenzyController : MonoBehaviour
     {
         if (_score == null)
         {
-#if UNITY_2022_2_OR_NEWER
-            _score = FindFirstObjectByType<ScoreManager>();
-#else
-            _score = FindObjectOfType<ScoreManager>();
-#endif
+            _score = ServiceLocator.Get<ScoreManager>();
         }
 
         if (_rules == null)
         {
-#if UNITY_2022_2_OR_NEWER
-            _rules = FindFirstObjectByType<GameRulesManager>();
-#else
-            _rules = FindObjectOfType<GameRulesManager>();
-#endif
+            _rules = ServiceLocator.Get<GameRulesManager>();
         }
     }
 

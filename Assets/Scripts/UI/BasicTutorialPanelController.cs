@@ -103,11 +103,7 @@ public sealed class BasicTutorialPanelController : MonoBehaviour
             return;
         }
 
-#if UNITY_2022_2_OR_NEWER
-        rulesManager = FindFirstObjectByType<GameRulesManager>();
-#else
-        rulesManager = FindObjectOfType<GameRulesManager>();
-#endif
+        rulesManager = ServiceLocator.Get<GameRulesManager>();
     }
 
     private void HookButtons()

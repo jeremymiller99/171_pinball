@@ -28,7 +28,7 @@ public class EggBall : Ball
     new protected void Awake()
     {
         base.Awake();
-        ballSpawner = FindFirstObjectByType<BallSpawner>();
+        ballSpawner = ServiceLocator.Get<BallSpawner>();
         stackedNextBallPointMultiplier = 1f;
         stackedNextBallMultMultiplier = 1f;
         stackedNextBallCoinMultiplier = 1;
@@ -125,7 +125,7 @@ public class EggBall : Ball
     {
         if (floatingTextSpawner == null)
         {
-            floatingTextSpawner = FindFirstObjectByType<FloatingTextSpawner>();
+            floatingTextSpawner = ServiceLocator.Get<FloatingTextSpawner>();
         }
 
         if (floatingTextSpawner == null)

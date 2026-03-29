@@ -12,7 +12,7 @@ public class Spinner : MonoBehaviour
 
     void Awake()
     {
-        scoreManager = FindFirstObjectByType<ScoreManager>();
+        scoreManager = ServiceLocator.Get<ScoreManager>();
     }
     void FixedUpdate()
     {

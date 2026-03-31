@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [System.Serializable]
-public class SpaceShipPrefabEntry
+public class BoidShipPrefabEntry
 {
     [Tooltip("Ship prefab to spawn.")]
     public GameObject prefab;
@@ -11,10 +11,10 @@ public class SpaceShipPrefabEntry
     public float scaleMultiplier = 1f;
 }
 
-public class SpaceShipSpawner : MonoBehaviour
+public class BoidShipSpawner : MonoBehaviour
 {
     [Header("Prefabs")]
-    [SerializeField] private SpaceShipPrefabEntry[] shipPrefabs = new SpaceShipPrefabEntry[3];
+    [SerializeField] private BoidShipPrefabEntry[] shipPrefabs = new BoidShipPrefabEntry[3];
 
     [Header("Area")]
     [Tooltip("Collider whose bounds define where ships spawn and fly. Use a BoxCollider or mesh collider.")]
@@ -47,7 +47,7 @@ public class SpaceShipSpawner : MonoBehaviour
             return false;
         }
 
-        foreach (SpaceShipPrefabEntry entry in shipPrefabs)
+        foreach (BoidShipPrefabEntry entry in shipPrefabs)
         {
             if (entry != null && entry.prefab != null)
             {
@@ -62,7 +62,7 @@ public class SpaceShipSpawner : MonoBehaviour
     {
         Vector3 spawnPos = RandomPointInBounds(moveableArea.bounds);
 
-        SpaceShipPrefabEntry entry = GetRandomPrefabEntry();
+        BoidShipPrefabEntry entry = GetRandomPrefabEntry();
         if (entry == null || entry.prefab == null)
         {
             return;
@@ -71,22 +71,22 @@ public class SpaceShipSpawner : MonoBehaviour
         GameObject ship = Instantiate(entry.prefab, spawnPos, Quaternion.identity, transform);
         ship.transform.localScale = ship.transform.localScale * entry.scaleMultiplier;
 
-        SpaceShip spaceShip = ship.GetComponent<SpaceShip>();
-        if (spaceShip != null)
+        BoidShip boidShip = ship.GetComponent<BoidShip>();
+        if (boidShip != null)
         {
             float speed = Random.Range(shipSpeedMin, shipSpeedMax);
-            spaceShip.SetFlyingArea(moveableArea, speed);
+            boidShip.SetFlyingArea(moveableArea, speed);
         }
 
         IgnoreCollisionsWithOtherShips(ship);
     }
 
-    private SpaceShipPrefabEntry GetRandomPrefabEntry()
+    private BoidShipPrefabEntry GetRandomPrefabEntry()
     {
         int validCount = 0;
-        SpaceShipPrefabEntry firstValid = null;
+        BoidShipPrefabEntry firstValid = null;
 
-        foreach (SpaceShipPrefabEntry entry in shipPrefabs)
+        foreach (BoidShipPrefabEntry entry in shipPrefabs)
         {
             if (entry != null && entry.prefab != null)
             {
@@ -107,7 +107,7 @@ public class SpaceShipSpawner : MonoBehaviour
         int index = Random.Range(0, validCount);
         int current = 0;
 
-        foreach (SpaceShipPrefabEntry entry in shipPrefabs)
+        foreach (BoidShipPrefabEntry entry in shipPrefabs)
         {
             if (entry != null && entry.prefab != null)
             {
@@ -131,8 +131,8 @@ public class SpaceShipSpawner : MonoBehaviour
             return;
         }
 
-        SpaceShip[] allShips = FindObjectsByType<SpaceShip>(FindObjectsSortMode.None);
-        foreach (SpaceShip other in allShips)
+        BoidShip[] allShips = FindObjectsByType<BoidShip>(FindObjectsSortMode.None);
+        foreach (BoidShip other in allShips)
         {
             if (other == null || other.gameObject == newShip)
             {

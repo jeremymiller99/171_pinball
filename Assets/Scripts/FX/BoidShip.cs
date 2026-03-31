@@ -8,7 +8,7 @@ public enum MovementPlane
     YZ
 }
 
-public class SpaceShip : MonoBehaviour
+public class BoidShip : MonoBehaviour
 {
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 2f;
@@ -33,6 +33,7 @@ public class SpaceShip : MonoBehaviour
     [Header("Rotation")]
     [Tooltip("Optional child that defines the ship's forward. If set, rotation uses this instead of movement plane.")]
     [SerializeField] private Transform forwardIndicator;
+    public Transform ForwardIndicator => forwardIndicator;
     [Tooltip("Plane ships move in. Used when forward indicator is not set. XZ = vertical pinball board.")]
     [SerializeField] private MovementPlane movementPlane = MovementPlane.XZ;
     [Tooltip("Degrees to add to facing angle (e.g. 90 if model nose points wrong way).")]
@@ -104,8 +105,8 @@ public class SpaceShip : MonoBehaviour
         Vector3 steer = Vector3.zero;
         int count = 0;
 
-        SpaceShip[] allShips = FindObjectsByType<SpaceShip>(FindObjectsSortMode.None);
-        foreach (SpaceShip other in allShips)
+        BoidShip[] allShips = FindObjectsByType<BoidShip>(FindObjectsSortMode.None);
+        foreach (BoidShip other in allShips)
         {
             if (other == null || other == this)
             {
@@ -135,8 +136,8 @@ public class SpaceShip : MonoBehaviour
         Vector3 avgVelocity = Vector3.zero;
         int count = 0;
 
-        SpaceShip[] allShips = FindObjectsByType<SpaceShip>(FindObjectsSortMode.None);
-        foreach (SpaceShip other in allShips)
+        BoidShip[] allShips = FindObjectsByType<BoidShip>(FindObjectsSortMode.None);
+        foreach (BoidShip other in allShips)
         {
             if (other == null || other == this)
             {
@@ -165,8 +166,8 @@ public class SpaceShip : MonoBehaviour
         Vector3 centerOfMass = Vector3.zero;
         int count = 0;
 
-        SpaceShip[] allShips = FindObjectsByType<SpaceShip>(FindObjectsSortMode.None);
-        foreach (SpaceShip other in allShips)
+        BoidShip[] allShips = FindObjectsByType<BoidShip>(FindObjectsSortMode.None);
+        foreach (BoidShip other in allShips)
         {
             if (other == null || other == this)
             {

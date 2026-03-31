@@ -102,9 +102,12 @@ public sealed class ShopTransitionController : MonoBehaviour
     private Vector2 _panelBallsHome;
     private Vector2 _panelDoneHome;
 
+    public event Action OpenTransitionStarted;
     public event Action OpenTransitionFinished;
     /// <summary>Fires when the camera pan completes (before panel slides). Use for Main panel reveal.</summary>
     public event Action CameraPanFinished;
+    
+    public event Action CloseTransitionStarted;
 
     private bool _isOpen;
     private bool _isTransitioning;
@@ -191,6 +194,7 @@ public sealed class ShopTransitionController : MonoBehaviour
         SnapPanelsToHome();
 
         Debug.Log($"[ShopTransition] Starting open transition. camHome={_cameraHomeLocalPos}, camShop={_cameraShopLocalPos}, panDuration={panDuration}");
+        OpenTransitionStarted?.Invoke();
         StartTransition(OpenRoutine());
     }
 
@@ -220,6 +224,7 @@ public sealed class ShopTransitionController : MonoBehaviour
         AudioManager.Instance.PlayTransition();
 
         Debug.Log("[ShopTransition] Starting close transition");
+        CloseTransitionStarted?.Invoke();
         StartTransition(CloseRoutine(afterClosed));
     }
 

@@ -73,6 +73,27 @@ public class MainMenuUI : MonoBehaviour
     [Tooltip("Button to close the info panel and return to run selector.")]
     [SerializeField] private Button modeInfoCloseButton;
 
+    [Header("Player Ships")]
+    [Tooltip("Ships available to select before starting a challenge run.")]
+    [SerializeField] private PlayerShipDefinition[] availableShips;
+
+    [Tooltip("The parent container for the ship selector UI.")]
+    [SerializeField] private GameObject modeInfoShipSelectorContainer;
+    
+    [Tooltip("Text to display the selected ship's name.")]
+    [SerializeField] private TMP_Text modeInfoShipNameText;
+    
+    [Tooltip("Text to display the selected ship's description.")]
+    [SerializeField] private TMP_Text modeInfoShipDescText;
+    
+    [Tooltip("Button to cycle to the previous ship.")]
+    [SerializeField] private Button modeInfoShipLeftButton;
+    
+    [Tooltip("Button to cycle to the next ship.")]
+    [SerializeField] private Button modeInfoShipRightButton;
+
+    private int _selectedShipIndex = 0;
+
     [Header("UI (optional - auto-wired if left blank)")]
     [Tooltip("Main Menu 'Play' button. If not set, the script will try to find the existing 'Play' button in the scene.")]
     [SerializeField] private Button startRunButton;
@@ -417,10 +438,19 @@ public class MainMenuUI : MonoBehaviour
                 modeInfoDescriptionText = FindTextUnder(modeInfoPanel, "ModeInfo_Description");
             if (modeInfoWinConditionText == null)
                 modeInfoWinConditionText = FindTextUnder(modeInfoPanel, "ModeInfo_WinCondition");
-            if (modeInfoPlayButton == null)
-                modeInfoPlayButton = FindButtonUnder(modeInfoPanel, "ModeInfo_Play");
-            if (modeInfoCloseButton == null)
-                modeInfoCloseButton = FindButtonUnder(modeInfoPanel, "ModeInfo_Close");
+            if (modeInfoShipNameText == null)
+                modeInfoShipNameText = FindTextUnder(modeInfoPanel, "ShipName");
+            if (modeInfoShipDescText == null)
+                modeInfoShipDescText = FindTextUnder(modeInfoPanel, "ShipDesc");
+            if (modeInfoShipLeftButton == null)
+                modeInfoShipLeftButton = FindButtonUnder(modeInfoPanel, "Ship_Left");
+            if (modeInfoShipRightButton == null)
+                modeInfoShipRightButton = FindButtonUnder(modeInfoPanel, "Ship_Right");
+            if (modeInfoShipSelectorContainer == null)
+            {
+                var t = modeInfoPanel.transform.Find("ShipSelector");
+                if (t != null) modeInfoShipSelectorContainer = t.gameObject;
+            }
 
             if (modeInfoPlayButton != null)
             {
@@ -433,7 +463,52 @@ public class MainMenuUI : MonoBehaviour
                 modeInfoCloseButton.onClick.RemoveListener(CloseModeInfoPanel);
                 modeInfoCloseButton.onClick.AddListener(CloseModeInfoPanel);
             }
+
+            if (modeInfoShipLeftButton != null)
+            {
+                modeInfoShipLeftButton.onClick.RemoveListener(OnShipLeftClicked);
+                modeInfoShipLeftButton.onClick.AddListener(OnShipLeftClicked);
+            }
+
+            if (modeInfoShipRightButton != null)
+            {
+                modeInfoShipRightButton.onClick.RemoveListener(OnShipRightClicked);
+                modeInfoShipRightButton.onClick.AddListener(OnShipRightClicked);
+            }
         }
+    }
+
+    private void OnShipLeftClicked()
+    {
+        if (availableShips == null || availableShips.Length == 0) return;
+        _selectedShipIndex--;
+        if (_selectedShipIndex < 0) _selectedShipIndex = availableShips.Length - 1;
+        UpdateShipUI();
+    }
+
+    private void OnShipRightClicked()
+    {
+        if (availableShips == null || availableShips.Length == 0) return;
+        _selectedShipIndex++;
+        if (_selectedShipIndex >= availableShips.Length) _selectedShipIndex = 0;
+        UpdateShipUI();
+    }
+
+    private void UpdateShipUI()
+    {
+        if (availableShips == null || availableShips.Length == 0)
+        {
+            if (modeInfoShipSelectorContainer != null) modeInfoShipSelectorContainer.SetActive(false);
+            return;
+        }
+
+        if (modeInfoShipSelectorContainer != null) modeInfoShipSelectorContainer.SetActive(true);
+
+        _selectedShipIndex = Mathf.Clamp(_selectedShipIndex, 0, availableShips.Length - 1);
+        var ship = availableShips[_selectedShipIndex];
+
+        if (modeInfoShipNameText != null) modeInfoShipNameText.text = ship.displayName;
+        if (modeInfoShipDescText != null) modeInfoShipDescText.text = ship.description;
     }
 
     private GameObject CreateModeInfoPanelUI(Transform parent)
@@ -475,6 +550,33 @@ public class MainMenuUI : MonoBehaviour
         modeInfoTitleText = CreateTextElement(contentGo.transform, "ModeInfo_Title", "Mode Title", 42, FontStyles.Bold, TextAlignmentOptions.Center);
         modeInfoDescriptionText = CreateTextElement(contentGo.transform, "ModeInfo_Description", "Description goes here.", 24, FontStyles.Normal, TextAlignmentOptions.Center);
         modeInfoWinConditionText = CreateTextElement(contentGo.transform, "ModeInfo_WinCondition", "Win Condition: ...", 22, FontStyles.Italic, TextAlignmentOptions.Center);
+
+        modeInfoShipSelectorContainer = new GameObject("ShipSelector", typeof(RectTransform), typeof(HorizontalLayoutGroup));
+        modeInfoShipSelectorContainer.transform.SetParent(contentGo.transform, false);
+        var ssLayout = modeInfoShipSelectorContainer.GetComponent<HorizontalLayoutGroup>();
+        ssLayout.childAlignment = TextAnchor.MiddleCenter;
+        ssLayout.childControlWidth = false;
+        ssLayout.childControlHeight = false;
+        ssLayout.spacing = 20f;
+        
+        modeInfoShipLeftButton = CreateButton(modeInfoShipSelectorContainer.transform, "Ship_Left", "<", new Color(0.2f, 0.2f, 0.2f, 1f));
+        modeInfoShipLeftButton.GetComponent<RectTransform>().sizeDelta = new Vector2(60f, 60f);
+
+        var shipInfoGo = new GameObject("ShipInfo", typeof(RectTransform), typeof(VerticalLayoutGroup));
+        shipInfoGo.transform.SetParent(modeInfoShipSelectorContainer.transform, false);
+        var siLayout = shipInfoGo.GetComponent<VerticalLayoutGroup>();
+        siLayout.childAlignment = TextAnchor.MiddleCenter;
+        siLayout.childControlWidth = true;
+        siLayout.childControlHeight = true;
+        siLayout.spacing = 5f;
+        
+        modeInfoShipNameText = CreateTextElement(shipInfoGo.transform, "ShipName", "Ship Name", 28, FontStyles.Bold, TextAlignmentOptions.Center);
+        modeInfoShipNameText.GetComponent<LayoutElement>().preferredWidth = 350f;
+        modeInfoShipDescText = CreateTextElement(shipInfoGo.transform, "ShipDesc", "Ship Description", 18, FontStyles.Normal, TextAlignmentOptions.Center);
+        modeInfoShipDescText.GetComponent<LayoutElement>().preferredWidth = 350f;
+
+        modeInfoShipRightButton = CreateButton(modeInfoShipSelectorContainer.transform, "Ship_Right", ">", new Color(0.2f, 0.2f, 0.2f, 1f));
+        modeInfoShipRightButton.GetComponent<RectTransform>().sizeDelta = new Vector2(60f, 60f);
 
         var spacer = new GameObject("Spacer", typeof(RectTransform), typeof(LayoutElement));
         spacer.transform.SetParent(contentGo.transform, false);
@@ -1101,13 +1203,21 @@ public class MainMenuUI : MonoBehaviour
     {
         int seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
 
+        PlayerShipDefinition selectedShip = null;
+        if (availableShips != null && availableShips.Length > 0 && _selectedShipIndex >= 0 && _selectedShipIndex < availableShips.Length)
+        {
+            selectedShip = availableShips[_selectedShipIndex];
+        }
+
         if (_pendingChallengeMode != null)
         {
-            GameSession.Instance.ConfigureChallenge(_pendingChallengeMode, seed);
+            GameSession.Instance.ConfigureChallenge(_pendingChallengeMode, selectedShip, seed);
         }
         else
         {
-            GameSession.Instance.ConfigureChallenge(boards, seed);
+            GameSession.Instance.ConfigureChallenge(boards, seed); // Fallback single boards
+            // Single board challenge Config doesn't have ship parameter right now, let's just ignore or update it if needed.
+            // Since User said "no just challenges", we pass it for ChallengeModeDefinition. 
         }
 
         SceneManager.LoadScene(gameplayCoreSceneName);
@@ -1179,7 +1289,10 @@ public class MainMenuUI : MonoBehaviour
         }
 
         if (modeInfoPanel != null)
+        {
+            UpdateShipUI();
             modeInfoPanel.SetActive(true);
+        }
     }
 
     public void ShowModeInfoPanelForBoard(BoardDefinition board)
@@ -1199,7 +1312,10 @@ public class MainMenuUI : MonoBehaviour
             modeInfoWinConditionText.text = GenerateDefaultWinCondition(new[] { board });
 
         if (modeInfoPanel != null)
+        {
+            UpdateShipUI();
             modeInfoPanel.SetActive(true);
+        }
     }
 
     private string GenerateDefaultWinCondition(BoardDefinition[] boards)

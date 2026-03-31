@@ -416,6 +416,14 @@ public class RenderTextureRaycaster : MonoBehaviour
         title = null;
         desc = null;
 
+        PlayerShipVisual shipVis = obj.GetComponentInParent<PlayerShipVisual>();
+        if (shipVis != null && shipVis.ShipDef != null)
+        {
+            title = shipVis.ShipDef.displayName;
+            desc = shipVis.ShipDef.description;
+            return;
+        }
+
         ShopOffer3DEntry offerEntry =
             obj.GetComponentInParent<ShopOffer3DEntry>();
 

@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82d0d182ddbe25a41967d0f099516017, type: 3}
   m_Name: Challenge_NA
   m_EditorClassIdentifier: Assembly-CSharp::ChallengeModeDefinition
-  displayName: Board 1
-  description: Beginner board. Good for your first run.
-  winConditionDescription: Complete at least 7 levels to win.
+  displayName: The Big Three
+  icon: {fileID: 0}
+  description: Knock down all 3 drop targets simultaneously to reach frenzy mode.
+  winConditionDescription: 3 Stars
   boards:
   - {fileID: 11400000, guid: 94aa8e7624e37f943a9d60f03d1c0ab7, type: 2}
   totalRounds: 7
@@ -25,3 +26,8 @@ MonoBehaviour:
   devilChance: 0.2
   guaranteedAngels: 2
   guaranteedDevils: 2
+  cRankThreshold: 5000
+  bRankThreshold: 15000
+  aRankThreshold: 35000
+  sRankThreshold: 60000
+  sPlusThreshold: 100000

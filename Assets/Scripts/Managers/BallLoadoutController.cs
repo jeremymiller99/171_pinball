@@ -135,36 +135,59 @@ public class BallLoadoutController : MonoBehaviour
     public void InitializeForNewRun()
     {
         _ballLoadout.Clear();
-        maxBalls = Mathf.Max(1, startingMaxBalls);
-
-        if (startingBallLoadoutDefinitions != null && startingBallLoadoutDefinitions.Count > 0)
+        
+        PlayerShipDefinition activeShip = null;
+        if (GameSession.Instance != null && GameSession.Instance.ActiveShip != null)
         {
-            for (int i = 0; i < startingBallLoadoutDefinitions.Count && i < maxBalls; i++)
+            activeShip = GameSession.Instance.ActiveShip;
+        }
+
+        if (activeShip != null)
+        {
+            maxBalls = Mathf.Max(1, activeShip.startingMaxBalls);
+            
+            if (activeShip.startingHand != null && activeShip.startingHand.Count > 0)
             {
-                BallDefinition def = startingBallLoadoutDefinitions[i];
-                if (def != null && def.Prefab != null) _ballLoadout.Add(def);
+                for (int i = 0; i < activeShip.startingHand.Count && i < maxBalls; i++)
+                {
+                    BallDefinition def = activeShip.startingHand[i];
+                    if (def != null && def.Prefab != null) _ballLoadout.Add(def);
+                }
             }
         }
-        else if (startingBallLoadout != null && startingBallLoadout.Count > 0)
+        else
         {
-            for (int i = 0; i < startingBallLoadout.Count && i < maxBalls; i++)
-            {
-                GameObject prefab = startingBallLoadout[i];
-                if (prefab == null) continue;
+            maxBalls = Mathf.Max(1, startingMaxBalls);
 
-                BallDefinition def = BallDefinitionUtilities.TryGetDefinitionFromPrefab(prefab);
-                if (def == null)
+            if (startingBallLoadoutDefinitions != null && startingBallLoadoutDefinitions.Count > 0)
+            {
+                for (int i = 0; i < startingBallLoadoutDefinitions.Count && i < maxBalls; i++)
                 {
-                    def = BallDefinition.CreateRuntime(
-                        runtimeId: prefab.name,
-                        runtimeDisplayName: prefab.name,
-                        runtimeDescription: "",
-                        runtimeRarity: BallRarity.Common,
-                        runtimeIcon: BallDefinitionUtilities.TryGetPrefabSpriteIcon(prefab),
-                        runtimePrefab: prefab,
-                        runtimePrice: 0);
+                    BallDefinition def = startingBallLoadoutDefinitions[i];
+                    if (def != null && def.Prefab != null) _ballLoadout.Add(def);
                 }
-                _ballLoadout.Add(def);
+            }
+            else if (startingBallLoadout != null && startingBallLoadout.Count > 0)
+            {
+                for (int i = 0; i < startingBallLoadout.Count && i < maxBalls; i++)
+                {
+                    GameObject prefab = startingBallLoadout[i];
+                    if (prefab == null) continue;
+
+                    BallDefinition def = BallDefinitionUtilities.TryGetDefinitionFromPrefab(prefab);
+                    if (def == null)
+                    {
+                        def = BallDefinition.CreateRuntime(
+                            runtimeId: prefab.name,
+                            runtimeDisplayName: prefab.name,
+                            runtimeDescription: "",
+                            runtimeRarity: BallRarity.Common,
+                            runtimeIcon: BallDefinitionUtilities.TryGetPrefabSpriteIcon(prefab),
+                            runtimePrefab: prefab,
+                            runtimePrice: 0);
+                    }
+                    _ballLoadout.Add(def);
+                }
             }
         }
 

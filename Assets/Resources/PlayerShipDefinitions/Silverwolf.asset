@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63909320c46a7384d8a9756959f0347c, type: 3}
+  m_Name: Silverwolf
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerShipDefinition
+  displayName: Silverwolf
+  description: 1.5x credits earned but also the amount of score needed to level up
+    every round. Starts each run with 1 Investor.
+  shipModelPrefab: {fileID: 5566029595203772779, guid: 8dc4cc46a96de3a4797b1d267b83ef4d, type: 3}
+  startingMaxBalls: 5
+  startingHand:
+  - {fileID: 11400000, guid: 93f997505f7a1458389450c24a44587d, type: 2}
+  - {fileID: 11400000, guid: def7cfab5eaa89b4f94ba76799b74244, type: 2}
+  - {fileID: 11400000, guid: def7cfab5eaa89b4f94ba76799b74244, type: 2}
+  - {fileID: 11400000, guid: def7cfab5eaa89b4f94ba76799b74244, type: 2}
+  - {fileID: 11400000, guid: def7cfab5eaa89b4f94ba76799b74244, type: 2}
+  scoreMultiplier: 1
+  coinMultiplier: 1.5
+  multMultiplier: 1
+  startingCoins: 0

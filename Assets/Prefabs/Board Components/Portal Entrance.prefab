@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: -5120152879258555716}
   - component: {fileID: -8501268839526964743}
   - component: {fileID: 9137516812934396178}
+  - component: {fileID: 4096101810624743031}
   m_Layer: 0
   m_Name: Portal Entrance
   m_TagString: Portal
@@ -96,7 +97,6 @@ MonoBehaviour:
   typeOfScore: 0
   amountToScore: 15
   componentType: 4
-  components: []
   isConfirmed: 0
   maxPulseScale: 1.25
   pulseAmount: 0.025
@@ -104,12 +104,20 @@ MonoBehaviour:
   directionOfPulse: 1
   ballHits: 0
   scoreManager: {fileID: 0}
+  componentGuid: ca54d1be-8dfc-46c6-b3ea-aa006921d25d
+  enableHitCountPopup: 0
+  hitCountFontAsset: {fileID: 0}
+  hitCountPopupScale: 0.7
+  hitCountPopupOffset: {x: 0, y: 40}
+  hitCountPopupColor: {r: 1, g: 1, b: 1, a: 1}
   useSelectionOutline: 1
   selectionOutlineMode: 1
   defaultOutlineColor: {r: 0, g: 0, b: 0, a: 1}
   outlineWidth: 6
   confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  hoverOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  dragTargetOutlineColor: {r: 0.3, g: 1, b: 0.3, a: 1}
 --- !u!114 &-5120152879258555716
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,6 +136,13 @@ MonoBehaviour:
   popUpDurationSeconds: 0.06
   popDownDurationSeconds: 0.08
   minTriggerIntervalSeconds: 0.04
+  hitSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!54 &-8501268839526964743
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -168,6 +183,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
   definition: {fileID: 11400000, guid: 4cc0f1f72e52f184aa15b775dd10c4b8, type: 2}
+--- !u!114 &4096101810624743031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5991595774560212685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39de664e147efdf4eb89715b65df815d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalOutlineExtension
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

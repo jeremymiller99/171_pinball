@@ -57,6 +57,8 @@ public sealed class UnifiedShopController : MonoBehaviour
     private bool _dragBallHasRoom;
     private bool _isDragPreviewActive;
 
+    private ShopShipController _spaceship;
+
     private void Awake()
     {
         _shelf = GetComponent<ShopOfferShelfController>();
@@ -92,10 +94,24 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (confirmPanel != null) confirmPanel.Hide();
 
         RefreshUI();
+
+        _spaceship = ServiceLocator.Get<ShopShipController>();
+        if (_spaceship == null) _spaceship = FindFirstObjectByType<ShopShipController>();
+
+        if (_spaceship != null)
+        {
+            _spaceship.SpaceshipParked += OnSpaceshipParked;
+        }
     }
 
     private void OnDisable()
     {
+        if (_spaceship != null)
+        {
+            _spaceship.SpaceshipParked -= OnSpaceshipParked;
+            _spaceship = null;
+        }
+
         UnhookTransitionEvents();
 
         _shelf.Cleanup();
@@ -103,6 +119,11 @@ public sealed class UnifiedShopController : MonoBehaviour
         _placement.Cleanup();
 
         _dragBallHasRoom = false;
+    }
+
+    private void OnSpaceshipParked()
+    {
+        _shelf.RebuildOffers();
     }
 
     #region Click API
@@ -255,16 +276,30 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (!rulesManager.TrySpendCoins(rerollCost)) return;
 
-        _shelf.RebuildOffers();
-        SetPrompt("Rerolled shop.");
+        SetPrompt("Rerolling...");
         AudioManager.Instance?.PlayReroll();
         RefreshUI();
+
+        _shelf.ClearOfferDisplays();
+
+        if (_spaceship != null)
+        {
+            _spaceship.FlyOut(() => {
+                _spaceship.FlyIn();
+            });
+        }
+        else
+        {
+            _shelf.RebuildOffers();
+        }
     }
 
     public void CloseAndContinue()
     {
         if (_closeRequested) return;
         _closeRequested = true;
+
+        _shelf.ClearOfferDisplays();
 
         ExitPlacementMode();
         ShopClosed?.Invoke();

@@ -58,14 +58,26 @@ public class RoundModifierController : MonoBehaviour
     public bool HasFlipperLimit => _flipperUsesRemaining >= 0;
 
     /// <summary>
-    /// Returns the score multiplier from the active modifier (1.0 if no modifier).
+    /// Returns the score multiplier from the active modifier and the player's active ship (1.0 if no modifier).
     /// </summary>
-    public float GetModifierScoreMultiplier() => _activeModifier?.scoreMultiplier ?? 1f;
+    public float GetModifierScoreMultiplier()
+    {
+        float m = _activeModifier?.scoreMultiplier ?? 1f;
+        if (GameSession.Instance != null && GameSession.Instance.ActiveShip != null)
+            m *= GameSession.Instance.ActiveShip.scoreMultiplier;
+        return m;
+    }
 
     /// <summary>
-    /// Returns the coin multiplier from the active modifier (1.0 if no modifier).
+    /// Returns the coin multiplier from the active modifier and the player's active ship (1.0 if no modifier).
     /// </summary>
-    public float GetModifierCoinMultiplier() => _activeModifier?.coinMultiplier ?? 1f;
+    public float GetModifierCoinMultiplier()
+    {
+        float m = _activeModifier?.coinMultiplier ?? 1f;
+        if (GameSession.Instance != null && GameSession.Instance.ActiveShip != null)
+            m *= GameSession.Instance.ActiveShip.coinMultiplier;
+        return m;
+    }
 
     /// <summary>
     /// Returns true if the multiplier is disabled by the active modifier.
@@ -295,6 +307,16 @@ public class RoundModifierController : MonoBehaviour
         _effectiveGoalModifierForRound = 0f;
         _unluckyDayActiveModifiers = generatedRound?.unluckyDayActiveModifiers;
 
+        float shipScoreMult = 1f;
+        float shipCoinMult = 1f;
+        float shipMultMult = 1f;
+        if (GameSession.Instance != null && GameSession.Instance.ActiveShip != null)
+        {
+            shipScoreMult = Mathf.Max(0f, GameSession.Instance.ActiveShip.scoreMultiplier);
+            shipCoinMult = Mathf.Max(0f, GameSession.Instance.ActiveShip.coinMultiplier);
+            shipMultMult = Mathf.Max(0f, GameSession.Instance.ActiveShip.multMultiplier);
+        }
+
         if (scoreManager != null && _activeModifier != null)
         {
             if (_activeModifier.applyTwoRandomDevilModifiers)
@@ -319,9 +341,9 @@ public class RoundModifierController : MonoBehaviour
                         timeScaleMult *= m.timeScaleMultiplier;
                     }
 
-                    scoreManager.pointsModifierMultiplier = Mathf.Max(0f, scoreMult);
-                    scoreManager.multModifierMultiplier = disableMult ? 0.5f : 1f;
-                    scoreManager.coinModifierMultiplier = Mathf.Max(0f, coinMult);
+                    scoreManager.pointsModifierMultiplier = Mathf.Max(0f, scoreMult * shipScoreMult);
+                    scoreManager.multModifierMultiplier = (disableMult ? 0.5f : 1f) * shipMultMult;
+                    scoreManager.coinModifierMultiplier = Mathf.Max(0f, coinMult * shipCoinMult);
                     scoreManager.modifierTimeScaleMultiplier = Mathf.Max(0.1f, timeScaleMult);
                     _effectiveGoalModifierForRound = goalMod;
                     
@@ -329,23 +351,29 @@ public class RoundModifierController : MonoBehaviour
                 }
                 else
                 {
-                    scoreManager.pointsModifierMultiplier = Mathf.Max(0f, _activeModifier.scoreMultiplier);
-                    scoreManager.multModifierMultiplier = _activeModifier.disableMultiplier ? 0.5f : 1f;
-                    scoreManager.coinModifierMultiplier = Mathf.Max(0f, _activeModifier.coinMultiplier);
+                    scoreManager.pointsModifierMultiplier = Mathf.Max(0f, _activeModifier.scoreMultiplier * shipScoreMult);
+                    scoreManager.multModifierMultiplier = (_activeModifier.disableMultiplier ? 0.5f : 1f) * shipMultMult;
+                    scoreManager.coinModifierMultiplier = Mathf.Max(0f, _activeModifier.coinMultiplier * shipCoinMult);
                     applyBallModifierCallback?.Invoke(_activeModifier.ballModifier);
                 }
             }
             else
             {
-                scoreManager.pointsModifierMultiplier = Mathf.Max(0f, _activeModifier.scoreMultiplier);
-                scoreManager.multModifierMultiplier = _activeModifier.disableMultiplier ? 0.5f : 1f;
-                scoreManager.coinModifierMultiplier = Mathf.Max(0f, _activeModifier.coinMultiplier);
+                scoreManager.pointsModifierMultiplier = Mathf.Max(0f, _activeModifier.scoreMultiplier * shipScoreMult);
+                scoreManager.multModifierMultiplier = (_activeModifier.disableMultiplier ? 0.5f : 1f) * shipMultMult;
+                scoreManager.coinModifierMultiplier = Mathf.Max(0f, _activeModifier.coinMultiplier * shipCoinMult);
                 scoreManager.modifierTimeScaleMultiplier = Mathf.Max(0.1f, _activeModifier.timeScaleMultiplier);
                 applyBallModifierCallback?.Invoke(_activeModifier.ballModifier);
             }
         }
         else
         {
+            if (scoreManager != null)
+            {
+                scoreManager.pointsModifierMultiplier = shipScoreMult;
+                scoreManager.multModifierMultiplier = shipMultMult;
+                scoreManager.coinModifierMultiplier = shipCoinMult;
+            }
             applyBallModifierCallback?.Invoke(0);
         }
     }

@@ -164,7 +164,7 @@ public class GameRulesManager : MonoBehaviour
         _shopBallSaveAvailable = false;
         _runStartTime = Time.unscaledTime;
         roundIndex = 0;
-        coins = 0;
+        coins = GameSession.Instance.ActiveShip?.startingCoins ?? 0;
         roundTotal = 0f;
 
         LoadoutController?.InitializeForNewRun();

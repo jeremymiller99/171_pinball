@@ -4,15 +4,15 @@ using UnityEngine;
 
 /// <summary>
 /// Merges ball and board-component catalogs into a single pool, then randomly
-/// selects 5-10 mixed <see cref="ShopOffer"/> items each time the shop opens.
+/// selects 3-6 mixed <see cref="ShopOffer"/> items each time the shop opens.
 /// </summary>
 public sealed class ShopOfferGenerator
 {
     private readonly IList<BallDefinition> _allBalls;
     private readonly IList<BoardComponentDefinition> _allComponents;
 
-    private const int MinOffers = 5;
-    private const int MaxOffers = 10;
+    private const int MinOffers = 3;
+    private const int MaxOffers = 6;
 
     public ShopOfferGenerator(
         IList<BallDefinition> allBalls,

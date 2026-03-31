@@ -33,13 +33,7 @@ public sealed class GameSession : MonoBehaviour
     [Header("Round Modifiers (debug)")]
     [SerializeField] private List<RoundData> generatedRounds = new List<RoundData>();
     [SerializeField] private ChallengeModeDefinition activeChallenge;
-
-    [Header("Board Component Upgrades (runtime)")]
-    [SerializeField] private List<BoardComponentUpgrade> boardComponentUpgrades = new List<BoardComponentUpgrade>();
-
-    private readonly Dictionary<string, BoardComponentUpgrade> _boardComponentUpgradeByKey =
-        new Dictionary<string, BoardComponentUpgrade>();
-    private bool _boardComponentUpgradeLookupBuilt;
+    [SerializeField] private PlayerShipDefinition activeShip;
 
     public StartType ActiveStartType => startType;
     public int Seed => seed;
@@ -55,6 +49,11 @@ public sealed class GameSession : MonoBehaviour
     /// The active challenge mode definition, if any.
     /// </summary>
     public ChallengeModeDefinition ActiveChallenge => activeChallenge;
+
+    /// <summary>
+    /// The active player ship definition chosen at start, if any.
+    /// </summary>
+    public PlayerShipDefinition ActiveShip => activeShip;
 
     /// <summary>
     /// Ensures a session exists even if you didn't create a Bootstrap scene yet.
@@ -92,7 +91,6 @@ public sealed class GameSession : MonoBehaviour
             activeRunPlan.boards.AddRange(boardsForRun);
         }
         currentBoardIndex = 0;
-        ClearBoardComponentUpgrades();
     }
 
     public void ConfigureChallenge(IList<BoardDefinition> boardsForChallenge, int runSeed)
@@ -107,22 +105,21 @@ public sealed class GameSession : MonoBehaviour
         currentBoardIndex = 0;
         activeChallenge = null;
         generatedRounds.Clear();
-        ClearBoardComponentUpgrades();
     }
 
-    public void ConfigureChallenge(ChallengeModeDefinition challenge, int runSeed)
+    public void ConfigureChallenge(ChallengeModeDefinition challenge, PlayerShipDefinition ship, int runSeed)
     {
         startType = StartType.Challenge;
         seed = runSeed;
         activeRunPlan = new RunPlan();
         activeChallenge = challenge;
+        activeShip = ship;
         if (challenge != null && challenge.boards != null)
         {
             activeRunPlan.boards.AddRange(challenge.boards);
         }
         currentBoardIndex = 0;
         generatedRounds.Clear();
-        ClearBoardComponentUpgrades();
     }
 
     public void ConfigureChallenge(BoardDefinition singleBoardChallenge, int runSeed)
@@ -315,188 +312,7 @@ public sealed class GameSession : MonoBehaviour
         activeRunPlan = new RunPlan();
         currentBoardIndex = 0;
         activeChallenge = null;
+        activeShip = null;
         generatedRounds.Clear();
-        ClearBoardComponentUpgrades();
-    }
-
-    [Serializable]
-    private sealed class BoardComponentUpgrade
-    {
-        public string boardSceneName;
-        public string componentPath;
-        public TypeOfScore typeOfScore;
-        public float amountToScore;
-    }
-
-    public bool HasBoardComponentUpgrade(GameObject target, TypeOfScore typeOfScore)
-    {
-        if (target == null)
-        {
-            return false;
-        }
-
-        EnsureBoardComponentUpgradeLookup();
-        string key = BuildBoardComponentUpgradeKey(target, typeOfScore);
-        if (!string.IsNullOrWhiteSpace(key) && _boardComponentUpgradeByKey.ContainsKey(key))
-        {
-            return true;
-        }
-
-        string legacyKey = BuildLegacyBoardComponentUpgradeKey(target, typeOfScore);
-        return !string.IsNullOrWhiteSpace(legacyKey) && _boardComponentUpgradeByKey.ContainsKey(legacyKey);
-    }
-
-    public void RegisterBoardComponentUpgrade(GameObject target, TypeOfScore typeOfScore, float amountToScore)
-    {
-        if (target == null)
-        {
-            return;
-        }
-
-        EnsureBoardComponentUpgradeLookup();
-        string key = BuildBoardComponentUpgradeKey(target, typeOfScore);
-        if (string.IsNullOrWhiteSpace(key))
-        {
-            return;
-        }
-
-        if (_boardComponentUpgradeByKey.TryGetValue(key, out BoardComponentUpgrade existing) && existing != null)
-        {
-            existing.amountToScore = amountToScore;
-            return;
-        }
-
-        string legacyKey = BuildLegacyBoardComponentUpgradeKey(target, typeOfScore);
-        if (!string.IsNullOrWhiteSpace(legacyKey)
-            && _boardComponentUpgradeByKey.TryGetValue(legacyKey, out BoardComponentUpgrade legacyExisting)
-            && legacyExisting != null)
-        {
-            legacyExisting.amountToScore = amountToScore;
-            legacyExisting.componentPath = GetHierarchyPathWithSiblingIndices(target.transform);
-            _boardComponentUpgradeByKey.Remove(legacyKey);
-            _boardComponentUpgradeByKey[key] = legacyExisting;
-            return;
-        }
-
-        var entry = new BoardComponentUpgrade
-        {
-            boardSceneName = target.scene.name,
-            componentPath = GetHierarchyPathWithSiblingIndices(target.transform),
-            typeOfScore = typeOfScore,
-            amountToScore = amountToScore
-        };
-
-        boardComponentUpgrades.Add(entry);
-        _boardComponentUpgradeByKey[key] = entry;
-    }
-
-    private void ClearBoardComponentUpgrades()
-    {
-        boardComponentUpgrades.Clear();
-        _boardComponentUpgradeByKey.Clear();
-        _boardComponentUpgradeLookupBuilt = true;
-    }
-
-    private void EnsureBoardComponentUpgradeLookup()
-    {
-        if (_boardComponentUpgradeLookupBuilt)
-        {
-            return;
-        }
-
-        _boardComponentUpgradeLookupBuilt = true;
-        _boardComponentUpgradeByKey.Clear();
-        if (boardComponentUpgrades == null || boardComponentUpgrades.Count == 0)
-        {
-            return;
-        }
-
-        for (int i = 0; i < boardComponentUpgrades.Count; i++)
-        {
-            BoardComponentUpgrade entry = boardComponentUpgrades[i];
-            if (entry == null)
-            {
-                continue;
-            }
-
-            string key = BuildBoardComponentUpgradeKey(entry.boardSceneName, entry.componentPath, entry.typeOfScore);
-            if (string.IsNullOrWhiteSpace(key))
-            {
-                continue;
-            }
-
-            _boardComponentUpgradeByKey[key] = entry;
-        }
-    }
-
-    private static string BuildBoardComponentUpgradeKey(GameObject target, TypeOfScore typeOfScore)
-    {
-        if (target == null)
-        {
-            return string.Empty;
-        }
-
-        string sceneName = target.scene.name;
-        string path = GetHierarchyPathWithSiblingIndices(target.transform);
-        return BuildBoardComponentUpgradeKey(sceneName, path, typeOfScore);
-    }
-
-    private static string BuildBoardComponentUpgradeKey(string sceneName, string componentPath, TypeOfScore typeOfScore)
-    {
-        if (string.IsNullOrWhiteSpace(sceneName) || string.IsNullOrWhiteSpace(componentPath))
-        {
-            return string.Empty;
-        }
-
-        return $"{sceneName}|{componentPath}|{(int)typeOfScore}";
-    }
-
-    private static string BuildLegacyBoardComponentUpgradeKey(GameObject target, TypeOfScore typeOfScore)
-    {
-        if (target == null)
-        {
-            return string.Empty;
-        }
-
-        string sceneName = target.scene.name;
-        string path = GetHierarchyPathNamesOnly(target.transform);
-        return BuildBoardComponentUpgradeKey(sceneName, path, typeOfScore);
-    }
-
-    private static string GetHierarchyPathWithSiblingIndices(Transform t)
-    {
-        if (t == null)
-        {
-            return string.Empty;
-        }
-
-        var names = new Stack<string>();
-        Transform current = t;
-        while (current != null)
-        {
-            names.Push($"{current.name}[{current.GetSiblingIndex()}]");
-            current = current.parent;
-        }
-
-        return string.Join("/", names);
-    }
-
-    private static string GetHierarchyPathNamesOnly(Transform t)
-    {
-        if (t == null)
-        {
-            return string.Empty;
-        }
-
-        var names = new Stack<string>();
-        Transform current = t;
-        while (current != null)
-        {
-            names.Push(current.name);
-            current = current.parent;
-        }
-
-        return string.Join("/", names);
     }
 }
-

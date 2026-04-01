@@ -1,6 +1,5 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
 using UnityEngine;
-using System.Globalization;
 
 public class MultAdder : MonoBehaviour
 {
@@ -37,69 +36,6 @@ public class MultAdder : MonoBehaviour
         {
             floatingTextSpawner = ServiceLocator.Get<FloatingTextSpawner>();
         }
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        /*
-        if (collision.collider.CompareTag("Ball"))
-        {
-            if (scoreManager == null) EnsureRefs();
-            FMODUnity.RuntimeManager.PlayOneShot("event:/collide_mult");
-
-            float applied = scoreManager.AddMultDeferredUi(GetEffectiveMultToAdd());
-            if (applied <= 0f)
-                return;
-
-            // Spawn red mult text at the ball's position; only increment HUD when the popup arrives.
-            if (floatingTextSpawner != null)
-            {
-                floatingTextSpawner.SpawnMultText(
-                    collision.collider.transform.position,
-                    "x" + FormatMultiplier(applied),
-                    applied,
-                    () => scoreManager.ApplyDeferredMultUi(applied));
-            }
-            else
-            {
-                scoreManager.ApplyDeferredMultUi(applied);
-            }
-        }
-        */
-    }
-
-    void OnTriggerEnter(Collider col)
-    {
-        /*
-        if (col.CompareTag("Ball"))
-        {
-            if (scoreManager == null) EnsureRefs();
-            
-            float applied = scoreManager.AddMultDeferredUi(GetEffectiveMultToAdd());
-            if (applied <= 0f)
-                return;
-
-            // Spawn red mult text at the ball's position; only increment HUD when the popup arrives.
-            if (floatingTextSpawner != null)
-            {
-                floatingTextSpawner.SpawnMultText(
-                    col.transform.position,
-                    "x" + FormatMultiplier(applied),
-                    applied,
-                    () => scoreManager.ApplyDeferredMultUi(applied));
-            }
-            else
-            {
-                scoreManager.ApplyDeferredMultUi(applied);
-            }
-        }
-        */
-    }
-
-    private static string FormatMultiplier(float value)
-    {
-        float rounded = Mathf.Round(value * 100f) / 100f;
-        return rounded.ToString("0.##", CultureInfo.InvariantCulture);
     }
 
     public void multiplyMultToAdd(float mult)

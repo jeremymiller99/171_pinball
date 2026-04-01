@@ -13,8 +13,7 @@ public enum TypeOfScore
 
 public class ScoreManager : MonoBehaviour
 {
-    // NOTE: Keep these names/public fields so existing scripts (PointAdder/MultAdder)
-    // keep working without modification. Conceptually, `points` are the current ball's points.
+    // Conceptually, `points` are the current ball's points.
     public float points;
     public float mult;
 

@@ -210,11 +210,6 @@ public class DropTarget : MonoBehaviour
 
     private void EnableAwardComponents()
     {
-        /*
-        var pointAdder = GetComponent<PointAdder>();
-        if (pointAdder != null) pointAdder.enabled = true;
-        */
-
         var coinAdder = GetComponent<CoinAdder>();
         if (coinAdder != null) coinAdder.enabled = true;
 
@@ -224,11 +219,6 @@ public class DropTarget : MonoBehaviour
 
     private void DisableAwardComponents()
     {
-        /*
-        var pointAdder = GetComponent<PointAdder>();
-        if (pointAdder != null) pointAdder.enabled = false;
-        */
-
         var coinAdder = GetComponent<CoinAdder>();
         if (coinAdder != null) coinAdder.enabled = false;
 

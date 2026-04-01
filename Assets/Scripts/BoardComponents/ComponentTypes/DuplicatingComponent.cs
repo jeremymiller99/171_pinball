@@ -8,13 +8,16 @@ public class DuplicatingComponent : BoardComponent
     [SerializeField] private int ballHitsToDuplicate;
     [SerializeField] private List<Ball> duplicatedBalls = new List<Ball>();
     [SerializeField] private List<Ball> ballsToDestroy = new List<Ball>();
-    [SerializeField] private GameRulesManager gameRulesManager;
     [SerializeField] private int componentHitsToDestroy;
+
+    private DrainHandler _drainHandler;
+    private GameRulesManager _rulesManager;
 
     new void Awake()
     {
         base.Awake();
-        gameRulesManager = FindAnyObjectByType<GameRulesManager>();
+        _drainHandler = ServiceLocator.Get<DrainHandler>();
+        _rulesManager = ServiceLocator.Get<GameRulesManager>();
     }
 
     new void OnCollisionEnter(Collision collision)
@@ -30,17 +33,20 @@ public class DuplicatingComponent : BoardComponent
                 Ball newBall = Instantiate(ball);
                 Ball.EnsureOwnMaterials(newBall.gameObject);
                 duplicatedBalls.Add(newBall);
-                newBall.componentHits = 0;
-                gameRulesManager.ActiveBalls.Add(newBall.gameObject);
+                newBall.ResetComponentHits();
+                _rulesManager?.ActiveBalls?.Add(newBall.gameObject);
             }
         }
     }
 
     void Update()
     {
+        if (_drainHandler == null)
+            _drainHandler = ServiceLocator.Get<DrainHandler>();
+
         foreach (Ball ball in duplicatedBalls)
         {
-            if (ball.componentHits >= componentHitsToDestroy)
+            if (ball.ComponentHits >= componentHitsToDestroy)
             {
                 ballsToDestroy.Add(ball);
             }
@@ -48,10 +54,10 @@ public class DuplicatingComponent : BoardComponent
 
         foreach (Ball ball in ballsToDestroy)
         {
-            if (ball.componentHits >= componentHitsToDestroy)
+            if (ball.ComponentHits >= componentHitsToDestroy)
             {
                 duplicatedBalls.Remove(ball);
-                gameRulesManager.OnBallDrained(ball.gameObject);
+                _drainHandler?.OnBallDrained(ball.gameObject);
             }
         }
 

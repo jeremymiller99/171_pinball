@@ -1,7 +1,6 @@
 // Updated with Cursor (Composer) by assistant on 2026-03-31 (ResolveServices in StartRun/StartRound for additive board scenes).
 using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -9,27 +8,13 @@ public class GameRulesManager : MonoBehaviour
 {
     [Header("Scoring")]
     [SerializeField] private ScoreManager scoreManager;
-    [SerializeField] private ScoreTallyAnimator scoreTallyAnimator;
-    [SerializeField] private float pointsPerCoin = 100f;
 
     [Header("Popups (optional)")]
     [SerializeField] private FloatingTextSpawner floatingTextSpawner;
     [SerializeField] private bool showLevelUpCoinsPopup = true;
 
-    public enum GoalScalingMode { LegacyList = 0, Exponential = 1 }
-
-    [Header("Level Goal Scaling")]
-    [SerializeField] private GoalScalingMode goalScalingMode = GoalScalingMode.Exponential;
-    [Min(0f)] [SerializeField] private float baseGoal = 500f;
-    [Min(1f)] [SerializeField] private float goalGrowthPerLevel = 1.35f;
-    [Tooltip("0 means no rounding. Otherwise, rounds the computed exponential goal to nearest step.")]
-    [Min(0f)] [SerializeField] private float goalRoundingStep = 100f;
-
-    [Header("Legacy level goals (optional)")]
-    [SerializeField] private List<float> goalByRound = new List<float> { 500f, 800f, 1200f, 1700f, 2300f, 3000f, 4000f };
-
-    [Header("Coins (score conversion cap)")]
-    [Min(0)] [SerializeField] private int maxCoinsFromRoundTotal = 20;
+    [Header("Goal Scaling")]
+    [SerializeField] private GoalScaler goalScaler;
 
     [Header("Runs")]
     [SerializeField] private bool autoStartOnPlay = true;
@@ -47,8 +32,6 @@ public class GameRulesManager : MonoBehaviour
     [SerializeField] private GameObject shopCanvasRoot;
     [SerializeField] private GameObject roundFailedUIRoot;
     [SerializeField] private GameObject homeRunUIRoot;
-    [SerializeField] private TMP_Text homeRunMessageText;
-
     [Header("Transitions (optional)")]
     [SerializeField] private ShopTransitionController shopTransitionController;
 
@@ -57,9 +40,11 @@ public class GameRulesManager : MonoBehaviour
     [SerializeField] private int ballsRemaining;
     [SerializeField] private float roundTotal;
 
-    private bool runActive;
-    private bool shopOpen;
-    private bool _drainProcessing;
+    [Header("Drain")]
+    [SerializeField] private DrainHandler drainHandler;
+
+    private bool _runActive;
+    private bool _shopOpen;
     private bool _levelUpProcessing;
     private float _runStartTime;
     private bool _shopBallSaveAvailable;
@@ -77,8 +62,10 @@ public class GameRulesManager : MonoBehaviour
     public int BallsRemaining => ballsRemaining;
     public int Coins => ServiceLocator.Get<CoinController>()?.Coins ?? 0;
     public float RoundTotal => roundTotal;
-    public float CurrentGoal => GetGoalForRound(roundIndex);
-    public bool IsShopOpen => shopOpen;
+    public float CurrentGoal => goalScaler != null
+        ? goalScaler.GetGoal(roundIndex, ActiveModifier, ModifierController)
+        : 0f;
+    public bool IsShopOpen => _shopOpen;
     public List<GameObject> ActiveBalls => ballSpawner != null ? ballSpawner.ActiveBalls : null;
 
     private RoundModifierController ModifierController => ServiceLocator.Get<RoundModifierController>();
@@ -87,18 +74,13 @@ public class GameRulesManager : MonoBehaviour
     private int BallLoadoutCount => LoadoutController?.BallLoadoutCount ?? 0;
     private RoundModifierDefinition ActiveModifier => ModifierController?.ActiveModifier;
 
-    public bool RunActive => runActive;
+    public bool RunActive => _runActive;
 
     private void Awake()
     {
         ServiceLocator.Register<GameRulesManager>(this);
 
         ResolveServices();
-
-        if (goalByRound == null || goalByRound.Count == 0)
-        {
-            goalByRound = new List<float> { 500f, 800f, 1200f, 1700f, 2300f, 3000f, 4000f };
-        }
     }
 
     private void Start()
@@ -111,16 +93,20 @@ public class GameRulesManager : MonoBehaviour
     {
         ServiceLocator.Unregister<GameRulesManager>();
         if (scoreManager != null) scoreManager.ScoreChanged -= OnScoreChanged;
+        if (drainHandler != null) drainHandler.DrainBankCompleted -= TryProcessLevelUps;
     }
 
     private void ResolveServices()
     {
         if (ballSpawner == null) ballSpawner = ServiceLocator.Get<BallSpawner>();
         if (scoreManager == null) scoreManager = ServiceLocator.Get<ScoreManager>();
-        if (scoreTallyAnimator == null) scoreTallyAnimator = ServiceLocator.Get<ScoreTallyAnimator>();
         if (floatingTextSpawner == null) floatingTextSpawner = ServiceLocator.Get<FloatingTextSpawner>();
         if (boardLoader == null) boardLoader = ServiceLocator.Get<BoardLoader>();
         if (shopTransitionController == null) shopTransitionController = ServiceLocator.Get<ShopTransitionController>();
+        if (goalScaler == null) goalScaler = ServiceLocator.Get<GoalScaler>();
+        if (goalScaler == null) goalScaler = GetComponent<GoalScaler>();
+        if (goalScaler == null) goalScaler = gameObject.AddComponent<GoalScaler>();
+        if (drainHandler == null) drainHandler = ServiceLocator.Get<DrainHandler>();
     }
 
     public void StartRun()
@@ -128,9 +114,9 @@ public class GameRulesManager : MonoBehaviour
         ResolveServices();
         if (ballSpawner == null) return;
 
-        runActive = true;
-        shopOpen = false;
-        _drainProcessing = false;
+        _runActive = true;
+        _shopOpen = false;
+        drainHandler?.ResetState();
         _levelUpProcessing = false;
         _shopBallSaveAvailable = false;
         _runStartTime = Time.unscaledTime;
@@ -155,6 +141,12 @@ public class GameRulesManager : MonoBehaviour
             scoreManager.ScoreChanged += OnScoreChanged;
         }
 
+        if (drainHandler != null)
+        {
+            drainHandler.DrainBankCompleted -= TryProcessLevelUps;
+            drainHandler.DrainBankCompleted += TryProcessLevelUps;
+        }
+
         ServiceLocator.Get<ScoreUIController>()?.SetRoundIndex(roundIndex);
         ServiceLocator.Get<ScoreUIController>()?.SetBallsRemaining(ballsRemaining);
 
@@ -166,7 +158,7 @@ public class GameRulesManager : MonoBehaviour
         ResolveServices();
         if (ballSpawner == null) return;
 
-        shopOpen = false;
+        _shopOpen = false;
         SetShopOpen(false);
         SetRoundFailedOpen(false);
 
@@ -178,6 +170,7 @@ public class GameRulesManager : MonoBehaviour
         {
             scoreManager.SetGoal(CurrentGoal);
         }
+
 
         ServiceLocator.Get<ScoreUIController>()?.SetRoundIndex(roundIndex);
         ServiceLocator.Get<ScoreUIController>()?.SetBallsRemaining(ballsRemaining);
@@ -241,7 +234,8 @@ public class GameRulesManager : MonoBehaviour
 
     private void OnScoreChanged()
     {
-        if (!runActive || shopOpen || _drainProcessing) return;
+        bool draining = drainHandler != null && drainHandler.IsDrainProcessing;
+        if (!_runActive || _shopOpen || draining) return;
         TryProcessLevelUps();
     }
 
@@ -285,104 +279,31 @@ public class GameRulesManager : MonoBehaviour
         }
     }
 
-    public void OnBallDrained(GameObject ball) => OnBallDrained(ball, 1f, false);
+    #region DrainHandler Callbacks
 
-    public void OnBallDrained(GameObject ball, float bankMultiplier, bool showHomeRunPopup)
+    public void SyncRoundTotal(float total)
     {
-        if (_drainProcessing)
-        {
-            DespawnBall(ball);
-            return;
-        }
-
-        StartCoroutine(OnBallDrainedRoutine(ball, bankMultiplier, showHomeRunPopup));
+        roundTotal = total;
     }
 
-    private System.Collections.IEnumerator OnBallDrainedRoutine(GameObject ball, float bankMultiplier, bool showHomeRunPopup)
+    public bool ConsumeShopBallSave()
     {
-        if (ActiveBalls != null && ActiveBalls.Count > 1)
-        {
-            DespawnBall(ball);
-            yield break;
-        }
-        
-        _drainProcessing = true;
+        if (!_shopBallSaveAvailable) return false;
+        _shopBallSaveAvailable = false;
+        return true;
+    }
 
-        if (!runActive || shopOpen)
-        {
-            DespawnBall(ball);
-            _drainProcessing = false;
-            yield break;
-        }
-
-        int slotHint = -1;
-        if (ball != null)
-        {
-            var marker = ball.GetComponent<BallHandSlotMarker>();
-            if (marker != null) slotHint = marker.SlotIndex;
-        }
-
-        double bankedPoints = 0d;
-        if (scoreManager != null)
-        {
-            float m = bankMultiplier <= 0f ? 1f : bankMultiplier;
-            bankedPoints = scoreManager.points * scoreManager.mult * m;
-        }
-
-        Vector3 drainedBallWorldPos = ball != null ? ball.transform.position : Vector3.zero;
-        DespawnBall(ball);
-
-        if (showHomeRunPopup) ShowHomeRunPopup();
-
-        if (scoreTallyAnimator != null && scoreManager != null)
-        {
-            yield return scoreTallyAnimator.PlayTally(scoreManager, bankMultiplier, drainedBallWorldPos);
-            roundTotal = scoreManager.roundTotal;
-        }
-        else
-        {
-            bankedPoints = BankCurrentBallIntoRoundTotal(bankMultiplier);
-        }
-
-        ProfileService.AddBankedPoints(bankedPoints);
-
-        TryProcessLevelUps();
-
-        if (_shopBallSaveAvailable)
-        {
-            _shopBallSaveAvailable = false;
-            ballsRemaining = BallLoadoutCount;
-            ServiceLocator.Get<ScoreUIController>()?.SetBallsRemaining(ballsRemaining);
-
-            if (ShouldCompleteRunNow())
-            {
-                CompleteRunAndShowWinScreen();
-                _drainProcessing = false;
-                yield break;
-            }
-
-            OpenShop();
-            _drainProcessing = false;
-            yield break;
-        }
-
-        // Consume ball permanently since no level-up occurred.
-        LoadoutController?.ConsumeActiveBallFromLoadout(slotHint);
+    public void RefreshBallsRemaining()
+    {
         ballsRemaining = BallLoadoutCount;
         ServiceLocator.Get<ScoreUIController>()?.SetBallsRemaining(ballsRemaining);
+    }
 
-        if (ballsRemaining > 0)
-        {
-            GameObject nextBall = SpawnBall();
-            if (nextBall != null)
-            {
-                _drainProcessing = false;
-                yield break;
-            }
-        }
-
-        ShowRoundFailed();
-        _drainProcessing = false;
+    public bool CheckAndCompleteRun()
+    {
+        if (!ShouldCompleteRunNow()) return false;
+        CompleteRunAndShowWinScreen();
+        return true;
     }
 
     private bool ShouldCompleteRunNow()
@@ -407,11 +328,11 @@ public class GameRulesManager : MonoBehaviour
             points,
             beforeShowWin: () =>
             {
-                runActive = false;
-                shopOpen = false;
+                _runActive = false;
+                _shopOpen = false;
                 _shopBallSaveAvailable = false;
-                _drainProcessing = false;
                 _levelUpProcessing = false;
+                drainHandler?.ResetState();
 
                 SetShopOpen(false);
                 SetRoundFailedOpen(false);
@@ -421,21 +342,23 @@ public class GameRulesManager : MonoBehaviour
             });
     }
 
+    #endregion
+
     public void OnShopClosed()
     {
-        if (!runActive) return;
+        if (!_runActive) return;
         CloseShopAndAdvanceIndexOnly();
         StartRound();
     }
 
     public void CloseShopAndAdvanceIndexOnly(bool hideUi = true)
     {
-        if (!runActive) return;
+        if (!_runActive) return;
 
         scoreManager?.ResetGameSpeedOnShopReturn();
 
         if (hideUi) SetShopOpen(false);
-        shopOpen = false;
+        _shopOpen = false;
         ShopClosed?.Invoke();
     }
 
@@ -466,58 +389,11 @@ public class GameRulesManager : MonoBehaviour
 
     public void RetryRound()
     {
-        if (runActive) StartRun();
+        if (_runActive) StartRun();
     }
 
-    private float GetGoalForRound(int index)
-    {
-        if (index < 0) index = 0;
-        
-        float baseGoalForRound = goalScalingMode == GoalScalingMode.Exponential 
-            ? GetExponentialGoalForRound(index) 
-            : GetLegacyListGoalForRound(index);
 
-        if (ActiveModifier != null)
-        {
-            float goalMod = ActiveModifier.applyTwoRandomDevilModifiers 
-                ? (ModifierController?.EffectiveGoalModifierForRound ?? 0f) 
-                : ActiveModifier.goalModifier;
-                
-            if (!Mathf.Approximately(goalMod, 0f))
-                baseGoalForRound = Mathf.Max(0f, baseGoalForRound + goalMod);
-        }
-
-        return baseGoalForRound;
-    }
-
-    private float GetExponentialGoalForRound(int index)
-    {
-        float goal = Mathf.Max(0f, baseGoal) * Mathf.Pow(Mathf.Max(1f, goalGrowthPerLevel), index);
-        if (goalRoundingStep > 0f && !Mathf.Approximately(goalRoundingStep, 1f))
-            goal = Mathf.Round(goal / goalRoundingStep) * goalRoundingStep;
-        else if (Mathf.Approximately(goalRoundingStep, 1f))
-            goal = Mathf.Round(goal);
-            
-        return Mathf.Max(0f, goal);
-    }
-
-    private float GetLegacyListGoalForRound(int index)
-    {
-        if (goalByRound == null || goalByRound.Count == 0) return 0f;
-        if (index >= goalByRound.Count) return goalByRound[goalByRound.Count - 1];
-        return goalByRound[index];
-    }
-
-    private float BankCurrentBallIntoRoundTotal(float bankMultiplier = 1f)
-    {
-        if (scoreManager == null) return 0f;
-
-        float banked = scoreManager.BankCurrentBallScore(bankMultiplier);
-        roundTotal = scoreManager.roundTotal;
-        return banked;
-    }
-
-    private void ShowHomeRunPopup()
+    public void ShowHomeRunPopup()
     {
         if (homeRunUIRoot != null) homeRunUIRoot.SetActive(true);
     }
@@ -527,9 +403,11 @@ public class GameRulesManager : MonoBehaviour
         if (homeRunUIRoot != null) homeRunUIRoot.SetActive(false);
     }
 
-    private void OpenShop()
+    #region Shop Bridge
+
+    public void OpenShop()
     {
-        shopOpen = true;
+        _shopOpen = true;
         if (ballSpawner != null) ballSpawner.ClearActiveBalls();
         ShopOpened?.Invoke();
 
@@ -541,7 +419,7 @@ public class GameRulesManager : MonoBehaviour
             SetShopOpen(true);
     }
 
-    private void ShowRoundFailed()
+    public void ShowRoundFailed()
     {
         if (ballSpawner != null) ballSpawner.ClearAll();
 
@@ -590,8 +468,5 @@ public class GameRulesManager : MonoBehaviour
         return ballSpawner.ActivateNextBall();
     }
 
-    private void DespawnBall(GameObject ball)
-    {
-        if (ball != null && ballSpawner != null) ballSpawner.DespawnBall(ball);
-    }
+    #endregion
 }

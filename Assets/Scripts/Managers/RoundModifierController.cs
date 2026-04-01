@@ -282,10 +282,7 @@ public class RoundModifierController : MonoBehaviour
         // Reset modifier multipliers to 1 when the previous modifier ends
         if (ServiceLocator.TryGet<ScoreManager>(out var scoreManager))
         {
-            scoreManager.pointsModifierMultiplier = 1f;
-            scoreManager.multModifierMultiplier = 1f;
-            scoreManager.coinModifierMultiplier = 1f;
-            scoreManager.modifierTimeScaleMultiplier = 1f;
+            scoreManager.ResetModifierMultipliers();
         }
 
         RoundData data = generatedRound != null ? generatedRound.roundData : null;
@@ -340,28 +337,32 @@ public class RoundModifierController : MonoBehaviour
                         timeScaleMult *= m.timeScaleMultiplier;
                     }
 
-                    scoreManager.pointsModifierMultiplier = Mathf.Max(0f, scoreMult * shipScoreMult);
-                    scoreManager.multModifierMultiplier = (disableMult ? 0.5f : 1f) * shipMultMult;
-                    scoreManager.coinModifierMultiplier = Mathf.Max(0f, coinMult * shipCoinMult);
-                    scoreManager.modifierTimeScaleMultiplier = Mathf.Max(0.1f, timeScaleMult);
+                    scoreManager.SetModifierMultipliers(
+                        scoreMult * shipScoreMult,
+                        (disableMult ? 0.5f : 1f) * shipMultMult,
+                        coinMult * shipCoinMult,
+                        timeScaleMult);
                     _effectiveGoalModifierForRound = goalMod;
-                    
+
                     applyBallModifierCallback?.Invoke(ballMod);
                 }
                 else
                 {
-                    scoreManager.pointsModifierMultiplier = Mathf.Max(0f, _activeModifier.scoreMultiplier * shipScoreMult);
-                    scoreManager.multModifierMultiplier = (_activeModifier.disableMultiplier ? 0.5f : 1f) * shipMultMult;
-                    scoreManager.coinModifierMultiplier = Mathf.Max(0f, _activeModifier.coinMultiplier * shipCoinMult);
+                    scoreManager.SetModifierMultipliers(
+                        _activeModifier.scoreMultiplier * shipScoreMult,
+                        (_activeModifier.disableMultiplier ? 0.5f : 1f) * shipMultMult,
+                        _activeModifier.coinMultiplier * shipCoinMult,
+                        1f);
                     applyBallModifierCallback?.Invoke(_activeModifier.ballModifier);
                 }
             }
             else
             {
-                scoreManager.pointsModifierMultiplier = Mathf.Max(0f, _activeModifier.scoreMultiplier * shipScoreMult);
-                scoreManager.multModifierMultiplier = (_activeModifier.disableMultiplier ? 0.5f : 1f) * shipMultMult;
-                scoreManager.coinModifierMultiplier = Mathf.Max(0f, _activeModifier.coinMultiplier * shipCoinMult);
-                scoreManager.modifierTimeScaleMultiplier = Mathf.Max(0.1f, _activeModifier.timeScaleMultiplier);
+                scoreManager.SetModifierMultipliers(
+                    _activeModifier.scoreMultiplier * shipScoreMult,
+                    (_activeModifier.disableMultiplier ? 0.5f : 1f) * shipMultMult,
+                    _activeModifier.coinMultiplier * shipCoinMult,
+                    _activeModifier.timeScaleMultiplier);
                 applyBallModifierCallback?.Invoke(_activeModifier.ballModifier);
             }
         }
@@ -369,9 +370,8 @@ public class RoundModifierController : MonoBehaviour
         {
             if (scoreManager != null)
             {
-                scoreManager.pointsModifierMultiplier = shipScoreMult;
-                scoreManager.multModifierMultiplier = shipMultMult;
-                scoreManager.coinModifierMultiplier = shipCoinMult;
+                scoreManager.SetModifierMultipliers(
+                    shipScoreMult, shipMultMult, shipCoinMult, 1f);
             }
             applyBallModifierCallback?.Invoke(0);
         }

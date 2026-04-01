@@ -129,11 +129,6 @@ public sealed class BasicTutorialPanelController : MonoBehaviour
 
     private void HandleRoundStarted()
     {
-        // Tutorial disabled for now - skip first-time prompt
-        // if (rulesManager == null) return;
-        // if (rulesManager.LevelIndex != 0) return;
-        // if (ProfileService.HasAnsweredFirstTimePlayingPrompt()) return;
-        // ShowFirstTimePrompt();
     }
 
     private void ShowFirstTimePrompt()

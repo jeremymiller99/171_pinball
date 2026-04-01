@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class ResetZone : MonoBehaviour
 {
-    [SerializeField] private GameRulesManager rulesManager;
+    [SerializeField] private DrainHandler drainHandler;
     [SerializeField] private bool outsideBounds;
 
     private void Awake()
     {
-        ResolveRulesManager();
+        ResolveDrainHandler();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -16,31 +16,34 @@ public class ResetZone : MonoBehaviour
         {
             ServiceLocator.Get<AudioManager>()?.PlayBallLost();
 
-            if (rulesManager == null)
-                ResolveRulesManager();
+            if (drainHandler == null)
+                ResolveDrainHandler();
 
-            if (rulesManager == null)
+            if (drainHandler == null)
             {
-                Debug.LogError($"{nameof(ResetZone)}: No {nameof(GameRulesManager)} found. Assign it in the inspector.", this);
+                Debug.LogError(
+                    $"{nameof(ResetZone)}: No {nameof(DrainHandler)} found. " +
+                    $"Assign it in the inspector.", this);
                 return;
             }
 
             if (outsideBounds)
             {
-                rulesManager.OnBallDrained(other.gameObject, 2f, showHomeRunPopup: true);
+                drainHandler.OnBallDrained(
+                    other.gameObject, 2f, showHomeRunPopup: true);
             }
             else
             {
-                rulesManager.OnBallDrained(other.gameObject);
+                drainHandler.OnBallDrained(other.gameObject);
             }
         }
     }
 
-    private void ResolveRulesManager()
+    private void ResolveDrainHandler()
     {
-        if (rulesManager != null)
+        if (drainHandler != null)
             return;
 
-        rulesManager = ServiceLocator.Get<GameRulesManager>();
+        drainHandler = ServiceLocator.Get<DrainHandler>();
     }
 }

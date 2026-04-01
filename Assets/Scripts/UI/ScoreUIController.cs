@@ -140,7 +140,7 @@ public class ScoreUIController : MonoBehaviour
         // For events not driven by queues (roundTotal, goal)
         if (roundTotalText != null && ServiceLocator.TryGet<ScoreManager>(out var smRound))
         {
-            roundTotalText.text = FormatRoundTotalWhole(smRound.roundTotal);
+            roundTotalText.text = FormatRoundTotalWhole(smRound.RoundTotal);
         }
     }
 
@@ -188,12 +188,12 @@ public class ScoreUIController : MonoBehaviour
     {
         if (ServiceLocator.TryGet<ScoreManager>(out var sm))
         {
-            pointsUiDisplayed = sm.points;
-            multUiDisplayed = sm.mult;
+            pointsUiDisplayed = sm.Points;
+            multUiDisplayed = sm.Mult;
 
             if (pointsText != null) pointsText.text = FormatPointsOneDecimal(pointsUiDisplayed);
             if (multText != null) multText.text = FormatMultiplier(multUiDisplayed);
-            if (roundTotalText != null) roundTotalText.text = FormatRoundTotalWhole(sm.roundTotal);
+            if (roundTotalText != null) roundTotalText.text = FormatRoundTotalWhole(sm.RoundTotal);
             if (goalText != null) goalText.text = FormatPointsCompact(sm.CumulativeGoal);
         }
 

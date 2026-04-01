@@ -80,9 +80,9 @@ public class EggBall : Ball
                 {
                     GetEffectiveNextBallFactors(out float pointFactor, out float multFactor, out int coinFactor);
 
-                    nextBall.pointMultiplier *= pointFactor;
-                    nextBall.multMultiplier *= multFactor;
-                    nextBall.coinMultiplier *= coinFactor;
+                    nextBall.PointMultiplier *= pointFactor;
+                    nextBall.MultMultiplier *= multFactor;
+                    nextBall.CoinMultiplier *= coinFactor;
 
                     if (nextBall is EggBall nextEgg)
                     {

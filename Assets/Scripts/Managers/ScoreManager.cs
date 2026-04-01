@@ -14,12 +14,13 @@ public enum TypeOfScore
 
 public class ScoreManager : MonoBehaviour
 {
-    // Conceptually, `points` are the current ball's points.
-    public float points;
-    public float mult;
+    [SerializeField] private float points;
+    [SerializeField] private float mult;
+    [SerializeField] private float roundTotal;
 
-    // Total banked score across the current round (sum of each drained ball's banked score).
-    public float roundTotal;
+    public float Points => points;
+    public float Mult => mult;
+    public float RoundTotal => roundTotal;
 
     [Header("Level Progress (runtime)")]
     [SerializeField, Tooltip("Read-only at runtime. Tracks how much cumulative score has been consumed by level-ups.")]
@@ -133,13 +134,42 @@ public class ScoreManager : MonoBehaviour
     public float TimeScaleRequestMultiplier => _timeScaleRequestMin;
 
     [SerializeField] private float pointMultiplier;
-    public float pointsModifierMultiplier;
+    [SerializeField] private float pointsModifierMultiplier;
     [SerializeField] private float multMultiplier;
-    public float multModifierMultiplier;
+    [SerializeField] private float multModifierMultiplier;
     [SerializeField] private int coinMultiplier;
-    public float coinModifierMultiplier;
+    [SerializeField] private float coinModifierMultiplier;
+    [SerializeField] private float modifierTimeScaleMultiplier = 1f;
 
-    public float modifierTimeScaleMultiplier = 1f;
+    public float PointsModifierMultiplier => pointsModifierMultiplier;
+    public float MultModifierMultiplier => multModifierMultiplier;
+    public float CoinModifierMultiplier => coinModifierMultiplier;
+    public float ModifierTimeScaleMultiplier => modifierTimeScaleMultiplier;
+
+    public void SetModifierMultipliers(
+        float pointsMod, float multMod, float coinMod, float timeScaleMod)
+    {
+        pointsModifierMultiplier = Mathf.Max(0f, pointsMod);
+        multModifierMultiplier = Mathf.Max(0f, multMod);
+        coinModifierMultiplier = Mathf.Max(0f, coinMod);
+        modifierTimeScaleMultiplier = Mathf.Max(0.1f, timeScaleMod);
+        ApplySpeedFromTier(force: true);
+    }
+
+    public void ResetModifierMultipliers()
+    {
+        pointsModifierMultiplier = 1f;
+        multModifierMultiplier = 1f;
+        coinModifierMultiplier = 1f;
+        modifierTimeScaleMultiplier = 1f;
+        ApplySpeedFromTier(force: true);
+    }
+
+    public void AddRawPoints(float amount)
+    {
+        points += amount;
+        ScoreChanged?.Invoke();
+    }
 
     void Awake()
     {

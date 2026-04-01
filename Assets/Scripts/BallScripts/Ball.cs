@@ -10,18 +10,41 @@ using System;
 
 public class Ball : MonoBehaviour
 {
-    public ScoreManager scoreManager;
+    protected ScoreManager scoreManager;
 
     [SerializeField] private TrailRenderer trailRenderer;
     [SerializeField] private int amountToEmit;
     [SerializeField] private GameObject particleObject;
     [SerializeField] private Stack<GameObject> pool;
     [SerializeField] private int poolSize;
-    public int componentHits;
-    public float pointMultiplier = 1f;
-    public float multMultiplier = 1f;
-    public int coinMultiplier = 1;
-    public GameObject lastObjectHit;
+    protected int componentHits;
+    protected float pointMultiplier = 1f;
+    protected float multMultiplier = 1f;
+    protected int coinMultiplier = 1;
+    protected GameObject lastObjectHit;
+
+    public int ComponentHits => componentHits;
+    public GameObject LastObjectHit => lastObjectHit;
+    public float PointMultiplier
+    {
+        get => pointMultiplier;
+        set => pointMultiplier = value;
+    }
+    public float MultMultiplier
+    {
+        get => multMultiplier;
+        set => multMultiplier = value;
+    }
+    public int CoinMultiplier
+    {
+        get => coinMultiplier;
+        set => coinMultiplier = value;
+    }
+
+    public void ResetComponentHits()
+    {
+        componentHits = 0;
+    }
 
     [Header("Hit Count Popup")]
     [Tooltip("Font for the hit count popup. If null, uses the spawner's default (Jersey 10).")]
@@ -52,68 +75,35 @@ public class Ball : MonoBehaviour
     }
 
     virtual protected void OnCollisionEnter(Collision collision)
-    {
-        lastObjectHit = collision.gameObject;
-        BoardComponent[] components = GetBoardComponentsForScoring(collision.collider);
-        if (components.Length > 0)
-        {
-            ServiceLocator.Get<HapticManager>()?.PlayCollisionHaptic(true);
-        }
-
-        if (components.Length > 0)
-        {
-            HandleParticles(collision);
-            bool scoredAnyComponent = false;
-            foreach(BoardComponent component in components)
-            {
-                if (!ShouldScoreBoardComponent(component))
-                {
-                    continue;
-                }
-
-                scoredAnyComponent = true;
-                AddScore(component.amountToScore, component.typeOfScore, transform);
-            }
-
-            if (scoredAnyComponent)
-            {
-                componentHits++;
-                TrySpawnHitCountPopup();
-            }
-        }
-
-    }
+        => HandleBoardComponentHit(collision.collider, collision);
 
     void OnTriggerEnter(Collider collider)
+        => HandleBoardComponentHit(collider);
+
+    private void HandleBoardComponentHit(
+        Collider collider, Collision collision = null)
     {
         lastObjectHit = collider.gameObject;
         BoardComponent[] components = GetBoardComponentsForScoring(collider);
-        if (components.Length > 0)
+        if (components.Length == 0) return;
+
+        ServiceLocator.Get<HapticManager>()?.PlayCollisionHaptic(true);
+        if (collision != null) HandleParticles(collision);
+
+        bool scoredAny = false;
+        foreach (BoardComponent component in components)
         {
-            ServiceLocator.Get<HapticManager>()?.PlayCollisionHaptic(true);
+            if (!ShouldScoreBoardComponent(component)) continue;
+
+            scoredAny = true;
+            AddScore(component.amountToScore, component.typeOfScore, transform);
         }
 
-        if (components.Length > 0)
+        if (scoredAny)
         {
-            bool scoredAnyComponent = false;
-            foreach(BoardComponent component in components)
-            {
-                if (!ShouldScoreBoardComponent(component))
-                {
-                    continue;
-                }
-
-                scoredAnyComponent = true;
-                AddScore(component.amountToScore, component.typeOfScore, transform);
-            }
-
-            if (scoredAnyComponent)
-            {
-                componentHits++;
-                TrySpawnHitCountPopup();
-            }
+            componentHits++;
+            TrySpawnHitCountPopup();
         }
-        
     }
 
     private void TrySpawnHitCountPopup()

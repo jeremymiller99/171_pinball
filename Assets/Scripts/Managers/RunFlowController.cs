@@ -23,12 +23,6 @@ public sealed class RunFlowController : MonoBehaviour
     [SerializeField] private string gameplayCoreSceneName = "GameplayCore";
     [SerializeField] private string mainMenuSceneName = "MainMenu";
 
-    [Header("Round Preview")]
-    [Tooltip("Legacy: round preview is no longer used (levels are infinite).")]
-    [SerializeField] private bool showRoundPreview = false;
-    [Tooltip("Legacy: unused when round preview is disabled.")]
-    [SerializeField] private int defaultTotalRounds = 7;
-
     [Header("Runtime (debug)")]
     [SerializeField] private bool hasStartedRun;
 
@@ -293,7 +287,7 @@ public sealed class RunFlowController : MonoBehaviour
 
         if (boardLoader != null)
         {
-            // yield return StartCoroutine(boardLoader.LoadBoard(next));
+            yield return boardLoader.LoadBoard(next);
         }
 
         // Show board UI after new board loads

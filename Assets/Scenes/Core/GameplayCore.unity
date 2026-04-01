@@ -666,6 +666,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  bobSpeed: 2
+  bobHeight: 0.2
 --- !u!4 &252036642
 Transform:
   m_ObjectHideFlags: 0
@@ -1233,8 +1235,6 @@ MonoBehaviour:
   roundPreviewPanel: {fileID: 912259837}
   gameplayCoreSceneName: GameplayCore
   mainMenuSceneName: MainMenu
-  showRoundPreview: 1
-  defaultTotalRounds: 7
   hasStartedRun: 0
 --- !u!4 &430388228
 Transform:
@@ -2866,6 +2866,12 @@ MonoBehaviour:
   modeInfoWinConditionText: {fileID: 0}
   modeInfoPlayButton: {fileID: 0}
   modeInfoCloseButton: {fileID: 0}
+  availableShips: []
+  modeInfoShipSelectorContainer: {fileID: 0}
+  modeInfoShipNameText: {fileID: 0}
+  modeInfoShipDescText: {fileID: 0}
+  modeInfoShipLeftButton: {fileID: 0}
+  modeInfoShipRightButton: {fileID: 0}
   startRunButton: {fileID: 0}
   settingsButton: {fileID: 0}
   profileButton: {fileID: 0}
@@ -3673,6 +3679,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1226481751}
   m_CullTransparentMesh: 1
+--- !u!1 &1237907098
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1237907100}
+  - component: {fileID: 1237907099}
+  m_Layer: 0
+  m_Name: Drain Handler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1237907099
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1237907098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 842f2bf99d4027e4aad6faa098685bef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DrainHandler
+  scoreManager: {fileID: 349540274}
+  scoreTallyAnimator: {fileID: 0}
+  ballSpawner: {fileID: 0}
+--- !u!4 &1237907100
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1237907098}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 962.0082, y: 0.00006, z: 314.45}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1243198069 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5360634547953194145, guid: 295d77e738c99e242bc87375a020df16, type: 3}
@@ -3852,26 +3905,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameRulesManager
   scoreManager: {fileID: 349540274}
-  scoreTallyAnimator: {fileID: 0}
-  pointsPerCoin: 100
   floatingTextSpawner: {fileID: 0}
   showLevelUpCoinsPopup: 1
-  goalScalingMode: 1
-  baseGoal: 500
-  goalGrowthPerLevel: 1.35
-  goalRoundingStep: 100
-  goalByRound:
-  - 500
-  - 1000
-  - 2000
-  - 5000
-  - 10000
-  - 20000
-  - 50000
-  - 100000
-  - 250000
-  - 1000000
-  maxCoinsFromRoundTotal: 10
+  goalScaler: {fileID: 0}
   autoStartOnPlay: 0
   coinsPerLevelUp: 10
   ballSpawner: {fileID: 0}
@@ -3879,11 +3915,11 @@ MonoBehaviour:
   shopCanvasRoot: {fileID: 903621434}
   roundFailedUIRoot: {fileID: 1243198069}
   homeRunUIRoot: {fileID: 2109000000}
-  homeRunMessageText: {fileID: 2109000012}
   shopTransitionController: {fileID: 987650103}
   roundIndex: 0
   ballsRemaining: 0
   roundTotal: 0
+  drainHandler: {fileID: 0}
 --- !u!4 &1398822446
 Transform:
   m_ObjectHideFlags: 0
@@ -7075,3 +7111,4 @@ SceneRoots:
   - {fileID: 987650102}
   - {fileID: 1178000668}
   - {fileID: 252036642}
+  - {fileID: 1237907100}

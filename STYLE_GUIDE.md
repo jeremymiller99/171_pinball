@@ -16,10 +16,13 @@
     - Use a space before and after any mathmatical operators (+, -, *)
 
 2. Naming conventions:
-    - Variable names should be descriptive and consise
-    - Use camelCase for variable names. (even constants)
+    - Variable names should be descriptive and concise.
+    - Use camelCase for variable names (even constants).
     - Use PascalCase for class and function names.
     - Names of interfaces should start with the letter 'I' and then follow PascalCase, ex: IInterface.
+    - `[SerializeField] private` fields: camelCase, no prefix (e.g. `bounceForce`).
+    - Non-serialized private instance fields: underscore + camelCase (e.g. `_drainProcessing`).
+    - `private const` and `private static readonly`: camelCase, no prefix (e.g. `defaultOutlineWidth`).
 
 3. General Readability:
     - Lines should use a maximum of 100 columns, including comments.

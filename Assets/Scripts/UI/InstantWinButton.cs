@@ -65,15 +65,13 @@ public sealed class InstantWinButton : MonoBehaviour
         // Use level-progress space, not round-total space.
         // roundTotal can include progress already consumed by previous level-ups, which can make
         // a debug "instant level up" button fail on higher levels if we compare against roundTotal.
-        float mult = scoreManager.mult;
-        if (mult <= 0f) mult = 1f;
+        float currentMult = scoreManager.Mult;
+        if (currentMult <= 0f) currentMult = 1f;
 
         float extraNeeded = goal - scoreManager.LiveLevelProgress;
 
-        // Add just enough points so that banking reaches the goal, then bank immediately.
-        // We write directly to ScoreManager fields so tier-scaling doesn't distort the cheat amount.
         if (extraNeeded > 0f)
-            scoreManager.points += extraNeeded / mult;
+            scoreManager.AddRawPoints(extraNeeded / currentMult);
 
         scoreManager.BankCurrentBallScore(bankMultiplier: 1f);
     }

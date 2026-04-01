@@ -206,7 +206,7 @@ public class ScoreTallyAnimator : MonoBehaviour
         float m = bankMultiplier;
         if (m <= 0f) m = 1f;
 
-        float banked = scoreManager.points * scoreManager.mult * m;
+        float banked = scoreManager.Points * scoreManager.Mult * m;
         xText.text = FormatPointsCompact(banked);
 
         if (holdAtXDuration > 0f)
@@ -233,8 +233,8 @@ public class ScoreTallyAnimator : MonoBehaviour
 
         // ScoreManager refreshed points/mult/roundTotal text values; now make them visible again.
         
-        pointsText.text = FormatPointsCompact(scoreManager.points);
-        multText.text = FormatPointsCompact(scoreManager.mult);
+        pointsText.text = FormatPointsCompact(scoreManager.Points);
+        multText.text = FormatPointsCompact(scoreManager.Mult);
         SetVisible(pointsText, true);
         SetVisible(multText, true);
         SetVisible(xText, true);

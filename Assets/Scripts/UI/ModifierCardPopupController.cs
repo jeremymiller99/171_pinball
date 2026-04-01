@@ -1,4 +1,5 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant for jjmil on 2026-02-24.
+// Updated with Cursor (Composer) by assistant on 2026-03-31: CurrentRoundData from RoundModifierController.
 using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -178,7 +179,7 @@ public sealed class ModifierCardPopupController : MonoBehaviour
             }
         }
 
-        RoundData data = _rules.CurrentRoundData;
+        RoundData data = ServiceLocator.Get<RoundModifierController>()?.CurrentRoundData;
         if (data == null)
         {
             return;

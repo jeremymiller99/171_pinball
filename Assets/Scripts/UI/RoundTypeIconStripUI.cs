@@ -1,4 +1,5 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant for jjmil on 2026-02-24.
+// Updated with Cursor (Composer) by assistant on 2026-03-31: round-type preview via RoundModifierController + RunActive.
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -133,9 +134,10 @@ public sealed class RoundTypeIconStripUI : MonoBehaviour
             int absoluteRoundIndex = Mathf.Max(0, currentRoundIndex + i);
 
             RoundType type = RoundType.Normal;
-            if (rulesManager != null)
+            var mod = ServiceLocator.Get<RoundModifierController>();
+            if (rulesManager != null && mod != null)
             {
-                rulesManager.TryGetRoundType(absoluteRoundIndex, out type);
+                mod.TryGetRoundType(absoluteRoundIndex, rulesManager.RunActive, out type);
             }
 
             float scaleMul = i == 0 ? currentIconScaleMultiplier : futureIconScaleMultiplier;

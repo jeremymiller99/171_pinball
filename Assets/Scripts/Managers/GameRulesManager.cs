@@ -1,3 +1,4 @@
+// Updated with Cursor (Composer) by assistant on 2026-03-31 (Phase 5: removed loadout/modifier facades; RunActive for UI).
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -54,7 +55,6 @@ public class GameRulesManager : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private int roundIndex;
     [SerializeField] private int ballsRemaining;
-    [SerializeField] private int coins;
     [SerializeField] private float roundTotal;
 
     private bool runActive;
@@ -75,48 +75,19 @@ public class GameRulesManager : MonoBehaviour
 
     public int RoundIndex => roundIndex;
     public int BallsRemaining => ballsRemaining;
-    public int Coins => coins;
+    public int Coins => ServiceLocator.Get<CoinController>()?.Coins ?? 0;
     public float RoundTotal => roundTotal;
     public float CurrentGoal => GetGoalForRound(roundIndex);
     public bool IsShopOpen => shopOpen;
     public List<GameObject> ActiveBalls => ballSpawner != null ? ballSpawner.ActiveBalls : null;
 
-    // ----- FACADES FOR NEW CONTROLLERS -----
     private RoundModifierController ModifierController => ServiceLocator.Get<RoundModifierController>();
     private BallLoadoutController LoadoutController => ServiceLocator.Get<BallLoadoutController>();
 
-    public int MaxBalls => LoadoutController?.MaxBalls ?? 5;
-    public int BallLoadoutCount => LoadoutController?.BallLoadoutCount ?? 0;
-    public RoundModifierDefinition ActiveModifier => ModifierController?.ActiveModifier;
-    public RoundData CurrentRoundData => ModifierController?.CurrentRoundData;
-    public float GetModifierScoreMultiplier() => ModifierController?.GetModifierScoreMultiplier() ?? 1f;
-    public float GetModifierCoinMultiplier() => ModifierController?.GetModifierCoinMultiplier() ?? 1f;
-    public bool IsMultiplierDisabled() => ModifierController?.IsMultiplierDisabled() ?? false;
-    public int RemainingFlipperUses => ModifierController?.RemainingFlipperUses ?? -1;
-    public bool HasFlipperLimit => ModifierController?.HasFlipperLimit ?? false;
-    
-    public bool TryConsumeFlipperUse() => ModifierController?.TryConsumeFlipperUse() ?? true;
+    private int BallLoadoutCount => LoadoutController?.BallLoadoutCount ?? 0;
+    private RoundModifierDefinition ActiveModifier => ModifierController?.ActiveModifier;
 
-    public List<BallDefinition> GetBallLoadoutSnapshot() => LoadoutController?.GetBallLoadoutSnapshot() ?? new List<BallDefinition>();
-    public void AddMaxBalls(int delta) => LoadoutController?.AddMaxBalls(delta);
-    public bool AddBallToLoadout(BallDefinition def) => LoadoutController?.AddBallToLoadout(def) ?? false;
-    public bool ReplaceBallInLoadout(int slotIndex, BallDefinition newDef) => LoadoutController?.ReplaceBallInLoadout(slotIndex, newDef) ?? false;
-    public bool SwapBallLoadoutSlots(int a, int b) => LoadoutController?.SwapBallLoadoutSlots(a, b) ?? false;
-    public bool TryRemoveBallFromLoadoutAt(int slotIndex, out BallDefinition removed)
-    {
-        if (LoadoutController != null) return LoadoutController.TryRemoveBallFromLoadoutAt(slotIndex, out removed);
-        removed = null;
-        return false;
-    }
-
-    public bool TryGetRoundType(int absoluteRoundIndex, out RoundType type)
-    {
-        if (ModifierController != null) return ModifierController.TryGetRoundType(absoluteRoundIndex, runActive, out type);
-        type = RoundType.Normal;
-        return false;
-    }
-
-    // ----------------------------------------
+    public bool RunActive => runActive;
 
     private void Awake()
     {
@@ -164,7 +135,8 @@ public class GameRulesManager : MonoBehaviour
         _shopBallSaveAvailable = false;
         _runStartTime = Time.unscaledTime;
         roundIndex = 0;
-        coins = GameSession.Instance.ActiveShip?.startingCoins ?? 0;
+        ServiceLocator.Get<CoinController>()?.SetRunStartingBalance(
+            GameSession.Instance.ActiveShip?.startingCoins ?? 0);
         roundTotal = 0f;
 
         LoadoutController?.InitializeForNewRun();
@@ -177,14 +149,14 @@ public class GameRulesManager : MonoBehaviour
         if (scoreManager != null)
         {
             scoreManager.ResetForNewRun();
-            scoreManager.SetRoundIndex(roundIndex);
             scoreManager.SetGoal(CurrentGoal);
-            scoreManager.SetBallsRemaining(ballsRemaining);
-            scoreManager.SetCoins(coins);
 
             scoreManager.ScoreChanged -= OnScoreChanged;
             scoreManager.ScoreChanged += OnScoreChanged;
         }
+
+        ServiceLocator.Get<ScoreUIController>()?.SetRoundIndex(roundIndex);
+        ServiceLocator.Get<ScoreUIController>()?.SetBallsRemaining(ballsRemaining);
 
         StartRound();
     }
@@ -204,11 +176,12 @@ public class GameRulesManager : MonoBehaviour
 
         if (scoreManager != null)
         {
-            scoreManager.SetRoundIndex(roundIndex);
             scoreManager.SetGoal(CurrentGoal);
-            scoreManager.SetBallsRemaining(ballsRemaining);
-            scoreManager.SetCoins(coins);
         }
+
+        ServiceLocator.Get<ScoreUIController>()?.SetRoundIndex(roundIndex);
+        ServiceLocator.Get<ScoreUIController>()?.SetBallsRemaining(ballsRemaining);
+        ServiceLocator.Get<ScoreUIController>()?.SetCoins(Coins);
 
         RoundStarted?.Invoke();
 
@@ -261,7 +234,7 @@ public class GameRulesManager : MonoBehaviour
         if (delta != 0) LoadoutController?.AddMaxBalls(delta);
 
         ballsRemaining = BallLoadoutCount;
-        if (scoreManager != null) scoreManager.SetBallsRemaining(ballsRemaining);
+        ServiceLocator.Get<ScoreUIController>()?.SetBallsRemaining(ballsRemaining);
     }
 
     public void TriggerRoundFailed() => ShowRoundFailed();
@@ -286,7 +259,7 @@ public class GameRulesManager : MonoBehaviour
             while (CurrentGoal > 0f && scoreManager.LiveLevelProgress >= CurrentGoal)
             {
                 float prevGoal = CurrentGoal;
-                int coinsAwarded = AddCoinsScaled(coinsPerLevelUp);
+                int coinsAwarded = ServiceLocator.Get<CoinController>()?.AddCoinsScaled(coinsPerLevelUp) ?? 0;
 
                 if (showLevelUpCoinsPopup && floatingTextSpawner != null)
                 {
@@ -297,7 +270,7 @@ public class GameRulesManager : MonoBehaviour
                 roundIndex = Mathf.Max(0, roundIndex + 1);
                 ApplyCurrentRoundFromWindow();
 
-                scoreManager.SetRoundIndex(roundIndex);
+                ServiceLocator.Get<ScoreUIController>()?.SetRoundIndex(roundIndex);
                 scoreManager.SetGoal(CurrentGoal);
 
                 _shopBallSaveAvailable = true;
@@ -382,7 +355,7 @@ public class GameRulesManager : MonoBehaviour
         {
             _shopBallSaveAvailable = false;
             ballsRemaining = BallLoadoutCount;
-            if (scoreManager != null) scoreManager.SetBallsRemaining(ballsRemaining);
+            ServiceLocator.Get<ScoreUIController>()?.SetBallsRemaining(ballsRemaining);
 
             if (ShouldCompleteRunNow())
             {
@@ -399,7 +372,7 @@ public class GameRulesManager : MonoBehaviour
         // Consume ball permanently since no level-up occurred.
         LoadoutController?.ConsumeActiveBallFromLoadout(slotHint);
         ballsRemaining = BallLoadoutCount;
-        if (scoreManager != null) scoreManager.SetBallsRemaining(ballsRemaining);
+        ServiceLocator.Get<ScoreUIController>()?.SetBallsRemaining(ballsRemaining);
 
         if (ballsRemaining > 0)
         {
@@ -471,68 +444,27 @@ public class GameRulesManager : MonoBehaviour
     public bool TrySpendCoins(int amount)
     {
         if (amount <= 0) return true;
-        if (coins < amount)
-        {
-            ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
-            return false;
-        }
-
-        coins -= amount;
-        if (scoreManager != null) scoreManager.SetCoins(coins);
-        return true;
+        var c = ServiceLocator.Get<CoinController>();
+        return c != null && c.TrySpendCoins(amount);
     }
 
-    public void AddCoinsUnscaled(int amount)
-    {
-        if (amount <= 0) return;
-        coins += amount;
-        if (scoreManager != null)
-        {
-            scoreManager.SetCoins(coins);
-            scoreManager.PlayStaggeredCoinSounds(amount);
-        }
-    }
+    public void AddCoinsUnscaled(int amount) => ServiceLocator.Get<CoinController>()?.AddCoinsUnscaled(amount);
 
-    public void AddCoins(int amount) => AddCoinsScaled(amount);
+    public void AddCoins(int amount) => ServiceLocator.Get<CoinController>()?.AddCoins(amount);
 
     public int AddCoinsScaled(int amount)
     {
-        int applied = amount;
-        if (amount > 0)
-        {
-            float coinMultiplier = GetModifierCoinMultiplier();
-            if (!Mathf.Approximately(coinMultiplier, 1f))
-                applied = Mathf.FloorToInt(applied * coinMultiplier);
-        }
-
-        coins += applied;
-        if (scoreManager != null)
-        {
-            scoreManager.SetCoins(coins);
-            scoreManager.PlayStaggeredCoinSounds(applied);
-        }
-        return applied;
+        var c = ServiceLocator.Get<CoinController>();
+        return c != null ? c.AddCoinsScaled(amount) : 0;
     }
 
     public int AddCoinsScaledDeferredUi(int amount)
     {
-        ResolveServices();
-        int applied = amount;
-        if (amount > 0)
-        {
-            float coinMultiplier = GetModifierCoinMultiplier();
-            if (!Mathf.Approximately(coinMultiplier, 1f))
-                applied = Mathf.FloorToInt(applied * coinMultiplier);
-        }
-        coins += applied;
-        return applied;
+        var c = ServiceLocator.Get<CoinController>();
+        return c != null ? c.AddCoinsScaledDeferredUi(amount) : 0;
     }
 
-    public void ApplyDeferredCoinsUi(int applied)
-    {
-        ResolveServices();
-        scoreManager?.ApplyDeferredCoinsUi(applied);
-    }
+    public void ApplyDeferredCoinsUi(int applied) => ServiceLocator.Get<CoinController>()?.ApplyDeferredCoinsUi(applied);
 
     public void RetryRound()
     {
@@ -622,7 +554,7 @@ public class GameRulesManager : MonoBehaviour
         var panel = roundFailedUIRoot != null ? roundFailedUIRoot.GetComponent<RoundFailedPanelController>() : null;
         if (panel != null)
         {
-            panel.Show(roundTotal, CurrentGoal, roundIndex, ballsRemaining, coins, RunElapsedTime, challenge);
+            panel.Show(roundTotal, CurrentGoal, roundIndex, ballsRemaining, Coins, RunElapsedTime, challenge);
         }
         else
         {
@@ -647,7 +579,7 @@ public class GameRulesManager : MonoBehaviour
         var panel = roundFailedUIRoot.GetComponent<RoundFailedPanelController>();
         if (panel != null)
         {
-            if (open) panel.Show(roundTotal, CurrentGoal, roundIndex, ballsRemaining, coins, RunElapsedTime, GameSession.Instance?.ActiveChallenge);
+            if (open) panel.Show(roundTotal, CurrentGoal, roundIndex, ballsRemaining, Coins, RunElapsedTime, GameSession.Instance?.ActiveChallenge);
             else panel.Hide();
             return;
         }

@@ -1057,7 +1057,6 @@ MonoBehaviour:
   mult: 0
   roundTotal: 0
   levelProgressOffset: 0
-  gameRulesManager: {fileID: 0}
   floatingTextSpawner: {fileID: 0}
   scoringLocked: 0
   enableGoalTierScaling: 0
@@ -3832,6 +3831,7 @@ GameObject:
   - component: {fileID: 1398822445}
   - component: {fileID: 1398822448}
   - component: {fileID: 1398822447}
+  - component: {fileID: 1398822449}
   m_Layer: 0
   m_Name: GameRulesManager
   m_TagString: Untagged
@@ -3883,7 +3883,6 @@ MonoBehaviour:
   shopTransitionController: {fileID: 987650103}
   roundIndex: 0
   ballsRemaining: 0
-  coins: 0
   roundTotal: 0
 --- !u!4 &1398822446
 Transform:
@@ -3937,6 +3936,19 @@ MonoBehaviour:
   startingBallLoadout: []
   startingBallLoadoutDefinitions: []
   maxBalls: 0
+--- !u!114 &1398822449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1398822444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a4e2f1c9b0d3e5a7f6c8d1e2b4a9c0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CoinController
+  coins: 0
 --- !u!1 &1462674263
 GameObject:
   m_ObjectHideFlags: 0

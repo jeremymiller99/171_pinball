@@ -1,6 +1,7 @@
 // Modified by Cursor AI (GPT-5.2) for jjmil on 2026-02-15.
 // Fix: flipper up/down SFX now triggers for centralized bindings + new input system.
 // Change: add 10 width black outline to match board components.
+// Updated with Cursor (Composer) by assistant on 2026-03-31: flipper limits via RoundModifierController.
 
 using UnityEngine;
 
@@ -36,7 +37,6 @@ public class PinballFlipper : MonoBehaviour
     private bool _pressed;
     private bool _previousPressed;
     private Rigidbody _rb;
-    private GameRulesManager _gameRulesManager;
 
     private void Awake()
     {
@@ -44,7 +44,6 @@ public class PinballFlipper : MonoBehaviour
         _baseLocalRotation = transform.localRotation;
         _currentOffset = 0f;
         _previousPressed = false;
-        _gameRulesManager = ServiceLocator.Get<GameRulesManager>();
         if (flipperAction == FlipperInputAction.LeftFlipper)
         {
             flipAction = InputSystem.actions.FindAction("LeftFlip");
@@ -75,7 +74,7 @@ public class PinballFlipper : MonoBehaviour
     {
         _pressed = flipAction.IsPressed();
 
-        if (_pressed && !_previousPressed && !_gameRulesManager.TryConsumeFlipperUse())
+        if (_pressed && !_previousPressed && !(ServiceLocator.Get<RoundModifierController>()?.TryConsumeFlipperUse() ?? true))
         {
             _pressed = false;
         }

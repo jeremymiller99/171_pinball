@@ -1,4 +1,5 @@
 // Updated with Antigravity by jjmil on 2026-03-29.
+// Updated with Cursor (Composer) by assistant on 2026-03-31 (CoinController for coin awards).
 // Originally generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
 using UnityEngine;
 using System;
@@ -24,7 +25,6 @@ public class ScoreManager : MonoBehaviour
     [SerializeField, Tooltip("Read-only at runtime. Tracks how much cumulative score has been consumed by level-ups.")]
     private float levelProgressOffset;
 
-    [SerializeField] private GameRulesManager gameRulesManager;
     [SerializeField] private FloatingTextSpawner floatingTextSpawner;
 
     [Header("Scoring Control")]
@@ -100,6 +100,8 @@ public class ScoreManager : MonoBehaviour
     // Events
 
     public event Action ScoreChanged;
+    /// <summary>Fired when live ball score is cleared (banked or round/run reset) so presentation (e.g. coin pitch ramp) can reset.</summary>
+    public event Action BallBanked;
     public event Action<int> GoalTierChanged;
 
     public event Action<float, float> PointsAdded; // (appliedAmount, currentStoredPoints)
@@ -147,9 +149,6 @@ public class ScoreManager : MonoBehaviour
 
     void EnsureRefs()
     {
-        if (gameRulesManager == null)
-            gameRulesManager = ServiceLocator.Get<GameRulesManager>();
-
         if (floatingTextSpawner == null)
             floatingTextSpawner = ServiceLocator.Get<FloatingTextSpawner>();
     }
@@ -249,13 +248,12 @@ public class ScoreManager : MonoBehaviour
         if (scoringLocked || applied == 0) return;
 
         EnsureRefs();
-        if (gameRulesManager != null)
-            gameRulesManager.AddCoinsUnscaled(applied);
+        ServiceLocator.Get<CoinController>()?.AddCoinsUnscaled(applied);
 
         if (floatingTextSpawner != null)
             floatingTextSpawner.SpawnGoldText(pos.position, "+$" + applied, applied);
 
-        int totalCoins = gameRulesManager != null ? gameRulesManager.Coins : 0;
+        int totalCoins = ServiceLocator.Get<CoinController>()?.Coins ?? 0;
         CoinsAdded?.Invoke(applied, totalCoins);
         ScoreChanged?.Invoke();
     }
@@ -278,7 +276,7 @@ public class ScoreManager : MonoBehaviour
         float banked = points * mult * m;
         roundTotal += banked;
 
-        ResetAudioPitch();
+        BallBanked?.Invoke();
         points = 0f;
         mult = 1f;
         _componentHitAssistAccelerationBonus = 0f;
@@ -295,7 +293,7 @@ public class ScoreManager : MonoBehaviour
         levelProgressOffset = 0f;
         roundTotal = 0f;
         points = 0f;
-        ResetAudioPitch();
+        BallBanked?.Invoke();
         mult = 1f;
         _goalTier = 0;
         totalComponentHits = 0;
@@ -446,44 +444,5 @@ public class ScoreManager : MonoBehaviour
             targetFixed = Mathf.Min(targetFixed, maxFixedDeltaTime);
 
         Time.fixedDeltaTime = Mathf.Max(0.0001f, targetFixed);
-    }
-
-    // ==========================================
-    // Facade Methods for External Compatibility
-    // ==========================================
-
-    public void SetRoundIndex(int roundIndex)
-    {
-        ServiceLocator.Get<ScoreUIController>()?.SetRoundIndex(roundIndex);
-    }
-
-    public void SetBallsRemaining(int ballsRemaining)
-    {
-        ServiceLocator.Get<ScoreUIController>()?.SetBallsRemaining(ballsRemaining);
-    }
-
-    public void SetCoins(int coins)
-    {
-        ServiceLocator.Get<ScoreUIController>()?.SetCoins(coins);
-    }
-
-    public void ApplyDeferredCoinsUi(int applied)
-    {
-        ServiceLocator.Get<ScoreUIController>()?.ApplyDeferredCoinsUi(applied);
-    }
-
-    public void UpdateScoreText()
-    {
-        ServiceLocator.Get<ScoreUIController>()?.UpdateScoreText();
-    }
-
-    public void PlayStaggeredCoinSounds(int amount)
-    {
-        ServiceLocator.Get<AudioManager>()?.PlayStaggeredCoinSounds(amount);
-    }
-
-    public void ResetAudioPitch()
-    {
-        ServiceLocator.Get<ScoreJuiceFeedback>()?.ResetAudioPitch();
     }
 }

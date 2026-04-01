@@ -1,4 +1,6 @@
+// Updated with Cursor (Composer) by assistant on 2026-03-31 (CoinController for economy; BallLoadoutController direct).
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,6 +24,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     [Header("Refs")]
     [SerializeField] private GameRulesManager rulesManager;
+    [SerializeField] private CoinController coinController;
     [SerializeField] private RunFlowController runFlowController;
     [SerializeField] private ShopTransitionController shopTransitionController;
     [SerializeField] private GameObject shopCanvasRoot;
@@ -77,8 +80,9 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (ballSpawner != null)
         {
-            var loadout = rulesManager != null ? rulesManager.GetBallLoadoutSnapshot() : new System.Collections.Generic.List<BallDefinition>();
-            var prefabs = new System.Collections.Generic.List<GameObject>(loadout.Count);
+            var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
+            var loadout = loadoutCtrl != null ? loadoutCtrl.GetBallLoadoutSnapshot() : new List<BallDefinition>();
+            var prefabs = new List<GameObject>(loadout.Count);
             for (int i = 0; i < loadout.Count; i++) prefabs.Add(loadout[i]?.Prefab);
             ballSpawner.BuildHandFromPrefabs(prefabs);
         }
@@ -146,9 +150,9 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     public void ConfirmPurchase()
     {
-        if (_selectedOffer == null || rulesManager == null) return;
+        if (_selectedOffer == null) return;
 
-        if (!rulesManager.TrySpendCoins(_selectedOffer.Price))
+        if (coinController == null || !coinController.TrySpendCoins(_selectedOffer.Price))
         {
             SetPrompt($"Not enough coins for {_selectedOffer.DisplayName}.");
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
@@ -196,7 +200,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     public void ConfirmComponentPlacement()
     {
-        if (_selectedOffer == null || _targetComponent == null || rulesManager == null) return;
+        if (_selectedOffer == null || _targetComponent == null) return;
 
         _placement.ReplaceComponent(_targetComponent, _selectedOffer.ComponentDef);
         _shelf.ConsumeOffer(_selectedOfferIndex);
@@ -210,11 +214,14 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     public void ConfirmBallPlacement()
     {
-        if (_selectedOffer == null || rulesManager == null) return;
+        if (_selectedOffer == null) return;
+
+        var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
+        if (loadoutCtrl == null) return;
 
         BallDefinition def = _selectedOffer.BallDef;
         int slotToReplace = _targetBallSlotIndex;
-        var loadout = rulesManager.GetBallLoadoutSnapshot();
+        var loadout = loadoutCtrl.GetBallLoadoutSnapshot();
 
         if (slotToReplace >= 0 && slotToReplace < loadout.Count)
         {
@@ -222,9 +229,9 @@ public sealed class UnifiedShopController : MonoBehaviour
             if (oldBall != null)
             {
                 int sellPrice = (Mathf.Max(0, oldBall.Price) + 1) / 2;
-                rulesManager.AddCoinsUnscaled(sellPrice);
+                coinController?.AddCoinsUnscaled(sellPrice);
             }
-            rulesManager.ReplaceBallInLoadout(slotToReplace, def);
+            loadoutCtrl.ReplaceBallInLoadout(slotToReplace, def);
         }
 
         _shelf.ConsumeOffer(_selectedOfferIndex);
@@ -241,9 +248,9 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     public void CancelPlacement()
     {
-        if (_selectedOffer != null && rulesManager != null)
+        if (_selectedOffer != null)
         {
-            rulesManager.AddCoinsUnscaled(_selectedOffer.Price);
+            coinController?.AddCoinsUnscaled(_selectedOffer.Price);
             SetPrompt("Purchase cancelled. Coins refunded.");
         }
 
@@ -264,9 +271,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     public void RerollOffers()
     {
-        if (rulesManager == null) return;
-
-        if (rulesManager.Coins < rerollCost)
+        if (coinController == null || coinController.Coins < rerollCost)
         {
             SetPrompt($"Not enough coins to reroll (${rerollCost}).");
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
@@ -274,7 +279,7 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
-        if (!rulesManager.TrySpendCoins(rerollCost)) return;
+        if (!coinController.TrySpendCoins(rerollCost)) return;
 
         SetPrompt("Rerolling...");
         ServiceLocator.Get<AudioManager>()?.PlayReroll();
@@ -357,10 +362,11 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
-        if (rulesManager == null) return;
+        var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
+        if (loadoutCtrl == null) return;
 
-        int currentCount = rulesManager.BallLoadoutCount;
-        int cap = Mathf.Max(1, rulesManager.MaxBalls);
+        int currentCount = loadoutCtrl.BallLoadoutCount;
+        int cap = Mathf.Max(1, loadoutCtrl.MaxBalls);
 
         if (currentCount < cap)
         {
@@ -383,7 +389,7 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
-        var loadout = rulesManager.GetBallLoadoutSnapshot();
+        var loadout = loadoutCtrl.GetBallLoadoutSnapshot();
         if (slotIndex >= loadout.Count) return;
 
         ShowDragDropBallReplaceConfirm(offerIndex, slotIndex);
@@ -402,8 +408,9 @@ public sealed class UnifiedShopController : MonoBehaviour
         }
         else
         {
-            int currentCount = rulesManager != null ? rulesManager.BallLoadoutCount : 0;
-            int cap = rulesManager != null ? Mathf.Max(1, rulesManager.MaxBalls) : 1;
+            var lc = ServiceLocator.Get<BallLoadoutController>();
+            int currentCount = lc != null ? lc.BallLoadoutCount : 0;
+            int cap = lc != null ? Mathf.Max(1, lc.MaxBalls) : 1;
             _dragBallHasRoom = currentCount < cap;
 
             if (_dragBallHasRoom && ballSpawner != null)
@@ -503,9 +510,10 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (CurrentState != ShopState.Browsing) return;
 
         _hand.ClearSwapSelection();
-        if (fromSlot < 0 || toSlot < 0 || fromSlot == toSlot || rulesManager == null) return;
+        var lc = ServiceLocator.Get<BallLoadoutController>();
+        if (fromSlot < 0 || toSlot < 0 || fromSlot == toSlot || lc == null) return;
 
-        bool swapped = rulesManager.SwapBallLoadoutSlots(fromSlot, toSlot);
+        bool swapped = lc.SwapBallLoadoutSlots(fromSlot, toSlot);
         if (!swapped)
         {
             SetPrompt("Could not swap those balls.");
@@ -545,9 +553,10 @@ public sealed class UnifiedShopController : MonoBehaviour
         int slotB = slotIndex;
         _hand.ClearSwapSelection();
 
-        if (rulesManager == null) return;
+        var lc = ServiceLocator.Get<BallLoadoutController>();
+        if (lc == null) return;
 
-        bool swapped = rulesManager.SwapBallLoadoutSlots(slotA, slotB);
+        bool swapped = lc.SwapBallLoadoutSlots(slotA, slotB);
         if (!swapped)
         {
             SetPrompt("Could not swap those balls.");
@@ -572,13 +581,21 @@ public sealed class UnifiedShopController : MonoBehaviour
     {
         CurrentState = ShopState.PlacingBall;
 
-        int currentCount = rulesManager.BallLoadoutCount;
-        int cap = Mathf.Max(1, rulesManager.MaxBalls);
+        var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
+        if (loadoutCtrl == null)
+        {
+            SetPrompt("Ball loadout unavailable.");
+            RefreshUI();
+            return;
+        }
+
+        int currentCount = loadoutCtrl.BallLoadoutCount;
+        int cap = Mathf.Max(1, loadoutCtrl.MaxBalls);
 
         if (currentCount < cap)
         {
             int addSlot = GetFirstEmptySlotIndex();
-            bool added = rulesManager.AddBallToLoadout(_selectedOffer.BallDef);
+            bool added = loadoutCtrl.AddBallToLoadout(_selectedOffer.BallDef);
             if (added)
             {
                 _shelf.ConsumeOffer(_selectedOfferIndex);
@@ -621,9 +638,10 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     private void AutoBuyBallOffer(int offerIndex, ShopOffer offer)
     {
-        if (rulesManager == null || offer == null) return;
+        var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
+        if (loadoutCtrl == null || offer == null) return;
 
-        if (!rulesManager.TrySpendCoins(offer.Price))
+        if (coinController == null || !coinController.TrySpendCoins(offer.Price))
         {
             SetPrompt($"Not enough coins for {offer.DisplayName}.");
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
@@ -634,11 +652,11 @@ public sealed class UnifiedShopController : MonoBehaviour
         ServiceLocator.Get<AudioManager>()?.PlayPurchase();
 
         int addSlot = GetFirstEmptySlotIndex();
-        bool added = rulesManager.AddBallToLoadout(offer.BallDef);
+        bool added = loadoutCtrl.AddBallToLoadout(offer.BallDef);
 
         if (!added)
         {
-            rulesManager.AddCoinsUnscaled(offer.Price);
+            coinController?.AddCoinsUnscaled(offer.Price);
             SetPrompt("Loadout full -- could not add ball.");
             RefreshUI();
             return;
@@ -656,8 +674,9 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     private int GetFirstEmptySlotIndex()
     {
-        if (rulesManager == null) return -1;
-        var loadout = rulesManager.GetBallLoadoutSnapshot();
+        var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
+        if (loadoutCtrl == null) return -1;
+        var loadout = loadoutCtrl.GetBallLoadoutSnapshot();
         return loadout.Count;
     }
 
@@ -715,7 +734,8 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
-        var loadout = rulesManager.GetBallLoadoutSnapshot();
+        var lc = ServiceLocator.Get<BallLoadoutController>();
+        var loadout = lc != null ? lc.GetBallLoadoutSnapshot() : new List<BallDefinition>();
         BallDefinition old = (slotIndex >= 0 && slotIndex < loadout.Count) ? loadout[slotIndex] : null;
         string oldName = old != null ? old.GetSafeDisplayName() : "(Empty)";
         int sellPrice = old != null ? (Mathf.Max(0, old.Price) + 1) / 2 : 0;
@@ -756,9 +776,9 @@ public sealed class UnifiedShopController : MonoBehaviour
     private void ConfirmDragDropBoardPurchase(int offerIndex, BoardComponent target)
     {
         ShopOffer offer = _shelf.GetOffer(offerIndex);
-        if (rulesManager == null || target == null || offer == null || !offer.IsValid) return;
+        if (target == null || offer == null || !offer.IsValid) return;
 
-        if (!rulesManager.TrySpendCoins(offer.Price))
+        if (coinController == null || !coinController.TrySpendCoins(offer.Price))
         {
             SetPrompt($"Not enough coins for {offer.DisplayName}.");
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
@@ -779,7 +799,7 @@ public sealed class UnifiedShopController : MonoBehaviour
     private void ShowDragDropBallReplaceConfirm(int offerIndex, int slotIndex)
     {
         ShopOffer offer = _shelf.GetOffer(offerIndex);
-        if (offer == null || !offer.IsValid || rulesManager == null) return;
+        if (offer == null || !offer.IsValid) return;
 
         if (confirmPanel == null)
         {
@@ -787,7 +807,8 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
-        var loadout = rulesManager.GetBallLoadoutSnapshot();
+        var lc = ServiceLocator.Get<BallLoadoutController>();
+        var loadout = lc != null ? lc.GetBallLoadoutSnapshot() : new List<BallDefinition>();
         BallDefinition old = (slotIndex >= 0 && slotIndex < loadout.Count) ? loadout[slotIndex] : null;
         string oldName = old != null ? old.GetSafeDisplayName() : "(Empty)";
         int sellPrice = old != null ? (Mathf.Max(0, old.Price) + 1) / 2 : 0;
@@ -806,9 +827,9 @@ public sealed class UnifiedShopController : MonoBehaviour
     private void ConfirmDragDropBallReplace(int offerIndex, int slotIndex)
     {
         ShopOffer offer = _shelf.GetOffer(offerIndex);
-        if (rulesManager == null || offer == null || !offer.IsValid) return;
+        if (offer == null || !offer.IsValid) return;
 
-        if (!rulesManager.TrySpendCoins(offer.Price))
+        if (coinController == null || !coinController.TrySpendCoins(offer.Price))
         {
             SetPrompt($"Not enough coins for {offer.DisplayName}.");
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
@@ -828,7 +849,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     public void RefreshUI()
     {
-        if (coinsText != null && rulesManager != null) coinsText.text = $"${rulesManager.Coins}";
+        if (coinsText != null && coinController != null) coinsText.text = $"${coinController.Coins}";
     }
 
     private void SetPrompt(string msg)
@@ -839,6 +860,7 @@ public sealed class UnifiedShopController : MonoBehaviour
     private void ResolveReferences()
     {
         if (rulesManager == null) rulesManager = ServiceLocator.Get<GameRulesManager>();
+        if (coinController == null) coinController = ServiceLocator.Get<CoinController>();
         if (runFlowController == null) runFlowController = ServiceLocator.Get<RunFlowController>();
         if (shopTransitionController == null) shopTransitionController = ServiceLocator.Get<ShopTransitionController>();
         if (shopCanvasRoot == null) shopCanvasRoot = gameObject;

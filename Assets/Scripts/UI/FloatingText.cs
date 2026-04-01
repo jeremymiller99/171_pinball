@@ -1,4 +1,5 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-17.
+// Updated with Cursor (Composer) by assistant on 2026-03-31.
 using UnityEngine;
 using TMPro;
 using System;
@@ -43,7 +44,7 @@ public class FloatingText : MonoBehaviour
     [SerializeField] private float maxFontSize = 160f;
     [SerializeField] private float maxScale = 4f;
     
-    [SerializeField] private ScoreManager scoreManager;
+    private ScoreUIController scoreUi;
 
     private TMP_Text text;
     private RectTransform rectTransform;
@@ -73,7 +74,7 @@ public class FloatingText : MonoBehaviour
     {
         text = GetComponent<TMP_Text>();
         rectTransform = GetComponent<RectTransform>();
-        scoreManager = ServiceLocator.Get<ScoreManager>();
+        scoreUi = ServiceLocator.Get<ScoreUIController>();
         startColor = text.color;
         ageSeconds = 0f;
 
@@ -172,7 +173,7 @@ public class FloatingText : MonoBehaviour
 
         if (ageSeconds >= lifetime || alpha <= 0f)
         {
-            scoreManager.UpdateScoreText();
+            scoreUi?.UpdateScoreText();
             Destroy(gameObject);
         }
     }
@@ -222,13 +223,13 @@ public class FloatingText : MonoBehaviour
 
         if (destroyOnFlyComplete && u >= 1f)
         {
-            scoreManager.UpdateScoreText();
+            scoreUi?.UpdateScoreText();
             Destroy(gameObject);
         }
 
         if (!destroyOnFlyComplete && (ageSeconds >= lifetime || alpha <= 0f))
         {
-            scoreManager.UpdateScoreText();
+            scoreUi?.UpdateScoreText();
             Destroy(gameObject);
         }
     }

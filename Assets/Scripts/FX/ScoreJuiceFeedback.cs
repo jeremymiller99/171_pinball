@@ -1,3 +1,4 @@
+// Updated with Cursor (Composer) by assistant on 2026-03-31.
 using System;
 using UnityEngine;
 
@@ -71,6 +72,7 @@ public class ScoreJuiceFeedback : MonoBehaviour
         {
             sm.PointsAdded += OnPointsAdded;
             sm.MultAdded += OnMultAdded;
+            sm.BallBanked += OnBallBanked;
         }
 
         ScoreUIController ui = ServiceLocator.Get<ScoreUIController>();
@@ -87,6 +89,7 @@ public class ScoreJuiceFeedback : MonoBehaviour
         {
             sm.PointsAdded -= OnPointsAdded;
             sm.MultAdded -= OnMultAdded;
+            sm.BallBanked -= OnBallBanked;
         }
 
         ScoreUIController ui = ServiceLocator.TryGet<ScoreUIController>(out var uiController) ? uiController : null;
@@ -110,7 +113,12 @@ public class ScoreJuiceFeedback : MonoBehaviour
         }
     }
 
-    public void ResetAudioPitch()
+    private void OnBallBanked()
+    {
+        ResetAudioPitch();
+    }
+
+    private void ResetAudioPitch()
     {
         compTriggered = 35;
     }

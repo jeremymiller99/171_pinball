@@ -1,4 +1,5 @@
 // Generated with Cursor AI (GPT-5.2), by OpenAI, 2026-02-24.
+// Updated with Cursor (Composer) by assistant on 2026-03-31 (TrySpendCoins via CoinController).
 // Change: prewarm selection outlines for board components.
 // DEPRECATED: replaced by UnifiedShopController (2026-03-27).
 using System.Collections.Generic;
@@ -157,7 +158,8 @@ public class ComponentUIController : MonoBehaviour
     public void OnEnter()
     {
         if (selectingButtons) return;
-        if (!gameRulesManager.TrySpendCoins((int)buyingComponentDefinition.Price)) return;
+        CoinController coins = ServiceLocator.Get<CoinController>();
+        if (coins == null || !coins.TrySpendCoins((int)buyingComponentDefinition.Price)) return;
 
         GameObject newComponent = Instantiate(buyingComponentDefinition.Prefab, chosenComponent.transform.parent);
         newComponent.transform.position = chosenComponent.transform.position;

@@ -1,14 +1,15 @@
+// Updated with Cursor (Composer) by assistant on 2026-03-31.
 using UnityEngine;
 
 /// <summary>
 /// Board component: when the ball collides with this object, adds $2 to the player (once per target).
-/// Just add this script—no Inspector setup. GameRulesManager and FloatingTextSpawner are found at runtime.
+/// Just add this script—no Inspector setup. CoinController and FloatingTextSpawner are found at runtime.
 /// </summary>
 public class CoinAdder : MonoBehaviour
 {
     private const int CoinsToAdd = 2;
 
-    [SerializeField] private GameRulesManager gameRulesManager;
+    [SerializeField] private CoinController coinController;
     [SerializeField] private FloatingTextSpawner floatingTextSpawner;
 
     private bool _hasAwarded;
@@ -20,15 +21,11 @@ public class CoinAdder : MonoBehaviour
 
     private void EnsureRefs()
     {
-        if (gameRulesManager == null)
-        {
-            gameRulesManager = ServiceLocator.Get<GameRulesManager>();
-        }
+        if (coinController == null)
+            coinController = ServiceLocator.Get<CoinController>();
 
         if (floatingTextSpawner == null)
-        {
             floatingTextSpawner = ServiceLocator.Get<FloatingTextSpawner>();
-        }
     }
 
     void OnCollisionEnter(Collision collision)
@@ -36,9 +33,9 @@ public class CoinAdder : MonoBehaviour
         if (_hasAwarded) return;
         if (!collision.collider.CompareTag("Ball")) return;
 
-        if (gameRulesManager == null) EnsureRefs();
-        int applied = gameRulesManager != null
-            ? gameRulesManager.AddCoinsScaledDeferredUi(CoinsToAdd)
+        if (coinController == null) EnsureRefs();
+        int applied = coinController != null
+            ? coinController.AddCoinsScaledDeferredUi(CoinsToAdd)
             : 0;
         if (applied > 0)
         {
@@ -46,7 +43,7 @@ public class CoinAdder : MonoBehaviour
                 collision.collider.transform.position,
                 "+$" + applied,
                 applied,
-                () => gameRulesManager.ApplyDeferredCoinsUi(applied));
+                () => coinController?.ApplyDeferredCoinsUi(applied));
         }
         _hasAwarded = true;
     }
@@ -56,9 +53,9 @@ public class CoinAdder : MonoBehaviour
         if (_hasAwarded) return;
         if (!col.CompareTag("Ball")) return;
 
-        if (gameRulesManager == null) EnsureRefs();
-        int applied = gameRulesManager != null
-            ? gameRulesManager.AddCoinsScaledDeferredUi(CoinsToAdd)
+        if (coinController == null) EnsureRefs();
+        int applied = coinController != null
+            ? coinController.AddCoinsScaledDeferredUi(CoinsToAdd)
             : 0;
         if (applied > 0)
         {
@@ -66,7 +63,7 @@ public class CoinAdder : MonoBehaviour
                 col.transform.position,
                 "+$" + applied,
                 applied,
-                () => gameRulesManager.ApplyDeferredCoinsUi(applied));
+                () => coinController?.ApplyDeferredCoinsUi(applied));
         }
         _hasAwarded = true;
     }

@@ -217,6 +217,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnifiedShopController
   rulesManager: {fileID: 0}
+  coinController: {fileID: 0}
   runFlowController: {fileID: 0}
   shopTransitionController: {fileID: 0}
   shopCanvasRoot: {fileID: 0}

@@ -1,9 +1,10 @@
+// Updated with Cursor (Composer) by assistant on 2026-03-31: read active modifier from RoundModifierController.
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// When the active round modifier has cyclic hide ball enabled, hides all active balls (and their trails)
-/// for a set duration every cycle. Add this to the same scene as GameRulesManager and BallSpawner.
+/// for a set duration every cycle. Add this to the same scene as BallSpawner (and RoundModifierController).
 /// </summary>
 public class BallHideController : MonoBehaviour
 {
@@ -25,7 +26,7 @@ public class BallHideController : MonoBehaviour
 
     private void LateUpdate()
     {
-        var modifier = gameRulesManager != null ? gameRulesManager.ActiveModifier : null;
+        var modifier = ServiceLocator.Get<RoundModifierController>()?.ActiveModifier;
         bool modifierActive = modifier != null && modifier.cyclicHideBallEnabled;
 
         if (!modifierActive)

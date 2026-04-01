@@ -267,7 +267,7 @@ public sealed class ShopTutorialPanelController : MonoBehaviour
             return;
         }
 
-        AudioManager.Instance.PlayTutorialNext();
+        ServiceLocator.Get<AudioManager>()?.PlayTutorialNext();
 
         if (currentPanelIndex < 0)
         {

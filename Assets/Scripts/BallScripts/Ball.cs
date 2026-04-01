@@ -55,9 +55,9 @@ public class Ball : MonoBehaviour
     {
         lastObjectHit = collision.gameObject;
         BoardComponent[] components = GetBoardComponentsForScoring(collision.collider);
-        if (components.Length > 0 && HapticManager.Instance != null)
+        if (components.Length > 0)
         {
-            HapticManager.Instance.PlayCollisionHaptic(true);
+            ServiceLocator.Get<HapticManager>()?.PlayCollisionHaptic(true);
         }
 
         if (components.Length > 0)
@@ -88,9 +88,9 @@ public class Ball : MonoBehaviour
     {
         lastObjectHit = collider.gameObject;
         BoardComponent[] components = GetBoardComponentsForScoring(collider);
-        if (components.Length > 0 && HapticManager.Instance != null)
+        if (components.Length > 0)
         {
-            HapticManager.Instance.PlayCollisionHaptic(true);
+            ServiceLocator.Get<HapticManager>()?.PlayCollisionHaptic(true);
         }
 
         if (components.Length > 0)

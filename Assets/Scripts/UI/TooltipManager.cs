@@ -25,26 +25,25 @@ public sealed class TooltipManager : MonoBehaviour
     private const float nameFontSize = 18f;
     private const float descFontSize = 14f;
 
-    public static TooltipManager Instance { get; private set; }
-
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        var existing = ServiceLocator.Get<TooltipManager>();
+        if (existing != null && existing != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        Instance = this;
+        ServiceLocator.Register<TooltipManager>(this);
         DontDestroyOnLoad(gameObject);
         EnsureTooltip();
     }
 
     private void OnDestroy()
     {
-        if (Instance == this)
+        if (ServiceLocator.Get<TooltipManager>() == this)
         {
-            Instance = null;
+            ServiceLocator.Unregister<TooltipManager>();
         }
     }
 
@@ -52,35 +51,38 @@ public sealed class TooltipManager : MonoBehaviour
         string title,
         string description)
     {
-        if (Instance == null || Instance._instance == null)
+        var mgr = ServiceLocator.Get<TooltipManager>();
+        if (mgr == null || mgr._instance == null)
         {
             return;
         }
 
-        Instance._instance.Show(title, description);
+        mgr._instance.Show(title, description);
     }
 
     public static void Hide()
     {
-        if (Instance == null || Instance._instance == null)
+        var mgr = ServiceLocator.Get<TooltipManager>();
+        if (mgr == null || mgr._instance == null)
         {
             return;
         }
 
-        Instance._instance.Hide();
+        mgr._instance.Hide();
     }
 
     public static bool IsVisible
     {
         get
         {
-            if (Instance == null
-                || Instance._instance == null)
+            var mgr = ServiceLocator.Get<TooltipManager>();
+            if (mgr == null
+                || mgr._instance == null)
             {
                 return false;
             }
 
-            return Instance._instance.IsVisible;
+            return mgr._instance.IsVisible;
         }
     }
 
@@ -89,12 +91,13 @@ public sealed class TooltipManager : MonoBehaviour
     {
         screenCenter = default;
 
-        if (Instance == null || Instance._instance == null)
+        var mgr = ServiceLocator.Get<TooltipManager>();
+        if (mgr == null || mgr._instance == null)
         {
             return false;
         }
 
-        return Instance._instance
+        return mgr._instance
             .TryGetScreenRectCenterInScreenSpace(
                 out screenCenter);
     }

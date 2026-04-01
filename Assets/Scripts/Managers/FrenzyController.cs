@@ -16,8 +16,7 @@ using UnityEngine.SceneManagement;
 [DisallowMultipleComponent]
 public sealed class FrenzyController : MonoBehaviour
 {
-    public static FrenzyController Instance { get; private set; }
-    public static bool IsFrenzyActive => Instance != null && Instance._frenzyActive;
+    public bool IsFrenzy => _frenzyActive;
 
     [Header("Frenzy scoring")]
     [Min(0f)]
@@ -64,12 +63,12 @@ public sealed class FrenzyController : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        var existing = ServiceLocator.Get<FrenzyController>();
+        if (existing != null && existing != this)
         {
             Destroy(gameObject);
             return;
         }
-        Instance = this;
         ServiceLocator.Register<FrenzyController>(this);
     }
 
@@ -157,7 +156,7 @@ public sealed class FrenzyController : MonoBehaviour
 
         if (shakeOnGoal)
         {
-            var shake = CameraShake.Instance;
+            var shake = ServiceLocator.Get<CameraShake>();
             if (_shakeRoutine != null)
             {
                 StopCoroutine(_shakeRoutine);

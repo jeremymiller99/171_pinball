@@ -10,8 +10,6 @@ public sealed class DisplaySettingsManager : MonoBehaviour
     private const string keyHeight = "DisplayHeight";
     private const string keyFullscreen = "FullscreenMode";
 
-    public static DisplaySettingsManager Instance { get; private set; }
-
     [Header("Runtime (debug)")]
     [SerializeField] private int currentResolutionIndex;
     [SerializeField] private FullScreenMode currentFullscreenMode;
@@ -27,7 +25,7 @@ public sealed class DisplaySettingsManager : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void EnsureExists()
     {
-        if (Instance != null) return;
+        if (ServiceLocator.Get<DisplaySettingsManager>() != null) return;
 
         var go = new GameObject(nameof(DisplaySettingsManager));
         DontDestroyOnLoad(go);
@@ -36,17 +34,26 @@ public sealed class DisplaySettingsManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        var existing = ServiceLocator.Get<DisplaySettingsManager>();
+        if (existing != null && existing != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        Instance = this;
+        ServiceLocator.Register<DisplaySettingsManager>(this);
         DontDestroyOnLoad(gameObject);
 
         BuildResolutionList();
         LoadAndApply();
+    }
+
+    private void OnDestroy()
+    {
+        if (ServiceLocator.Get<DisplaySettingsManager>() == this)
+        {
+            ServiceLocator.Unregister<DisplaySettingsManager>();
+        }
     }
 
     private void BuildResolutionList()

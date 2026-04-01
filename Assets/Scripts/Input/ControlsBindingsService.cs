@@ -15,8 +15,6 @@ public sealed class ControlsBindingsService : MonoBehaviour
 {
     private const string PlayerPrefsKey = "ControlsBindings_v1";
 
-    public static ControlsBindingsService Instance { get; private set; }
-
     /// <summary>
     /// Fired whenever bindings are changed (rebind/reset/load).
     /// </summary>
@@ -27,7 +25,7 @@ public sealed class ControlsBindingsService : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
     {
-        if (Instance != null) return;
+        if (ServiceLocator.Get<ControlsBindingsService>() != null) return;
 
         var go = new GameObject(nameof(ControlsBindingsService));
         DontDestroyOnLoad(go);
@@ -36,22 +34,32 @@ public sealed class ControlsBindingsService : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        var existing = ServiceLocator.Get<ControlsBindingsService>();
+        if (existing != null && existing != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        Instance = this;
+        ServiceLocator.Register<ControlsBindingsService>(this);
         LoadOrDefaults();
+    }
+
+    private void OnDestroy()
+    {
+        if (ServiceLocator.Get<ControlsBindingsService>() == this)
+        {
+            ServiceLocator.Unregister<ControlsBindingsService>();
+        }
     }
 
     public static ControlsBinding GetBinding(ControlAction action)
     {
-        if (Instance == null)
+        var svc = ServiceLocator.Get<ControlsBindingsService>();
+        if (svc == null)
             return GetDefaultBinding(action);
 
-        if (Instance._bindings.TryGetValue(action, out var b))
+        if (svc._bindings.TryGetValue(action, out var b))
             return b;
 
         return GetDefaultBinding(action);
@@ -59,18 +67,20 @@ public sealed class ControlsBindingsService : MonoBehaviour
 
     public static void SetBinding(ControlAction action, ControlsBinding binding)
     {
-        if (Instance == null) return;
+        var svc = ServiceLocator.Get<ControlsBindingsService>();
+        if (svc == null) return;
 
-        Instance._bindings[action] = binding;
-        Instance.Save();
+        svc._bindings[action] = binding;
+        svc.Save();
         BindingsChanged?.Invoke();
     }
 
     public static void ResetToDefaults()
     {
-        if (Instance == null) return;
-        Instance.SetDefaults();
-        Instance.Save();
+        var svc = ServiceLocator.Get<ControlsBindingsService>();
+        if (svc == null) return;
+        svc.SetDefaults();
+        svc.Save();
         BindingsChanged?.Invoke();
     }
 

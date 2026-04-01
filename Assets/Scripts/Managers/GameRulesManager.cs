@@ -198,7 +198,7 @@ public class GameRulesManager : MonoBehaviour
         SetShopOpen(false);
         SetRoundFailedOpen(false);
 
-        if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMuffled(false);
+        ServiceLocator.Get<AudioManager>()?.SetMusicMuffled(false);
 
         ballsRemaining = BallLoadoutCount;
 
@@ -301,7 +301,7 @@ public class GameRulesManager : MonoBehaviour
                 scoreManager.SetGoal(CurrentGoal);
 
                 _shopBallSaveAvailable = true;
-                if (AudioManager.Instance != null) AudioManager.Instance.PlayLevelUp();
+                ServiceLocator.Get<AudioManager>()?.PlayLevelUp();
 
                 safety++;
                 if (safety > 100) break;
@@ -473,7 +473,7 @@ public class GameRulesManager : MonoBehaviour
         if (amount <= 0) return true;
         if (coins < amount)
         {
-            if (AudioManager.Instance != null) AudioManager.Instance.PlayFailedPurchase();
+            ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             return false;
         }
 
@@ -604,7 +604,7 @@ public class GameRulesManager : MonoBehaviour
         if (ballSpawner != null) ballSpawner.ClearActiveBalls();
         ShopOpened?.Invoke();
 
-        if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMuffled(true);
+        ServiceLocator.Get<AudioManager>()?.SetMusicMuffled(true);
 
         if (shopTransitionController != null)
             shopTransitionController.OpenShop();

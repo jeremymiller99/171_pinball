@@ -36,24 +36,21 @@ public class VolumeSettingsUI : MonoBehaviour
 
     private void ApplyMasterVolume(float value)
     {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.SetMasterVolume(value);
+        ServiceLocator.Get<AudioManager>()?.SetMasterVolume(value);
         PlayerPrefs.SetFloat("MasterVolume", value);
         PlayerPrefs.Save();
     }
 
     private void ApplyMusicVolume(float value)
     {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.SetMusicVolume(value);
+        ServiceLocator.Get<AudioManager>()?.SetMusicVolume(value);
         PlayerPrefs.SetFloat("MusicVolume", value);
         PlayerPrefs.Save();
     }
 
     private void ApplySFXVolume(float value)
     {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.SetSFXVolume(value);
+        ServiceLocator.Get<AudioManager>()?.SetSFXVolume(value);
         PlayerPrefs.SetFloat("SFXVolume", value);
         PlayerPrefs.Save();
     }

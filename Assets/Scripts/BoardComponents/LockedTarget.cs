@@ -68,11 +68,7 @@ public class LockedTarget : MonoBehaviour
         }
         if (camShake == null)
         {
-            camShake = CameraShake.Instance;
-            if (camShake == null)
-            {
-                camShake = ServiceLocator.Get<CameraShake>();
-            }
+            camShake = ServiceLocator.Get<CameraShake>();
         }
     }
 

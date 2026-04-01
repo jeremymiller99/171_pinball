@@ -8,8 +8,6 @@ using System.Collections;
 
 public class AudioManager : MonoBehaviour
 {
-    public static AudioManager Instance { get; private set; }
-
     [Header("Music Settings")]
     [SerializeField] private EventReference mainMusicEvent;
 
@@ -80,14 +78,13 @@ public class AudioManager : MonoBehaviour
 
     private void Awake()
     {
-        // Singleton pattern
-        if (Instance != null && Instance != this)
+        var existing = ServiceLocator.Get<AudioManager>();
+        if (existing != null && existing != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        Instance = this;
         ServiceLocator.Register<AudioManager>(this);
         InitializeBuses();
         ApplySavedVolumes();
@@ -173,10 +170,7 @@ public class AudioManager : MonoBehaviour
         selectEntry.eventID = EventTriggerType.Select;
         selectEntry.callback.AddListener((data) =>
         {
-            if (HapticManager.Instance != null)
-            {
-                HapticManager.Instance.PlayUINavigationHaptic();
-            }
+            ServiceLocator.Get<HapticManager>()?.PlayUINavigationHaptic();
         });
         trigger.triggers.Add(selectEntry);
     }
@@ -451,8 +445,10 @@ public class AudioManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (Instance == this)
+        if (ServiceLocator.Get<AudioManager>() == this)
         {
+            ServiceLocator.Unregister<AudioManager>();
+
             if (musicInstance.isValid())
             {
                 musicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
@@ -462,7 +458,6 @@ public class AudioManager : MonoBehaviour
             StopRollingSound();
             StopAlienShipRumble();
 
-            // Clear burn state and stop sound if the manager gets destroyed
             activeBurnCount = 0; 
             StopBurningSound(); 
         }

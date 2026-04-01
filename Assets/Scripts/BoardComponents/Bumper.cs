@@ -28,12 +28,6 @@ public class Bumper : MonoBehaviour
             return;
         }
 
-        camShake = CameraShake.Instance;
-        if (camShake != null && camShake.isActiveAndEnabled)
-        {
-            return;
-        }
-
         camShake = ServiceLocator.Get<CameraShake>();
     }
 
@@ -44,7 +38,7 @@ public class Bumper : MonoBehaviour
             Rigidbody rb = collision.rigidbody;
             Vector3 bumperCenter = bumperCollider != null ? bumperCollider.bounds.center : transform.position;
 
-            AudioManager.Instance.PlayBumperHit(bumperCenter);
+            ServiceLocator.Get<AudioManager>()?.PlayBumperHit(bumperCenter);
 
             Vector3 forceDir = (collision.transform.position - bumperCenter).normalized;
             rb.AddForce(forceDir * baseBounceForce, ForceMode.Impulse);

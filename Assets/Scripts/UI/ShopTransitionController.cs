@@ -221,7 +221,7 @@ public sealed class ShopTransitionController : MonoBehaviour
             return;
         }
 
-        AudioManager.Instance.PlayTransition();
+        ServiceLocator.Get<AudioManager>()?.PlayTransition();
 
         Debug.Log("[ShopTransition] Starting close transition");
         CloseTransitionStarted?.Invoke();
@@ -286,7 +286,7 @@ public sealed class ShopTransitionController : MonoBehaviour
 
         yield return null;
 
-        AudioManager.Instance.PlayTransition();
+        ServiceLocator.Get<AudioManager>()?.PlayTransition();
         Debug.Log($"[ShopTransition] Camera pan: {_cameraHomeLocalPos} -> {_cameraShopLocalPos}, FOV: {_cameraHomeFOV} -> {_cameraShopFOV} over {panDuration}s");
         yield return AnimateCamera(
             fromCam: _cameraHomeLocalPos,
@@ -309,7 +309,7 @@ public sealed class ShopTransitionController : MonoBehaviour
         _isTransitioning = true;
         Debug.Log("[ShopTransition] CloseRoutine started");
 
-        if (AudioManager.Instance != null) AudioManager.Instance.SetMusicMuffled(false);
+        ServiceLocator.Get<AudioManager>()?.SetMusicMuffled(false);
 
         if (shopCanvasRoot != null)
             shopCanvasRoot.SetActive(false);

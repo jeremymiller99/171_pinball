@@ -135,14 +135,12 @@ public class ScoreJuiceFeedback : MonoBehaviour
     {
         if (pointsChanged)
         {
-            if (AudioManager.Instance != null)
-                AudioManager.Instance.PlayPointsAdd(compTriggered);
+            ServiceLocator.Get<AudioManager>()?.PlayPointsAdd(compTriggered);
         }
 
         if (multChanged)
         {
-            if (AudioManager.Instance != null)
-                AudioManager.Instance.PlayMultAdd(compTriggered);
+            ServiceLocator.Get<AudioManager>()?.PlayMultAdd(compTriggered);
         }
 
         if (pointsChanged || multChanged)
@@ -157,10 +155,6 @@ public class ScoreJuiceFeedback : MonoBehaviour
 
     private void ResolveCameraShake()
     {
-        if (cameraShake != null && cameraShake.isActiveAndEnabled)
-            return;
-
-        cameraShake = CameraShake.Instance;
         if (cameraShake != null && cameraShake.isActiveAndEnabled)
             return;
 

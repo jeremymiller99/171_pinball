@@ -143,7 +143,7 @@ public sealed class GoalCinematicController : MonoBehaviour
         }
 
         // If Frenzy has begun (and we're not in the hold window), this cinematic should be off.
-        if (FrenzyController.IsFrenzyActive)
+        if ((ServiceLocator.Get<FrenzyController>()?.IsFrenzy ?? false))
         {
             SmoothToward(1f);
             return;

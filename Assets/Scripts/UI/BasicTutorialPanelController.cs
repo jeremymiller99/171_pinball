@@ -340,7 +340,7 @@ public sealed class BasicTutorialPanelController : MonoBehaviour
             return;
         }
 
-        AudioManager.Instance.PlayTutorialNext();
+        ServiceLocator.Get<AudioManager>()?.PlayTutorialNext();
         
         if (currentPanelIndex < 0)
         {

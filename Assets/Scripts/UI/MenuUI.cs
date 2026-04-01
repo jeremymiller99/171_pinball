@@ -650,10 +650,7 @@ public class MainMenuUI : MonoBehaviour
         buttonColors.selectedColor = Color.gray;
         btn.colors = buttonColors;
 
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.WireButtonAudio(btn);
-        }
+        ServiceLocator.Get<AudioManager>()?.WireButtonAudio(btn);
         return btn;
     }
 
@@ -902,11 +899,10 @@ public class MainMenuUI : MonoBehaviour
             btn.onClick.AddListener(onClick);
         }
 
-        if (btn != null
-            && AudioManager.Instance != null)
+        if (btn != null)
         {
-            AudioManager.Instance
-                .WireButtonAudio(btn);
+            ServiceLocator.Get<AudioManager>()
+                ?.WireButtonAudio(btn);
         }
 
         return cardGo;
@@ -960,11 +956,8 @@ public class MainMenuUI : MonoBehaviour
             btn.onClick.AddListener(onClick);
         }
 
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance
-                .WireButtonAudio(btn);
-        }
+        ServiceLocator.Get<AudioManager>()
+            ?.WireButtonAudio(btn);
 
         float iconAreaWidth = cardHeight - 16f;
 

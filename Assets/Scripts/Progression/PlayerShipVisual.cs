@@ -1,3 +1,4 @@
+// Updated 2026-03-31: hover uses small position drift only; no yaw spin (Cursor, user: jjmil).
 using UnityEngine;
 
 /// <summary>
@@ -9,7 +10,7 @@ public class PlayerShipVisual : MonoBehaviour
 {
     [SerializeField] private float hoverFrequency = 1.5f;
     [SerializeField] private float hoverAmplitude = 0.5f;
-    [SerializeField] private float rotationSpeed = 10f;
+    [SerializeField] private float driftAmplitude = 0.12f;
 
     public PlayerShipDefinition ShipDef { get; private set; }
 
@@ -27,9 +28,11 @@ public class PlayerShipVisual : MonoBehaviour
 
     private void Update()
     {
-        float newY = _startLocalPos.y + Mathf.Sin((Time.time + _timeOffset) * hoverFrequency) * hoverAmplitude;
-        transform.localPosition = new Vector3(_startLocalPos.x, newY, _startLocalPos.z);
-        transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime, Space.World);
+        float t = (Time.time + _timeOffset) * hoverFrequency;
+        float bobY = Mathf.Sin(t) * hoverAmplitude;
+        float driftX = Mathf.Sin(t * 0.73f + 1.1f) * driftAmplitude;
+        float driftZ = Mathf.Cos(t * 0.61f + 2.4f) * driftAmplitude;
+        transform.localPosition = _startLocalPos + new Vector3(driftX, bobY, driftZ);
     }
 
     private void EnsureCollider()

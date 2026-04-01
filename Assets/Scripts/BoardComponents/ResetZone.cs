@@ -14,7 +14,7 @@ public class ResetZone : MonoBehaviour
     {
         if (other.CompareTag("Ball"))
         {
-            AudioManager.Instance.PlayBallLost();
+            ServiceLocator.Get<AudioManager>()?.PlayBallLost();
 
             if (rulesManager == null)
                 ResolveRulesManager();

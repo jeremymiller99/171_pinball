@@ -296,12 +296,11 @@ public class RoundModifierController : MonoBehaviour
         _flipperUsesRemaining = (_activeModifier != null && _activeModifier.flipperUseLimit > 0)
             ? _activeModifier.flipperUseLimit : -1;
 
-        if (AudioManager.Instance != null)
         {
             float musicState = 0f;
             if (_currentRoundData.type == RoundType.Angel) musicState = 1f;
             else if (_currentRoundData.type == RoundType.Devil) musicState = -1f;
-            AudioManager.Instance.SetMusicState(musicState);
+            ServiceLocator.Get<AudioManager>()?.SetMusicState(musicState);
         }
 
         _effectiveGoalModifierForRound = 0f;

@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class CameraShake : MonoBehaviour
 {
-    public static CameraShake Instance { get; private set; }
-
     [Header("Shake Feel")]
     [Tooltip("How aggressively the shake decays. Lower = smoother, longer sustain. Higher = snappier punch.")]
     [SerializeField] private float decayExponent = 2f;
@@ -23,22 +21,17 @@ public class CameraShake : MonoBehaviour
     
     void Awake()
     {
-        if (Instance == null)
+        var existing = ServiceLocator.Get<CameraShake>();
+        if (existing == null || existing == this)
         {
-            Instance = this;
             ServiceLocator.Register<CameraShake>(this);
-        }
-        else if (Instance != this)
-        {
-            // Keep the first instance (should live in GameplayCore).
-            // Don't destroy to avoid surprises; just don't register.
         }
         originalPos = transform.localPosition;
     }
 
     private void OnDisable()
     {
-        if (Instance == this)
+        if (ServiceLocator.Get<CameraShake>() == this)
         {
             ServiceLocator.Unregister<CameraShake>();
         }

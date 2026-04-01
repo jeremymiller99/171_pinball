@@ -151,13 +151,13 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (!rulesManager.TrySpendCoins(_selectedOffer.Price))
         {
             SetPrompt($"Not enough coins for {_selectedOffer.DisplayName}.");
-            AudioManager.Instance?.PlayFailedPurchase();
+            ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             if (confirmPanel != null) confirmPanel.Hide();
             RefreshUI();
             return;
         }
 
-        AudioManager.Instance?.PlayPurchase();
+        ServiceLocator.Get<AudioManager>()?.PlayPurchase();
 
         if (confirmPanel != null) confirmPanel.Hide();
 
@@ -269,7 +269,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (rulesManager.Coins < rerollCost)
         {
             SetPrompt($"Not enough coins to reroll (${rerollCost}).");
-            AudioManager.Instance?.PlayFailedPurchase();
+            ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             RefreshUI();
             return;
         }
@@ -277,7 +277,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (!rulesManager.TrySpendCoins(rerollCost)) return;
 
         SetPrompt("Rerolling...");
-        AudioManager.Instance?.PlayReroll();
+        ServiceLocator.Get<AudioManager>()?.PlayReroll();
         RefreshUI();
 
         _shelf.ClearOfferDisplays();
@@ -514,7 +514,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (ballSpawner != null) ballSpawner.SwapHandBallsAnimated(fromSlot, toSlot);
         
-        AudioManager.Instance?.PlaySwapSlot();
+        ServiceLocator.Get<AudioManager>()?.PlaySwapSlot();
         SetPrompt("Balls swapped.");
     }
 
@@ -556,7 +556,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (ballSpawner != null) ballSpawner.SwapHandBallsAnimated(slotA, slotB);
 
-        AudioManager.Instance?.PlaySwapSlot();
+        ServiceLocator.Get<AudioManager>()?.PlaySwapSlot();
         SetPrompt("Balls swapped.");
     }
 
@@ -626,12 +626,12 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (!rulesManager.TrySpendCoins(offer.Price))
         {
             SetPrompt($"Not enough coins for {offer.DisplayName}.");
-            AudioManager.Instance?.PlayFailedPurchase();
+            ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             RefreshUI();
             return;
         }
 
-        AudioManager.Instance?.PlayPurchase();
+        ServiceLocator.Get<AudioManager>()?.PlayPurchase();
 
         int addSlot = GetFirstEmptySlotIndex();
         bool added = rulesManager.AddBallToLoadout(offer.BallDef);
@@ -761,13 +761,13 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (!rulesManager.TrySpendCoins(offer.Price))
         {
             SetPrompt($"Not enough coins for {offer.DisplayName}.");
-            AudioManager.Instance?.PlayFailedPurchase();
+            ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             if (confirmPanel != null) confirmPanel.Hide();
             RefreshUI();
             return;
         }
 
-        AudioManager.Instance?.PlayPurchase();
+        ServiceLocator.Get<AudioManager>()?.PlayPurchase();
         if (confirmPanel != null) confirmPanel.Hide();
 
         _selectedOffer = offer;
@@ -811,13 +811,13 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (!rulesManager.TrySpendCoins(offer.Price))
         {
             SetPrompt($"Not enough coins for {offer.DisplayName}.");
-            AudioManager.Instance?.PlayFailedPurchase();
+            ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             if (confirmPanel != null) confirmPanel.Hide();
             RefreshUI();
             return;
         }
 
-        AudioManager.Instance?.PlayPurchase();
+        ServiceLocator.Get<AudioManager>()?.PlayPurchase();
         if (confirmPanel != null) confirmPanel.Hide();
 
         _selectedOffer = offer;

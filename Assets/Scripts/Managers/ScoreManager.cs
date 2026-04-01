@@ -479,7 +479,7 @@ public class ScoreManager : MonoBehaviour
 
     public void PlayStaggeredCoinSounds(int amount)
     {
-        AudioManager.Instance?.PlayStaggeredCoinSounds(amount);
+        ServiceLocator.Get<AudioManager>()?.PlayStaggeredCoinSounds(amount);
     }
 
     public void ResetAudioPitch()

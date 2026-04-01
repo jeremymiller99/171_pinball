@@ -7,8 +7,6 @@ using UnityEngine.InputSystem;
 
 public class HapticManager : MonoBehaviour
 {
-    public static HapticManager Instance { get; private set; }
-
     [Header("Flipper Vibration")]
     [SerializeField] private float flipperLowFrequency = 0.3f;
     [SerializeField] private float flipperHighFrequency = 0.2f;
@@ -38,14 +36,23 @@ public class HapticManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        var existing = ServiceLocator.Get<HapticManager>();
+        if (existing != null && existing != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        Instance = this;
+        ServiceLocator.Register<HapticManager>(this);
         DontDestroyOnLoad(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        if (ServiceLocator.Get<HapticManager>() == this)
+        {
+            ServiceLocator.Unregister<HapticManager>();
+        }
     }
 
     public void PlayFlipperHaptic()

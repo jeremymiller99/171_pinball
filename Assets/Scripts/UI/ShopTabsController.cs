@@ -101,7 +101,7 @@ public sealed class ShopTabsController : MonoBehaviour
             return;
         }
 
-        AudioManager.Instance.PlayTabSwitch();
+        ServiceLocator.Get<AudioManager>()?.PlayTabSwitch();
 
         CurrentTab = tab;
         ApplyTab(tab, notify);

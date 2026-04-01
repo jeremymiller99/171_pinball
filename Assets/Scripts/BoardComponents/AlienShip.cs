@@ -59,8 +59,8 @@ public class AlienShip : MonoBehaviour
                 canvas.gameObject.SetActive(true);
                 SetText();
                 docked = true;
-                AudioManager.Instance.StopAlienShipRumble();
-                AudioManager.Instance.PlayAlienArrival(currentTagIndex);
+                ServiceLocator.Get<AudioManager>()?.StopAlienShipRumble();
+                ServiceLocator.Get<AudioManager>()?.PlayAlienArrival(currentTagIndex);
             }
         }
 
@@ -118,7 +118,7 @@ public class AlienShip : MonoBehaviour
             {
                 inPlay = false;
                 despawning = false;
-                AudioManager.Instance.StopAlienShipRumble();
+                ServiceLocator.Get<AudioManager>()?.StopAlienShipRumble();
             }
         }
     }
@@ -199,7 +199,7 @@ public class AlienShip : MonoBehaviour
             }
         }
 
-        AudioManager.Instance.StartAlienShipRumble();
+        ServiceLocator.Get<AudioManager>()?.StartAlienShipRumble();
     }
 
     void SetText()
@@ -216,7 +216,7 @@ public class AlienShip : MonoBehaviour
         canvas.gameObject.SetActive(false);
         transform.localRotation *= Quaternion.Euler(0f, 180f, 0f);
         despawning = true;
-        AudioManager.Instance.PlayAlienDeparture();
-        AudioManager.Instance.StartAlienShipRumble();
+        ServiceLocator.Get<AudioManager>()?.PlayAlienDeparture();
+        ServiceLocator.Get<AudioManager>()?.StartAlienShipRumble();
     }
 }

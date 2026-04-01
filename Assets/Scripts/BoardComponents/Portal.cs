@@ -40,12 +40,6 @@ public class Portal : MonoBehaviour
             return;
         }
 
-        camShake = CameraShake.Instance;
-        if (camShake != null && camShake.isActiveAndEnabled)
-        {
-            return;
-        }
-
         camShake = ServiceLocator.Get<CameraShake>();
     }
 
@@ -71,7 +65,7 @@ public class Portal : MonoBehaviour
         Vector3 newWorldPos = portalExit.position + portalExit.forward * spawnDist;
         if (other.transform.position != newWorldPos)
         {
-            AudioManager.Instance.PlayPortal(transform.position);
+            ServiceLocator.Get<AudioManager>()?.PlayPortal(transform.position);
         }
         other.transform.position = newWorldPos;
 

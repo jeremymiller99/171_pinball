@@ -70,21 +70,20 @@ public class WorldSpaceViewportPinner : MonoBehaviour
 
     private void SubscribeToDisplayChanged()
     {
-        if (DisplaySettingsManager.Instance != null)
+        var dsm = ServiceLocator.Get<DisplaySettingsManager>();
+        if (dsm != null)
         {
-            DisplaySettingsManager.Instance.DisplayChanged
-                -= OnDisplayChanged;
-            DisplaySettingsManager.Instance.DisplayChanged
-                += OnDisplayChanged;
+            dsm.DisplayChanged -= OnDisplayChanged;
+            dsm.DisplayChanged += OnDisplayChanged;
         }
     }
 
     private void UnsubscribeFromDisplayChanged()
     {
-        if (DisplaySettingsManager.Instance != null)
+        var dsm = ServiceLocator.Get<DisplaySettingsManager>();
+        if (dsm != null)
         {
-            DisplaySettingsManager.Instance.DisplayChanged
-                -= OnDisplayChanged;
+            dsm.DisplayChanged -= OnDisplayChanged;
         }
     }
 

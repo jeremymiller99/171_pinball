@@ -52,7 +52,7 @@ public class DisplaySettingsUI : MonoBehaviour
     {
         if (resolutionDropdown == null) return;
 
-        DisplaySettingsManager manager = DisplaySettingsManager.Instance;
+        DisplaySettingsManager manager = ServiceLocator.Get<DisplaySettingsManager>();
         if (manager == null || manager.AvailableResolutions == null) return;
 
         Resolution[] resolutions = manager.AvailableResolutions;
@@ -89,7 +89,7 @@ public class DisplaySettingsUI : MonoBehaviour
 
     private void RefreshSelections()
     {
-        DisplaySettingsManager manager = DisplaySettingsManager.Instance;
+        DisplaySettingsManager manager = ServiceLocator.Get<DisplaySettingsManager>();
         if (manager == null) return;
 
         if (resolutionDropdown != null
@@ -111,7 +111,7 @@ public class DisplaySettingsUI : MonoBehaviour
 
     private void OnResolutionChanged(int index)
     {
-        DisplaySettingsManager manager = DisplaySettingsManager.Instance;
+        DisplaySettingsManager manager = ServiceLocator.Get<DisplaySettingsManager>();
         if (manager == null) return;
 
         manager.ApplyResolution(index);
@@ -119,7 +119,7 @@ public class DisplaySettingsUI : MonoBehaviour
 
     private void OnFullscreenChanged(int index)
     {
-        DisplaySettingsManager manager = DisplaySettingsManager.Instance;
+        DisplaySettingsManager manager = ServiceLocator.Get<DisplaySettingsManager>();
         if (manager == null) return;
 
         FullScreenMode mode = IndexToFullscreenMode(index);

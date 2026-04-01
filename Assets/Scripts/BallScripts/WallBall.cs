@@ -24,12 +24,6 @@ public class WallBall : Ball
             return;
         }
 
-        camShake = CameraShake.Instance;
-        if (camShake != null && camShake.isActiveAndEnabled)
-        {
-            return;
-        }
-
         camShake = ServiceLocator.Get<CameraShake>();
     }
 

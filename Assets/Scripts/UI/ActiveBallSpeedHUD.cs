@@ -106,7 +106,7 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
 
     private void Start()
     {
-        AudioManager.Instance.StartRollingSound();
+        ServiceLocator.Get<AudioManager>()?.StartRollingSound();
     }
 
     private void ResolveRefs()
@@ -285,7 +285,7 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         float fill01 = meterMaxUnits > 0.0001f ? Mathf.Clamp01(_meterUnitsSmoothed / meterMaxUnits) : 0f;
         UpdateMeterColor(fill01);
 
-        AudioManager.Instance.UpdateRollingSound(fill01);
+        ServiceLocator.Get<AudioManager>()?.UpdateRollingSound(fill01);
     }
 
     private void UpdateMeterColor(float fill01)
@@ -474,9 +474,6 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.StopRollingSound();
-        }
+        ServiceLocator.Get<AudioManager>()?.StopRollingSound();
     }
 }

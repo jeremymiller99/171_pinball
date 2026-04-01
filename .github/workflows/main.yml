@@ -40,8 +40,8 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
+          buildName: Pinballistic
       - uses: actions/upload-artifact@v4
         with:
           name: Pinballistic-${{ matrix.targetPlatform }}-${{ env.date }}
           path: build/${{ matrix.targetPlatform }}
-          buildName: Pinballistic

@@ -1,3 +1,5 @@
+// Updated with Cursor (Composer) by assistant on 2026-03-31 (run completion via RunCompletionHelper).
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -66,8 +68,6 @@ public sealed class RunFlowController : MonoBehaviour
 
     private void Start()
     {
-        // GameplayCore scene should start the run once it loads.
-        // If this controller exists in other scenes (eg. due to prefab reuse), don't start a run there.
         string activeSceneName = SceneManager.GetActiveScene().name;
         if (!string.IsNullOrWhiteSpace(gameplayCoreSceneName) && activeSceneName != gameplayCoreSceneName)
         {
@@ -106,7 +106,6 @@ public sealed class RunFlowController : MonoBehaviour
 
         if (rulesManager != null)
         {
-            // IMPORTANT: in GameplayCore, set GameRulesManager.autoStartOnPlay = false in the Inspector.
             rulesManager.StartRun();
         }
 
@@ -240,27 +239,6 @@ public sealed class RunFlowController : MonoBehaviour
 
         if (next == null)
         {
-            ProfileService.RecordRunCompleted();
-
-            if (session.ActiveChallenge != null
-                && rulesManager != null)
-            {
-                long runScore = (long)Mathf.Round(
-                    rulesManager.TotalScore);
-
-                ProfileService
-                    .RecordChallengeBestScore(
-                        session.ActiveChallenge
-                            .displayName,
-                        runScore);
-            }
-
-            if (ProgressionService.Instance != null)
-            {
-                ProgressionService.Instance
-                    .CheckAndGrantUnlocks();
-            }
-
             yield return StartCoroutine(
                 CloseShopTransitionAndWait());
 
@@ -282,11 +260,27 @@ public sealed class RunFlowController : MonoBehaviour
             long points =
                 rulesManager != null
                     ? (long)Mathf.Round(
-                        rulesManager.TotalScore)
+                        Mathf.Max(0f, rulesManager.TotalScore))
                     : 0L;
 
-            WinScreenController.Show(
-                levelReached, points);
+            RunCompletionHelper.RecordProgressAndShowWinScreen(
+                levelReached,
+                points,
+                afterRecordBeforeUnlocks: () =>
+                {
+                    if (session.ActiveChallenge != null
+                        && rulesManager != null)
+                    {
+                        long runScore = (long)Mathf.Round(
+                            rulesManager.TotalScore);
+
+                        ProfileService
+                            .RecordChallengeBestScore(
+                                session.ActiveChallenge
+                                    .displayName,
+                                runScore);
+                    }
+                });
 
             yield break;
         }

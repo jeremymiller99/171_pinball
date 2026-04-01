@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6714476454855297192}
   - component: {fileID: 844570569686653648}
-  - component: {fileID: 2939838860135131524}
   - component: {fileID: 9000000000000000005}
   - component: {fileID: 2423504538548351846}
   - component: {fileID: 8180557298239084306}
@@ -60,23 +59,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
---- !u!114 &2939838860135131524
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4773778546837097395}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Bumper
-  bumperCollider: {fileID: 0}
-  camShake: {fileID: 0}
-  bounceForce: 50
-  shakeDuration: 0.22
-  shakeMagnitude: 0.16
 --- !u!114 &9000000000000000005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,7 +99,6 @@ MonoBehaviour:
   typeOfScore: 0
   amountToScore: 5
   componentType: 0
-  components: []
   isConfirmed: 0
   maxPulseScale: 1.25
   pulseAmount: 0.025
@@ -125,6 +106,7 @@ MonoBehaviour:
   directionOfPulse: 1
   ballHits: 0
   scoreManager: {fileID: 0}
+  componentGuid: 9c46ab9e-ccd1-464d-aadf-f551dabfc26f
   enableHitCountPopup: 0
   hitCountFontAsset: {fileID: 0}
   hitCountPopupScale: 0.7
@@ -136,6 +118,8 @@ MonoBehaviour:
   outlineWidth: 6
   confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  hoverOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  dragTargetOutlineColor: {r: 0.3, g: 1, b: 0.3, a: 1}
   ballHitsToExplode: 15
   explosionPrefab: {fileID: 1551915222172123564, guid: 0e2644a071948c94897caa314bb364f9, type: 3}
   explosion: {fileID: 0}

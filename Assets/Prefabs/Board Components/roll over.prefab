@@ -98,7 +98,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4659913199631326187}
-  - component: {fileID: 7939030183526197771}
   - component: {fileID: 301000298780245952}
   - component: {fileID: 5256217400875290695}
   - component: {fileID: 5716455994668102501}
@@ -127,23 +126,6 @@ Transform:
   - {fileID: 2890626781999218412}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: -62.554, z: 0}
---- !u!114 &7939030183526197771
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4498696428827839776}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Bumper
-  bumperCollider: {fileID: 655750111095932085}
-  camShake: {fileID: 0}
-  bounceForce: 50
-  shakeDuration: 0.22
-  shakeMagnitude: 0.16
 --- !u!114 &301000298780245952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -184,7 +166,6 @@ MonoBehaviour:
   typeOfScore: 0
   amountToScore: 2
   componentType: 5
-  components: []
   isConfirmed: 0
   maxPulseScale: 1.25
   pulseAmount: 0.025
@@ -192,12 +173,20 @@ MonoBehaviour:
   directionOfPulse: 1
   ballHits: 0
   scoreManager: {fileID: 0}
+  componentGuid: 070612fa-a8be-4a68-9734-179bb34797ac
+  enableHitCountPopup: 0
+  hitCountFontAsset: {fileID: 0}
+  hitCountPopupScale: 0.7
+  hitCountPopupOffset: {x: 0, y: 40}
+  hitCountPopupColor: {r: 1, g: 1, b: 1, a: 1}
   useSelectionOutline: 1
   selectionOutlineMode: 1
   defaultOutlineColor: {r: 0, g: 0, b: 0, a: 1}
   outlineWidth: 6
   confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  hoverOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  dragTargetOutlineColor: {r: 0.3, g: 1, b: 0.3, a: 1}
 --- !u!54 &5716455994668102501
 Rigidbody:
   m_ObjectHideFlags: 0

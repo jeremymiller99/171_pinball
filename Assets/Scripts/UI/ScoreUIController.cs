@@ -1,3 +1,5 @@
+// Updated with Cursor (Composer) by assistant on 2026-03-31 (Phase 8: serialized TMP refs,
+// BoardLoader-scoped resolve + single FindObjectsByType fallback; removed Find/Resources scans).
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -56,8 +58,6 @@ public class ScoreUIController : MonoBehaviour
     private Color _roundIndexBaseColor;
     private Coroutine _roundIndexPopRoutine;
 
-    private const string ScorePanelRootName = "Score Panel";
-    private const string RoundInfoPanelRootName = "Round Info Panel";
     private const string PointsObjectName = "Points";
     private const string MultObjectName = "Mult";
     private const string RoundIndexObjectName = "Round Index";
@@ -108,7 +108,6 @@ public class ScoreUIController : MonoBehaviour
 
     private void Start()
     {
-        EnsureCoreScoreTextBindings();
         RefreshAllText();
     }
 
@@ -147,8 +146,6 @@ public class ScoreUIController : MonoBehaviour
 
     public void UpdateScoreText()
     {
-        EnsureCoreScoreTextBindings();
-
         bool pointsActuallyChanged = false;
         bool multActuallyChanged = false;
 
@@ -189,8 +186,6 @@ public class ScoreUIController : MonoBehaviour
 
     public void RefreshAllText()
     {
-        EnsureCoreScoreTextBindings();
-
         if (ServiceLocator.TryGet<ScoreManager>(out var sm))
         {
             pointsUiDisplayed = sm.points;
@@ -210,7 +205,6 @@ public class ScoreUIController : MonoBehaviour
 
     public void SetRoundIndex(int roundIndex)
     {
-        EnsureCoreScoreTextBindings();
         if (roundIndexText == null) return;
 
         int prev = _roundIndexUiLast;
@@ -228,14 +222,12 @@ public class ScoreUIController : MonoBehaviour
 
     public void SetBallsRemaining(int ballsRemaining)
     {
-        EnsureCoreScoreTextBindings();
         if (ballsRemainingText != null)
             ballsRemainingText.text = ballsRemaining.ToString();
     }
 
     public void SetCoins(int coins)
     {
-        EnsureCoreScoreTextBindings();
         if (coinsText != null)
             coinsText.text = $"${coins}";
         coinsUiDisplayed = coins;
@@ -243,7 +235,6 @@ public class ScoreUIController : MonoBehaviour
 
     public void ApplyDeferredCoinsUi(int applied)
     {
-        EnsureCoreScoreTextBindings();
         coinsUiDisplayed += applied;
         if (coinsText != null)
             coinsText.text = $"${coinsUiDisplayed}";
@@ -334,63 +325,69 @@ public class ScoreUIController : MonoBehaviour
 
     public void EnsureCoreScoreTextBindings()
     {
-        bool scorePanelBound = IsLiveSceneText(pointsText) && IsLiveSceneText(multText);
-        bool roundInfoBound = IsLiveSceneText(roundIndexText) && IsLiveSceneText(roundTotalText) 
-                              && IsLiveSceneText(goalText) && IsLiveSceneText(ballsRemainingText) 
-                              && IsLiveSceneText(coinsText);
-
-        if (scorePanelBound && roundInfoBound)
+        if (AllScoreTextBindingsLive())
             return;
 
-        if (!scorePanelBound)
+        if (TryResolveBindingsFromBoardLoaderScene())
         {
-            GameObject scorePanel = GameObject.Find(ScorePanelRootName);
-            if (scorePanel != null)
-            {
-                if (!IsLiveSceneText(pointsText))
-                    pointsText = FindTmpTextInChildrenByName(scorePanel.transform, PointsObjectName);
-                if (!IsLiveSceneText(multText))
-                    multText = FindTmpTextInChildrenByName(scorePanel.transform, MultObjectName);
-            }
+            if (AllScoreTextBindingsLive())
+                return;
         }
 
-        if (!roundInfoBound)
+        TMP_Text[] loadedTexts = FindObjectsByType<TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        ApplyBindingsByDisplayObjectName(loadedTexts);
+    }
+
+    private bool AllScoreTextBindingsLive()
+    {
+        return IsLiveSceneText(pointsText) && IsLiveSceneText(multText)
+            && IsLiveSceneText(roundIndexText) && IsLiveSceneText(roundTotalText)
+            && IsLiveSceneText(goalText) && IsLiveSceneText(ballsRemainingText)
+            && IsLiveSceneText(coinsText);
+    }
+
+    private bool TryResolveBindingsFromBoardLoaderScene()
+    {
+        if (!ServiceLocator.TryGet<BoardLoader>(out BoardLoader loader) || loader == null)
+            return false;
+
+        string sceneName = loader.CurrentBoardSceneName;
+        if (string.IsNullOrWhiteSpace(sceneName))
+            return false;
+
+        Scene scene = SceneManager.GetSceneByName(sceneName);
+        if (!scene.IsValid() || !scene.isLoaded)
+            return false;
+
+        GameObject[] roots = scene.GetRootGameObjects();
+        var buffer = new List<TMP_Text>(64);
+        for (int i = 0; i < roots.Length; i++)
         {
-            GameObject roundInfoPanel = GameObject.Find(RoundInfoPanelRootName);
-            if (roundInfoPanel != null)
-            {
-                if (!IsLiveSceneText(roundIndexText))
-                    roundIndexText = FindTmpTextInChildrenByName(roundInfoPanel.transform, RoundIndexObjectName);
-                if (!IsLiveSceneText(roundTotalText))
-                {
-                    roundTotalText = FindTmpTextInChildrenByName(roundInfoPanel.transform, RoundTotalObjectName);
-                    if (!IsLiveSceneText(roundTotalText))
-                        roundTotalText = FindTmpTextInChildrenByName(roundInfoPanel.transform, RoundScoreObjectName);
-                }
-                if (!IsLiveSceneText(goalText))
-                    goalText = FindTmpTextInChildrenByName(roundInfoPanel.transform, GoalObjectName);
-                if (!IsLiveSceneText(ballsRemainingText))
-                    ballsRemainingText = FindTmpTextInChildrenByName(roundInfoPanel.transform, BallsRemainingObjectName);
-                if (!IsLiveSceneText(coinsText))
-                    coinsText = FindTmpTextInChildrenByName(roundInfoPanel.transform, CoinsObjectName);
-            }
+            GameObject go = roots[i];
+            if (go == null)
+                continue;
+
+            buffer.AddRange(go.GetComponentsInChildren<TMP_Text>(true));
         }
 
-        scorePanelBound = IsLiveSceneText(pointsText) && IsLiveSceneText(multText);
-        roundInfoBound = IsLiveSceneText(roundIndexText) && IsLiveSceneText(roundTotalText) 
-                         && IsLiveSceneText(goalText) && IsLiveSceneText(ballsRemainingText) 
-                         && IsLiveSceneText(coinsText);
+        ApplyBindingsByDisplayObjectName(buffer);
+        return true;
+    }
 
-        if (scorePanelBound && roundInfoBound)
+    private void ApplyBindingsByDisplayObjectName(IReadOnlyList<TMP_Text> texts)
+    {
+        if (texts == null)
             return;
 
-        TMP_Text[] allTexts = Resources.FindObjectsOfTypeAll<TMP_Text>();
-        for (int i = 0; i < allTexts.Length; i++)
+        for (int i = 0; i < texts.Count; i++)
         {
-            TMP_Text t = allTexts[i];
-            if (t == null) continue;
-            if (!t.gameObject.scene.IsValid()) continue;
-            if (!t.gameObject.activeInHierarchy) continue;
+            TMP_Text t = texts[i];
+            if (t == null)
+                continue;
+            if (!t.gameObject.scene.IsValid())
+                continue;
+            if (!t.gameObject.activeInHierarchy)
+                continue;
 
             string n = t.gameObject.name;
 
@@ -401,8 +398,8 @@ public class ScoreUIController : MonoBehaviour
             else if (!IsLiveSceneText(roundIndexText) && string.Equals(n, RoundIndexObjectName, StringComparison.OrdinalIgnoreCase))
                 roundIndexText = t;
             else if (!IsLiveSceneText(roundTotalText) && (
-                     string.Equals(n, RoundTotalObjectName, StringComparison.OrdinalIgnoreCase) ||
-                     string.Equals(n, RoundScoreObjectName, StringComparison.OrdinalIgnoreCase)))
+                         string.Equals(n, RoundTotalObjectName, StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(n, RoundScoreObjectName, StringComparison.OrdinalIgnoreCase)))
                 roundTotalText = t;
             else if (!IsLiveSceneText(goalText) && string.Equals(n, GoalObjectName, StringComparison.OrdinalIgnoreCase))
                 goalText = t;
@@ -411,22 +408,6 @@ public class ScoreUIController : MonoBehaviour
             else if (!IsLiveSceneText(coinsText) && string.Equals(n, CoinsObjectName, StringComparison.OrdinalIgnoreCase))
                 coinsText = t;
         }
-    }
-
-    private static TMP_Text FindTmpTextInChildrenByName(Transform root, string childName)
-    {
-        if (root == null) return null;
-
-        TMP_Text[] texts = root.GetComponentsInChildren<TMP_Text>(includeInactive: true);
-        for (int i = 0; i < texts.Length; i++)
-        {
-            TMP_Text t = texts[i];
-            if (t == null) continue;
-            if (!t.gameObject.activeInHierarchy) continue;
-            if (string.Equals(t.gameObject.name, childName, StringComparison.OrdinalIgnoreCase))
-                return t;
-        }
-        return null;
     }
 
     private static bool IsLiveSceneText(TMP_Text t)

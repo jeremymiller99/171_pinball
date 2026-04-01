@@ -1,4 +1,4 @@
-// Updated with Cursor (Composer) by assistant on 2026-03-31 (Phase 5: removed loadout/modifier facades; RunActive for UI).
+// Updated with Cursor (Composer) by assistant on 2026-03-31 (ResolveServices in StartRun/StartRound for additive board scenes).
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -252,7 +252,6 @@ public class GameRulesManager : MonoBehaviour
 
         try
         {
-            ResolveServices();
             if (scoreManager == null) return;
 
             int safety = 0;
@@ -315,8 +314,6 @@ public class GameRulesManager : MonoBehaviour
             _drainProcessing = false;
             yield break;
         }
-
-        ResolveServices();
 
         int slotHint = -1;
         if (ball != null)
@@ -393,8 +390,8 @@ public class GameRulesManager : MonoBehaviour
         var session = GameSession.Instance;
         if (session != null && session.ActiveChallenge != null) return false;
 
-        ResolveServices();
-        BoardRoot root = boardLoader != null ? boardLoader.CurrentBoardRoot : null;
+        if (boardLoader == null) return false;
+        BoardRoot root = boardLoader.CurrentBoardRoot;
         if (root == null || !root.IsCleared(this) || session == null) return false;
 
         return session.GetNextBoard() == null;
@@ -405,22 +402,23 @@ public class GameRulesManager : MonoBehaviour
         int levelReached = Mathf.Max(1, LevelIndex + 1);
         long points = (long)Math.Round(Math.Max(0f, TotalScore));
 
-        ProfileService.RecordRunCompleted();
-        if (ProgressionService.Instance != null) ProgressionService.Instance.CheckAndGrantUnlocks();
+        RunCompletionHelper.RecordProgressAndShowWinScreen(
+            levelReached,
+            points,
+            beforeShowWin: () =>
+            {
+                runActive = false;
+                shopOpen = false;
+                _shopBallSaveAvailable = false;
+                _drainProcessing = false;
+                _levelUpProcessing = false;
 
-        runActive = false;
-        shopOpen = false;
-        _shopBallSaveAvailable = false;
-        _drainProcessing = false;
-        _levelUpProcessing = false;
+                SetShopOpen(false);
+                SetRoundFailedOpen(false);
+                if (ballSpawner != null) ballSpawner.ClearAll();
 
-        SetShopOpen(false);
-        SetRoundFailedOpen(false);
-        if (ballSpawner != null) ballSpawner.ClearAll();
-
-        if (scoreManager != null) scoreManager.SetScoringLocked(true);
-
-        WinScreenController.Show(levelReached, points);
+                if (scoreManager != null) scoreManager.SetScoringLocked(true);
+            });
     }
 
     public void OnShopClosed()
@@ -512,7 +510,6 @@ public class GameRulesManager : MonoBehaviour
 
     private float BankCurrentBallIntoRoundTotal(float bankMultiplier = 1f)
     {
-        ResolveServices();
         if (scoreManager == null) return 0f;
 
         float banked = scoreManager.BankCurrentBallScore(bankMultiplier);
@@ -589,8 +586,8 @@ public class GameRulesManager : MonoBehaviour
 
     private GameObject SpawnBall()
     {
-        ResolveServices();
-        return ballSpawner?.ActivateNextBall();
+        if (ballSpawner == null) return null;
+        return ballSpawner.ActivateNextBall();
     }
 
     private void DespawnBall(GameObject ball)

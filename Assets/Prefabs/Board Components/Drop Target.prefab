@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3011217166359584626}
   - component: {fileID: 4169343221086110958}
-  - component: {fileID: 2508674496986666716}
   - component: {fileID: 5209088111457011690}
   - component: {fileID: 9000000000000000005}
   - component: {fileID: 520263348088857629}
@@ -60,23 +59,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2508674496986666716
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3392549938974561248}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Bumper
-  bumperCollider: {fileID: 0}
-  camShake: {fileID: 0}
-  bounceForce: 25
-  shakeDuration: 0.22
-  shakeMagnitude: 0.16
 --- !u!114 &5209088111457011690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,11 +99,11 @@ MonoBehaviour:
   minTriggerIntervalSeconds: 0.04
   hitSound:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 52175844
+      Data2: 1280125249
+      Data3: -157741152
+      Data4: 1337080504
+    Path: event:/collide_mult
 --- !u!114 &520263348088857629
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137,7 +119,6 @@ MonoBehaviour:
   typeOfScore: 1
   amountToScore: 0.1
   componentType: 2
-  components: []
   isConfirmed: 0
   maxPulseScale: 0
   pulseAmount: 0
@@ -145,12 +126,20 @@ MonoBehaviour:
   directionOfPulse: 1
   ballHits: 0
   scoreManager: {fileID: 0}
+  componentGuid: a3ab307c-3a30-4f4e-8ac2-2f987e208700
+  enableHitCountPopup: 0
+  hitCountFontAsset: {fileID: 0}
+  hitCountPopupScale: 0.7
+  hitCountPopupOffset: {x: 0, y: 40}
+  hitCountPopupColor: {r: 1, g: 1, b: 1, a: 1}
   useSelectionOutline: 1
   selectionOutlineMode: 1
   defaultOutlineColor: {r: 0, g: 0, b: 0, a: 1}
   outlineWidth: 6
   confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  hoverOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  dragTargetOutlineColor: {r: 0.3, g: 1, b: 0.3, a: 1}
 --- !u!54 &-8025225607555112495
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -1,13 +1,15 @@
-// Generated with Cursor AI, 2025-03-15.
+// Updated with Cursor (Composer) by assistant on 2026-03-31.
+// Phase 9: Bumper extends BoardComponent; camera shake via ServiceLocator;
+// base OnCollisionEnter first for hit count / popups; score via typeOfScore / amountToScore.
 // Change: add optional bumperCollider for bumpers whose collider is on a child (e.g. visual).
 using UnityEngine;
 
-public class Bumper : MonoBehaviour
+public class Bumper : BoardComponent
 {
-    [Tooltip("Assign when the collider is on a child (e.g. visual). Leave empty if collider is on this GameObject.")]
+    [Tooltip("Assign when the collider is on a child (e.g. visual). " +
+        "Leave empty if collider is on this GameObject.")]
     [SerializeField] public Collider bumperCollider;
 
-    [SerializeField] private CameraShake camShake;
     [SerializeField] private float bounceForce = 10f;
     private float baseBounceForce;
 
@@ -15,41 +17,42 @@ public class Bumper : MonoBehaviour
     [SerializeField] private float shakeDuration = 0.22f;
     [SerializeField] private float shakeMagnitude = 0.16f;
 
-    private void Awake()
+    protected override void Awake()
     {
-        ResolveCameraShake();
+        base.Awake();
         baseBounceForce = bounceForce;
     }
 
-    private void ResolveCameraShake()
+    protected override void OnCollisionEnter(Collision collision)
     {
-        if (camShake != null && camShake.isActiveAndEnabled)
+        base.OnCollisionEnter(collision);
+
+        if (collision.collider.GetComponent<Ball>() == null)
         {
             return;
         }
 
-        camShake = ServiceLocator.Get<CameraShake>();
-    }
+        Rigidbody rb = collision.rigidbody;
+        Vector3 bumperCenter = bumperCollider != null
+            ? bumperCollider.bounds.center
+            : transform.position;
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.collider.CompareTag("Ball"))
+        ServiceLocator.Get<AudioManager>()?.PlayBumperHit(bumperCenter);
+
+        Vector3 forceDir = (collision.transform.position - bumperCenter).normalized;
+        rb.AddForce(forceDir * baseBounceForce, ForceMode.Impulse);
+
+        if (amountToScore != 0f)
         {
-            Rigidbody rb = collision.rigidbody;
-            Vector3 bumperCenter = bumperCollider != null ? bumperCollider.bounds.center : transform.position;
-
-            ServiceLocator.Get<AudioManager>()?.PlayBumperHit(bumperCenter);
-
-            Vector3 forceDir = (collision.transform.position - bumperCenter).normalized;
-            rb.AddForce(forceDir * baseBounceForce, ForceMode.Impulse);
-
-            if (camShake == null || !camShake.isActiveAndEnabled)
-            {
-                ResolveCameraShake();
-            }
-            camShake?.Shake(shakeDuration, shakeMagnitude);
+            AddScore();
         }
-    }   
+
+        CameraShake camShake = ServiceLocator.Get<CameraShake>();
+        if (camShake != null && camShake.isActiveAndEnabled)
+        {
+            camShake.Shake(shakeDuration, shakeMagnitude);
+        }
+    }
 
     public void MultiplyBounceForce(float multiplier)
     {

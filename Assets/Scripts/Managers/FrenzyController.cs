@@ -1,5 +1,6 @@
+// Updated with Cursor (Composer) by assistant on 2026-03-31 (Phase 10: Remove FrenzyControllerBootstrapper; controller lives in GameplayCore).
+// Updated with Cursor (Composer) by assistant on 2026-03-31 (Phase 7: ResolveRefs in Awake/Start and on scene load only).
 // Updated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -70,12 +71,16 @@ public sealed class FrenzyController : MonoBehaviour
             return;
         }
         ServiceLocator.Register<FrenzyController>(this);
+        ResolveRefs();
+    }
+
+    private void Start()
+    {
+        ResolveRefs();
     }
 
     private void OnEnable()
     {
-        ResolveRefs();
-
         if (_score != null)
             _score.GoalTierChanged += OnGoalTierChanged;
 
@@ -262,54 +267,5 @@ public sealed class FrenzyController : MonoBehaviour
             var autoDestroy = shard.AddComponent<CubeShardAutoDestroy>();
             autoDestroy.SetLifetime(goalBurstShardLifetime);
         }
-    }
-}
-
-internal sealed class FrenzyControllerBootstrapper : MonoBehaviour
-{
-    private const string GameplayCoreSceneName = "GameplayCore";
-
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-        TryInstallIntoLoadedScenes();
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        TryInstallIntoScene(scene);
-    }
-
-    private static void TryInstallIntoLoadedScenes()
-    {
-        int count = SceneManager.sceneCount;
-        for (int i = 0; i < count; i++)
-        {
-            TryInstallIntoScene(SceneManager.GetSceneAt(i));
-        }
-    }
-
-    private static void TryInstallIntoScene(Scene scene)
-    {
-        if (!scene.IsValid() || !scene.isLoaded) return;
-        if (!string.Equals(scene.name, GameplayCoreSceneName, StringComparison.OrdinalIgnoreCase))
-            return;
-
-        // Already installed in this scene?
-        var existing = UnityEngine.Object.FindObjectsByType<FrenzyController>(FindObjectsSortMode.None);
-        for (int i = 0; i < existing.Length; i++)
-        {
-            if (existing[i] != null && existing[i].gameObject.scene == scene)
-                return;
-        }
-
-        var go = new GameObject(nameof(FrenzyController));
-        SceneManager.MoveGameObjectToScene(go, scene);
-        go.AddComponent<FrenzyController>();
     }
 }

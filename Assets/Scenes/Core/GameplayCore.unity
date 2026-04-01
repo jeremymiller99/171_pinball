@@ -1107,13 +1107,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66df507cb5ebd84419352d8b7173d0bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScoreUIController
-  pointsText: {fileID: 0}
-  multText: {fileID: 0}
-  roundIndexText: {fileID: 0}
-  roundTotalText: {fileID: 0}
-  goalText: {fileID: 0}
-  ballsRemainingText: {fileID: 0}
-  coinsText: {fileID: 0}
+  pointsText: {fileID: 8705988158388699430, guid: 3a780c7782ea3cc4e80ff2866ad202ed, type: 3}
+  multText: {fileID: 2616263591891286247, guid: 3a780c7782ea3cc4e80ff2866ad202ed, type: 3}
+  roundIndexText: {fileID: 3763282900129739601, guid: 3a780c7782ea3cc4e80ff2866ad202ed, type: 3}
+  roundTotalText: {fileID: 8710051187866078793, guid: 3a780c7782ea3cc4e80ff2866ad202ed, type: 3}
+  goalText: {fileID: 6172199373734154544, guid: 3a780c7782ea3cc4e80ff2866ad202ed, type: 3}
+  ballsRemainingText: {fileID: 1048340606537081676, guid: 3a780c7782ea3cc4e80ff2866ad202ed, type: 3}
+  coinsText: {fileID: 9180427574050673060, guid: 3a780c7782ea3cc4e80ff2866ad202ed, type: 3}
   enableRoundIndexPop: 1
   roundIndexPopDuration: 0.22
   roundIndexPopPeakScale: 1.35

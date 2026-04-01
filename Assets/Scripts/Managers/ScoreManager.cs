@@ -1,5 +1,5 @@
 // Updated with Antigravity by jjmil on 2026-03-29.
-// Updated with Cursor (Composer) by assistant on 2026-03-31 (CoinController for coin awards).
+// Updated with Cursor (Composer) by assistant on 2026-03-31 (Phase 7: EnsureRefs in Awake only; CoinController for coin awards).
 // Originally generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
 using UnityEngine;
 using System;
@@ -247,7 +247,6 @@ public class ScoreManager : MonoBehaviour
     {
         if (scoringLocked || applied == 0) return;
 
-        EnsureRefs();
         ServiceLocator.Get<CoinController>()?.AddCoinsUnscaled(applied);
 
         if (floatingTextSpawner != null)

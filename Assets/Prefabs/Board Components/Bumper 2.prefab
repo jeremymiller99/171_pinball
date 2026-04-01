@@ -213,7 +213,6 @@ GameObject:
   - component: {fileID: 8716068548039645234}
   - component: {fileID: 6439723471045195324}
   - component: {fileID: 7121710641525061752}
-  - component: {fileID: 4557565589446098188}
   - component: {fileID: 7374129119119500375}
   - component: {fileID: 8270898341964329840}
   m_Layer: 0
@@ -252,8 +251,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
+  typeOfScore: 0
+  amountToScore: 5
+  componentType: 0
+  isConfirmed: 0
+  maxPulseScale: 1.25
+  pulseAmount: 0.025
+  startingSize: {x: 0, y: 0, z: 0}
+  directionOfPulse: 1
+  ballHits: 0
+  scoreManager: {fileID: 0}
+  componentGuid: cfac8d73-b13b-4ea9-aaac-20750628dd8b
+  enableHitCountPopup: 0
+  hitCountFontAsset: {fileID: 0}
+  hitCountPopupScale: 0.7
+  hitCountPopupOffset: {x: 0, y: 40}
+  hitCountPopupColor: {r: 1, g: 1, b: 1, a: 1}
+  useSelectionOutline: 1
+  selectionOutlineMode: 1
+  defaultOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWidth: 6
+  confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  hoverOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  dragTargetOutlineColor: {r: 0.3, g: 1, b: 0.3, a: 1}
   bumperCollider: {fileID: 0}
-  camShake: {fileID: 0}
   bounceForce: 50
   shakeDuration: 0.22
   shakeMagnitude: 0.16
@@ -277,40 +299,11 @@ MonoBehaviour:
   minTriggerIntervalSeconds: 0.04
   hitSound:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
---- !u!114 &4557565589446098188
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4978443779249624864}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f38538901152edf4a8496ca54bbca874, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::IComponent
-  typeOfScore: 0
-  amountToScore: 5
-  componentType: 8
-  components: []
-  isConfirmed: 0
-  maxPulseScale: 1.25
-  pulseAmount: 0.025
-  startingSize: {x: 0, y: 0, z: 0}
-  directionOfPulse: 1
-  ballHits: 0
-  scoreManager: {fileID: 0}
-  useSelectionOutline: 1
-  selectionOutlineMode: 1
-  defaultOutlineColor: {r: 0, g: 0, b: 0, a: 1}
-  outlineWidth: 6
-  confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
-  selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+      Data1: 1449137371
+      Data2: 1333712520
+      Data3: -1154293597
+      Data4: -2036301457
+    Path: event:/collide_points
 --- !u!54 &7374129119119500375
 Rigidbody:
   m_ObjectHideFlags: 0

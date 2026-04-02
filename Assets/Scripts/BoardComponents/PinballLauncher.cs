@@ -30,6 +30,9 @@ public sealed class PinballLauncher : MonoBehaviour
     [Tooltip("How far (units) the visual pulls back at full charge.")]
     public float visualPullDistance = 0.15f;
 
+    [Tooltip("Optional row of BoardLights; lit count follows charge (see LauncherPowerMeter).")]
+    [SerializeField] private LauncherPowerMeter powerMeter;
+
     private Rigidbody _ballRb;
     private float _charge;
     private Vector3 _visualStartLocalPos;
@@ -114,11 +117,19 @@ public sealed class PinballLauncher : MonoBehaviour
 
     private void UpdateVisual(float t01)
     {
-        if (plungerVisual == null)
-            return;
+        float clamped = Mathf.Clamp01(t01);
 
-        // Pull back opposite of launch direction, in the plunger visual's local space.
-        plungerVisual.localPosition = _visualStartLocalPos + _visualPullLocalDir * (visualPullDistance * Mathf.Clamp01(t01));
+        if (plungerVisual != null)
+        {
+            // Pull back opposite of launch direction, in the plunger visual's local space.
+            plungerVisual.localPosition = _visualStartLocalPos +
+                _visualPullLocalDir * (visualPullDistance * clamped);
+        }
+
+        if (powerMeter != null)
+        {
+            powerMeter.SetNormalizedCharge(clamped);
+        }
     }
 
     // Put this on a GameObject with a Trigger collider in the launch lane.

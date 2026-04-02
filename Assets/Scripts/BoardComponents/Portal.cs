@@ -1,6 +1,10 @@
 // Generated with Cursor AI (GPT-5.2), by OpenAI, 2026-02-17.
 // Change: add configurable portal exit speed boost.
 // Change: fixed spawn position and predictable exit velocity (entry direction/speed ignored).
+// Updated with Cursor (Composer) by assistant, for jjmil, on 2026-04-01 (optional BoardLight toggle
+// on entrance / after exit teleport).
+// Updated with Cursor (Composer) by assistant, for jjmil, on 2026-04-01 (BoardLight flash N times
+// then off).
 using UnityEngine;
 public class Portal : MonoBehaviour
 {
@@ -27,6 +31,22 @@ public class Portal : MonoBehaviour
     [Header("FX")]
     [SerializeField] private float shakeDuration = 0.22f;
     [SerializeField] private float shakeMagnitude = 0.16f;
+
+    [Header("Board lights (optional)")]
+    [Tooltip("Flashes when the ball enters this portal (before teleport). Ends off.")]
+    [SerializeField] private BoardLight entranceBoardLight;
+
+    [Tooltip("Flashes after the ball is placed at portalExit. Ends off.")]
+    [SerializeField] private BoardLight exitBoardLight;
+
+    [Tooltip("How many full off+on cycles each portal flash runs.")]
+    [Min(1)]
+    [SerializeField] private int boardLightFlashCycles = 3;
+
+    [Tooltip("Seconds per full off+on cycle (halves each phase). Uses each BoardLight's unscaled " +
+             "flash setting.")]
+    [Min(0.01f)]
+    [SerializeField] private float boardLightFlashFullCycleSeconds = 0.24f;
 
     private void Awake()
     {
@@ -59,6 +79,13 @@ public class Portal : MonoBehaviour
 
         if (Time.time - traveller.lastTeleportTime < traveller.teleportCooldown)
             return;
+
+        if (entranceBoardLight != null)
+        {
+            entranceBoardLight.FlashLitVersusOffThenOff(
+                boardLightFlashCycles,
+                boardLightFlashFullCycleSeconds);
+        }
 
         // --- POSITION: Fixed spawn at exit center (entry position ignored for predictability) ---
         float spawnDist = exitOffset > 0.001f ? exitOffset : 0.5f;
@@ -103,6 +130,13 @@ public class Portal : MonoBehaviour
             ResolveCameraShake();
         }
         camShake?.Shake(shakeDuration, shakeMagnitude);
+
+        if (exitBoardLight != null)
+        {
+            exitBoardLight.FlashLitVersusOffThenOff(
+                boardLightFlashCycles,
+                boardLightFlashFullCycleSeconds);
+        }
     }
 
     public void MultiplyExitSpeed(float multiplier)

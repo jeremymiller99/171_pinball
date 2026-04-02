@@ -3221,7 +3221,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraRig: {fileID: 987650002}
-  panLocalX: 30
+  panLocalX: 20
   panDuration: 0.8
   panEase:
     serializedVersion: 2
@@ -3247,7 +3247,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  shopFOVOffset: 5
+  shopFOVOffset: 0
   shopCanvasRoot: {fileID: 903621434}
   shopPanelRect: {fileID: 1967764146}
   panelTitle: {fileID: 0}

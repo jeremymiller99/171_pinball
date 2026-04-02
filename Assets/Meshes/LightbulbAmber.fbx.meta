@@ -3,7 +3,22 @@ guid: 8d48d0c665a4f4a469828c534db98612
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Amber_Glass
+    second: {fileID: 2100000, guid: b09b317c41cc76448ad2c9061fed5955, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Amber_Glow
+    second: {fileID: 2100000, guid: c56bffe6c908a454185ceda1ec717026, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Dark Gray
+    second: {fileID: 2100000, guid: b7d508846dfe56840821a4d0d4aa0f90, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

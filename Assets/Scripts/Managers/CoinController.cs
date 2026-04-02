@@ -1,4 +1,6 @@
 // Updated with Cursor (Composer) by assistant on 2026-03-31.
+// Updated with Cursor (Composer) on 2026-04-01: deferred coin adds call SetCoins; fly-complete sync.
+// Updated with Cursor (Composer) on 2026-04-02: truly deferred UI — display only updates on fly-complete.
 using System;
 using UnityEngine;
 
@@ -103,8 +105,20 @@ public sealed class CoinController : MonoBehaviour
         return applied;
     }
 
+    public int AddCoinsUnscaledDeferredUi(int amount)
+    {
+        if (amount <= 0) return 0;
+        coins += amount;
+        RaiseCoinsChanged();
+        return amount;
+    }
+
+    /// <summary>
+    /// Syncs the HUD coins display to the current balance. Call from fly-complete callbacks.
+    /// </summary>
     public void ApplyDeferredCoinsUi(int applied)
     {
-        ServiceLocator.Get<ScoreUIController>()?.ApplyDeferredCoinsUi(applied);
+        ServiceLocator.Get<ScoreUIController>()?.SetCoins(coins);
+        ServiceLocator.Get<AudioManager>()?.PlayStaggeredCoinSounds(applied);
     }
 }

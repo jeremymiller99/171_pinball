@@ -1,5 +1,8 @@
 // Updated with Cursor (Composer) by assistant on 2026-03-31 (Phase 8: serialized TMP refs,
 // BoardLoader-scoped resolve + single FindObjectsByType fallback; removed Find/Resources scans).
+// Updated with Cursor (Composer) on 2026-04-01: coin HUD — inactive TMP binding + CoinsChanged sync.
+// Updated with Cursor (Composer) on 2026-04-02: board-scene bindings override same-name texts from other scenes.
+// Updated with Cursor (Composer) on 2026-04-02: deferred coin HUD — display only updates on fly-complete, not immediately.
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -84,7 +87,6 @@ public class ScoreUIController : MonoBehaviour
         {
             sm.PointsAdded += OnPointsAdded;
             sm.MultAdded += OnMultAdded;
-            sm.CoinsAdded += OnCoinsAdded;
             sm.ScoreChanged += OnScoreChanged;
         }
 
@@ -99,7 +101,6 @@ public class ScoreUIController : MonoBehaviour
         {
             sm.PointsAdded -= OnPointsAdded;
             sm.MultAdded -= OnMultAdded;
-            sm.CoinsAdded -= OnCoinsAdded;
             sm.ScoreChanged -= OnScoreChanged;
         }
 
@@ -125,14 +126,6 @@ public class ScoreUIController : MonoBehaviour
     private void OnMultAdded(float applied, float newTotal)
     {
         multQueue.Enqueue(newTotal);
-    }
-
-    private void OnCoinsAdded(int applied, int total)
-    {
-        if (coinsText != null)
-        {
-            coinsText.text = $"${total}";
-        }
     }
 
     private void OnScoreChanged()
@@ -169,13 +162,6 @@ public class ScoreUIController : MonoBehaviour
                 multUiDisplayed = newMult;
             }
             multText.text = FormatMultiplier(newMult);
-        }
-
-        // Coins sync
-        GameRulesManager gameRules = ServiceLocator.Get<GameRulesManager>();
-        if (coinsText != null && gameRules != null)
-        {
-            coinsText.text = $"${gameRules.Coins}";
         }
 
         if (pointsActuallyChanged || multActuallyChanged)
@@ -233,11 +219,19 @@ public class ScoreUIController : MonoBehaviour
         coinsUiDisplayed = coins;
     }
 
+    /// <summary>
+    /// Legacy hook: balance is already in <see cref="CoinController"/>; sync HUD to source of truth.
+    /// </summary>
     public void ApplyDeferredCoinsUi(int applied)
     {
-        coinsUiDisplayed += applied;
-        if (coinsText != null)
-            coinsText.text = $"${coinsUiDisplayed}";
+        if (ServiceLocator.TryGet<CoinController>(out var cc) && cc != null)
+            SetCoins(cc.Coins);
+        else
+        {
+            coinsUiDisplayed += applied;
+            if (coinsText != null)
+                coinsText.text = $"${coinsUiDisplayed}";
+        }
     }
 
     private void CaptureRoundIndexJuiceBaselineIfNeeded()
@@ -370,11 +364,11 @@ public class ScoreUIController : MonoBehaviour
             buffer.AddRange(go.GetComponentsInChildren<TMP_Text>(true));
         }
 
-        ApplyBindingsByDisplayObjectName(buffer);
+        ApplyBindingsByDisplayObjectName(buffer, overrideCrossScene: true);
         return true;
     }
 
-    private void ApplyBindingsByDisplayObjectName(IReadOnlyList<TMP_Text> texts)
+    private void ApplyBindingsByDisplayObjectName(IReadOnlyList<TMP_Text> texts, bool overrideCrossScene = false)
     {
         if (texts == null)
             return;
@@ -386,35 +380,41 @@ public class ScoreUIController : MonoBehaviour
                 continue;
             if (!t.gameObject.scene.IsValid())
                 continue;
-            if (!t.gameObject.activeInHierarchy)
-                continue;
 
             string n = t.gameObject.name;
 
-            if (!IsLiveSceneText(pointsText) && string.Equals(n, PointsObjectName, StringComparison.OrdinalIgnoreCase))
+            if (ShouldBind(pointsText, t, overrideCrossScene) && string.Equals(n, PointsObjectName, StringComparison.OrdinalIgnoreCase))
                 pointsText = t;
-            else if (!IsLiveSceneText(multText) && string.Equals(n, MultObjectName, StringComparison.OrdinalIgnoreCase))
+            else if (ShouldBind(multText, t, overrideCrossScene) && string.Equals(n, MultObjectName, StringComparison.OrdinalIgnoreCase))
                 multText = t;
-            else if (!IsLiveSceneText(roundIndexText) && string.Equals(n, RoundIndexObjectName, StringComparison.OrdinalIgnoreCase))
+            else if (ShouldBind(roundIndexText, t, overrideCrossScene) && string.Equals(n, RoundIndexObjectName, StringComparison.OrdinalIgnoreCase))
                 roundIndexText = t;
-            else if (!IsLiveSceneText(roundTotalText) && (
+            else if (ShouldBind(roundTotalText, t, overrideCrossScene) && (
                          string.Equals(n, RoundTotalObjectName, StringComparison.OrdinalIgnoreCase) ||
                          string.Equals(n, RoundScoreObjectName, StringComparison.OrdinalIgnoreCase)))
                 roundTotalText = t;
-            else if (!IsLiveSceneText(goalText) && string.Equals(n, GoalObjectName, StringComparison.OrdinalIgnoreCase))
+            else if (ShouldBind(goalText, t, overrideCrossScene) && string.Equals(n, GoalObjectName, StringComparison.OrdinalIgnoreCase))
                 goalText = t;
-            else if (!IsLiveSceneText(ballsRemainingText) && string.Equals(n, BallsRemainingObjectName, StringComparison.OrdinalIgnoreCase))
+            else if (ShouldBind(ballsRemainingText, t, overrideCrossScene) && string.Equals(n, BallsRemainingObjectName, StringComparison.OrdinalIgnoreCase))
                 ballsRemainingText = t;
-            else if (!IsLiveSceneText(coinsText) && string.Equals(n, CoinsObjectName, StringComparison.OrdinalIgnoreCase))
+            else if (ShouldBind(coinsText, t, overrideCrossScene) && string.Equals(n, CoinsObjectName, StringComparison.OrdinalIgnoreCase))
                 coinsText = t;
         }
+    }
+
+    private static bool ShouldBind(TMP_Text existing, TMP_Text candidate, bool overrideCrossScene)
+    {
+        if (!IsLiveSceneText(existing))
+            return true;
+        if (overrideCrossScene && existing.gameObject.scene != candidate.gameObject.scene)
+            return true;
+        return false;
     }
 
     private static bool IsLiveSceneText(TMP_Text t)
     {
         if (t == null) return false;
         if (!t.gameObject.scene.IsValid()) return false;
-        if (!t.gameObject.activeInHierarchy) return false;
         return true;
     }
 

@@ -252,11 +252,18 @@ public class GameRulesManager : MonoBehaviour
             while (CurrentGoal > 0f && scoreManager.LiveLevelProgress >= CurrentGoal)
             {
                 float prevGoal = CurrentGoal;
-                int coinsAwarded = ServiceLocator.Get<CoinController>()?.AddCoinsScaled(coinsPerLevelUp) ?? 0;
+                var cc = ServiceLocator.Get<CoinController>();
+                int coinsAwarded = cc?.AddCoinsScaledDeferredUi(coinsPerLevelUp) ?? 0;
 
                 if (showLevelUpCoinsPopup && floatingTextSpawner != null)
                 {
-                    floatingTextSpawner.SpawnLevelUpCoinsPopup(coinsAwarded);
+                    int awarded = coinsAwarded;
+                    floatingTextSpawner.SpawnLevelUpCoinsPopup(coinsAwarded,
+                        () => cc?.ApplyDeferredCoinsUi(awarded));
+                }
+                else if (coinsAwarded > 0)
+                {
+                    cc?.ApplyDeferredCoinsUi(coinsAwarded);
                 }
 
                 scoreManager.ConsumeLevelProgress(prevGoal);

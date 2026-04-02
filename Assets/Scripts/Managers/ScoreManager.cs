@@ -277,13 +277,15 @@ public class ScoreManager : MonoBehaviour
     {
         if (scoringLocked || applied == 0) return;
 
-        ServiceLocator.Get<CoinController>()?.AddCoinsUnscaled(applied);
+        var cc = ServiceLocator.Get<CoinController>();
+        int actual = cc != null ? cc.AddCoinsUnscaledDeferredUi(applied) : 0;
 
-        if (floatingTextSpawner != null)
-            floatingTextSpawner.SpawnGoldText(pos.position, "+$" + applied, applied);
+        if (floatingTextSpawner != null && actual > 0)
+            floatingTextSpawner.SpawnGoldText(pos.position, "+$" + actual, actual,
+                () => cc?.ApplyDeferredCoinsUi(actual));
 
-        int totalCoins = ServiceLocator.Get<CoinController>()?.Coins ?? 0;
-        CoinsAdded?.Invoke(applied, totalCoins);
+        int totalCoins = cc?.Coins ?? 0;
+        CoinsAdded?.Invoke(actual, totalCoins);
         ScoreChanged?.Invoke();
     }
 

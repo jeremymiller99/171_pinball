@@ -430,7 +430,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 912259835}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MainMenuUI, Assembly-CSharp
         m_MethodName: LoadMenuScene
         m_Mode: 1
@@ -2734,7 +2734,6 @@ GameObject:
   - component: {fileID: 912259833}
   - component: {fileID: 912259832}
   - component: {fileID: 912259831}
-  - component: {fileID: 912259835}
   - component: {fileID: 912259836}
   - component: {fileID: 912259837}
   m_Layer: 5
@@ -2838,52 +2837,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &912259835
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 912259830}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8844875226af288479d754f89c6dbdc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MainMenuUI
-  gameplayCoreSceneName: GameplayCore
-  quickRunBoards: []
-  challengeModes: []
-  challengeBoards: []
-  mainMenuPanel: {fileID: 0}
-  runSelectorPanel: {fileID: 0}
-  settingsPanel: {fileID: 0}
-  profilePanel: {fileID: 0}
-  progressionPanel: {fileID: 0}
-  creditPanel: {fileID: 0}
-  modeInfoPanel: {fileID: 0}
-  modeInfoTitleText: {fileID: 0}
-  modeInfoDescriptionText: {fileID: 0}
-  modeInfoWinConditionText: {fileID: 0}
-  modeInfoPlayButton: {fileID: 0}
-  modeInfoCloseButton: {fileID: 0}
-  availableShips: []
-  modeInfoShipSelectorContainer: {fileID: 0}
-  modeInfoShipNameText: {fileID: 0}
-  modeInfoShipDescText: {fileID: 0}
-  modeInfoShipLeftButton: {fileID: 0}
-  modeInfoShipRightButton: {fileID: 0}
-  startRunButton: {fileID: 0}
-  settingsButton: {fileID: 0}
-  profileButton: {fileID: 0}
-  progressionButton: {fileID: 0}
-  quitButton: {fileID: 0}
-  challengeButtonsRoot: {fileID: 0}
-  challengeButtonTemplate: {fileID: 0}
-  challengeCardPrefab: {fileID: 0}
-  returnToMainMenuButton: {fileID: 0}
-  currentPanel: 0
-  cardWidth: 700
-  cardHeight: 120
 --- !u!114 &912259836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4709,7 +4662,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 912259835}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MainMenuUI, Assembly-CSharp
         m_MethodName: LoadMenuScene
         m_Mode: 1
@@ -6957,7 +6910,7 @@ PrefabInstance:
     - target: {fileID: 6144758330202641251, guid: 295d77e738c99e242bc87375a020df16, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 912259835}
+      objectReference: {fileID: 0}
     - target: {fileID: 8773172597471028064, guid: 295d77e738c99e242bc87375a020df16, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1

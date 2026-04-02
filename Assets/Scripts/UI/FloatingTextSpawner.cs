@@ -325,20 +325,23 @@ public class FloatingTextSpawner : MonoBehaviour
         }
     }
 
-    public void SpawnLevelUpCoinsPopup(int amount)
+    public void SpawnLevelUpCoinsPopup(int amount, Action onArrive = null)
     {
         if (!levelUpCoinsPopupEnabled)
         {
+            onArrive?.Invoke();
             return;
         }
 
         if (amount <= 0)
         {
+            onArrive?.Invoke();
             return;
         }
 
         if (!TryGetCanvasCenterAnchoredPosition(out Vector2 anchoredOnCanvas))
         {
+            onArrive?.Invoke();
             return;
         }
 
@@ -358,6 +361,7 @@ public class FloatingTextSpawner : MonoBehaviour
 
         if (ft == null)
         {
+            onArrive?.Invoke();
             return;
         }
 
@@ -366,7 +370,15 @@ public class FloatingTextSpawner : MonoBehaviour
             && TryGetFlyToAnchoredPosition(FlyToTarget.Coins, out Vector2 coinsDestAnchored))
         {
             ft.PlayFlyTo(coinsDestAnchored);
-            ft.SetOnFlyComplete(() => TriggerJuiceForTarget(FlyToTarget.Coins));
+            ft.SetOnFlyComplete(() =>
+            {
+                TriggerJuiceForTarget(FlyToTarget.Coins);
+                onArrive?.Invoke();
+            });
+        }
+        else
+        {
+            onArrive?.Invoke();
         }
     }
 

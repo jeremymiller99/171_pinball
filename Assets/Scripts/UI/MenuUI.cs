@@ -123,6 +123,8 @@ public class MainMenuUI : MonoBehaviour
     [Tooltip("Optional: Return button on the Run Selector panel. If not set, the script will try to find one, but will NOT create it.")]
     [SerializeField] private Button returnToMainMenuButton;
 
+    [SerializeField] private InputActionReference backAction;
+
     [Header("Runtime (debug)")]
     [SerializeField] private MenuPanel currentPanel = MenuPanel.MainMenu;
 
@@ -176,7 +178,7 @@ public class MainMenuUI : MonoBehaviour
 
     private void Update()
     {
-        if (WasBackPressedThisFrame())
+        if (backAction.action.triggered)
         {
             if (modeInfoPanel != null
                 && modeInfoPanel.activeSelf)
@@ -188,29 +190,6 @@ public class MainMenuUI : MonoBehaviour
                 OpenMainMenuPanel();
             }
         }
-    }
-
-    private static bool WasBackPressedThisFrame()
-    {
-#if ENABLE_INPUT_SYSTEM
-        if (Keyboard.current != null
-            && Keyboard.current.escapeKey
-                .wasPressedThisFrame)
-        {
-            return true;
-        }
-
-        if (Gamepad.current != null
-            && Gamepad.current.buttonEast
-                .wasPressedThisFrame)
-        {
-            return true;
-        }
-
-        return false;
-#else
-        return Input.GetKeyDown(KeyCode.Escape);
-#endif
     }
 
     private void BuildMenuIfNeeded()

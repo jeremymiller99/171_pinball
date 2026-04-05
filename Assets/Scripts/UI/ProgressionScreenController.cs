@@ -515,7 +515,6 @@ public sealed class ProgressionScreenController
             typeof(LayoutElement));
 
         nodeGo.transform.SetParent(trackContent, false);
-
         var nodeRect =
             nodeGo.GetComponent<RectTransform>();
         nodeRect.sizeDelta =

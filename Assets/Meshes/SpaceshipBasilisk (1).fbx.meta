@@ -3,7 +3,37 @@ guid: 0b0de82b1f8356e419b3e15b2a6faf32
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Black
+    second: {fileID: 2100000, guid: efbfeaca887199c409c8ebf36b30f010, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Black-Green_Screen
+    second: {fileID: 2100000, guid: a89bcbc25cbcd5243bd124d4584a88ea, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Blue_Royal
+    second: {fileID: 2100000, guid: 2aff6667978d8b34b935c08585d849c5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Dark Gray
+    second: {fileID: 2100000, guid: ce5a9f2645943d54ea9123b3802f0d5b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Light Gray
+    second: {fileID: 2100000, guid: e14f96c8fa955d046b7b2ed2f7798886, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Red_Orange_Glow
+    second: {fileID: 2100000, guid: 202900af65e1c3f45a91956a3af61f75, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

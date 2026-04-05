@@ -30,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 8, y: 8, z: 8}
+  m_LocalScale: {x: 12, y: 12, z: 12}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4575173824470427452}
@@ -72,12 +72,12 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2482732867452459431, guid: c60b4a22faa09ba45bfcafd603a0c92a, type: 3}
-  - {fileID: -2505642851634945670, guid: c60b4a22faa09ba45bfcafd603a0c92a, type: 3}
-  - {fileID: 6060447027086554203, guid: c60b4a22faa09ba45bfcafd603a0c92a, type: 3}
-  - {fileID: -4107597309464252653, guid: c60b4a22faa09ba45bfcafd603a0c92a, type: 3}
-  - {fileID: -1580535799172915004, guid: c60b4a22faa09ba45bfcafd603a0c92a, type: 3}
-  - {fileID: -304846525172927, guid: c60b4a22faa09ba45bfcafd603a0c92a, type: 3}
+  - {fileID: 2100000, guid: 3250e6c7356fdbf4991e7a9d4fe5cc2a, type: 2}
+  - {fileID: 2100000, guid: b41c66deb08fb51428d82b3dea8e6487, type: 2}
+  - {fileID: 2100000, guid: 00fb629b68c3d26409638eac25732047, type: 2}
+  - {fileID: 2100000, guid: 7936b8f33341d264e9e78c5f3ea56579, type: 2}
+  - {fileID: 2100000, guid: a986f6bb46938bd44a8f96c5b8efea7c, type: 2}
+  - {fileID: 2100000, guid: dad1795b3f6c81541a3a8512895bd54f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

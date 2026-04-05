@@ -780,7 +780,7 @@ Transform:
   m_GameObject: {fileID: 67685738}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 26.5, y: 0, z: 54.7}
+  m_LocalPosition: {x: 1.5, y: 0, z: 54.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -889,7 +889,7 @@ Transform:
   m_GameObject: {fileID: 127279674}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 26.5, y: 0, z: -78.8}
+  m_LocalPosition: {x: -1.2, y: 0, z: -56}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -14327,7 +14327,7 @@ Transform:
   m_GameObject: {fileID: 1668799641}
   serializedVersion: 2
   m_LocalRotation: {x: -0.097875975, y: -0, z: -0, w: 0.9951986}
-  m_LocalPosition: {x: 0, y: -28.7, z: -2.2}
+  m_LocalPosition: {x: 0, y: -63.6, z: 4.7}
   m_LocalScale: {x: 246.07547, y: 11.451352, z: 122.29016}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -16842,9 +16842,9 @@ MonoBehaviour:
   targetRenderer: {fileID: 2114677306}
   materialSlotIndex: 0
   useSharedMaterials: 1
-  normalMaterial: {fileID: 2100000, guid: 29af95aeed1df544a9815b63d7599322, type: 2}
-  angelMaterial: {fileID: 2100000, guid: a464d3ecd61e3504eb002bf7b59ce7bf, type: 2}
-  devilMaterial: {fileID: 2100000, guid: 62359f9267e64ab4a981aa60da79efd9, type: 2}
+  normalMaterial: {fileID: 2100000, guid: 166147aafa6a17844b0dc663e79f2e9e, type: 2}
+  angelMaterial: {fileID: 2100000, guid: afa2906433ce5bf4191baec1c2a47ef0, type: 2}
+  devilMaterial: {fileID: 2100000, guid: b8ceef762df798b448c0e564df18edd4, type: 2}
   pollContinuouslyInPlayMode: 1
 --- !u!1 &2122177424
 GameObject:
@@ -16871,7 +16871,7 @@ Transform:
   m_GameObject: {fileID: 2122177424}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.4, y: 0, z: -13.86}
+  m_LocalPosition: {x: -0.87, y: 0, z: -13.86}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

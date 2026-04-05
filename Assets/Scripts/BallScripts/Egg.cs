@@ -72,6 +72,15 @@ public class EggBall : Ball
             && ballSpawner != null
             && ballSpawner.HandCount > 0)
         {
+            var loadout = ServiceLocator.Get<BallLoadoutController>();
+            if (loadout != null)
+            {
+                var marker = GetComponent<BallHandSlotMarker>();
+                int slotHint = marker != null ? marker.SlotIndex : -1;
+                loadout.ConsumeActiveBallFromLoadout(slotHint);
+                ServiceLocator.Get<GameRulesManager>()?.RefreshBallsRemaining();
+            }
+
             GameObject nextBallObject = ballSpawner.ActivateNextBall();
             if (nextBallObject != null)
             {

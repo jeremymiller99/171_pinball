@@ -243,7 +243,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 919d41a318550de4cb8901ef1bb48391, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
-  rulesManager: {fileID: 0}
+  drainHandler: {fileID: 0}
   outsideBounds: 0
 --- !u!1001 &53043955
 PrefabInstance:
@@ -434,7 +434,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 919d41a318550de4cb8901ef1bb48391, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
-  rulesManager: {fileID: 0}
+  drainHandler: {fileID: 0}
   outsideBounds: 1
 --- !u!65 &61075975
 BoxCollider:
@@ -2581,6 +2581,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   disablePhysicsWhileMoving: 1
   enforceSingleActiveBall: 1
+  layoutAnimDuration: 0.25
 --- !u!4 &392524817
 Transform:
   m_ObjectHideFlags: 0
@@ -8519,15 +8520,6 @@ MonoBehaviour:
   meterColorFull: {r: 0, g: 0.56078434, b: 1, a: 1}
   meterColorMidPoint: 0.5
   tieredMeterEnabled: 1
-  meterBackground: {fileID: 217433290}
-  autoFindMeterBackgroundInChildren: 0
-  autoFindMeterBackgroundByName: 1
-  meterBackgroundObjectName: Progress Meter BG
-  meterBackgroundColorEnabled: 1
-  meterBackgroundDefaultColor: {r: 0.3372549, g: 0.28627452, b: 0.29803923, a: 1}
-  paletteSwitcher: {fileID: 0}
-  paletteTargetIndexForMeterBackgroundDefault: 0
-  pullMeterBackgroundDefaultFromPalette: 1
   usePalettesByTier: 1
   palettesByTier:
   - empty: {r: 0.7764706, g: 0.95686275, b: 1, a: 0}
@@ -9510,7 +9502,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 919d41a318550de4cb8901ef1bb48391, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
-  rulesManager: {fileID: 0}
+  drainHandler: {fileID: 0}
   outsideBounds: 1
 --- !u!65 &765148992
 BoxCollider:
@@ -10136,6 +10128,7 @@ MonoBehaviour:
   meterColorMid: {r: 1, g: 0.5019608, b: 0, a: 1}
   meterColorFull: {r: 1, g: 0.052272934, b: 0, a: 1}
   meterColorMidPoint: 0.5
+  forceMaterialColorUpdates: 1
   debugInText: 0
 --- !u!4 &855862844
 Transform:
@@ -10687,7 +10680,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 919d41a318550de4cb8901ef1bb48391, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
-  rulesManager: {fileID: 0}
+  drainHandler: {fileID: 0}
   outsideBounds: 1
 --- !u!1 &910000010
 GameObject:
@@ -10755,7 +10748,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 919d41a318550de4cb8901ef1bb48391, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
-  rulesManager: {fileID: 0}
+  drainHandler: {fileID: 0}
   outsideBounds: 1
 --- !u!1 &910000020
 GameObject:
@@ -10823,7 +10816,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 919d41a318550de4cb8901ef1bb48391, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
-  rulesManager: {fileID: 0}
+  drainHandler: {fileID: 0}
   outsideBounds: 1
 --- !u!1 &910000030
 GameObject:
@@ -10891,7 +10884,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 919d41a318550de4cb8901ef1bb48391, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResetZone
-  rulesManager: {fileID: 0}
+  drainHandler: {fileID: 0}
   outsideBounds: 1
 --- !u!1 &924146523
 GameObject:
@@ -11983,6 +11976,10 @@ PrefabInstance:
     - target: {fileID: 5856829977129076378, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
       propertyPath: key
       value: 61
+      objectReference: {fileID: 0}
+    - target: {fileID: 5856829977129076378, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
+      propertyPath: flipperAction
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5856829977129076378, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
       propertyPath: invertDirection
@@ -15617,6 +15614,10 @@ PrefabInstance:
     - target: {fileID: 5856829977129076378, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
       propertyPath: key
       value: 61
+      objectReference: {fileID: 0}
+    - target: {fileID: 5856829977129076378, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
+      propertyPath: flipperAction
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5856829977129076378, guid: a8724a88b2e438e4cb8ba3e9e379e3d3, type: 3}
       propertyPath: invertDirection

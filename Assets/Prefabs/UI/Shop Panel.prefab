@@ -164,6 +164,9 @@ GameObject:
   - component: {fileID: 3348201016743018332}
   - component: {fileID: 7176318600351986705}
   - component: {fileID: 2514422546053726626}
+  - component: {fileID: 4560419963199066672}
+  - component: {fileID: 1771633196146134346}
+  - component: {fileID: 5009721989972573697}
   m_Layer: 5
   m_Name: Shop Panel
   m_TagString: Untagged
@@ -221,9 +224,25 @@ MonoBehaviour:
   runFlowController: {fileID: 0}
   shopTransitionController: {fileID: 0}
   shopCanvasRoot: {fileID: 0}
-  shopBoardPosition: {x: 0, y: 0, z: 0}
-  shopBoardRotation: {x: 0, y: 0, z: 0}
-  shopBoardScale: {x: 0, y: 0, z: 0}
+  ballSpawner: {fileID: 0}
+  coinsText: {fileID: 3392310373012325023}
+  promptText: {fileID: 0}
+  continueButton: {fileID: 4307660393837170516}
+  rerollButton: {fileID: 0}
+  rerollCost: 2
+  confirmPanel: {fileID: 5277920733326585311}
+--- !u!114 &4560419963199066672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 411292097836914733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1bd37fd91e7d584294da629b332f03a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopOfferShelfController
   allBallDefinitions:
   - {fileID: 11400000, guid: 4b1a78a036bfe44e6a5634880c8ad2b7, type: 2}
   - {fileID: 11400000, guid: 4b14eb5ea0e14ea469f9dc777aade6eb, type: 2}
@@ -260,17 +279,39 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 581a3858bbf188a4fbb2c076c0deb0d7, type: 2}
   - {fileID: 11400000, guid: 1e887c70726bf8142b4060862fd1be46, type: 2}
   - {fileID: 11400000, guid: 1f5f576ac6e501149a01da1ecf80877f, type: 2}
-  offerShelfOffset: {x: 3, y: 0, z: 0}
-  offerShelfRotation: {x: 0, y: 0, z: 0}
+  - {fileID: 11400000, guid: 98dfc8b51082f9345b5f1f4759fcf959, type: 2}
+  - {fileID: 11400000, guid: bded03c7a8388984f91044d1043a8e3f, type: 2}
   offerSpacing: 1.5
   offerDisplayScale: 0.5
-  coinsText: {fileID: 3392310373012325023}
-  promptText: {fileID: 0}
-  continueButton: {fileID: 4307660393837170516}
-  rerollButton: {fileID: 0}
-  rerollCost: 2
-  confirmPanel: {fileID: 5277920733326585311}
-  handInventoryDisplay: {fileID: 0}
+  offerYOffset: 0
+--- !u!114 &1771633196146134346
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 411292097836914733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d93ab4a089785094585663fa27d4dfcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopHandInteractionController
+  handBallDropRayRadius: 0.25
+  handBallSelectColor: {r: 1, g: 1, b: 1, a: 1}
+  handBallDragTargetColor: {r: 0.3, g: 1, b: 0.3, a: 1}
+  ballHoverScaleFactor: 1.5
+--- !u!114 &5009721989972573697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 411292097836914733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ed43ced6c92bed498b5f414e2b223e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopComponentPlacementController
 --- !u!1 &1254162835821821777
 GameObject:
   m_ObjectHideFlags: 0

@@ -176,9 +176,8 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (CurrentState != ShopState.PlacingComponent || _selectedOffer == null) return;
         if (component == null) return;
 
-        bool isBumper = _selectedOffer.ComponentDef.ComponentType == BoardComponentType.Bumper;
-        if (isBumper && component.componentType != BoardComponentType.Bumper) return;
-        if (!isBumper && component.componentType != BoardComponentType.Target) return;
+        BoardComponentType typeOfDef = _selectedOffer.ComponentDef.ComponentType;
+        if (typeOfDef != component.componentType) return;
 
         _targetComponent = component;
         ShowComponentReplaceConfirmation(component);
@@ -352,10 +351,18 @@ public sealed class UnifiedShopController : MonoBehaviour
                 SetPrompt("Drop bumpers onto bumpers.");
                 return;
             }
-            if (!offerIsBumper && bc.componentType != BoardComponentType.Target)
+
+            bool offerIsTarget = offer.ComponentDef.ComponentType == BoardComponentType.Target;
+            if (offerIsTarget && bc.componentType != BoardComponentType.Target)
             {
                 SetPrompt("Drop targets onto targets.");
                 return;
+            }
+
+            bool offerIsFlipper = offer.ComponentDef.ComponentType == BoardComponentType.Flipper;
+            if (offerIsFlipper && bc.componentType != BoardComponentType.Flipper)
+            {
+                SetPrompt("Drop flippers onto flippers.");
             }
 
             ShowDragDropBoardPurchaseConfirm(offerIndex, bc);
@@ -688,13 +695,9 @@ public sealed class UnifiedShopController : MonoBehaviour
             return center;
         }
 
-#if ENABLE_INPUT_SYSTEM
         var mouse = Mouse.current;
         if (mouse != null) return mouse.position.ReadValue();
         return Vector2.zero;
-#else
-        return Input.mousePosition;
-#endif
     }
 
     private void ShowPurchaseConfirmation(ShopOffer offer)

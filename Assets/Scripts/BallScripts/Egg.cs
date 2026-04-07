@@ -25,9 +25,8 @@ public class EggBall : Ball
     private bool popped;
     
 
-    new protected void Awake()
+    protected void Awake()
     {
-        base.Awake();
         ballSpawner = ServiceLocator.Get<BallSpawner>();
         stackedNextBallPointMultiplier = 1f;
         stackedNextBallMultMultiplier = 1f;
@@ -66,7 +65,7 @@ public class EggBall : Ball
         return component != null && component.GetComponent<Portal>() == null;
     }
 
-    protected override void OnDestroy()
+    void OnDestroy()
     {
         if (!(applyOnUseOnly && !wasUsed)
             && ballSpawner != null
@@ -100,8 +99,6 @@ public class EggBall : Ball
                 }
             }
         }
-
-        base.OnDestroy();
     }
 
     public void StackEggEffect(float pointFactor, float multFactor, int coinFactor)

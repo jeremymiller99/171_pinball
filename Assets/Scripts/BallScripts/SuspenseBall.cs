@@ -21,9 +21,8 @@ public class SuspenseBall : Ball, IPortalTeleportListener
     private UnityEngine.InputSystem.InputAction _rightFlipAction;
 #endif
 
-    new void Awake()
+    void Awake()
     {
-        base.Awake();
         ballRenderer = GetComponent<Renderer>();
 
         if (ballRenderer != null)

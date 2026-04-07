@@ -233,6 +233,13 @@ public sealed class ShopOfferShelfController : MonoBehaviour
             bc.enabled = false;
         }
 
+        foreach (PinballFlipper bc in
+            go.GetComponentsInChildren<PinballFlipper>(
+                true))
+        {
+            bc.enabled = false;
+        }
+
         Ball ball =
             go.GetComponentInChildren<Ball>(true);
         if (ball != null)

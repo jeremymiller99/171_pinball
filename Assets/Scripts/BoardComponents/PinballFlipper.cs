@@ -21,8 +21,11 @@ public class PinballFlipper : MonoBehaviour
         RightFlipper
     }
 
+    [SerializeField] protected int amountOfFlips = 0;
+    [SerializeField] protected Ball latestBallHit;
+
     [Tooltip("Which centralized action should drive this flipper. Auto tries to infer from the configured key or object name.")]
-    [SerializeField] private FlipperInputAction flipperAction = FlipperInputAction.RightFlipper;
+    [SerializeField] public FlipperInputAction flipperAction = FlipperInputAction.RightFlipper;
 
     [Header("Input")]
     InputAction flipAction;
@@ -77,6 +80,7 @@ public class PinballFlipper : MonoBehaviour
         if (_pressed && !_previousPressed && !(ServiceLocator.Get<RoundModifierController>()?.TryConsumeFlipperUse() ?? true))
         {
             _pressed = false;
+            amountOfFlips++;
         }
 
         HandleFlipperSfx();
@@ -118,6 +122,23 @@ public class PinballFlipper : MonoBehaviour
             : desiredLocal;
 
         _rb.MoveRotation(desiredWorld);
+    }
+
+    virtual protected void OnCollisionEnter(Collision collision)
+    {
+        Ball ball = collision.collider.GetComponent<Ball>();
+        if (ball)
+        {
+            latestBallHit = ball;
+        }
+    }
+
+    public void CopyFlipperProperties(PinballFlipper flipper)
+    {
+        flipAction = flipper.flipAction;
+        flipperAction = flipper.flipperAction;
+        invertDirection = flipper.invertDirection;
+        _baseLocalRotation = flipper.transform.localRotation;
     }
 
 }

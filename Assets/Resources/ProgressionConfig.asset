@@ -26,6 +26,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: de01d113460379245af3316a58b26496, type: 2}
   - {fileID: 11400000, guid: 17e438f1b4d78114e82945f1a1505113, type: 2}
   - {fileID: 11400000, guid: 2c99ec52697a8a840a8f0ce2c523e050, type: 2}
+  - {fileID: 11400000, guid: bded03c7a8388984f91044d1043a8e3f, type: 2}
+  - {fileID: 11400000, guid: 98dfc8b51082f9345b5f1f4759fcf959, type: 2}
   tiers:
   - xpThreshold: 10000
     rewardBall: {fileID: 11400000, guid: c5d187ab5d6fe49339d3b893bd17a9c6, type: 2}

@@ -127,7 +127,7 @@ public class Ball : MonoBehaviour
 
     protected virtual bool ShouldScoreBoardComponent(BoardComponent component)
     {
-        return component != null;
+        return component.amountToScore != 0;
     }
 
     /// <summary>

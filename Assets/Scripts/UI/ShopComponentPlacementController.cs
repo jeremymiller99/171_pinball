@@ -7,6 +7,7 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
 {
     private readonly List<BoardComponent> _bumpers = new List<BoardComponent>();
     private readonly List<BoardComponent> _targets = new List<BoardComponent>();
+    private readonly List<BoardComponent> _flippers = new List<BoardComponent>();
 
     private BoardComponent _dragHoveredComponent;
     private BoardComponent _placementHoveredComponent;
@@ -27,6 +28,7 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
     {
         _bumpers.Clear();
         _targets.Clear();
+        _flippers.Clear();
 
         BoardComponent[] all = Object.FindObjectsByType<BoardComponent>(FindObjectsSortMode.None);
         foreach (BoardComponent bc in all)
@@ -37,10 +39,13 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
                 _bumpers.Add(bc);
             else if (bc.componentType == BoardComponentType.Target && !_targets.Contains(bc))
                 _targets.Add(bc);
+            else if (bc.componentType == BoardComponentType.Flipper && !_flippers.Contains(bc))
+                _flippers.Add(bc);
         }
 
         _bumpers.Sort();
         _targets.Sort();
+        _flippers.Sort();
 
         PrewarmOutlines();
     }
@@ -49,14 +54,22 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
     {
         foreach (BoardComponent bc in _bumpers) if (bc != null) bc.PrewarmSelectionOutline();
         foreach (BoardComponent bc in _targets) if (bc != null) bc.PrewarmSelectionOutline();
+        foreach (BoardComponent bc in _flippers) if (bc != null) bc.PrewarmSelectionOutline();
     }
 
     public void SetSelectionStateForPlacement(BoardComponentType type)
     {
-        List<BoardComponent> list = type == BoardComponentType.Bumper ? _bumpers : _targets;
-        foreach (BoardComponent bc in list)
+        if (type == BoardComponentType.Bumper)
         {
-            if (bc != null) bc.Select();
+            foreach (BoardComponent bc in _bumpers) if (bc != null) bc.Select();
+        }
+        else if (type == BoardComponentType.Target)
+        {
+            foreach (BoardComponent bc in _targets) if (bc != null) bc.Select();
+        }
+        else if (type == BoardComponentType.Flipper)
+        {
+            foreach (BoardComponent bc in _flippers) if (bc != null) bc.Select();
         }
     }
 
@@ -64,6 +77,7 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
     {
         foreach (BoardComponent bc in _bumpers) if (bc != null) bc.DeSelect();
         foreach (BoardComponent bc in _targets) if (bc != null) bc.DeSelect();
+        foreach (BoardComponent bc in _flippers) if (bc != null) bc.DeSelect();
     }
 
     public void UpdateDragHover(ShopOffer offer, BoardComponent hitComponent)
@@ -72,9 +86,8 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
 
         if (bc != null && offer != null && offer.ComponentDef != null)
         {
-            bool isBumper = offer.ComponentDef.ComponentType == BoardComponentType.Bumper;
-            if ((isBumper && bc.componentType != BoardComponentType.Bumper)
-                || (!isBumper && bc.componentType != BoardComponentType.Target))
+            BoardComponentType typeOfOffer = offer.ComponentDef.ComponentType;
+            if (typeOfOffer != bc.componentType)
             {
                 bc = null;
             }
@@ -100,9 +113,8 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
 
         if (bc != null && offer != null && offer.ComponentDef != null)
         {
-            bool isBumper = offer.ComponentDef.ComponentType == BoardComponentType.Bumper;
-            if ((isBumper && bc.componentType != BoardComponentType.Bumper)
-                || (!isBumper && bc.componentType != BoardComponentType.Target))
+            BoardComponentType typeOfOffer = offer.ComponentDef.ComponentType;
+            if (typeOfOffer != bc.componentType)
             {
                 bc = null;
             }
@@ -137,11 +149,19 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
             _bumpers.Remove(targetComponent);
             _bumpers.Sort();
         }
-        else
+        else if (newDef.ComponentType == BoardComponentType.Target)
         {
             _targets.Add(newComp);
             _targets.Remove(targetComponent);
             _targets.Sort();
+        } else if (newDef.ComponentType == BoardComponentType.Flipper)
+        {
+            Debug.Log("new:" + newComp.gameObject);
+            Debug.Log("old:" + targetComponent.gameObject);
+            _flippers.Add(newComp);
+            _flippers.Remove(targetComponent);
+            _flippers.Sort();
+            newComp.GetComponent<PinballFlipper>().CopyFlipperProperties(targetComponent.GetComponent<PinballFlipper>());
         }
 
         Destroy(targetComponent.gameObject);

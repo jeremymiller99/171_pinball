@@ -580,10 +580,40 @@ public class RenderTextureRaycaster : MonoBehaviour
             hitObject = hit.collider.gameObject;
         }
 
+        var parent = hit.collider.transform.parent;
+        if (parent)
+        {
+            parent.gameObject.SetActive(false);
+        } else
+        {
+            hit.collider.gameObject.SetActive(false);
+        }
+        
+
+        if (Physics.Raycast(
+                ray,
+                out RaycastHit hit2,
+                maxRayDistance,
+                clickableLayers))
+        {
+            hitObject = hit2.collider.gameObject;
+        }
+
+
+
         _cachedShopController.TryDropOfferAfterDrag(
             entry.OfferIndex,
             hitObject,
             ray);
+
+        if (parent)
+        {
+            parent.gameObject.SetActive(true);
+        }
+        else
+        {
+            hit.collider.gameObject.SetActive(true);
+        }
     }
 
     #region Hand Ball Drag

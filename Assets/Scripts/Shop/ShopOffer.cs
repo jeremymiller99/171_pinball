@@ -38,6 +38,10 @@ public sealed class ShopOffer
         ? BallDef.Prefab
         : ComponentDef.Prefab;
 
+    public ElementType ElementType => Type == OfferType.Ball
+        ? BallDef.ElementType
+        : ComponentDef.ElementType;
+
     /// <summary>
     /// True when the underlying definition ScriptableObject exists.
     /// A missing prefab is allowed -- a fallback cube will be shown instead.

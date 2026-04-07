@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Default Bumper
   description: Scores 5 points when hit.
   componentType: 0
+  elementType: 1
   icon: {fileID: 0}
   prefab: {fileID: 4773778546837097395, guid: 5d16b2224c9708a4680e3058fb788d96, type: 3}
   price: 1

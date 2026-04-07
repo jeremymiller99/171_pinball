@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: 8 Ball
   description: x3 score every 8th component hit.
   rarity: 0
+  elementType: 2
   icon: {fileID: 21300000, guid: d5e66645dc9c97c47beb572138f5f7fd, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 20e6ec85c48b743e885ff9aef85e5148, type: 3}
   price: 25

@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Casino Bumper
   description: Every 3 times this bumper is hit, adds an extra 1 - 20 points to score.
   componentType: 0
+  elementType: 2
   icon: {fileID: 0}
   prefab: {fileID: 4773778546837097395, guid: 8ded34e15c2a4c0418be86036cf5503b, type: 3}
   price: 10

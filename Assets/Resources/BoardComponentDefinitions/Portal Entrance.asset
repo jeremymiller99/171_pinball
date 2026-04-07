@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Portal Entrance
   description: Scores 25 points. Launches the ball through the portal exit.
   componentType: 4
+  elementType: 5
   icon: {fileID: 0}
   prefab: {fileID: 0}
   price: 1

@@ -18,6 +18,7 @@ MonoBehaviour:
     fire', where all points are tripled. Keep hitting it in order to keep the fire
     going!
   componentType: 1
+  elementType: 2
   icon: {fileID: 0}
   prefab: {fileID: 8767137395333737936, guid: 990429d65f7f3f44d8d6f09ed158399a, type: 3}
   price: 10

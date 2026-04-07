@@ -1246,17 +1246,21 @@ public sealed class ProgressionScreenController
     {
         string title = null;
         string desc = null;
+        ElementType elementType = ElementType.None;
 
         if (node.ball != null)
         {
             title = node.ball.GetSafeDisplayName();
             desc = node.ball.Description;
+            elementType = node.ball.ElementType;
         }
         else if (node.component != null)
         {
             title =
                 node.component.GetSafeDisplayName();
             desc = node.component.Description;
+            elementType =
+                node.component.ElementType;
         }
 
         if (title == null)
@@ -1264,7 +1268,8 @@ public sealed class ProgressionScreenController
             return;
         }
 
-        TooltipManager.Show(title, desc);
+        TooltipManager.Show(
+            title, desc, elementType);
     }
 
     private void HideTooltip()

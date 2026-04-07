@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Rollover
   description: Scores 2 points when ball rolls over it.
   componentType: 5
+  elementType: 1
   icon: {fileID: 0}
   prefab: {fileID: 0}
   price: 1

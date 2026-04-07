@@ -17,6 +17,7 @@ MonoBehaviour:
   description: Every 15 times this bumper gets hit, it explodes and scores points
     from all the components surrounding it, including itself!
   componentType: 0
+  elementType: 1
   icon: {fileID: 0}
   prefab: {fileID: 4773778546837097395, guid: e8e2211ff0230784c9ac77aeded019ec, type: 3}
   price: 10

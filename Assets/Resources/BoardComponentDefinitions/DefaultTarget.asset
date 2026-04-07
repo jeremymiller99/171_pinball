@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Default Target
   description: Default target, scores 0.1 mult.
   componentType: 1
+  elementType: 1
   icon: {fileID: 0}
   prefab: {fileID: 8767137395333737936, guid: 3f89df3362741d64e809018a4b0f5e3e, type: 3}
   price: 1

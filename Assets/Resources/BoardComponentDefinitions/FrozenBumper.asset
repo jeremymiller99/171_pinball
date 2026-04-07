@@ -17,6 +17,7 @@ MonoBehaviour:
   description: Starts off frozen and unable to score. After being hit 15 times, will
     permanently unfreeze and score double points.
   componentType: 0
+  elementType: 6
   icon: {fileID: 0}
   prefab: {fileID: 4773778546837097395, guid: f18390ccb9770cc458c47731caf34ef2, type: 3}
   price: 10

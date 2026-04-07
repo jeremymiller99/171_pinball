@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Portal Exit
   description: Ball launches from here when sent through the Portal Entrance.
   componentType: 4
+  elementType: 5
   icon: {fileID: 0}
   prefab: {fileID: 0}
   price: 1

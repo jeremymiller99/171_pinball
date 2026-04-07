@@ -17,6 +17,7 @@ MonoBehaviour:
   description: Every 15 times this target gets hit, it explodes and scores points
     from all the components surrounding it, including itself!
   componentType: 1
+  elementType: 1
   icon: {fileID: 0}
   prefab: {fileID: 8767137395333737936, guid: 9353bd852bfc3f14fbec83f9413cd31b, type: 3}
   price: 10

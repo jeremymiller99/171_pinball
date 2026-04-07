@@ -182,6 +182,7 @@ public class BallLoadoutController : MonoBehaviour
                             runtimeDisplayName: prefab.name,
                             runtimeDescription: "",
                             runtimeRarity: BallRarity.Common,
+                            runtimeElementType: ElementType.None,
                             runtimeIcon: BallDefinitionUtilities.TryGetPrefabSpriteIcon(prefab),
                             runtimePrefab: prefab,
                             runtimePrice: 0);
@@ -216,6 +217,7 @@ public class BallLoadoutController : MonoBehaviour
                 runtimeDisplayName: fallbackPrefab.name,
                 runtimeDescription: "",
                 runtimeRarity: BallRarity.Common,
+                runtimeElementType: ElementType.None,
                 runtimeIcon: BallDefinitionUtilities.TryGetPrefabSpriteIcon(fallbackPrefab),
                 runtimePrefab: fallbackPrefab,
                 runtimePrice: 0);

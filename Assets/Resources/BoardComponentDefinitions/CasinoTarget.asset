@@ -17,6 +17,7 @@ MonoBehaviour:
   description: Every 3 times this target is hit, adds an extra 0.1 - 0.5 mult to
     score.
   componentType: 1
+  elementType: 2
   icon: {fileID: 0}
   prefab: {fileID: 8767137395333737936, guid: 1434f2ff10525ac4f950467361933ff0, type: 3}
   price: 10

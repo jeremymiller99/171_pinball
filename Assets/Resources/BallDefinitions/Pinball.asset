@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Pinball
   description: Standard pinball, nothing special here.
   rarity: 0
+  elementType: 1
   icon: {fileID: 21300000, guid: af63de4465c43cf499133b557e6ee7cb, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 033d99f73f115d846a140c40987ca5fe, type: 3}
   price: 5

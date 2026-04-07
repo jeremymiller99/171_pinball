@@ -6,6 +6,8 @@
 // Updated 2026-03-27: mesh follows mouse during drag (depth-plane projection).
 // Updated 2026-03-27: route hand ball clicks in Browsing state for ball swap.
 // Updated 2026-03-27: hand ball drag-to-swap (click+threshold → visual drag, drop on another ball).
+// Updated 2026-04-06 by Antigravity (claude-4.6-opus):
+// hover tooltips now display ElementType with colored label.
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -348,11 +350,13 @@ public class RenderTextureRaycaster : MonoBehaviour
 
         string title = null;
         string desc = null;
+        ElementType elementType = ElementType.None;
 
         if (hitObject != null)
         {
             TryResolveTooltipFromObject(
-                hitObject, out title, out desc);
+                hitObject, out title, out desc,
+                out elementType);
         }
 
         if (title == null)
@@ -364,7 +368,8 @@ public class RenderTextureRaycaster : MonoBehaviour
             {
                 hitObject = handBall;
                 TryResolveTooltipFromObject(
-                    handBall, out title, out desc);
+                    handBall, out title, out desc,
+                    out elementType);
             }
         }
 
@@ -380,7 +385,8 @@ public class RenderTextureRaycaster : MonoBehaviour
             ClearHighlight();
             _lastHoveredObject = hitObject;
             ApplyHighlight(hitObject);
-            TooltipManager.Show(title, desc);
+            TooltipManager.Show(
+                title, desc, elementType);
             _tooltipShownByHover = true;
         }
 
@@ -411,12 +417,15 @@ public class RenderTextureRaycaster : MonoBehaviour
     private static void TryResolveTooltipFromObject(
         GameObject obj,
         out string title,
-        out string desc)
+        out string desc,
+        out ElementType elementType)
     {
         title = null;
         desc = null;
+        elementType = ElementType.None;
 
-        PlayerShipVisual shipVis = obj.GetComponentInParent<PlayerShipVisual>();
+        PlayerShipVisual shipVis =
+            obj.GetComponentInParent<PlayerShipVisual>();
         if (shipVis != null && shipVis.ShipDef != null)
         {
             title = shipVis.ShipDef.displayName;
@@ -427,11 +436,13 @@ public class RenderTextureRaycaster : MonoBehaviour
         ShopOffer3DEntry offerEntry =
             obj.GetComponentInParent<ShopOffer3DEntry>();
 
-        if (offerEntry != null && offerEntry.Offer != null)
+        if (offerEntry != null
+            && offerEntry.Offer != null)
         {
             ShopOffer offer = offerEntry.Offer;
             title = offer.DisplayName;
             desc = $"${offer.Price}\n{offer.Description}";
+            elementType = offer.ElementType;
             return;
         }
 
@@ -444,6 +455,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             title = ballDef.GetSafeDisplayName();
             desc = ballDef.Description;
+            elementType = ballDef.ElementType;
             return;
         }
 
@@ -456,6 +468,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             title = compDef.GetSafeDisplayName();
             desc = compDef.Description;
+            elementType = compDef.ElementType;
         }
     }
 

@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Investor
   description: Earn +$1 for every 12 components hit.
   rarity: 0
+  elementType: 3
   icon: {fileID: 21300000, guid: 828c9cb998db5bf49b707e5e221c1c7e, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 0d3f94c4fb34247859c42dc9db025181, type: 3}
   price: 10

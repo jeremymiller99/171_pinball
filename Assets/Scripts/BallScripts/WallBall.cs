@@ -11,9 +11,8 @@ public class WallBall : Ball
     [SerializeField] private float shakeDuration = 0.22f;
     [SerializeField] private float shakeMagnitude = 0.16f;
 
-    new void Awake()
+    void Awake()
     {
-        base.Awake();
         ResolveCameraShake();
     }
 

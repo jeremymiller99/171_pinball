@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 8123456789012345674}
   - component: {fileID: 6754550638101695226}
   - component: {fileID: 4006387634790845837}
+  - component: {fileID: -6934181607614602928}
   m_Layer: 0
   m_Name: Red Two
   m_TagString: Ball
@@ -321,16 +322,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c3279caae1b40b4d8534d67b707bd90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  scoreManager: {fileID: 0}
-  trailRenderer: {fileID: 0}
-  amountToEmit: 28
-  particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
-  poolSize: 15
-  componentHits: 0
-  pointMultiplier: 1
-  multMultiplier: 2
-  coinMultiplier: 1
-  lastObjectHit: {fileID: 0}
   hitCountFontAsset: {fileID: 0}
   hitCountPopupScale: 0.7
   hitCountPopupOffset: {x: 0, y: 40}
@@ -355,6 +346,21 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &-6934181607614602928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17025220d2cb4e2458603eea104be3e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  amountToEmit: 28
+  particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
+  poolSize: 15
 --- !u!1 &6285238752131022734
 GameObject:
   m_ObjectHideFlags: 0

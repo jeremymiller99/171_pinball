@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 8123456789012345672}
   - component: {fileID: 8878950739143992400}
   - component: {fileID: 9201167102932462184}
+  - component: {fileID: 51104039094127642}
   m_Layer: 0
   m_Name: Scatter
   m_TagString: Ball
@@ -320,16 +321,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c60dd978084cc5d46a5252362dbd6251, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MultiBall
-  scoreManager: {fileID: 0}
-  trailRenderer: {fileID: 0}
-  amountToEmit: 28
-  particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
-  poolSize: 15
-  componentHits: 0
-  pointMultiplier: 1
-  multMultiplier: 1
-  coinMultiplier: 1
-  lastObjectHit: {fileID: 0}
   hitCountFontAsset: {fileID: 0}
   hitCountPopupScale: 0.7
   hitCountPopupOffset: {x: 0, y: 40}
@@ -359,3 +350,18 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &51104039094127642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17025220d2cb4e2458603eea104be3e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  amountToEmit: 28
+  particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
+  poolSize: 15

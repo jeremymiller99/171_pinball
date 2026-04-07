@@ -17,9 +17,8 @@ public class MultiBall : Ball
     protected override int HitIntervalForPopup => hasSplit ? 0 : componentHitsToSplit;
 
 
-    new void Awake()
+    void Awake()
     {
-        base.Awake();
         ballSpawner = ServiceLocator.Get<BallSpawner>();
     }
 

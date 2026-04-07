@@ -11,12 +11,6 @@ using System;
 public class Ball : MonoBehaviour
 {
     protected ScoreManager scoreManager;
-
-    [SerializeField] private TrailRenderer trailRenderer;
-    [SerializeField] private int amountToEmit;
-    [SerializeField] private GameObject particleObject;
-    [SerializeField] private Stack<GameObject> pool;
-    [SerializeField] private int poolSize;
     protected int componentHits;
     protected float pointMultiplier = 1f;
     protected float multMultiplier = 1f;
@@ -60,20 +54,6 @@ public class Ball : MonoBehaviour
 
     public virtual float PointsAwardMultiplier => pointMultiplier;
 
-    virtual protected void Awake()
-    {
-        trailRenderer = GetComponent<TrailRenderer>();
-    }
-
-    virtual protected void Start()
-    {
-        pool = new Stack<GameObject>();
-        for (int i = 0; i < poolSize; i++)
-        {
-            pool.Push(Instantiate(particleObject, Vector3.zero, quaternion.identity));
-        }
-    }
-
     virtual protected void OnCollisionEnter(Collision collision)
         => HandleBoardComponentHit(collision.collider, collision);
 
@@ -88,7 +68,6 @@ public class Ball : MonoBehaviour
         if (components.Length == 0) return;
 
         ServiceLocator.Get<HapticManager>()?.PlayCollisionHaptic(true);
-        if (collision != null) HandleParticles(collision);
 
         bool scoredAny = false;
         foreach (BoardComponent component in components)
@@ -134,7 +113,7 @@ public class Ball : MonoBehaviour
     /// Gets BoardComponents for scoring. Checks the collider's GameObject first, then parent hierarchy
     /// (for bumpers/targets whose collider is on a child, e.g. visual mesh).
     /// </summary>
-    private static BoardComponent[] GetBoardComponentsForScoring(Collider collider)
+    public static BoardComponent[] GetBoardComponentsForScoring(Collider collider)
     {
         BoardComponent[] components = collider.GetComponents<BoardComponent>();
         if (components.Length > 0)
@@ -143,23 +122,7 @@ public class Ball : MonoBehaviour
         return parentComponent != null ? new[] { parentComponent } : System.Array.Empty<BoardComponent>();
     }
 
-    protected void HandleParticles(Collision collision)
-    {
-        if (GetBoardComponentsForScoring(collision.collider).Length == 0) return;
-        GameObject emitterObj = pool.Pop();
-        ParticleSystem emitter = emitterObj.GetComponent<ParticleSystem>();
-        emitter.transform.position = transform.position;
-        var emitterShape = emitter.shape;
-        if (transform.position.x < collision.transform.position.x)
-        {
-            emitterShape.rotation = Vector3.down * Vector3.Angle(transform.position - collision.transform.position, Vector3.forward);
-        } else {
-            emitterShape.rotation = Vector3.up * Vector3.Angle(transform.position - collision.transform.position, Vector3.forward);
-        }
-
-        emitter.Emit(amountToEmit);
-        pool.Push(emitterObj);
-    }
+    
 
     /// <summary>
     /// Creates independent material copies on every Renderer so this ball
@@ -180,21 +143,6 @@ public class Ball : MonoBehaviour
             for (int i = 0; i < shared.Length; i++)
                 copies[i] = shared[i] != null ? new Material(shared[i]) : null;
             r.materials = copies;
-        }
-    }
-
-    protected virtual void OnDestroy()
-    {
-        CleanupParticlePool();
-    }
-
-    protected void CleanupParticlePool()
-    {
-        if (pool == null) return;
-        while (pool.Count > 0)
-        {
-            var obj = pool.Pop();
-            if (obj != null) Destroy(obj);
         }
     }
 

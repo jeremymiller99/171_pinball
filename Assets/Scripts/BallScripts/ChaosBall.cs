@@ -15,9 +15,8 @@ public class ChaosBall : Ball
     private bool _hasSpawned;
     private BallSpawner _spawner;
 
-    new void Awake()
+    void Awake()
     {
-        base.Awake();
         _spawner = ServiceLocator.Get<BallSpawner>();
     }
 
@@ -77,12 +76,11 @@ public class ChaosBall : Ball
             r.material.color = color;
     }
 
-    protected override void OnDestroy()
+    void OnDestroy()
     {
         ChaosRoundTracker.Unregister(this);
         if (ChaosRoundTracker.RemainingCount == 0)
             ChaosRoundTracker.ClearRound();
 
-        base.OnDestroy();
     }
 }

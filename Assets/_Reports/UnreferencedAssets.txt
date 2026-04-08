@@ -1,0 +1,94 @@
+========================================
+ UNREFERENCED ASSET DETECTOR — REPORT
+ Generated: 2026-04-07 22:50:15
+========================================
+
+Total candidates scanned: 307
+Unreferenced assets found: 68
+Resources/ assets (skipped): 56
+Addressable entries (skipped): 5
+
+--- Models (22) ---
+  Assets/Meshes/Bumpers/BumperCross.fbx
+  Assets/Meshes/Bumpers/BumperDisc.fbx
+  Assets/Meshes/Bumpers/BumperStar.fbx
+  Assets/Meshes/Bumpers/KickerEquilateral.fbx
+  Assets/Meshes/Bumpers/RolloverCircles.fbx
+  Assets/Meshes/Bumpers/RolloverRectangles.fbx
+  Assets/Meshes/Bumpers/RolloverX.fbx
+  Assets/Meshes/Bumpers/TargetRings.fbx
+  Assets/Meshes/Bumpers/TargetX.fbx
+  Assets/Meshes/FBX/BumperCross_0.fbx
+  Assets/Meshes/FBX/Kicker_0.fbx
+  Assets/Meshes/FBX/Plunger_0.fbx
+  Assets/Meshes/FBX/RailsDouble_0.fbx
+  Assets/Meshes/FBX/RailsEnd_0.fbx
+  Assets/Meshes/FBX/RailsMiddle_0.fbx
+  Assets/Meshes/FBX/Rollover_1.fbx
+  Assets/Meshes/FBX/Rollover_3.fbx
+  Assets/Meshes/FBX/Spinner_2.fbx
+  Assets/Meshes/FBX/Spinner_3.fbx
+  Assets/Meshes/Playfield_Board (2).fbx
+  Assets/Meshes/Playfield_ScoreMeter.fbx
+  Assets/Meshes/Playfield_SpeedMeter.fbx
+
+--- Materials (4) ---
+  Assets/Shaders/M_NoiseBG 23.mat
+  Assets/Shaders/M_NoiseBG 5.mat
+  Assets/Shaders/M_NoiseBG 6.mat
+  Assets/Shaders/M_Space_CosmicDust.mat
+
+--- Textures/Sprites (37) ---
+  Assets/Prefabs/NEW_MasterUI/Group 109.png
+  Assets/Prefabs/NEW_MasterUI/Group 110.png
+  Assets/Prefabs/NEW_MasterUI/Group 111.png
+  Assets/Prefabs/NEW_MasterUI/Group 112.png
+  Assets/Prefabs/NEW_MasterUI/Union (1).png
+  Assets/Prefabs/NEW_MasterUI/Union (2).png
+  Assets/Prefabs/NEW_MasterUI/Union (3).png
+  Assets/Sprites/BayerMatrixImages/bayer16.png
+  Assets/Sprites/BayerMatrixImages/bayer16tile16.png
+  Assets/Sprites/BayerMatrixImages/bayer16tile2.png
+  Assets/Sprites/BayerMatrixImages/bayer16tile4.png
+  Assets/Sprites/BayerMatrixImages/bayer16tile8.png
+  Assets/Sprites/BayerMatrixImages/bayer2.png
+  Assets/Sprites/BayerMatrixImages/bayer2tile16.png
+  Assets/Sprites/BayerMatrixImages/bayer2tile2.png
+  Assets/Sprites/BayerMatrixImages/bayer2tile4.png
+  Assets/Sprites/BayerMatrixImages/bayer2tile8.png
+  Assets/Sprites/BayerMatrixImages/bayer4.png
+  Assets/Sprites/BayerMatrixImages/bayer4tile16.png
+  Assets/Sprites/BayerMatrixImages/bayer4tile2.png
+  Assets/Sprites/BayerMatrixImages/bayer4tile4.png
+  Assets/Sprites/BayerMatrixImages/bayer4tile8.png
+  Assets/Sprites/BayerMatrixImages/bayer8.png
+  Assets/Sprites/BayerMatrixImages/bayer8tile16.png
+  Assets/Sprites/BayerMatrixImages/bayer8tile2.png
+  Assets/Sprites/BayerMatrixImages/bayer8tile8.png
+  Assets/Sprites/Frame 8.png
+  Assets/Sprites/Temp_Logo.png
+  Assets/Sprites/UI/Pinball Shop/Component Button.png
+  Assets/Sprites/UI/Pinball Shop/Component Star.png
+  Assets/Sprites/UI/Pinball Shop/Group 75.png
+  Assets/Sprites/UI/Pinball Shop/gumball_body.png
+  Assets/Sprites/UI/Pinball Shop/gumball_glass.png
+  Assets/Sprites/UI/Pinball Shop/gumball_top.png
+  Assets/Sprites/UI/Pinball Shop/ribbon.png
+  Assets/Sprites/UI/Pinball Shop/Vector 6.png
+  Assets/Sprites/UI/Pinballs/egg.png
+
+--- Shaders (1) ---
+  Assets/Shaders/RetroEffect 1.shadergraph
+
+--- Fonts (3) ---
+  Assets/Fonts/balatro.otf
+  Assets/Fonts/Early GameBoy.ttf
+  Assets/Fonts/Jersey10-Regular.ttf
+
+--- Other (1) ---
+  Assets/Sprites/RenderTextures/RT_pixel.renderTexture
+
+--- Resources/ (potentially referenced at runtime) (56 assets skipped) ---
+
+--- Addressable Entries (potentially referenced) (5 assets skipped) ---
+

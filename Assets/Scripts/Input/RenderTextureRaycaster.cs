@@ -166,6 +166,14 @@ public class RenderTextureRaycaster : MonoBehaviour
         }
 
         GameObject hitObject = hitDown.collider.gameObject;
+
+        ShopButton3D shopButton = hitObject.GetComponentInParent<ShopButton3D>();
+        if (shopButton != null)
+        {
+            shopButton.OnClick();
+            return;
+        }
+
         EnsureShopController();
 
         if (_cachedShopController != null

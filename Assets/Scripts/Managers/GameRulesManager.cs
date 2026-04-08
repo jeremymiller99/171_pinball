@@ -47,12 +47,13 @@ public class GameRulesManager : MonoBehaviour
     private bool _shopOpen;
     private bool _levelUpProcessing;
     private float _runStartTime;
-    private bool _shopBallSaveAvailable;
+    private bool _shopAvailable;
 
     public event Action RoundStarted;
     public event Action LevelChanged;
     public event Action ShopOpened;
     public event Action ShopClosed;
+    public event Action<bool> ShopAvailabilityChanged;
 
     public int LevelIndex => roundIndex;
     public float TotalScore => roundTotal;
@@ -118,7 +119,8 @@ public class GameRulesManager : MonoBehaviour
         _shopOpen = false;
         drainHandler?.ResetState();
         _levelUpProcessing = false;
-        _shopBallSaveAvailable = false;
+        _shopAvailable = false;
+        ShopAvailabilityChanged?.Invoke(false);
         _runStartTime = Time.unscaledTime;
         roundIndex = 0;
         ServiceLocator.Get<CoinController>()?.SetRunStartingBalance(
@@ -273,7 +275,8 @@ public class GameRulesManager : MonoBehaviour
                 ServiceLocator.Get<ScoreUIController>()?.SetRoundIndex(roundIndex);
                 scoreManager.SetGoal(CurrentGoal);
 
-                _shopBallSaveAvailable = true;
+                _shopAvailable = true;
+                ShopAvailabilityChanged?.Invoke(true);
                 ServiceLocator.Get<AudioManager>()?.PlayLevelUp();
 
                 safety++;
@@ -293,11 +296,26 @@ public class GameRulesManager : MonoBehaviour
         roundTotal = total;
     }
 
-    public bool ConsumeShopBallSave()
+    public bool ShopAvailable => _shopAvailable;
+
+    public void TryEnterShopFromButton()
     {
-        if (!_shopBallSaveAvailable) return false;
-        _shopBallSaveAvailable = false;
-        return true;
+        if (!_shopAvailable) return;
+
+        _shopAvailable = false;
+        ShopAvailabilityChanged?.Invoke(false);
+
+        if (scoreManager != null)
+        {
+            scoreManager.BankCurrentBallScore();
+            roundTotal = scoreManager.RoundTotal;
+        }
+
+        RefreshBallsRemaining();
+
+        if (CheckAndCompleteRun()) return;
+
+        OpenShop();
     }
 
     public void RefreshBallsRemaining()
@@ -337,7 +355,8 @@ public class GameRulesManager : MonoBehaviour
             {
                 _runActive = false;
                 _shopOpen = false;
-                _shopBallSaveAvailable = false;
+                _shopAvailable = false;
+                ShopAvailabilityChanged?.Invoke(false);
                 _levelUpProcessing = false;
                 drainHandler?.ResetState();
 
@@ -417,6 +436,8 @@ public class GameRulesManager : MonoBehaviour
         _shopOpen = true;
         if (ballSpawner != null) ballSpawner.ClearActiveBalls();
         ShopOpened?.Invoke();
+
+        scoreManager?.ResetMultiplier();
 
         ServiceLocator.Get<AudioManager>()?.SetMusicMuffled(true);
 

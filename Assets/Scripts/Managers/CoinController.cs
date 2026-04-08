@@ -11,10 +11,12 @@ using UnityEngine;
 public sealed class CoinController : MonoBehaviour
 {
     [SerializeField] private int coins;
+    private int displayCoins;
 
     private RoundModifierController ModifierController => ServiceLocator.Get<RoundModifierController>();
 
     public int Coins => coins;
+    public int DisplayCoins => displayCoins;
 
     public event Action<int> CoinsChanged;
 
@@ -39,7 +41,8 @@ public sealed class CoinController : MonoBehaviour
     public void SetRunStartingBalance(int amount)
     {
         coins = Mathf.Max(0, amount);
-        ServiceLocator.Get<ScoreUIController>()?.SetCoins(coins);
+        displayCoins = coins;
+        ServiceLocator.Get<ScoreUIController>()?.SetCoins(displayCoins);
         RaiseCoinsChanged();
     }
 
@@ -53,7 +56,8 @@ public sealed class CoinController : MonoBehaviour
         }
 
         coins -= amount;
-        ServiceLocator.Get<ScoreUIController>()?.SetCoins(coins);
+        displayCoins -= amount; // instantly update for spending
+        ServiceLocator.Get<ScoreUIController>()?.SetCoins(displayCoins);
         RaiseCoinsChanged();
         return true;
     }
@@ -62,7 +66,8 @@ public sealed class CoinController : MonoBehaviour
     {
         if (amount <= 0) return;
         coins += amount;
-        ServiceLocator.Get<ScoreUIController>()?.SetCoins(coins);
+        displayCoins = coins;
+        ServiceLocator.Get<ScoreUIController>()?.SetCoins(displayCoins);
         ServiceLocator.Get<AudioManager>()?.PlayStaggeredCoinSounds(amount);
         RaiseCoinsChanged();
     }
@@ -82,7 +87,8 @@ public sealed class CoinController : MonoBehaviour
         }
 
         coins += applied;
-        ServiceLocator.Get<ScoreUIController>()?.SetCoins(coins);
+        displayCoins += applied;
+        ServiceLocator.Get<ScoreUIController>()?.SetCoins(displayCoins);
         ServiceLocator.Get<AudioManager>()?.PlayStaggeredCoinSounds(applied);
         RaiseCoinsChanged();
         return applied;
@@ -118,7 +124,8 @@ public sealed class CoinController : MonoBehaviour
     /// </summary>
     public void ApplyDeferredCoinsUi(int applied)
     {
-        ServiceLocator.Get<ScoreUIController>()?.SetCoins(coins);
+        displayCoins += applied;
+        ServiceLocator.Get<ScoreUIController>()?.SetCoins(displayCoins);
         ServiceLocator.Get<AudioManager>()?.PlayStaggeredCoinSounds(applied);
     }
 }

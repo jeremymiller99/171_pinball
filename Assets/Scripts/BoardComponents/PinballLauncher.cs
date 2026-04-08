@@ -142,6 +142,15 @@ public sealed class PinballLauncher : MonoBehaviour
             _ballRb = other.attachedRigidbody;
     }
 
+    private void OnTriggerStay(Collider other)
+    {
+        if (_ballRb == null && other.CompareTag("Ball"))
+        {
+            if (other.attachedRigidbody != null)
+                _ballRb = other.attachedRigidbody;
+        }
+    }
+
     private void OnTriggerExit(Collider other)
     {
         if (_ballRb == null)

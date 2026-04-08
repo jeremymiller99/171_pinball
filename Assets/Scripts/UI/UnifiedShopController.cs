@@ -73,6 +73,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     private void OnEnable()
     {
+        Debug.Log("[UnifiedShopController] OnEnable triggered. Resetting state.");
         _closeRequested = false;
         CurrentState = ShopState.Browsing;
 
@@ -81,10 +82,10 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (ballSpawner != null)
         {
             var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
-            var loadout = loadoutCtrl != null ? loadoutCtrl.GetBallLoadoutSnapshot() : new List<BallDefinition>();
-            var prefabs = new List<GameObject>(loadout.Count);
-            for (int i = 0; i < loadout.Count; i++) prefabs.Add(loadout[i]?.Prefab);
-            ballSpawner.BuildHandFromPrefabs(prefabs);
+            if (loadoutCtrl != null && loadoutCtrl.BallLoadoutCount > 0)
+            {
+                ballSpawner.BuildHandFromPrefabs(loadoutCtrl.GetBallLoadoutPrefabSnapshot());
+            }
         }
 
         _shelf.Initialize();
@@ -150,10 +151,12 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     public void ConfirmPurchase()
     {
+        Debug.Log($"[UnifiedShopController] ConfirmPurchase clicked. selectedOffer={_selectedOffer?.DisplayName}");
         if (_selectedOffer == null) return;
 
         if (coinController == null || !coinController.TrySpendCoins(_selectedOffer.Price))
         {
+            Debug.Log("[UnifiedShopController] Not enough coins.");
             SetPrompt($"Not enough coins for {_selectedOffer.DisplayName}.");
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             if (confirmPanel != null) confirmPanel.Hide();
@@ -161,6 +164,7 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
+        Debug.Log("[UnifiedShopController] Coins spent. Progressing to placement.");
         ServiceLocator.Get<AudioManager>()?.PlayPurchase();
 
         if (confirmPanel != null) confirmPanel.Hide();
@@ -300,8 +304,11 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     public void CloseAndContinue()
     {
+        Debug.Log($"[UnifiedShopController] CloseAndContinue called. closeRequested={_closeRequested}, CurrentState={CurrentState}");
         if (_closeRequested) return;
         _closeRequested = true;
+
+        if (confirmPanel != null) confirmPanel.Hide();
 
         _shelf.ClearOfferDisplays();
 
@@ -310,16 +317,19 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (runFlowController != null)
         {
+            Debug.Log("[UnifiedShopController] Handing over Continue to RunFlowController");
             runFlowController.ContinueAfterShop();
             return;
         }
 
         if (shopTransitionController != null)
         {
+            Debug.Log("[UnifiedShopController] Using ShopTransitionController to close");
             shopTransitionController.CloseShopThen(() => rulesManager?.OnShopClosed());
             return;
         }
 
+        Debug.Log("[UnifiedShopController] Closing via GameRulesManager immediately");
         rulesManager?.OnShopClosed();
 
         if (shopCanvasRoot != null) shopCanvasRoot.SetActive(false);

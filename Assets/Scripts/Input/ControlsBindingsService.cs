@@ -177,6 +177,8 @@ public sealed class ControlsBindingsService : MonoBehaviour
                 return new ControlsBinding { key = "DownArrow", mouseButton = -1 };
             case ControlAction.ToggleDebugPanel:
                 return new ControlsBinding { key = "Backquote", mouseButton = -1 };
+            case ControlAction.UISelect:
+                return new ControlsBinding { key = "Enter", mouseButton = -1 };
             default:
                 return ControlsBinding.None;
         }

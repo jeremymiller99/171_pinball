@@ -78,6 +78,12 @@ public class ScoreUIController : MonoBehaviour
     private Color _roundIndexBaseColor;
     private Coroutine _roundIndexPopRoutine;
 
+    private Vector3 _multBaseLocalScale;
+    private Color _multBaseColor;
+    private bool _multBaselineCaptured;
+    private int _multTextInstanceId;
+    private Coroutine _multResetFlashRoutine;
+
     private const string ScoreCanvasRootName =
         "Score Canvas";
     private const string MoneyCanvasRootName =
@@ -114,6 +120,7 @@ public class ScoreUIController : MonoBehaviour
         if (sm != null)
         {
             sm.MultAdded += OnMultAdded;
+            sm.MultReset += OnMultReset;
             sm.ScoreChanged += OnScoreChanged;
         }
 
@@ -128,6 +135,7 @@ public class ScoreUIController : MonoBehaviour
                 out var sm) && sm != null)
         {
             sm.MultAdded -= OnMultAdded;
+            sm.MultReset -= OnMultReset;
             sm.ScoreChanged -= OnScoreChanged;
         }
 
@@ -175,6 +183,17 @@ public class ScoreUIController : MonoBehaviour
         multQueue.Enqueue(newTotal);
     }
 
+    private void OnMultReset()
+    {
+        if (multText != null)
+        {
+            multQueue.Clear();
+            multUiDisplayed = 1f;
+            multText.text = FormatMultiplier(1f);
+            PlayMultResetFlash();
+        }
+    }
+
     private void OnScoreChanged()
     {
         if (!ServiceLocator.TryGet<ScoreManager>(
@@ -193,11 +212,11 @@ public class ScoreUIController : MonoBehaviour
         if (roundTotalText != null)
             roundTotalText.text =
                 FormatRoundTotalWhole(
-                    sm.LiveRoundTotal);
+                    sm.DisplayRoundTotal);
 
         if (multText != null)
         {
-            float newMult = sm.Mult;
+            float newMult = sm.DisplayMult;
             if (!Mathf.Approximately(
                     newMult, multUiDisplayed))
             {
@@ -233,7 +252,7 @@ public class ScoreUIController : MonoBehaviour
             && ServiceLocator.TryGet<CoinController>(
                 out var cc))
         {
-            coinsText.text = $"${cc.Coins}";
+            coinsText.text = $"${cc.DisplayCoins}";
         }
     }
 
@@ -253,10 +272,7 @@ public class ScoreUIController : MonoBehaviour
             multText.text = FormatMultiplier(newMult);
         }
 
-        if (multActuallyChanged)
-        {
-            ScoreUiPopped?.Invoke(multActuallyChanged);
-        }
+        ScoreUiPopped?.Invoke(multActuallyChanged);
     }
 
     public void RefreshAllText()
@@ -264,7 +280,7 @@ public class ScoreUIController : MonoBehaviour
         if (ServiceLocator.TryGet<ScoreManager>(
                 out var sm))
         {
-            multUiDisplayed = sm.Mult;
+            multUiDisplayed = sm.DisplayMult;
 
             if (multText != null)
                 multText.text =
@@ -272,7 +288,7 @@ public class ScoreUIController : MonoBehaviour
             if (roundTotalText != null)
                 roundTotalText.text =
                     FormatRoundTotalWhole(
-                        sm.LiveRoundTotal);
+                        sm.DisplayRoundTotal);
             if (goalText != null)
             {
                 _goalUiLast = sm.CumulativeGoal;
@@ -284,7 +300,7 @@ public class ScoreUIController : MonoBehaviour
                 out var cc))
         {
             if (coinsText != null)
-                coinsText.text = $"${cc.Coins}";
+                coinsText.text = $"${cc.DisplayCoins}";
         }
         else if (ServiceLocator.TryGet<GameRulesManager>(
                 out var gm))
@@ -335,7 +351,7 @@ public class ScoreUIController : MonoBehaviour
     {
         if (ServiceLocator.TryGet<CoinController>(
                 out var cc) && cc != null)
-            SetCoins(cc.Coins);
+            SetCoins(cc.DisplayCoins);
         else
         {
             coinsUiDisplayed += applied;
@@ -443,6 +459,63 @@ public class ScoreUIController : MonoBehaviour
         }
 
         _roundIndexPopRoutine = null;
+    }
+
+    private void CaptureMultBaselineIfNeeded()
+    {
+        if (multText == null) return;
+        int id = multText.GetInstanceID();
+        if (_multBaselineCaptured && id == _multTextInstanceId) return;
+
+        _multTextInstanceId = id;
+        _multBaselineCaptured = true;
+        _multBaseLocalScale = multText.rectTransform.localScale;
+        _multBaseColor = multText.color;
+    }
+
+    private void PlayMultResetFlash()
+    {
+        if (multText == null) return;
+        CaptureMultBaselineIfNeeded();
+
+        if (_multResetFlashRoutine != null)
+            StopCoroutine(_multResetFlashRoutine);
+
+        _multResetFlashRoutine = StartCoroutine(MultResetFlashRoutine());
+    }
+
+    private System.Collections.IEnumerator MultResetFlashRoutine()
+    {
+        TMP_Text text = multText;
+        if (text == null) yield break;
+
+        RectTransform rt = text.rectTransform;
+        Vector3 baseScale = _multBaseLocalScale;
+        Color baseColor = _multBaseColor;
+
+        float duration = 0.35f;
+        float t = 0f;
+
+        while (t < duration)
+        {
+            if (text == null) yield break;
+
+            float n = Mathf.Clamp01(t / duration);
+            Color flashColor = Color.red;
+            text.color = Color.Lerp(flashColor, baseColor, n);
+            rt.localScale = baseScale * (1f + 0.3f * Mathf.Sin(n * Mathf.PI));
+
+            t += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        if (text != null)
+        {
+            rt.localScale = baseScale;
+            text.color = baseColor;
+        }
+
+        _multResetFlashRoutine = null;
     }
 
     public void EnsureCoreScoreTextBindings()

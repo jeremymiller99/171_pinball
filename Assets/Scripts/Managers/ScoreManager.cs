@@ -23,6 +23,14 @@ public class ScoreManager : MonoBehaviour
     public float Mult => mult;
     public float RoundTotal => roundTotal;
 
+    private float displayPoints;
+    private float displayMult = 1f;
+
+    public float DisplayPoints => displayPoints;
+    public float DisplayMult => displayMult;
+    public float DisplayRoundTotal => roundTotal + displayPoints;
+
+
     [Header("Level Progress (runtime)")]
     [SerializeField, Tooltip("Read-only at runtime. Tracks how much cumulative score has been consumed by level-ups.")]
     private float levelProgressOffset;
@@ -108,6 +116,7 @@ public class ScoreManager : MonoBehaviour
 
     public event Action<float, float> PointsAdded; // (appliedAmount, currentStoredPoints)
     public event Action<float, float> MultAdded; // (appliedAmount, currentStoredMult)
+    public event Action MultReset;
     public event Action<int, int> CoinsAdded; // (appliedAmount, currentCoins)
 
     // Properties
@@ -211,6 +220,9 @@ public class ScoreManager : MonoBehaviour
         roundTotal = 0f;
         _goal = 0f;
         _goalTier = 0;
+        
+        displayPoints = 0f;
+        displayMult = 1f;
 
         CaptureTimeBaseIfNeeded();
         ApplySpeedFromTier(force: true);
@@ -254,7 +266,17 @@ public class ScoreManager : MonoBehaviour
         points += scaled;
         
         if (floatingTextSpawner != null)
-            floatingTextSpawner.SpawnPointsText(pos.position, "+" + scaled, scaled, null, popupAnchorOffset);
+        {
+            floatingTextSpawner.SpawnPointsText(pos.position, "+" + scaled, scaled, () => 
+            {
+                displayPoints += scaled;
+                ScoreChanged?.Invoke();
+            }, popupAnchorOffset);
+        }
+        else
+        {
+            displayPoints += scaled;
+        }
 
         PointsAdded?.Invoke(scaled, points);
         UpdateGoalTierAndApplySpeed();
@@ -268,7 +290,17 @@ public class ScoreManager : MonoBehaviour
         mult += applied;
 
         if (floatingTextSpawner != null)
-            floatingTextSpawner.SpawnMultText(pos.position, "+x" + (Mathf.Round(applied * 100f) / 100f).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture), applied);
+        {
+            floatingTextSpawner.SpawnMultText(pos.position, "+x" + (Mathf.Round(applied * 100f) / 100f).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture), applied, () => 
+            {
+                displayMult += applied;
+                ScoreChanged?.Invoke();
+            });
+        }
+        else
+        {
+            displayMult += applied;
+        }
 
         MultAdded?.Invoke(applied, mult);
         UpdateGoalTierAndApplySpeed();
@@ -296,6 +328,14 @@ public class ScoreManager : MonoBehaviour
         scoringLocked = locked;
     }
 
+    public void ResetMultiplier()
+    {
+        mult = 1f;
+        displayMult = 1f;
+        MultReset?.Invoke();
+        ScoreChanged?.Invoke();
+    }
+
     public float BankCurrentBallScore()
     {
         float banked = points;
@@ -303,6 +343,8 @@ public class ScoreManager : MonoBehaviour
 
         BallBanked?.Invoke();
         points = 0f;
+        displayPoints = 0f;
+        displayMult = mult; // Sync display mult just in case
         _componentHitAssistAccelerationBonus = 0f;
         _componentHitTimeScaleBonus = 0f;
         _componentHitScoreBonus = 0f;
@@ -319,6 +361,8 @@ public class ScoreManager : MonoBehaviour
         points = 0f;
         BallBanked?.Invoke();
         mult = 1f;
+        displayPoints = 0f;
+        displayMult = 1f;
         _goalTier = 0;
         totalComponentHits = 0;
         _componentHitAssistAccelerationBonus = 0f;

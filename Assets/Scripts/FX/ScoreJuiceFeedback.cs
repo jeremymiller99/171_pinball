@@ -145,14 +145,15 @@ public class ScoreJuiceFeedback : MonoBehaviour
         {
             ServiceLocator.Get<AudioManager>()?.PlayMultAdd(compTriggered);
         }
-
-        if (multChanged)
+        else
         {
-            framesSinceLastScore = 0;
-            if (compTriggered < 80)
-            {
-                compTriggered += 5;
-            }
+            ServiceLocator.Get<AudioManager>()?.PlayPointsAdd(compTriggered);
+        }
+
+        framesSinceLastScore = 0;
+        if (compTriggered < 80)
+        {
+            compTriggered += 5;
         }
     }
 

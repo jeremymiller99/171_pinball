@@ -132,23 +132,6 @@ public class DrainHandler : MonoBehaviour
 
         DrainBankCompleted?.Invoke();
 
-        bool shopBallSaveAvailable = rules.ConsumeShopBallSave();
-
-        if (shopBallSaveAvailable)
-        {
-            rules.RefreshBallsRemaining();
-
-            if (rules.CheckAndCompleteRun())
-            {
-                _drainProcessing = false;
-                yield break;
-            }
-
-            rules.OpenShop();
-            _drainProcessing = false;
-            yield break;
-        }
-
         var loadout = ServiceLocator.Get<BallLoadoutController>();
         loadout?.ConsumeActiveBallFromLoadout(slotHint);
         rules.RefreshBallsRemaining();

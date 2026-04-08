@@ -10,10 +10,9 @@ Material:
   m_Name: Blue Two
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 2100000, guid: 8be922540fe9b134ba19143c39c6a995, type: 2}
-  m_ModifiedSerializedProperties: 16
+  m_ModifiedSerializedProperties: 18
   m_ValidKeywords:
   - _ALPHAPREMULTIPLY_ON
-  - _EMISSION
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -39,6 +38,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 0.10980383, g: 0.5426929, b: 0.945098, a: 0.2784314}
     - _Color: {r: 0.10980379, g: 0.5426929, b: 0.945098, a: 0.2784314}
+    - _EmissionColor: {r: 0.011612245, g: 0.25415218, b: 0.8796226, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &1372702014701519483

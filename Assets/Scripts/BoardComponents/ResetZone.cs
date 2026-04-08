@@ -30,7 +30,8 @@ public class ResetZone : MonoBehaviour
             if (outsideBounds)
             {
                 drainHandler.OnBallDrained(
-                    other.gameObject, 2f, showHomeRunPopup: true);
+                    other.gameObject,
+                    showHomeRunPopup: true);
             }
             else
             {

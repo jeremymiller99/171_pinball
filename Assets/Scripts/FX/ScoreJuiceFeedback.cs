@@ -139,19 +139,14 @@ public class ScoreJuiceFeedback : MonoBehaviour
         }
     }
 
-    private void OnScoreUiPopped(bool pointsChanged, bool multChanged)
+    private void OnScoreUiPopped(bool multChanged)
     {
-        if (pointsChanged)
-        {
-            ServiceLocator.Get<AudioManager>()?.PlayPointsAdd(compTriggered);
-        }
-
         if (multChanged)
         {
             ServiceLocator.Get<AudioManager>()?.PlayMultAdd(compTriggered);
         }
 
-        if (pointsChanged || multChanged)
+        if (multChanged)
         {
             framesSinceLastScore = 0;
             if (compTriggered < 80)

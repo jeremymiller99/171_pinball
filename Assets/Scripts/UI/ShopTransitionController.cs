@@ -181,7 +181,6 @@ public sealed class ShopTransitionController : MonoBehaviour
         bool unified = IsUsingUnifiedShop();
         Debug.Log($"[ShopTransition] usingUnifiedShop={unified}, cameraRig={cameraRig != null}, shopCanvasRoot={shopCanvasRoot != null}");
 
-        HideBoardUI();
 
         if (shopCanvasRoot != null && !shopCanvasRoot.activeSelf)
             shopCanvasRoot.SetActive(true);
@@ -266,9 +265,39 @@ public sealed class ShopTransitionController : MonoBehaviour
         if (string.IsNullOrEmpty(boardUIName))
             return;
 
+        // Try active objects first.
         var go = GameObject.Find(boardUIName);
         if (go != null)
+        {
             _boardUIRoot = go;
+            return;
+        }
+
+        // Fallback: search all scene roots
+        // (catches disabled objects).
+        int sceneCount = SceneManager.sceneCount;
+        for (int s = 0; s < sceneCount; s++)
+        {
+            Scene scene = SceneManager.GetSceneAt(s);
+            if (!scene.IsValid() || !scene.isLoaded)
+                continue;
+
+            GameObject[] roots =
+                scene.GetRootGameObjects();
+            for (int r = 0; r < roots.Length; r++)
+            {
+                if (roots[r] == null) continue;
+                if (string.Equals(
+                        roots[r].name,
+                        boardUIName,
+                        System.StringComparison
+                            .OrdinalIgnoreCase))
+                {
+                    _boardUIRoot = roots[r];
+                    return;
+                }
+            }
+        }
     }
 
     private void StartTransition(IEnumerator routine)
@@ -329,7 +358,6 @@ public sealed class ShopTransitionController : MonoBehaviour
         Debug.Log("[ShopTransition] Restoring board pose");
         RestoreBoardPose();
 
-        ShowBoardUI();
 
         _isOpen = false;
         _isTransitioning = false;

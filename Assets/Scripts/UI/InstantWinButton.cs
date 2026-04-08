@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
+/// Updated with Antigravity by jjmil on 2026-04-07 (removed bankMultiplier).
 /// Generated with Cursor (GPT-5.3-codex) by OpenAI assistant for jjmil on 2026-02-26.
 /// Dev/testing helper: when clicked during an active round, bank enough points to meet the current level goal.
 /// Intended to be wired to a UI Button in a debug panel.
@@ -62,18 +63,20 @@ public sealed class InstantWinButton : MonoBehaviour
             return;
         }
 
-        // Use level-progress space, not round-total space.
-        // roundTotal can include progress already consumed by previous level-ups, which can make
-        // a debug "instant level up" button fail on higher levels if we compare against roundTotal.
+        // AddRawPoints bypasses mult scaling, so we
+        // divide by current mult to get the raw amount
+        // that will become the correct scaled value.
         float currentMult = scoreManager.Mult;
         if (currentMult <= 0f) currentMult = 1f;
 
-        float extraNeeded = goal - scoreManager.LiveLevelProgress;
+        float extraNeeded =
+            goal - scoreManager.LiveLevelProgress;
 
         if (extraNeeded > 0f)
-            scoreManager.AddRawPoints(extraNeeded / currentMult);
+            scoreManager.AddRawPoints(
+                extraNeeded / currentMult);
 
-        scoreManager.BankCurrentBallScore(bankMultiplier: 1f);
+        scoreManager.BankCurrentBallScore();
     }
 }
 

@@ -106,10 +106,11 @@ public class FloatingTextSpawner : MonoBehaviour
     private RectTransform multTarget;
     private RectTransform coinsTarget;
 
-    private const string scorePanelRootName = "Score Panel";
-    private const string roundInfoPanelRootName = "Round Info Panel";
-    private const string pointsObjectName = "Points";
-    private const string multObjectName = "Mult";
+    private const string scoreCanvasRootName = "Score Canvas";
+    private const string multCanvasRootName = "Mult Canvas";
+    private const string moneyCanvasRootName = "Money Canvas";
+    private const string pointsObjectName = "RoundTotal";
+    private const string multObjectName = "Mult text";
     private const string coinsObjectName = "Coins";
 
     private enum FlyToTarget
@@ -701,20 +702,31 @@ public class FloatingTextSpawner : MonoBehaviour
         else if (target == FlyToTarget.Mult) rt = multTarget;
         else if (target == FlyToTarget.Coins) rt = coinsTarget;
 
-        if (!IsLiveRect(rt))
+        PlayJuiceOnTarget(rt);
+    }
+
+    public void PlayJuiceOnTarget(RectTransform target)
+    {
+        if (target == null)
             return;
 
-        if (juiceRoutineByTarget.TryGetValue(rt, out Coroutine existing) && existing != null)
+        if (!juiceOnArrival)
+            return;
+
+        if (!IsLiveRect(target))
+            return;
+
+        if (juiceRoutineByTarget.TryGetValue(target, out Coroutine existing) && existing != null)
         {
             StopCoroutine(existing);
 
-            if (juiceBaseScaleByTarget.TryGetValue(rt, out Vector3 s))
-                rt.localScale = s;
-            if (juiceBaseRotationByTarget.TryGetValue(rt, out Quaternion q))
-                rt.localRotation = q;
+            if (juiceBaseScaleByTarget.TryGetValue(target, out Vector3 s))
+                target.localScale = s;
+            if (juiceBaseRotationByTarget.TryGetValue(target, out Quaternion q))
+                target.localRotation = q;
         }
 
-        juiceRoutineByTarget[rt] = StartCoroutine(JuiceRoutine(rt));
+        juiceRoutineByTarget[target] = StartCoroutine(JuiceRoutine(target));
     }
 
     private IEnumerator JuiceRoutine(RectTransform target)
@@ -784,13 +796,19 @@ public class FloatingTextSpawner : MonoBehaviour
             return;
 
         if (!IsLiveRect(pointsTarget))
-            pointsTarget = TryFindTextRectInPanel(scorePanelRootName, pointsObjectName);
+            pointsTarget = TryFindTextRectInPanel(
+                scoreCanvasRootName,
+                pointsObjectName);
 
         if (!IsLiveRect(multTarget))
-            multTarget = TryFindTextRectInPanel(scorePanelRootName, multObjectName);
+            multTarget = TryFindTextRectInPanel(
+                multCanvasRootName,
+                multObjectName);
 
         if (!IsLiveRect(coinsTarget))
-            coinsTarget = TryFindTextRectInPanel(roundInfoPanelRootName, coinsObjectName);
+            coinsTarget = TryFindTextRectInPanel(
+                moneyCanvasRootName,
+                coinsObjectName);
 
         if (IsLiveRect(pointsTarget) && IsLiveRect(multTarget) && IsLiveRect(coinsTarget))
             return;
@@ -1241,10 +1259,10 @@ public class FloatingTextSpawner : MonoBehaviour
 
     private static string FormatNumberCompactCore(float abs)
     {
-        if (abs < 1000f)
+        if (abs < 10000f)
         {
             float rounded1 = Mathf.Round(abs * 10f) / 10f;
-            return rounded1.ToString("0.#", CultureInfo.InvariantCulture);
+            return rounded1.ToString("#,##0.#", CultureInfo.InvariantCulture);
         }
 
         float scale = 1000f;
@@ -1285,6 +1303,6 @@ public class FloatingTextSpawner : MonoBehaviour
             return Mathf.RoundToInt(scaledRounded1).ToString(CultureInfo.InvariantCulture) + suffix;
         }
 
-        return scaledRounded1.ToString("0.#", CultureInfo.InvariantCulture) + suffix;
+        return scaledRounded1.ToString("#,##0.#", CultureInfo.InvariantCulture) + suffix;
     }
 }

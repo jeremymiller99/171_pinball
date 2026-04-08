@@ -1173,7 +1173,7 @@ public class MainMenuUI : MonoBehaviour
                 + "M";
         }
 
-        if (value >= 1000L)
+        if (value >= 10000L)
         {
             double k = value / 1000.0;
             return k.ToString(

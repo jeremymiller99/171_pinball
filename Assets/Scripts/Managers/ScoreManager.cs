@@ -1,3 +1,4 @@
+// Updated with Antigravity by jjmil on 2026-04-07 (mult rework: persistent board multiplier, applied at earn-time).
 // Updated with Antigravity by jjmil on 2026-03-29.
 // Updated with Cursor (Composer) by assistant on 2026-03-31 (Phase 7: EnsureRefs in Awake only; CoinController for coin awards).
 // Originally generated with Cursor (GPT-5.2) by OpenAI assistant on 2026-02-15.
@@ -118,7 +119,7 @@ public class ScoreManager : MonoBehaviour
     public float SpeedMultiplier => 1f + (_goalTier * speedIncreasePerGoalTier);
     public float SpeedIncreasePerGoalTier => speedIncreasePerGoalTier;
     public float ScoreIncreasePerGoalTier => scoreIncreasePerGoalTier;
-    public float LiveRoundTotal => roundTotal + (points * mult);
+    public float LiveRoundTotal => roundTotal + points;
     public float LiveLevelProgress => Mathf.Max(0f, LiveRoundTotal - levelProgressOffset);
     public float ComponentHitAssistAccelerationBonus => _componentHitAssistAccelerationBonus;
     public float ExternalTimeScaleMultiplier => externalTimeScaleMultiplier;
@@ -249,12 +250,13 @@ public class ScoreManager : MonoBehaviour
     {
         if (scoringLocked || applied == 0) return;
 
-        points += applied;
+        float scaled = applied * mult;
+        points += scaled;
         
         if (floatingTextSpawner != null)
-            floatingTextSpawner.SpawnPointsText(pos.position, "+" + applied, applied, null, popupAnchorOffset);
+            floatingTextSpawner.SpawnPointsText(pos.position, "+" + scaled, scaled, null, popupAnchorOffset);
 
-        PointsAdded?.Invoke(applied, points);
+        PointsAdded?.Invoke(scaled, points);
         UpdateGoalTierAndApplySpeed();
         ScoreChanged?.Invoke();
     }
@@ -266,7 +268,7 @@ public class ScoreManager : MonoBehaviour
         mult += applied;
 
         if (floatingTextSpawner != null)
-            floatingTextSpawner.SpawnMultText(pos.position, "x" + ScoreUIController.FormatMultiplier(applied), applied);
+            floatingTextSpawner.SpawnMultText(pos.position, "+x" + (Mathf.Round(applied * 100f) / 100f).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture), applied);
 
         MultAdded?.Invoke(applied, mult);
         UpdateGoalTierAndApplySpeed();
@@ -296,20 +298,11 @@ public class ScoreManager : MonoBehaviour
 
     public float BankCurrentBallScore()
     {
-        return BankCurrentBallScore(1f);
-    }
-
-    public float BankCurrentBallScore(float bankMultiplier)
-    {
-        float m = bankMultiplier;
-        if (m <= 0f) m = 1f;
-
-        float banked = points * mult * m;
+        float banked = points;
         roundTotal += banked;
 
         BallBanked?.Invoke();
         points = 0f;
-        mult = 1f;
         _componentHitAssistAccelerationBonus = 0f;
         _componentHitTimeScaleBonus = 0f;
         _componentHitScoreBonus = 0f;

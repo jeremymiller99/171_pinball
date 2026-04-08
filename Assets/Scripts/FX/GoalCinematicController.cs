@@ -150,7 +150,7 @@ public sealed class GoalCinematicController : MonoBehaviour
         }
 
         float goal = _score.Goal;
-        float live = _score.LiveRoundTotal;
+        float live = _score.RoundTotal;
         if (goal <= 0.0001f || live <= 0f)
         {
             SmoothToward(1f);

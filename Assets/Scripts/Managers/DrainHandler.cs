@@ -1,3 +1,4 @@
+// Updated with Antigravity by jjmil on 2026-04-07 (removed bankMultiplier).
 // Generated with Cursor (Composer) by assistant on 2026-03-31.
 using System;
 using System.Collections;
@@ -48,10 +49,11 @@ public class DrainHandler : MonoBehaviour
 
     public void OnBallDrained(GameObject ball)
     {
-        OnBallDrained(ball, 1f, false);
+        OnBallDrained(ball, false);
     }
 
-    public void OnBallDrained(GameObject ball, float bankMultiplier, bool showHomeRunPopup)
+    public void OnBallDrained(
+        GameObject ball, bool showHomeRunPopup)
     {
         ResolveServices();
 
@@ -61,12 +63,13 @@ public class DrainHandler : MonoBehaviour
             return;
         }
 
-        StartCoroutine(OnBallDrainedRoutine(ball, bankMultiplier, showHomeRunPopup));
+        StartCoroutine(
+            OnBallDrainedRoutine(
+                ball, showHomeRunPopup));
     }
 
     private IEnumerator OnBallDrainedRoutine(
         GameObject ball,
-        float bankMultiplier,
         bool showHomeRunPopup)
     {
         List<GameObject> activeBalls = ballSpawner != null ? ballSpawner.ActiveBalls : null;
@@ -97,8 +100,7 @@ public class DrainHandler : MonoBehaviour
         double bankedPoints = 0d;
         if (scoreManager != null)
         {
-            float m = bankMultiplier <= 0f ? 1f : bankMultiplier;
-            bankedPoints = scoreManager.Points * scoreManager.Mult * m;
+            bankedPoints = scoreManager.Points;
         }
 
         Vector3 drainedBallWorldPos = ball != null ? ball.transform.position : Vector3.zero;
@@ -110,16 +112,18 @@ public class DrainHandler : MonoBehaviour
         }
 
         float roundTotal;
-        if (scoreTallyAnimator != null && scoreManager != null)
+        if (scoreTallyAnimator != null
+            && scoreManager != null)
         {
             yield return scoreTallyAnimator.PlayTally(
-                scoreManager, bankMultiplier, drainedBallWorldPos);
+                scoreManager, drainedBallWorldPos);
             roundTotal = scoreManager.RoundTotal;
         }
         else
         {
-            BankCurrentBallIntoRoundTotal(bankMultiplier);
-            roundTotal = scoreManager != null ? scoreManager.RoundTotal : 0f;
+            BankCurrentBallIntoRoundTotal();
+            roundTotal = scoreManager != null
+                ? scoreManager.RoundTotal : 0f;
             bankedPoints = roundTotal;
         }
 
@@ -163,10 +167,10 @@ public class DrainHandler : MonoBehaviour
         _drainProcessing = false;
     }
 
-    private float BankCurrentBallIntoRoundTotal(float bankMultiplier = 1f)
+    private float BankCurrentBallIntoRoundTotal()
     {
         if (scoreManager == null) return 0f;
-        return scoreManager.BankCurrentBallScore(bankMultiplier);
+        return scoreManager.BankCurrentBallScore();
     }
 
     private GameObject SpawnBall()

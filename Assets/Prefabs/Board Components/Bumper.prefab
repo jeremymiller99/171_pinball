@@ -175,7 +175,7 @@ MonoBehaviour:
       Data2: 1333712520
       Data3: -1154293597
       Data4: -2036301457
-    Path: event:/collide_points
+    Path: event:/ingame/comp_generic/comp_bumper_param
 --- !u!54 &7704073523566280680
 Rigidbody:
   m_ObjectHideFlags: 0

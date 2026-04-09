@@ -14,16 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoundModifierDefinition
   backgroundMaterial: {fileID: 2100000, guid: afa2906433ce5bf4191baec1c2a47ef0, type: 2}
   displayName: Higher Stakes
-  description: Goal requirement increased by 500.
+  description: Goal requirement increased by 50%.
   icon: {fileID: 0}
   applyTwoRandomDevilModifiers: 0
   scoreMultiplier: 1
   disableMultiplier: 0
-  goalModifier: 500
+  goalMultiplier: 1.5
   coinMultiplier: 1
   ballModifier: 0
   timeScaleMultiplier: 1
   cyclicHideBallEnabled: 0
   cyclicHideBallVisibleSeconds: 6
   cyclicHideBallHiddenSeconds: 3
-  flipperUseLimit: 0

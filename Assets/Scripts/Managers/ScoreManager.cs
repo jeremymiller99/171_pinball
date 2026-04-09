@@ -149,20 +149,17 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private float multModifierMultiplier;
     [SerializeField] private int coinMultiplier;
     [SerializeField] private float coinModifierMultiplier;
-    [SerializeField] private float modifierTimeScaleMultiplier = 1f;
 
     public float PointsModifierMultiplier => pointsModifierMultiplier;
     public float MultModifierMultiplier => multModifierMultiplier;
     public float CoinModifierMultiplier => coinModifierMultiplier;
-    public float ModifierTimeScaleMultiplier => modifierTimeScaleMultiplier;
 
     public void SetModifierMultipliers(
-        float pointsMod, float multMod, float coinMod, float timeScaleMod)
+        float pointsMod, float multMod, float coinMod)
     {
         pointsModifierMultiplier = Mathf.Max(0f, pointsMod);
         multModifierMultiplier = Mathf.Max(0f, multMod);
         coinModifierMultiplier = Mathf.Max(0f, coinMod);
-        modifierTimeScaleMultiplier = Mathf.Max(0.1f, timeScaleMod);
         ApplySpeedFromTier(force: true);
     }
 
@@ -171,7 +168,6 @@ public class ScoreManager : MonoBehaviour
         pointsModifierMultiplier = 1f;
         multModifierMultiplier = 1f;
         coinModifierMultiplier = 1f;
-        modifierTimeScaleMultiplier = 1f;
         ApplySpeedFromTier(force: true);
     }
 
@@ -446,7 +442,6 @@ public class ScoreManager : MonoBehaviour
     {
         externalTimeScaleMultiplier = 1f;
         externalScoreAwardMultiplier = 1f;
-        modifierTimeScaleMultiplier = 1f;
         ClearAllTimeScaleRequests();
         ApplySpeedFromTier(force: true);
     }
@@ -495,9 +490,8 @@ public class ScoreManager : MonoBehaviour
 
         float requestMult = Mathf.Max(1f, _timeScaleRequestMin);
         float extMult = Mathf.Max(1f, externalTimeScaleMultiplier);
-        float modTimeScale = Mathf.Max(0.1f, modifierTimeScaleMultiplier);
         float effectiveBase = _baseTimeScale + _componentHitTimeScaleBonus;
-        float targetScale = effectiveBase * Mathf.Max(0f, SpeedMultiplier) * extMult * requestMult * modTimeScale;
+        float targetScale = effectiveBase * Mathf.Max(0f, SpeedMultiplier) * extMult * requestMult;
         
         if (maxTimeScale > 0f)
             targetScale = Mathf.Min(targetScale, maxTimeScale);

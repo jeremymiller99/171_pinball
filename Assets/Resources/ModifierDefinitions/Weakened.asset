@@ -14,16 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoundModifierDefinition
   backgroundMaterial: {fileID: 2100000, guid: afa2906433ce5bf4191baec1c2a47ef0, type: 2}
   displayName: Weakened
-  description: Points earned reduced by 25%.
+  description: Points earned reduced by 50%.
   icon: {fileID: 0}
   applyTwoRandomDevilModifiers: 0
-  scoreMultiplier: 0.75
+  scoreMultiplier: 0.5
   disableMultiplier: 0
-  goalModifier: 0
+  goalMultiplier: 0
   coinMultiplier: 1
   ballModifier: 0
   timeScaleMultiplier: 1
   cyclicHideBallEnabled: 0
   cyclicHideBallVisibleSeconds: 6
   cyclicHideBallHiddenSeconds: 3
-  flipperUseLimit: 0

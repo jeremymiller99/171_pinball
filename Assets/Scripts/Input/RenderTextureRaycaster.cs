@@ -442,6 +442,22 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             title = shipVis.ShipDef.displayName;
             desc = shipVis.ShipDef.description;
+            elementType = shipVis.ShipDef.ElementType;
+            return;
+        }
+
+        ShopShipController shopShip =
+            obj.GetComponentInParent<ShopShipController>();
+
+        if (shopShip != null)
+        {
+            title = shopShip.CurrentMerchantDisplayName;
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                title = "Visiting merchant";
+            }
+            elementType = shopShip.CurrentCatalogElement;
+            desc = ShopMerchantTooltipHover.BuildDescription(shopShip, elementType);
             return;
         }
 
@@ -945,6 +961,11 @@ public class RenderTextureRaycaster : MonoBehaviour
 
         Outline outline =
             obj.GetComponentInParent<Outline>();
+
+        if (outline == null)
+        {
+            outline = obj.GetComponentInChildren<Outline>();
+        }
 
         if (outline != null)
         {

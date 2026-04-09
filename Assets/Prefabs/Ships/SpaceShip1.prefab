@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6775933648561269133}
   - component: {fileID: 5426864900932849721}
   - component: {fileID: 4014420190551433232}
+  - component: {fileID: -8406205077808712459}
   m_Layer: 0
   m_Name: SpaceShip1
   m_TagString: Untagged
@@ -145,6 +146,28 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!64 &-8406205077808712459
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 393496853300476306}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4569953399686545402, guid: 0b0de82b1f8356e419b3e15b2a6faf32, type: 3}
 --- !u!1 &6470996421910494930
 GameObject:
   m_ObjectHideFlags: 0

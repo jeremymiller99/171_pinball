@@ -86,6 +86,31 @@ public class BallLoadoutController : MonoBehaviour
         return false;
     }
 
+    public bool InsertBallIntoLoadout(int index, BallDefinition def)
+    {
+        if (def == null || def.Prefab == null) return false;
+        if (index < 0 || index > _ballLoadout.Count) return false;
+
+        if (_ballLoadout.Count < maxBalls)
+        {
+            _ballLoadout.Insert(index, def);
+            return true;
+        }
+        return false;
+    }
+
+    public bool MoveBallInLoadout(int fromIndex, int toIndex)
+    {
+        if (fromIndex < 0 || fromIndex >= _ballLoadout.Count) return false;
+        if (toIndex < 0 || toIndex >= _ballLoadout.Count) return false;
+        if (fromIndex == toIndex) return true;
+
+        BallDefinition def = _ballLoadout[fromIndex];
+        _ballLoadout.RemoveAt(fromIndex);
+        _ballLoadout.Insert(toIndex, def);
+        return true;
+    }
+
     public bool ReplaceBallInLoadout(int index, BallDefinition newDef)
     {
         if (newDef == null || newDef.Prefab == null) return false;

@@ -137,11 +137,11 @@ public class ShopShipController : MonoBehaviour
             }
         }
 
-        if (_activeShipInstance != null)
+        if (_activeShipInstance != null && !spaceshipModels.Contains(_activeShipInstance))
         {
             Destroy(_activeShipInstance);
-            _activeShipInstance = null;
         }
+        _activeShipInstance = null;
 
         int index = Random.Range(0, spaceshipModels.Count);
         GameObject prefabOrInstance = spaceshipModels[index];
@@ -153,6 +153,7 @@ public class ShopShipController : MonoBehaviour
                 // The user assigned an object already in the scene.
                 prefabOrInstance.SetActive(true);
                 prefabOrInstance.transform.localRotation = Quaternion.identity;
+                _activeShipInstance = prefabOrInstance;
             }
             else
             {
@@ -160,6 +161,21 @@ public class ShopShipController : MonoBehaviour
                 _activeShipInstance = Instantiate(prefabOrInstance, transform);
                 _activeShipInstance.transform.localPosition = Vector3.zero;
                 _activeShipInstance.transform.localRotation = Quaternion.identity;
+            }
+
+            if (_activeShipInstance != null)
+            {
+                Outline outline = _activeShipInstance.GetComponent<Outline>();
+                if (outline == null)
+                {
+                    outline = _activeShipInstance.AddComponent<Outline>();
+                    outline.OutlineMode = Outline.Mode.OutlineAll;
+                }
+                outline.enabled = true;
+                outline.OutlineColor = Color.black;
+                outline.OutlineWidth = 10f;
+                // Offset queue to draw over the board/skybox so black is visible
+                outline.RenderQueueOffset = 100;
             }
         }
 
@@ -401,55 +417,11 @@ public sealed class ShopMerchantTooltipHover : MonoBehaviour,
         TooltipManager.Hide();
     }
 
-    private static string BuildDescription(
+    public static string BuildDescription(
         ShopShipController ship,
         ElementType catalog)
     {
-        var sb = new StringBuilder();
         var inv = CultureInfo.InvariantCulture;
-
-        if (catalog == ElementType.None)
-        {
-            sb.AppendLine("Catalog: Mixed (all unlocked items)");
-        }
-        else
-        {
-            sb.Append("Catalog: ");
-            sb.Append(ElementTypeColors.GetDisplayName(catalog));
-            sb.AppendLine(" only");
-        }
-
-        sb.Append("Offers: ");
-        sb.Append(ship.MinOffers);
-        sb.Append("–");
-        sb.Append(ship.MaxOffers);
-        sb.AppendLine(" items");
-
-        sb.Append("Visitor price: ");
-        sb.Append(ship.CurrentVisitorPriceMultiplier.ToString("0.##", inv));
-        sb.AppendLine("×");
-
-        float playerMult = 1f;
-
-        if (GameSession.Instance != null
-            && GameSession.Instance.ActiveShip != null)
-        {
-            playerMult = Mathf.Max(
-                0f,
-                GameSession.Instance.ActiveShip.ShopPriceMultiplier);
-        }
-
-        sb.Append("Your ship shop: ");
-        sb.Append(playerMult.ToString("0.##", inv));
-        sb.AppendLine("×");
-
-        float combined = Mathf.Max(
-            0f,
-            playerMult * ship.CurrentVisitorPriceMultiplier);
-        sb.Append("Combined on prices: ");
-        sb.Append(combined.ToString("0.##", inv));
-        sb.Append("×");
-
-        return sb.ToString();
+        return $"Shop Multiplier: {ship.CurrentVisitorPriceMultiplier.ToString("0.##", inv)}x";
     }
 }

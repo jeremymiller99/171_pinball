@@ -315,6 +315,7 @@ GameObject:
   - component: {fileID: 1710281368364477269}
   - component: {fileID: 2711629709586354759}
   - component: {fileID: 7859095438991009556}
+  - component: {fileID: 3857603632493394379}
   m_Layer: 0
   m_Name: SpaceshipSilverwolf
   m_TagString: Untagged
@@ -447,6 +448,28 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!64 &3857603632493394379
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5566029595203772779}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -6885814865901632370, guid: 9a4d3d6d24a9eae41af6b739abac86b7, type: 3}
 --- !u!1 &6711589413085390475
 GameObject:
   m_ObjectHideFlags: 0

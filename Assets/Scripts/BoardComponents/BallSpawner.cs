@@ -889,6 +889,9 @@ public sealed class BallSpawner : MonoBehaviour
             _handBalls.Add(newBall);
         }
 
+        // Renumber all markers so they stay in sync with the list index
+        SyncAllHandSlotMarkers();
+
         _layoutCoroutine = StartCoroutine(
             AddBallAnimatedCoroutine(newBall, targetScale, targetPositions, targetDistances));
 
@@ -1051,10 +1054,46 @@ public sealed class BallSpawner : MonoBehaviour
 
         (_handBalls[handA], _handBalls[handB]) = (_handBalls[handB], _handBalls[handA]);
 
-        TrySetHandSlotIndex(_handBalls[handA], loadoutSlotA);
-        TrySetHandSlotIndex(_handBalls[handB], loadoutSlotB);
+        SyncAllHandSlotMarkers();
 
         AnimateLayoutTransition();
+    }
+
+    /// <summary>
+    /// Moves a hand ball from one slot to another (shifting others) with a smooth animation.
+    /// The caller must have already moved the loadout via BallLoadoutController.
+    /// </summary>
+    public void MoveHandBallAnimated(int loadoutSlotFrom, int loadoutSlotTo)
+    {
+        CancelLayoutAnimation();
+
+        int handFrom = FindHandIndexForLoadoutSlot(loadoutSlotFrom);
+        if (handFrom < 0) return;
+
+        // Note: we can't use FindHandIndexForLoadoutSlot for the target because it might shift.
+        // But since we are moving BY RANK/INDEX in the loadout, and we are syncing markers,
+        // we can just treat the target slot as the list index we want to reach.
+        int targetIdx = Mathf.Clamp(loadoutSlotTo, 0, _handBalls.Count - 1);
+        if (handFrom == targetIdx) return;
+
+        GameObject ball = _handBalls[handFrom];
+        _handBalls.RemoveAt(handFrom);
+        _handBalls.Insert(targetIdx, ball);
+
+        SyncAllHandSlotMarkers();
+
+        AnimateLayoutTransition();
+    }
+
+    private void SyncAllHandSlotMarkers()
+    {
+        for (int i = 0; i < _handBalls.Count; i++)
+        {
+            if (_handBalls[i] != null)
+            {
+                TrySetHandSlotIndex(_handBalls[i], i);
+            }
+        }
     }
 
     private int FindHandIndexForLoadoutSlot(int loadoutSlotIndex)

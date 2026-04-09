@@ -391,7 +391,15 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (currentCount < cap)
         {
-            AutoBuyBallOffer(offerIndex, offer);
+            int targetSlot = -1;
+            if (hitObject != null)
+            {
+                BallHandSlotMarker marker = hitObject.GetComponentInParent<BallHandSlotMarker>();
+                if (marker != null) targetSlot = marker.SlotIndex;
+            }
+            if (targetSlot < 0) _hand.TryGetHandBallSlotFromRay(worldRay, out targetSlot);
+
+            AutoBuyBallOffer(offerIndex, offer, targetSlot);
             return;
         }
 
@@ -436,6 +444,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
             if (_dragBallHasRoom && ballSpawner != null)
             {
+                // Start with gap at the end, but OnOfferDragHover will update it
                 ballSpawner.PreviewInsertGap(ballSpawner.HandCount);
             }
             else
@@ -456,8 +465,6 @@ public sealed class UnifiedShopController : MonoBehaviour
         }
         else
         {
-            if (_dragBallHasRoom) return;
-
             int slot = -1;
             if (hitObject != null)
             {
@@ -467,7 +474,20 @@ public sealed class UnifiedShopController : MonoBehaviour
 
             if (slot < 0) _hand.TryGetHandBallSlotFromRay(worldRay, out slot);
             
-            _hand.UpdateDragHover(slot);
+            if (_dragBallHasRoom)
+            {
+                if (ballSpawner != null)
+                {
+                    // If we are hovering a specific slot, preview gap there. 
+                    // Otherwise default to the end.
+                    int gapIdx = (slot >= 0) ? slot : ballSpawner.HandCount;
+                    ballSpawner.PreviewInsertGap(gapIdx);
+                }
+            }
+            else
+            {
+                _hand.UpdateDragHover(slot);
+            }
         }
     }
 
@@ -534,17 +554,17 @@ public sealed class UnifiedShopController : MonoBehaviour
         var lc = ServiceLocator.Get<BallLoadoutController>();
         if (fromSlot < 0 || toSlot < 0 || fromSlot == toSlot || lc == null) return;
 
-        bool swapped = lc.SwapBallLoadoutSlots(fromSlot, toSlot);
-        if (!swapped)
+        bool moved = lc.MoveBallInLoadout(fromSlot, toSlot);
+        if (!moved)
         {
-            SetPrompt("Could not swap those balls.");
+            SetPrompt("Could not move that ball.");
             return;
         }
 
-        if (ballSpawner != null) ballSpawner.SwapHandBallsAnimated(fromSlot, toSlot);
+        if (ballSpawner != null) ballSpawner.MoveHandBallAnimated(fromSlot, toSlot);
         
         ServiceLocator.Get<AudioManager>()?.PlaySwapSlot();
-        SetPrompt("Balls swapped.");
+        SetPrompt("Ball moved.");
     }
 
     #endregion
@@ -559,7 +579,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (selected < 0)
         {
             _hand.SetSwapSelectedSlot(slotIndex);
-            SetPrompt("Click another ball to swap, or the same ball to cancel.");
+            SetPrompt("Click another slot to move the ball there, or the same ball to cancel.");
             return;
         }
 
@@ -570,24 +590,24 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
-        int slotA = selected;
-        int slotB = slotIndex;
+        int slotFrom = selected;
+        int slotTo = slotIndex;
         _hand.ClearSwapSelection();
 
         var lc = ServiceLocator.Get<BallLoadoutController>();
         if (lc == null) return;
 
-        bool swapped = lc.SwapBallLoadoutSlots(slotA, slotB);
-        if (!swapped)
+        bool moved = lc.MoveBallInLoadout(slotFrom, slotTo);
+        if (!moved)
         {
-            SetPrompt("Could not swap those balls.");
+            SetPrompt("Could not move that ball.");
             return;
         }
 
-        if (ballSpawner != null) ballSpawner.SwapHandBallsAnimated(slotA, slotB);
+        if (ballSpawner != null) ballSpawner.MoveHandBallAnimated(slotFrom, slotTo);
 
         ServiceLocator.Get<AudioManager>()?.PlaySwapSlot();
-        SetPrompt("Balls swapped.");
+        SetPrompt("Ball moved.");
     }
 
     private void EnterComponentPlacementMode()
@@ -657,7 +677,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         PlacementCancelled?.Invoke();
     }
 
-    private void AutoBuyBallOffer(int offerIndex, ShopOffer offer)
+    private void AutoBuyBallOffer(int offerIndex, ShopOffer offer, int preferredSlot = -1)
     {
         var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
         if (loadoutCtrl == null || offer == null) return;
@@ -672,8 +692,13 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         ServiceLocator.Get<AudioManager>()?.PlayPurchase();
 
-        int addSlot = GetFirstEmptySlotIndex();
-        bool added = loadoutCtrl.AddBallToLoadout(offer.BallDef);
+        int addSlot = (preferredSlot >= 0 && preferredSlot <= loadoutCtrl.BallLoadoutCount) 
+            ? preferredSlot 
+            : GetFirstEmptySlotIndex();
+
+        bool added = (preferredSlot >= 0 && preferredSlot <= loadoutCtrl.BallLoadoutCount)
+            ? loadoutCtrl.InsertBallIntoLoadout(addSlot, offer.BallDef)
+            : loadoutCtrl.AddBallToLoadout(offer.BallDef);
 
         if (!added)
         {

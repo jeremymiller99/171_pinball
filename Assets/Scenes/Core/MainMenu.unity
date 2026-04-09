@@ -642,238 +642,238 @@ MonoBehaviour:
       Data2: 1255480211
       Data3: -1982403935
       Data4: 57654664
-    Path: event:/button_click
+    Path: event:/UI/UI_button_click
   buttonHoverSound:
     Guid:
       Data1: 1185751379
       Data2: 1268245631
       Data3: 997750147
       Data4: 47879637
-    Path: event:/button_hover
+    Path: event:/UI/UI_button_hover
   tutorialNextSound:
     Guid:
       Data1: -1197954480
       Data2: 1255480211
       Data3: -1982403935
       Data4: 57654664
-    Path: event:/button_click
+    Path: event:/UI/UI_button_click
   tabSwitchSound:
     Guid:
       Data1: 86384479
       Data2: 1179429909
       Data3: -900643699
       Data4: 455003607
-    Path: event:/window_whoosh
+    Path: event:/UI/UI_window_whoosh
   transitionSound:
     Guid:
       Data1: 86384479
       Data2: 1179429909
       Data3: -900643699
       Data4: 455003607
-    Path: event:/window_whoosh
+    Path: event:/UI/UI_window_whoosh
   cuteAlienArrivalSound:
     Guid:
       Data1: 331439149
       Data2: 1179495449
       Data3: -1437539916
       Data4: 1226548392
-    Path: event:/alien_cute_arrival
+    Path: event:/UI/UI_alien_cute_arrival
   cuteAlienDepartureSound:
     Guid:
       Data1: 1182159553
       Data2: 1121171833
       Data3: 1692957073
       Data4: -340043874
-    Path: event:/alien_cute_depart
+    Path: event:/UI/UI_alien_cute_depart
   bugAlienArrivalSound:
     Guid:
       Data1: -1317320040
       Data2: 1303161001
       Data3: 323139764
       Data4: -508386712
-    Path: event:/alien_bug_arrival
+    Path: event:/UI/UI_alien_bug_arrival
   bugAlienDepartureSound:
     Guid:
       Data1: 1022283784
       Data2: 1268108813
       Data3: 1157193904
       Data4: 774257519
-    Path: event:/alien_bug_depart
+    Path: event:/UI/UI_alien_bug_depart
   gruntAlienArrivalSound:
     Guid:
       Data1: 856783982
       Data2: 1210481034
       Data3: -1990526837
       Data4: -125381865
-    Path: event:/alien_grunt_arrival
+    Path: event:/UI/UI_alien_grunt_arrival
   gruntAlienDepartureSound:
     Guid:
       Data1: -2068575877
       Data2: 1279670738
       Data3: -1671986015
       Data4: -1221889887
-    Path: event:/alien_grunt_depart
+    Path: event:/UI/UI_alien_grunt_depart
   alienShipRumbleSound:
     Guid:
       Data1: 1182453803
       Data2: 1150127601
       Data3: 1037176971
       Data4: -1923247708
-    Path: event:/ship_flying
+    Path: event:/UI/UI_ship_flying
   purchaseSound:
     Guid:
       Data1: -1951192067
       Data2: 1154365322
       Data3: 1741149063
       Data4: 1085209921
-    Path: event:/generic_purchase
+    Path: event:/UI/UI_purchase
   failedPurchaseSound:
     Guid:
       Data1: 519620263
       Data2: 1231414510
       Data3: 1800051360
       Data4: -1715759857
-    Path: event:/generic_fail
+    Path: event:/UI/UI_fail
   rerollSound:
     Guid:
       Data1: -1253221564
       Data2: 1301160907
       Data3: -1110270803
       Data4: -638404508
-    Path: event:/reroll
+    Path: event:/UI/UI_reroll
   swapSlotSound:
     Guid:
       Data1: 86384479
       Data2: 1179429909
       Data3: -900643699
       Data4: 455003607
-    Path: event:/window_whoosh
+    Path: event:/UI/UI_window_whoosh
   levelUpSound:
     Guid:
       Data1: -1004533979
       Data2: 1256531157
       Data3: 153186719
       Data4: 1881532589
-    Path: event:/level_up
+    Path: event:/value/value_level_up
   bumperHitSound:
     Guid:
       Data1: 1449137371
       Data2: 1333712520
       Data3: -1154293597
       Data4: -2036301457
-    Path: event:/collide_points
+    Path: event:/ingame/comp_generic/comp_bumper_param
   multHitSound:
     Guid:
       Data1: 52175844
       Data2: 1280125249
       Data3: -157741152
       Data4: 1337080504
-    Path: event:/collide_mult
+    Path: event:/ingame/comp_generic/comp_target_param
   flipperUpSound:
     Guid:
       Data1: -1860561248
       Data2: 1169797383
       Data3: 1350184087
       Data4: 206532917
-    Path: event:/flipper_up
+    Path: event:/ingame/comp_generic/comp_flipper_up
   flipperDownSound:
     Guid:
       Data1: -2137675161
       Data2: 1216462387
       Data3: 341324723
       Data4: -1274449514
-    Path: event:/flipper_down
+    Path: event:/ingame/comp_generic/comp_flipper_down
   launchSound:
     Guid:
       Data1: -1376618757
       Data2: 1299550731
       Data3: 1672712324
       Data4: -809238670
-    Path: event:/ball_launched
+    Path: event:/ingame/ball__generic/ball_launched
   portalSound:
     Guid:
       Data1: -452830574
       Data2: 1287721858
       Data3: 1479539585
       Data4: -1925869889
-    Path: event:/effect_portal
+    Path: event:/ingame/comp_generic/comp_portal
   ballLostSound:
     Guid:
       Data1: -1893509061
       Data2: 1112773022
       Data3: -1794802512
       Data4: -929301267
-    Path: event:/ball_lost
+    Path: event:/ingame/ball__generic/ball_lost
   textWhooshSound:
     Guid:
       Data1: -154778767
       Data2: 1103640199
       Data3: 2135438226
       Data4: -687054736
-    Path: event:/score_whoosh
+    Path: event:/value/value_score_whoosh
   shatterSound:
     Guid:
       Data1: 1974778032
       Data2: 1274169599
       Data3: 1571443588
       Data4: 483197188
-    Path: event:/shatter
+    Path: event:/ingame/special/spec_shatter
   eggCrackSound:
     Guid:
       Data1: -594006670
       Data2: 1148274283
       Data3: 337896107
       Data4: 443241191
-    Path: event:/egg_crack
+    Path: event:/ingame/special/spec_ball_egg_crack
   explosionSound:
     Guid:
       Data1: -443525517
       Data2: 1146733699
       Data3: -475829607
       Data4: 578126555
-    Path: event:/explosion
+    Path: event:/ingame/special/spec_explosion
   ballSplitSound:
     Guid:
       Data1: 254898797
       Data2: 1153007387
       Data3: 1274781323
       Data4: 948996533
-    Path: event:/ball_split
+    Path: event:/ingame/ball__generic/ball_split
   pointsAddEvent:
     Guid:
       Data1: -418338245
       Data2: 1161525135
       Data3: -1576776550
       Data4: 1382297272
-    Path: event:/add_points
+    Path: event:/value/value_add_points_param
   multAddEvent:
     Guid:
       Data1: -418338245
       Data2: 1161525135
       Data3: -1576776550
       Data4: 1382297272
-    Path: event:/add_points
+    Path: event:/value/value_add_points_param
   coinAddEvent:
     Guid:
       Data1: -369928764
       Data2: 1115790982
       Data3: -1647532638
       Data4: 106056798
-    Path: event:/add_coins
+    Path: event:/value/value_add_coins
   rollingSoundEvent:
     Guid:
       Data1: -1397201519
       Data2: 1186788513
       Data3: 1619588757
       Data4: -575593883
-    Path: event:/ball_rolling
+    Path: event:/ingame/ball__generic/ball_roll_loop_param
   burningSoundEvent:
     Guid:
       Data1: 1397659928
       Data2: 1134302908
       Data3: 305406608
       Data4: -699711991
-    Path: event:/burning
+    Path: event:/ingame/special/spec_burning_loop
 --- !u!4 &266196554
 Transform:
   m_ObjectHideFlags: 0

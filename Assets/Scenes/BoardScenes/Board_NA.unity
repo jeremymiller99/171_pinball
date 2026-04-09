@@ -3707,7 +3707,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 301000298780245952, guid: 9a9af029af88c864cbcf74b5fbd9ee8c, type: 3}
       propertyPath: hitSound.Path
-      value: event:/collide_mult
+      value: event:/ingame/comp_generic/comp_target_param
       objectReference: {fileID: 0}
     - target: {fileID: 301000298780245952, guid: 9a9af029af88c864cbcf74b5fbd9ee8c, type: 3}
       propertyPath: hitSound.Guid.Data1
@@ -12085,7 +12085,7 @@ PrefabInstance:
       objectReference: {fileID: 543450652145992312}
     - target: {fileID: 9000000000000000005, guid: e63e99e8f4dffeb44b47e111ac9a8e6b, type: 3}
       propertyPath: hitSound.Path
-      value: event:/add_points
+      value: event:/value/value_add_points_param
       objectReference: {fileID: 0}
     - target: {fileID: 9000000000000000005, guid: e63e99e8f4dffeb44b47e111ac9a8e6b, type: 3}
       propertyPath: popScaleMultiplier
@@ -16214,7 +16214,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 301000298780245952, guid: 9a9af029af88c864cbcf74b5fbd9ee8c, type: 3}
       propertyPath: hitSound.Path
-      value: event:/collide_mult
+      value: event:/ingame/comp_generic/comp_target_param
       objectReference: {fileID: 0}
     - target: {fileID: 301000298780245952, guid: 9a9af029af88c864cbcf74b5fbd9ee8c, type: 3}
       propertyPath: hitSound.Guid.Data1
@@ -20571,7 +20571,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 301000298780245952, guid: 9a9af029af88c864cbcf74b5fbd9ee8c, type: 3}
       propertyPath: hitSound.Path
-      value: event:/collide_mult
+      value: event:/ingame/comp_generic/comp_target_param
       objectReference: {fileID: 0}
     - target: {fileID: 301000298780245952, guid: 9a9af029af88c864cbcf74b5fbd9ee8c, type: 3}
       propertyPath: hitSound.Guid.Data1

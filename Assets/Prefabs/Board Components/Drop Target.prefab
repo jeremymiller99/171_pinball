@@ -103,7 +103,7 @@ MonoBehaviour:
       Data2: 1280125249
       Data3: -157741152
       Data4: 1337080504
-    Path: event:/collide_mult
+    Path: event:/ingame/comp_generic/comp_target_param
 --- !u!114 &520263348088857629
 MonoBehaviour:
   m_ObjectHideFlags: 0

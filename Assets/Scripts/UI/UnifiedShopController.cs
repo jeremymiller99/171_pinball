@@ -107,6 +107,10 @@ public sealed class UnifiedShopController : MonoBehaviour
         {
             _spaceship.SpaceshipParked += OnSpaceshipParked;
         }
+        else
+        {
+            _shelf.RebuildOffers();
+        }
     }
 
     private void OnDisable()
@@ -712,7 +716,11 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     private void ShowPurchaseConfirmation(ShopOffer offer)
     {
-        if (confirmPanel == null) return;
+        if (confirmPanel == null)
+        {
+            ConfirmPurchase();
+            return;
+        }
 
         confirmPanel.Show(
             $"Buy {offer.DisplayName} for ${offer.Price}?",

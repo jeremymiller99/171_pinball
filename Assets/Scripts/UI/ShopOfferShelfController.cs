@@ -1,4 +1,6 @@
 // Generated with Antigravity by jjmil on 2026-03-29.
+// Updated with Cursor (Composer) on 2026-04-08: pass merchant visit + player
+// shop multiplier into ShopOfferGenerator.
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -118,9 +120,39 @@ public sealed class ShopOfferShelfController : MonoBehaviour
             return;
         }
 
+        ShopShipController ship =
+            Object.FindFirstObjectByType<ShopShipController>();
+
+        float playerMult = 1f;
+
+        if (GameSession.Instance != null
+            && GameSession.Instance.ActiveShip != null)
+        {
+            playerMult = Mathf.Max(
+                0f,
+                GameSession.Instance.ActiveShip.ShopPriceMultiplier);
+        }
+
+        float visitorMult = ship != null
+            ? Mathf.Max(0f, ship.CurrentVisitorPriceMultiplier)
+            : 1f;
+
+        float combined = playerMult * visitorMult;
+
+        ElementType catalogElement = ship != null
+            ? ship.CurrentCatalogElement
+            : ElementType.None;
+
+        int minO = ship != null ? ship.MinOffers : 3;
+        int maxO = ship != null ? ship.MaxOffers : 6;
+
         _currentOffers.Clear();
         _currentOffers.AddRange(
-            _generator.GenerateOffers());
+            _generator.GenerateOffers(
+                catalogElement,
+                minO,
+                maxO,
+                combined));
 
         int count = _currentOffers.Count;
 

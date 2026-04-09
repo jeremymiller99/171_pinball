@@ -619,7 +619,7 @@ GameObject:
   - component: {fileID: 252036642}
   - component: {fileID: 252036641}
   m_Layer: 0
-  m_Name: Space Ship Contronller
+  m_Name: Shop Ship Contronller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -668,6 +668,11 @@ MonoBehaviour:
     m_RotationOrder: 4
   bobSpeed: 2
   bobHeight: 0.2
+  merchantElementPool: 
+  minOffers: 3
+  maxOffers: 6
+  visitorPriceSigma: 0.35
+  merchantNameLabel: {fileID: 0}
 --- !u!4 &252036642
 Transform:
   m_ObjectHideFlags: 0

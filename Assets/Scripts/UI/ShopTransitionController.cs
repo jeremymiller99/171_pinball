@@ -1,3 +1,4 @@
+// Updated with Cursor (Composer) on 2026-04-08 (queue CloseShopThen while transitioning).
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -113,6 +114,17 @@ public sealed class ShopTransitionController : MonoBehaviour
     private bool _isTransitioning;
     private Coroutine _transitionRoutine;
 
+    private enum ShopTransitionPhase
+    {
+        Idle,
+        Opening,
+        Closing
+    }
+
+    private ShopTransitionPhase _transitionPhase;
+    private Action _deferredCloseAfterOpen;
+    private readonly List<Action> _chainedCloseCallbacks = new List<Action>();
+
     // Tracks original enabled-state for any behaviour we disabled while locked.
     private readonly Dictionary<Behaviour, bool> _disabledInputBehaviours = new Dictionary<Behaviour, bool>();
     private bool _inputLocked;
@@ -207,16 +219,33 @@ public sealed class ShopTransitionController : MonoBehaviour
         AutoResolveRefs();
         CacheHomeIfNeeded(force: false);
 
-        if (_isTransitioning)
-        {
-            Debug.LogWarning("[ShopTransition] CloseShopThen skipped -- already transitioning");
-            return;
-        }
-
         if (!_isOpen)
         {
             Debug.Log("[ShopTransition] CloseShopThen -- not open, invoking afterClosed immediately");
             afterClosed?.Invoke();
+            return;
+        }
+
+        if (_isTransitioning)
+        {
+            if (_transitionPhase == ShopTransitionPhase.Opening)
+            {
+                _deferredCloseAfterOpen =
+                    CombineCallbacks(_deferredCloseAfterOpen, afterClosed);
+                Debug.Log(
+                    "[ShopTransition] CloseShopThen deferred until open transition completes");
+            }
+            else
+            {
+                if (afterClosed != null)
+                {
+                    _chainedCloseCallbacks.Add(afterClosed);
+                }
+
+                Debug.Log(
+                    "[ShopTransition] CloseShopThen chained -- close already in progress");
+            }
+
             return;
         }
 
@@ -311,6 +340,7 @@ public sealed class ShopTransitionController : MonoBehaviour
     private IEnumerator OpenRoutine()
     {
         _isTransitioning = true;
+        _transitionPhase = ShopTransitionPhase.Opening;
         Debug.Log("[ShopTransition] OpenRoutine started");
 
         yield return null;
@@ -329,13 +359,22 @@ public sealed class ShopTransitionController : MonoBehaviour
         CameraPanFinished?.Invoke();
 
         _isTransitioning = false;
+        _transitionPhase = ShopTransitionPhase.Idle;
         Debug.Log("[ShopTransition] OpenRoutine complete, firing OpenTransitionFinished event");
         OpenTransitionFinished?.Invoke();
+
+        Action deferred = _deferredCloseAfterOpen;
+        _deferredCloseAfterOpen = null;
+        if (deferred != null)
+        {
+            CloseShopThen(deferred);
+        }
     }
 
     private IEnumerator CloseRoutine(Action afterClosed)
     {
         _isTransitioning = true;
+        _transitionPhase = ShopTransitionPhase.Closing;
         Debug.Log("[ShopTransition] CloseRoutine started");
 
         ServiceLocator.Get<AudioManager>()?.SetMusicMuffled(false);
@@ -361,9 +400,39 @@ public sealed class ShopTransitionController : MonoBehaviour
 
         _isOpen = false;
         _isTransitioning = false;
+        _transitionPhase = ShopTransitionPhase.Idle;
 
         Debug.Log("[ShopTransition] CloseRoutine complete, invoking afterClosed");
         afterClosed?.Invoke();
+
+        if (_chainedCloseCallbacks.Count > 0)
+        {
+            for (int i = 0; i < _chainedCloseCallbacks.Count; i++)
+            {
+                _chainedCloseCallbacks[i]?.Invoke();
+            }
+
+            _chainedCloseCallbacks.Clear();
+        }
+    }
+
+    private static Action CombineCallbacks(Action a, Action b)
+    {
+        if (a == null)
+        {
+            return b;
+        }
+
+        if (b == null)
+        {
+            return a;
+        }
+
+        return () =>
+        {
+            a();
+            b();
+        };
     }
 
     private IEnumerator AnimateCamera(Vector3 fromCam, Vector3 toCam, float fromFOV, float toFOV, float duration)

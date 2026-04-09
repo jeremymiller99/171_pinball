@@ -1,3 +1,5 @@
+// Updated with Cursor (Composer) by assistant on 2026-04-08:
+// elementType, shopPriceMultiplier for shop/catalog parity with balls/components.
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,6 +18,15 @@ public class PlayerShipDefinition : ScriptableObject
 
     [Tooltip("Optional 3D model prefab to show in the UI or board.")]
     public GameObject shipModelPrefab;
+
+    [Tooltip("Thematic element type (same enum as pinballs and board components).")]
+    [SerializeField]
+    private ElementType elementType = ElementType.None;
+
+    [Tooltip("Multiplier applied to shop purchase prices for this ship. 1 = default.")]
+    [Min(0f)]
+    [SerializeField]
+    private float shopPriceMultiplier = 1f;
 
     [Header("Starting Loadout")]
     [Tooltip("Sets the player's max inventory size (Max Balls). Default is usually 5.")]
@@ -40,4 +51,8 @@ public class PlayerShipDefinition : ScriptableObject
 
     [Tooltip("Starting coins for the run.")]
     public int startingCoins = 0;
+
+    public ElementType ElementType => elementType;
+
+    public float ShopPriceMultiplier => shopPriceMultiplier;
 }

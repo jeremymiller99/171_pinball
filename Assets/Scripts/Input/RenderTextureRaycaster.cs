@@ -261,6 +261,8 @@ public class RenderTextureRaycaster : MonoBehaviour
 
         GameObject hitObject = null;
 
+        if (_offerDragEntry != null) _offerDragEntry.gameObject.SetActive(false);
+
         if (Physics.Raycast(
                 ray,
                 out RaycastHit hit,
@@ -269,6 +271,8 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             hitObject = hit.collider.gameObject;
         }
+
+        if (_offerDragEntry != null) _offerDragEntry.gameObject.SetActive(true);
 
         if (hitObject == null
             || hitObject.GetComponentInParent<BallHandSlotMarker>() == null)
@@ -592,6 +596,9 @@ public class RenderTextureRaycaster : MonoBehaviour
 
         GameObject hitObject = null;
 
+        // Temporarily disable the dragged object so we can raycast through it
+        entry.gameObject.SetActive(false);
+
         if (Physics.Raycast(
                 ray,
                 out RaycastHit hit,
@@ -601,40 +608,12 @@ public class RenderTextureRaycaster : MonoBehaviour
             hitObject = hit.collider.gameObject;
         }
 
-        var parent = hit.collider.transform.parent;
-        if (parent)
-        {
-            parent.gameObject.SetActive(false);
-        } else
-        {
-            hit.collider.gameObject.SetActive(false);
-        }
-        
-
-        if (Physics.Raycast(
-                ray,
-                out RaycastHit hit2,
-                maxRayDistance,
-                clickableLayers))
-        {
-            hitObject = hit2.collider.gameObject;
-        }
-
-
+        entry.gameObject.SetActive(true);
 
         _cachedShopController.TryDropOfferAfterDrag(
             entry.OfferIndex,
             hitObject,
             ray);
-
-        if (parent)
-        {
-            parent.gameObject.SetActive(true);
-        }
-        else
-        {
-            hit.collider.gameObject.SetActive(true);
-        }
     }
 
     #region Hand Ball Drag

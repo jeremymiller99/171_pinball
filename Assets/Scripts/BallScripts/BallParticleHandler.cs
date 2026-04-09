@@ -9,11 +9,11 @@ public class BallParticleHandler : MonoBehaviour
     [SerializeField] private GameObject particleObject;
     [SerializeField] private Stack<GameObject> pool;
     [SerializeField] private int poolSize;
-    [SerializeField] Rigidbody rigidbody;
+    [SerializeField] Rigidbody _rb;
 
     private void Awake()
     {
-        rigidbody = GetComponent<Rigidbody>();
+        _rb = GetComponent<Rigidbody>();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -48,7 +48,7 @@ public class BallParticleHandler : MonoBehaviour
             emitterShape.rotation = Vector3.up * Vector3.Angle(transform.position - collision.transform.position, Vector3.forward);
         }
 
-        int emitMult = Mathf.FloorToInt(speedMultiplier * rigidbody.linearVelocity.magnitude);
+        int emitMult = Mathf.FloorToInt(speedMultiplier * _rb.linearVelocity.magnitude);
         emitter.Emit(startingEmitAmount * emitMult);
         pool.Push(emitterObj);
     }

@@ -12,12 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbc16a5472ef85e4b97045dab421c267, type: 3}
   m_Name: Cursed_Multiplier
   m_EditorClassIdentifier: Assembly-CSharp::RoundModifierDefinition
+  backgroundMaterial: {fileID: 2100000, guid: afa2906433ce5bf4191baec1c2a47ef0, type: 2}
   displayName: Cursed Multiplier
   description: Multiplier gains are reduced by 50% this round.
   icon: {fileID: 0}
-  type: 1
+  applyTwoRandomDevilModifiers: 0
   scoreMultiplier: 1
   disableMultiplier: 1
   goalModifier: 0
   coinMultiplier: 1
   ballModifier: 0
+  timeScaleMultiplier: 1
+  cyclicHideBallEnabled: 0
+  cyclicHideBallVisibleSeconds: 6
+  cyclicHideBallHiddenSeconds: 3
+  flipperUseLimit: 0

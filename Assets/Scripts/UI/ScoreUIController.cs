@@ -109,6 +109,7 @@ public class ScoreUIController : MonoBehaviour
     {
         ServiceLocator.Register<ScoreUIController>(this);
         EnsureCoreScoreTextBindings();
+        if (multText != null) multText.gameObject.SetActive(false);
     }
 
     private void OnEnable()
@@ -189,7 +190,7 @@ public class ScoreUIController : MonoBehaviour
         {
             multQueue.Clear();
             multUiDisplayed = 1f;
-            multText.text = FormatMultiplier(1f);
+            // Removed multText update for visibility removal
             PlayMultResetFlash();
         }
     }
@@ -221,8 +222,7 @@ public class ScoreUIController : MonoBehaviour
                     newMult, multUiDisplayed))
             {
                 multUiDisplayed = newMult;
-                multText.text =
-                    FormatMultiplier(newMult);
+                // Removed multText update for visibility removal
             }
         }
 
@@ -269,7 +269,7 @@ public class ScoreUIController : MonoBehaviour
                 multActuallyChanged = true;
                 multUiDisplayed = newMult;
             }
-            multText.text = FormatMultiplier(newMult);
+            // Removed multText update for visibility removal
         }
 
         ScoreUiPopped?.Invoke(multActuallyChanged);

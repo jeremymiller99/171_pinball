@@ -178,7 +178,7 @@ public sealed class GoalPassedPopupHUD : MonoBehaviour
         EnsureMultiplierText();
 
         int multiplierNumber = Mathf.Max(0, tier + tierToMultiplierNumberOffset);
-        SetMultiplierText(multiplierNumber);
+        // SetMultiplierText(multiplierNumber); // Disabled for visibility removal
 
         if (spawnPraise && spawner != null)
         {
@@ -306,17 +306,7 @@ public sealed class GoalPassedPopupHUD : MonoBehaviour
 
     private void SetMultiplierText(int multiplierNumber)
     {
-        if (multiplierText == null) return;
-        EnsureMultiplierCanvasGroup();
-
-        int n = Mathf.Max(0, multiplierNumber);
-        multiplierText.text = "x" + n;
-        multiplierCanvasGroup.alpha = 1f;
-
-        if (toggleMultiplierObjectActive)
-        {
-            multiplierText.gameObject.SetActive(true);
-        }
+        // Logic disabled for visibility removal
     }
 
     private TMP_Text FindTextInThisSceneByName(string name)

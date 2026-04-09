@@ -7,11 +7,9 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Pinball/Round Modifier", fileName = "New Round Modifier")]
 public class RoundModifierDefinition : ScriptableObject
 {
-    public enum ModifierType
-    {
-        Angel,
-        Devil
-    }
+    [Header("Background")]
+    [Tooltip("Unique background material for this modifier. If null, uses the default devil material.")]
+    public Material backgroundMaterial;
 
     [Header("Display")]
     [Tooltip("Name shown on the round card.")]
@@ -23,9 +21,6 @@ public class RoundModifierDefinition : ScriptableObject
 
     [Tooltip("Icon displayed on the round card.")]
     public Sprite icon;
-
-    [Tooltip("Whether this is an Angel (buff) or Devil (debuff) modifier.")]
-    public ModifierType type = ModifierType.Angel;
 
     [Tooltip("If true, this round applies two random devil modifiers (from the devil pool) instead of this definition's own effects. Used for Unlucky Day.")]
     public bool applyTwoRandomDevilModifiers = false;
@@ -66,11 +61,6 @@ public class RoundModifierDefinition : ScriptableObject
     [Min(0.1f)]
     public float cyclicHideBallHiddenSeconds = 3f;
 
-    [Header("Flipper Limit (Special)")]
-    [Tooltip("Max flipper/paddle uses this round. 0 = no limit. When exceeded, the round is lost.")]
-    [Min(0)]
-    public int flipperUseLimit = 0;
-
     /// <summary>
     /// Returns a formatted string describing all active effects.
     /// </summary>
@@ -78,50 +68,9 @@ public class RoundModifierDefinition : ScriptableObject
     {
         var sb = new System.Text.StringBuilder();
 
-        if (!Mathf.Approximately(scoreMultiplier, 1f))
-        {
-            float percent = (scoreMultiplier - 1f) * 100f;
-            string sign = percent >= 0 ? "+" : "";
-            sb.AppendLine($"{sign}{percent:0}% Score");
-        }
-
-        if (disableMultiplier)
-        {
-            sb.AppendLine("Multiplier Disabled");
-        }
-
-        if (!Mathf.Approximately(goalModifier, 0f))
-        {
-            string sign = goalModifier >= 0 ? "+" : "";
-            sb.AppendLine($"{sign}{goalModifier:0} Goal");
-        }
-
-        if (!Mathf.Approximately(coinMultiplier, 1f))
-        {
-            float percent = (coinMultiplier - 1f) * 100f;
-            string sign = percent >= 0 ? "+" : "";
-            sb.AppendLine($"{sign}{percent:0}% Coins");
-        }
-
-        if (ballModifier != 0)
-        {
-            string sign = ballModifier > 0 ? "+" : "";
-            sb.AppendLine($"{sign}{ballModifier} Ball{(Mathf.Abs(ballModifier) != 1 ? "s" : "")}");
-        }
-
-        if (!Mathf.Approximately(timeScaleMultiplier, 1f))
-        {
-            sb.AppendLine($"{timeScaleMultiplier:0.#}× Speed");
-        }
-
         if (cyclicHideBallEnabled)
         {
             sb.AppendLine($"Ball hidden {cyclicHideBallHiddenSeconds:0}s every {cyclicHideBallVisibleSeconds + cyclicHideBallHiddenSeconds:0}s");
-        }
-
-        if (flipperUseLimit > 0)
-        {
-            sb.AppendLine($"{flipperUseLimit} flips this round");
         }
 
         return sb.ToString().TrimEnd();

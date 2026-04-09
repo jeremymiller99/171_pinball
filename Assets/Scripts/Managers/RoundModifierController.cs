@@ -5,24 +5,9 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class RoundModifierController : MonoBehaviour
 {
-    [Header("Level Modifiers (runtime)")]
-    [Min(1)]
-    [SerializeField] private int guaranteedBagSizeFallback = 7;
-
     [Header("Default Modifier Pools (when no challenge)")]
-    [Tooltip("Modifier pools used for Quick Run / when no challenge is active.")]
-    [SerializeField] private RoundModifierPool defaultAngelPool;
+    [Tooltip("Modifier pool used for Quick Run / when no challenge is active.")]
     [SerializeField] private RoundModifierPool defaultDevilPool;
-
-    private const float defaultQuickRunAngelChance = 0.2f;
-    private const float defaultQuickRunDevilChance = 0.2f;
-    private const float defaultQuickRunNormalChance = 0.6f;
-
-    [Header("Quick Run round-type distribution")]
-    [Tooltip("Percent chances for what kind of round it is when no challenge is active.")]
-    [SerializeField] private float quickRunAngelChance = defaultQuickRunAngelChance;
-    [SerializeField] private float quickRunDevilChance = defaultQuickRunDevilChance;
-    [SerializeField] private float quickRunNormalChance = defaultQuickRunNormalChance;
 
     [Header("Round Type Preview (generation)")]
     [Min(0)]
@@ -41,21 +26,16 @@ public class RoundModifierController : MonoBehaviour
 
     private readonly List<GeneratedRound> _generatedRoundWindow = new List<GeneratedRound>();
     private System.Random _levelModifierRng;
-    private readonly List<RoundType> _guaranteedTypeBag = new List<RoundType>();
-    private int _guaranteedTypeBagPos;
 
     private RoundModifierDefinition _activeModifier;
     private RoundData _currentRoundData;
     private float _effectiveGoalModifierForRound;
     private List<RoundModifierDefinition> _unluckyDayActiveModifiers;
-    private int _flipperUsesRemaining = -1;
 
     public RoundModifierDefinition ActiveModifier => _activeModifier;
     public RoundData CurrentRoundData => _currentRoundData;
     public float EffectiveGoalModifierForRound => _effectiveGoalModifierForRound;
     public List<RoundModifierDefinition> UnluckyDayActiveModifiers => _unluckyDayActiveModifiers;
-    public int RemainingFlipperUses => _flipperUsesRemaining;
-    public bool HasFlipperLimit => _flipperUsesRemaining >= 0;
 
     /// <summary>
     /// Returns the score multiplier from the active modifier and the player's active ship (1.0 if no modifier).
@@ -87,7 +67,6 @@ public class RoundModifierController : MonoBehaviour
     private void Awake()
     {
         ServiceLocator.Register<RoundModifierController>(this);
-        NormalizeQuickRunChances();
     }
 
     private void OnDisable()
@@ -95,18 +74,11 @@ public class RoundModifierController : MonoBehaviour
         ServiceLocator.Unregister<RoundModifierController>();
     }
 
-    private void OnValidate()
-    {
-        NormalizeQuickRunChances();
-    }
-
     public void InitLevelModifierRolling()
     {
         var session = GameSession.Instance;
         int seed = session != null ? session.Seed : Environment.TickCount;
         _levelModifierRng = new System.Random(seed);
-        _guaranteedTypeBag.Clear();
-        _guaranteedTypeBagPos = 0;
     }
 
     public void ResetAndPrimeRoundWindow(int roundIndex)
@@ -144,18 +116,7 @@ public class RoundModifierController : MonoBehaviour
         return true;
     }
 
-    public bool TryConsumeFlipperUse()
-    {
-        if (_flipperUsesRemaining < 0) return true;
-        
-        if (_flipperUsesRemaining > 0)
-        {
-            _flipperUsesRemaining--;
-            return true;
-        }
-        
-        return false; // Flipper limit exceeded
-    }
+
 
     private void TrimGeneratedBefore(int absoluteRoundIndex)
     {
@@ -219,42 +180,20 @@ public class RoundModifierController : MonoBehaviour
         var session = GameSession.Instance;
         ChallengeModeDefinition challenge = session != null ? session.ActiveChallenge : null;
 
-        if (challenge != null && challenge.HasModifierPools)
+        // Deterministic: Devil every 5 levels, starting at level 5 (index 4).
+        // absoluteRoundIndex is 0-based. Level 1 = index 0. Level 5 = index 4.
+        if (absoluteRoundIndex > 0 && (absoluteRoundIndex + 1) % 5 == 0)
         {
-            if (absoluteRoundIndex == 0 && challenge.distributionMode == RoundDistributionMode.Guaranteed)
+            type = RoundType.Devil;
+            
+            RoundModifierPool devilPool = (challenge != null && challenge.devilPool != null) 
+                ? challenge.devilPool 
+                : defaultDevilPool;
+            
+            if (devilPool != null)
             {
-                EnsureGuaranteedTypeBag(challenge);
-                EnsureCurrentGuaranteedTypeIsNormal();
+                modifier = devilPool.GetRandomModifier(_levelModifierRng);
             }
-
-            type = RollModifierType(challenge);
-            modifier = RollModifierFromPool(challenge, type);
-            if (modifier == null && type == RoundType.Angel && challenge.devilPool != null && challenge.devilPool.ValidCount > 0)
-                modifier = challenge.devilPool.GetRandomModifier(_levelModifierRng);
-            if (modifier == null && type == RoundType.Devil && challenge.angelPool != null && challenge.angelPool.ValidCount > 0)
-                modifier = challenge.angelPool.GetRandomModifier(_levelModifierRng);
-        }
-        else
-        {
-            RoundModifierPool angelPool = defaultAngelPool;
-            RoundModifierPool devilPool = defaultDevilPool;
-            bool hasAngel = angelPool != null && angelPool.ValidCount > 0;
-            bool hasDevil = devilPool != null && devilPool.ValidCount > 0;
-
-            if (hasAngel || hasDevil)
-            {
-                type = RollQuickRunType(hasAngel, hasDevil);
-                if (type == RoundType.Angel && hasAngel)
-                    modifier = angelPool.GetRandomModifier(_levelModifierRng);
-                else if (type == RoundType.Devil && hasDevil)
-                    modifier = devilPool.GetRandomModifier(_levelModifierRng);
-            }
-        }
-
-        if (absoluteRoundIndex == 0)
-        {
-            type = RoundType.Normal;
-            modifier = null;
         }
 
         var generated = new GeneratedRound
@@ -290,13 +229,10 @@ public class RoundModifierController : MonoBehaviour
 
         _activeModifier = data.modifier;
         _currentRoundData = data;
-        _flipperUsesRemaining = (_activeModifier != null && _activeModifier.flipperUseLimit > 0)
-            ? _activeModifier.flipperUseLimit : -1;
 
         {
             float musicState = 0f;
-            if (_currentRoundData.type == RoundType.Angel) musicState = 1f;
-            else if (_currentRoundData.type == RoundType.Devil) musicState = -1f;
+            if (_currentRoundData.type == RoundType.Devil) musicState = -1f;
             ServiceLocator.Get<AudioManager>()?.SetMusicState(musicState);
         }
 
@@ -375,123 +311,5 @@ public class RoundModifierController : MonoBehaviour
             }
             applyBallModifierCallback?.Invoke(0);
         }
-    }
-
-    private RoundType RollQuickRunType(bool hasAngelPool, bool hasDevilPool)
-    {
-        if (_levelModifierRng == null) _levelModifierRng = new System.Random(Environment.TickCount);
-
-        float angelChance = hasAngelPool ? Mathf.Max(0f, quickRunAngelChance) : 0f;
-        float devilChance = hasDevilPool ? Mathf.Max(0f, quickRunDevilChance) : 0f;
-        float normalChance = Mathf.Max(0f, quickRunNormalChance);
-
-        float sum = angelChance + devilChance + normalChance;
-        if (sum <= 0f) return RoundType.Normal;
-
-        angelChance /= sum;
-        devilChance /= sum;
-
-        double roll = _levelModifierRng.NextDouble();
-        if (roll < angelChance) return RoundType.Angel;
-        if (roll < (angelChance + devilChance)) return RoundType.Devil;
-        return RoundType.Normal;
-    }
-
-    private void NormalizeQuickRunChances()
-    {
-        quickRunAngelChance = Mathf.Max(0f, quickRunAngelChance);
-        quickRunDevilChance = Mathf.Max(0f, quickRunDevilChance);
-        quickRunNormalChance = Mathf.Max(0f, quickRunNormalChance);
-
-        float sum = quickRunAngelChance + quickRunDevilChance + quickRunNormalChance;
-        if (sum <= 0f)
-        {
-            quickRunAngelChance = defaultQuickRunAngelChance;
-            quickRunDevilChance = defaultQuickRunDevilChance;
-            quickRunNormalChance = defaultQuickRunNormalChance;
-            return;
-        }
-
-        quickRunAngelChance /= sum;
-        quickRunDevilChance /= sum;
-        quickRunNormalChance /= sum;
-    }
-
-    private RoundType RollModifierType(ChallengeModeDefinition challenge)
-    {
-        if (challenge == null) return RoundType.Normal;
-
-        if (challenge.distributionMode == RoundDistributionMode.Guaranteed)
-        {
-            EnsureGuaranteedTypeBag(challenge);
-            if (_guaranteedTypeBag.Count == 0) return RoundType.Normal;
-
-            int i = Mathf.Clamp(_guaranteedTypeBagPos, 0, _guaranteedTypeBag.Count - 1);
-            RoundType t = _guaranteedTypeBag[i];
-            _guaranteedTypeBagPos = Mathf.Max(0, _guaranteedTypeBagPos + 1);
-            return t;
-        }
-
-        if (_levelModifierRng == null) _levelModifierRng = new System.Random(Environment.TickCount);
-
-        float angelChance = Mathf.Clamp01(challenge.angelChance);
-        float devilChance = Mathf.Clamp01(challenge.devilChance);
-        double roll = _levelModifierRng.NextDouble();
-
-        if (roll < angelChance) return RoundType.Angel;
-        if (roll < (angelChance + devilChance)) return RoundType.Devil;
-        return RoundType.Normal;
-    }
-
-    private RoundModifierDefinition RollModifierFromPool(ChallengeModeDefinition challenge, RoundType type)
-    {
-        if (challenge == null) return null;
-        if (_levelModifierRng == null) _levelModifierRng = new System.Random(Environment.TickCount);
-
-        switch (type)
-        {
-            case RoundType.Angel: return challenge.angelPool?.GetRandomModifier(_levelModifierRng);
-            case RoundType.Devil: return challenge.devilPool?.GetRandomModifier(_levelModifierRng);
-            default: return null;
-        }
-    }
-
-    private void EnsureGuaranteedTypeBag(ChallengeModeDefinition challenge)
-    {
-        if (challenge == null || _guaranteedTypeBagPos < _guaranteedTypeBag.Count) return;
-        if (_levelModifierRng == null) _levelModifierRng = new System.Random(Environment.TickCount);
-
-        _guaranteedTypeBag.Clear();
-        _guaranteedTypeBagPos = 0;
-
-        int bagSize = Mathf.Max(1, challenge.totalRounds > 0 ? challenge.totalRounds : guaranteedBagSizeFallback);
-        int angels = Mathf.Clamp(challenge.guaranteedAngels, 0, bagSize);
-        int devils = Mathf.Clamp(challenge.guaranteedDevils, 0, bagSize - angels);
-
-        for (int i = 0; i < bagSize; i++) _guaranteedTypeBag.Add(RoundType.Normal);
-        for (int i = 0; i < angels; i++) _guaranteedTypeBag[i] = RoundType.Angel;
-        for (int i = 0; i < devils; i++) _guaranteedTypeBag[angels + i] = RoundType.Devil;
-
-        for (int i = _guaranteedTypeBag.Count - 1; i > 0; i--)
-        {
-            int j = _levelModifierRng.Next(i + 1);
-            (_guaranteedTypeBag[i], _guaranteedTypeBag[j]) = (_guaranteedTypeBag[j], _guaranteedTypeBag[i]);
-        }
-    }
-
-    private void EnsureCurrentGuaranteedTypeIsNormal()
-    {
-        if (_guaranteedTypeBag == null || _guaranteedTypeBag.Count == 0) return;
-
-        int i = Mathf.Clamp(_guaranteedTypeBagPos, 0, _guaranteedTypeBag.Count - 1);
-        if (_guaranteedTypeBag[i] == RoundType.Normal) return;
-
-        int swapIndex = _guaranteedTypeBag.FindIndex(i + 1, t => t == RoundType.Normal);
-        if (swapIndex >= 0)
-        {
-            (_guaranteedTypeBag[i], _guaranteedTypeBag[swapIndex]) = (_guaranteedTypeBag[swapIndex], _guaranteedTypeBag[i]);
-            return;
-        }
-        _guaranteedTypeBag[i] = RoundType.Normal;
     }
 }

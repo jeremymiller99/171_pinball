@@ -20,7 +20,6 @@ public sealed class BoardBackgroundMaterialSwitcher : MonoBehaviour
 
     [Header("Materials")]
     [SerializeField] private Material normalMaterial;
-    [SerializeField] private Material angelMaterial;
     [SerializeField] private Material devilMaterial;
 
     [Header("Transition Timing")]
@@ -48,9 +47,6 @@ public sealed class BoardBackgroundMaterialSwitcher : MonoBehaviour
         AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     [Header("Wash Colors")]
-    [SerializeField] private Color angelWashColor =
-        new Color(1f, 0.9f, 0.45f, 1f);
-
     [SerializeField] private Color devilWashColor =
         new Color(0.45f, 0.08f, 0.12f, 1f);
 
@@ -165,12 +161,14 @@ public sealed class BoardBackgroundMaterialSwitcher : MonoBehaviour
     {
         switch (type)
         {
-            case RoundType.Angel:
-                return angelMaterial != null
-                    ? angelMaterial : normalMaterial;
             case RoundType.Devil:
-                return devilMaterial != null
-                    ? devilMaterial : normalMaterial;
+                // Prioritize the specific material on the active modifier if it exists
+                var controller = ServiceLocator.Get<RoundModifierController>();
+                if (controller != null && controller.ActiveModifier != null && controller.ActiveModifier.backgroundMaterial != null)
+                {
+                    return controller.ActiveModifier.backgroundMaterial;
+                }
+                return devilMaterial != null ? devilMaterial : normalMaterial;
             case RoundType.Normal:
             default:
                 return normalMaterial;
@@ -181,7 +179,6 @@ public sealed class BoardBackgroundMaterialSwitcher : MonoBehaviour
     {
         switch (type)
         {
-            case RoundType.Angel:  return angelWashColor;
             case RoundType.Devil:  return devilWashColor;
             case RoundType.Normal:
             default:               return normalWashColor;

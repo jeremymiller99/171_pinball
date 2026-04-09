@@ -17,9 +17,7 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
     private const string CardRootName = "Modifier Card";
     private const string LegacyBgObjectName = "BG";
     private const string NormalBgObjectName = "Normal BG";
-    private const string AngelBgObjectName = "Angel BG";
     private const string DevilBgObjectName = "Devil BG";
-    private const string AngelCardSpriteName = "Angel Card";
     private const string DevilCardSpriteName = "Devil Card";
     private const string LevelNumObjectName = "Level Num";
     private const string ModNameObjectName = "Mod Name";
@@ -73,10 +71,8 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
 
     private Transform _cardRoot;
     private GameObject _normalBgObject;
-    private GameObject _angelBgObject;
     private GameObject _devilBgObject;
     private Image _legacyBgImage;
-    private Sprite _legacyAngelSprite;
     private Sprite _legacyDevilSprite;
     private RectTransform _cardRect;
     private Canvas _parentCanvas;
@@ -377,15 +373,6 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
             }
         }
 
-        if (_angelBgObject == null)
-        {
-            Transform angel = FindChildRecursive(_cardRoot, AngelBgObjectName);
-            if (angel != null)
-            {
-                _angelBgObject = angel.gameObject;
-            }
-        }
-
         if (_devilBgObject == null)
         {
             Transform devil = FindChildRecursive(_cardRoot, DevilBgObjectName);
@@ -395,7 +382,7 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
             }
         }
 
-        if (_legacyBgImage == null && (_angelBgObject == null || _devilBgObject == null))
+        if (_legacyBgImage == null && _devilBgObject == null)
         {
             Transform bg = FindChildRecursive(_cardRoot, LegacyBgObjectName);
             if (bg != null)
@@ -404,7 +391,7 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
             }
         }
 
-        if (_legacyBgImage != null && (_legacyAngelSprite == null || _legacyDevilSprite == null))
+        if (_legacyBgImage != null && _legacyDevilSprite == null)
         {
             TryAutoResolveLegacyBgSprites();
         }
@@ -502,9 +489,8 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
             _normalBgObject.SetActive(type == RoundType.Normal);
         }
 
-        if (_angelBgObject != null && _devilBgObject != null)
+        if (_devilBgObject != null)
         {
-            _angelBgObject.SetActive(type == RoundType.Angel);
             _devilBgObject.SetActive(type == RoundType.Devil);
             return;
         }
@@ -518,11 +504,7 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
         {
             _legacyBgImage.enabled = true;
 
-            if (type == RoundType.Angel && _legacyAngelSprite != null)
-            {
-                _legacyBgImage.sprite = _legacyAngelSprite;
-            }
-            else if (type == RoundType.Devil && _legacyDevilSprite != null)
+            if (type == RoundType.Devil && _legacyDevilSprite != null)
             {
                 _legacyBgImage.sprite = _legacyDevilSprite;
             }
@@ -531,12 +513,7 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
 
     private void TryAutoResolveLegacyBgSprites()
     {
-        if (_legacyBgImage != null && _legacyAngelSprite == null && _legacyBgImage.sprite != null)
-        {
-            _legacyAngelSprite = _legacyBgImage.sprite;
-        }
-
-        if (_legacyAngelSprite != null && _legacyDevilSprite != null)
+        if (_legacyDevilSprite != null)
         {
             return;
         }
@@ -550,22 +527,11 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
                 continue;
             }
 
-            if (_legacyAngelSprite == null &&
-                string.Equals(s.name, AngelCardSpriteName, StringComparison.OrdinalIgnoreCase))
-            {
-                _legacyAngelSprite = s;
-                continue;
-            }
-
             if (_legacyDevilSprite == null &&
                 string.Equals(s.name, DevilCardSpriteName, StringComparison.OrdinalIgnoreCase))
             {
                 _legacyDevilSprite = s;
-            }
-
-            if (_legacyAngelSprite != null && _legacyDevilSprite != null)
-            {
-                return;
+                break;
             }
         }
     }

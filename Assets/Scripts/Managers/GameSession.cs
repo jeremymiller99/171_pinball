@@ -168,6 +168,11 @@ public sealed class GameSession : MonoBehaviour
     /// Call this after ConfigureChallenge and before starting the run.
     /// </summary>
     /// <param name="totalRounds">The total number of rounds to generate.</param>
+    /// <summary>
+    /// Generates round data for the run using the active challenge's settings.
+    /// Call this after ConfigureChallenge and before starting the run.
+    /// </summary>
+    /// <param name="totalRounds">The total number of rounds to generate.</param>
     public void GenerateRounds(int totalRounds)
     {
         generatedRounds.Clear();
@@ -179,111 +184,23 @@ public sealed class GameSession : MonoBehaviour
 
         var rng = new System.Random(seed);
 
-        // If no challenge or no modifier pools, all rounds are normal
-        if (activeChallenge == null || !activeChallenge.HasModifierPools)
-        {
-            for (int i = 0; i < totalRounds; i++)
-            {
-                generatedRounds.Add(new RoundData(i, RoundType.Normal, null));
-            }
-            return;
-        }
-
-        // Initialize all rounds as normal first
-        var roundTypes = new RoundType[totalRounds];
+        // Every 5 levels (index 4, 9, 14...) is a Devil round.
         for (int i = 0; i < totalRounds; i++)
         {
-            roundTypes[i] = RoundType.Normal;
-        }
-
-        if (activeChallenge.distributionMode == RoundDistributionMode.Guaranteed)
-        {
-            // Guaranteed mode: place a fixed number of angel and devil rounds
-            AssignGuaranteedRounds(roundTypes, rng);
-        }
-        else
-        {
-            // Probability mode: each round has a chance to be angel or devil
-            AssignProbabilityRounds(roundTypes, rng);
-        }
-
-        // The first level is always a normal round.
-        roundTypes[0] = RoundType.Normal;
-
-        // Create RoundData with assigned modifiers
-        for (int i = 0; i < totalRounds; i++)
-        {
+            RoundType type = RoundType.Normal;
             RoundModifierDefinition modifier = null;
 
-            if (roundTypes[i] == RoundType.Angel && activeChallenge.angelPool != null)
+            // deterministic devil every 5 levels
+            if (i > 0 && (i + 1) % 5 == 0)
             {
-                modifier = activeChallenge.angelPool.GetRandomModifier(rng);
+                type = RoundType.Devil;
+                if (activeChallenge != null && activeChallenge.devilPool != null)
+                {
+                    modifier = activeChallenge.devilPool.GetRandomModifier(rng);
+                }
             }
-            else if (roundTypes[i] == RoundType.Devil && activeChallenge.devilPool != null)
-            {
-                modifier = activeChallenge.devilPool.GetRandomModifier(rng);
-            }
 
-            generatedRounds.Add(new RoundData(i, roundTypes[i], modifier));
-        }
-    }
-
-    private void AssignGuaranteedRounds(RoundType[] roundTypes, System.Random rng)
-    {
-        int totalRounds = roundTypes.Length;
-        int availableRounds = Mathf.Max(0, totalRounds - 1);
-        int angelsToPlace = Mathf.Min(activeChallenge.guaranteedAngels, availableRounds);
-        int devilsToPlace = Mathf.Min(activeChallenge.guaranteedDevils, availableRounds - angelsToPlace);
-
-        // Create list of available indices
-        var availableIndices = new List<int>();
-        for (int i = 1; i < totalRounds; i++)
-        {
-            availableIndices.Add(i);
-        }
-
-        // Shuffle the indices
-        for (int i = availableIndices.Count - 1; i > 0; i--)
-        {
-            int j = rng.Next(i + 1);
-            int temp = availableIndices[i];
-            availableIndices[i] = availableIndices[j];
-            availableIndices[j] = temp;
-        }
-
-        // Assign angels first
-        int indexPos = 0;
-        for (int i = 0; i < angelsToPlace && indexPos < availableIndices.Count; i++, indexPos++)
-        {
-            roundTypes[availableIndices[indexPos]] = RoundType.Angel;
-        }
-
-        // Then assign devils
-        for (int i = 0; i < devilsToPlace && indexPos < availableIndices.Count; i++, indexPos++)
-        {
-            roundTypes[availableIndices[indexPos]] = RoundType.Devil;
-        }
-    }
-
-    private void AssignProbabilityRounds(RoundType[] roundTypes, System.Random rng)
-    {
-        float angelChance = Mathf.Clamp01(activeChallenge.angelChance);
-        float devilChance = Mathf.Clamp01(activeChallenge.devilChance);
-
-        // The first level is always a normal round.
-        for (int i = 1; i < roundTypes.Length; i++)
-        {
-            float roll = (float)rng.NextDouble();
-
-            if (roll < angelChance)
-            {
-                roundTypes[i] = RoundType.Angel;
-            }
-            else if (roll < angelChance + devilChance)
-            {
-                roundTypes[i] = RoundType.Devil;
-            }
-            // else stays Normal
+            generatedRounds.Add(new RoundData(i, type, modifier));
         }
     }
 

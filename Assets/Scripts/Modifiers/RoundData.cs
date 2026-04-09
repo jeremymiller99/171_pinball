@@ -6,7 +6,6 @@ using UnityEngine;
 public enum RoundType
 {
     Normal,
-    Angel,
     Devil
 }
 

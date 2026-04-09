@@ -12,7 +12,6 @@ public sealed class ModifierCardPopupController : MonoBehaviour
 
     [Header("Visibility")]
     [SerializeField] private bool showOnNormalRounds = false;
-    [SerializeField] private bool showOnAngelRounds = true;
     [SerializeField] private bool showOnDevilRounds = true;
 
     [Header("Runtime (debug)")]
@@ -186,11 +185,6 @@ public sealed class ModifierCardPopupController : MonoBehaviour
         }
 
         if (data.type == RoundType.Normal && !showOnNormalRounds)
-        {
-            return;
-        }
-
-        if (data.type == RoundType.Angel && !showOnAngelRounds)
         {
             return;
         }

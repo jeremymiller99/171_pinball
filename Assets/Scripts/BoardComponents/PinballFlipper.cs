@@ -77,9 +77,8 @@ public class PinballFlipper : MonoBehaviour
     {
         _pressed = flipAction.IsPressed();
 
-        if (_pressed && !_previousPressed && !(ServiceLocator.Get<RoundModifierController>()?.TryConsumeFlipperUse() ?? true))
+        if (_pressed && !_previousPressed)
         {
-            _pressed = false;
             amountOfFlips++;
         }
 

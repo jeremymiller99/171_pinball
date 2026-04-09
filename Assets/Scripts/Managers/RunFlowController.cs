@@ -17,7 +17,6 @@ public sealed class RunFlowController : MonoBehaviour
     [SerializeField] private GameRulesManager rulesManager;
     [SerializeField] private BoardLoader boardLoader;
     [SerializeField] private ShopTransitionController shopTransitionController;
-    [SerializeField] private RoundPreviewPanel roundPreviewPanel;
 
     [Header("Scene names")]
     [SerializeField] private string gameplayCoreSceneName = "GameplayCore";
@@ -25,8 +24,6 @@ public sealed class RunFlowController : MonoBehaviour
 
     [Header("Runtime (debug)")]
     [SerializeField] private bool hasStartedRun;
-
-    private bool _waitingForPreviewContinue;
 
     private void Awake()
     {
@@ -46,12 +43,6 @@ public sealed class RunFlowController : MonoBehaviour
         {
             shopTransitionController =
                 ServiceLocator.Get<ShopTransitionController>();
-        }
-
-        if (roundPreviewPanel == null)
-        {
-            roundPreviewPanel =
-                ServiceLocator.Get<RoundPreviewPanel>();
         }
     }
 
@@ -110,47 +101,8 @@ public sealed class RunFlowController : MonoBehaviour
         }
     }
 
-    private IEnumerator ShowRoundPreviewAndWait(GameSession session, int focusRoundIndex = 0)
-    {
-        if (roundPreviewPanel == null)
-        {
-            Debug.LogWarning($"{nameof(RunFlowController)}: RoundPreviewPanel not assigned.", this);
-            yield break;
-        }
-
-        _waitingForPreviewContinue = true;
-
-        roundPreviewPanel.Show(session.GeneratedRounds, focusRoundIndex, OnPreviewContinue);
-
-        while (_waitingForPreviewContinue)
-        {
-            yield return null;
-        }
-    }
-
-    private void OnPreviewContinue()
-    {
-        _waitingForPreviewContinue = false;
-    }
-
     /// <summary>
-    /// Shows the round preview panel as an overlay (e.g., from shop button).
-    /// Does not block - just shows the panel with a close callback.
-    /// </summary>
-    public void ShowRoundPreviewOverlay()
-    {
-        var session = GameSession.Instance;
-        if (session == null || !session.HasGeneratedRounds)
-            return;
 
-        if (roundPreviewPanel == null)
-            return;
-
-        int currentRound = rulesManager != null ? rulesManager.LevelIndex : 0;
-        roundPreviewPanel.Show(session.GeneratedRounds, currentRound, null);
-    }
-
-    /// <summary>
     /// Called by UnifiedShopController when the player clicks Continue.
     /// Shows round preview over the shop first, then closes shop and starts round.
     /// </summary>

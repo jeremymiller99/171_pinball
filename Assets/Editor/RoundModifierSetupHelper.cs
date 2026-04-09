@@ -14,50 +14,34 @@ public static class RoundModifierSetupHelper
     [MenuItem("Tools/Round Modifiers/Create Sample Assets")]
     public static void CreateSampleAssets()
     {
-        // Create angel modifiers
-        CreateModifier("Blessed Scoring", "Points earned are increased by 50%.",
-            RoundModifierDefinition.ModifierType.Angel, scoreMultiplier: 1.5f);
-
-        CreateModifier("Lower Bar", "Goal requirement reduced by 300.",
-            RoundModifierDefinition.ModifierType.Angel, goalModifier: -300f);
-
-        CreateModifier("Golden Touch", "Coins earned are doubled.",
-            RoundModifierDefinition.ModifierType.Angel, coinMultiplier: 2f);
-
-        CreateModifier("Turbo", "Ball moves 4× faster.",
-            RoundModifierDefinition.ModifierType.Angel, timeScaleMultiplier: 4f);
-
         // Create devil modifiers
         CreateModifier("Cursed Multiplier", "Multiplier gains are reduced by 50% this round.",
-            RoundModifierDefinition.ModifierType.Devil, disableMultiplier: true);
+            disableMultiplier: true);
 
         CreateModifier("Higher Stakes", "Goal requirement increased by 500.",
-            RoundModifierDefinition.ModifierType.Devil, goalModifier: 500f);
+            goalModifier: 500f);
 
         CreateModifier("Poverty", "Coins earned reduced by 50%.",
-            RoundModifierDefinition.ModifierType.Devil, coinMultiplier: 0.5f);
+            coinMultiplier: 0.5f);
 
         CreateModifier("Weakened", "Points earned reduced by 25%.",
-            RoundModifierDefinition.ModifierType.Devil, scoreMultiplier: 0.75f);
+            scoreMultiplier: 0.75f);
 
         CreateModifier("Ghost Ball", "Ball hides every 6 seconds for 3 seconds. Trail is hidden too.",
-            RoundModifierDefinition.ModifierType.Devil, cyclicHideBallEnabled: true, cyclicHideBallVisibleSeconds: 6f, cyclicHideBallHiddenSeconds: 3f);
+            cyclicHideBallEnabled: true, cyclicHideBallVisibleSeconds: 6f, cyclicHideBallHiddenSeconds: 3f);
 
-        CreateModifier("Limited Flips", "Only 20 flipper uses this round. Exceed and you lose.",
-            RoundModifierDefinition.ModifierType.Devil, flipperUseLimit: 20);
+        CreateModifier("Limited Flips", "Only 20 flipper uses this round. Exceed and you lose.");
 
         CreateModifier("Unlucky Day", "Two random devil modifiers apply this round.",
-            RoundModifierDefinition.ModifierType.Devil, applyTwoRandomDevilModifiers: true);
+            applyTwoRandomDevilModifiers: true);
 
         // Create pools
-        CreateAngelPool();
         CreateDevilPool();
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
         Debug.Log("Sample round modifier assets created successfully!");
-        Debug.Log($"Angel modifiers: {ModifierDefinitionsPath}");
         Debug.Log($"Devil modifiers: {ModifierDefinitionsPath}");
         Debug.Log($"Pools: {ModifierPoolsPath}");
     }
@@ -65,7 +49,6 @@ public static class RoundModifierSetupHelper
     private static RoundModifierDefinition CreateModifier(
         string displayName,
         string description,
-        RoundModifierDefinition.ModifierType type,
         float scoreMultiplier = 1f,
         float goalModifier = 0f,
         float coinMultiplier = 1f,
@@ -75,8 +58,7 @@ public static class RoundModifierSetupHelper
         float timeScaleMultiplier = 1f,
         bool cyclicHideBallEnabled = false,
         float cyclicHideBallVisibleSeconds = 6f,
-        float cyclicHideBallHiddenSeconds = 3f,
-        int flipperUseLimit = 0)
+        float cyclicHideBallHiddenSeconds = 3f)
     {
         string sanitizedName = displayName.Replace(" ", "_");
         string path = $"{ModifierDefinitionsPath}{sanitizedName}.asset";
@@ -96,7 +78,6 @@ public static class RoundModifierSetupHelper
         var modifier = ScriptableObject.CreateInstance<RoundModifierDefinition>();
         modifier.displayName = displayName;
         modifier.description = description;
-        modifier.type = type;
         modifier.scoreMultiplier = scoreMultiplier;
         modifier.goalModifier = goalModifier;
         modifier.coinMultiplier = coinMultiplier;
@@ -107,43 +88,11 @@ public static class RoundModifierSetupHelper
         modifier.cyclicHideBallEnabled = cyclicHideBallEnabled;
         modifier.cyclicHideBallVisibleSeconds = cyclicHideBallVisibleSeconds;
         modifier.cyclicHideBallHiddenSeconds = cyclicHideBallHiddenSeconds;
-        modifier.flipperUseLimit = flipperUseLimit;
 
         AssetDatabase.CreateAsset(modifier, path);
         Debug.Log($"Created modifier: {path}");
 
         return modifier;
-    }
-
-    private static void CreateAngelPool()
-    {
-        string path = $"{ModifierPoolsPath}AngelPool.asset";
-
-        var existing = AssetDatabase.LoadAssetAtPath<RoundModifierPool>(path);
-        if (existing != null)
-        {
-            Debug.Log($"Pool already exists: {path}");
-            return;
-        }
-
-        EnsureDirectoryExists(ModifierPoolsPath);
-
-        var pool = ScriptableObject.CreateInstance<RoundModifierPool>();
-
-        // Find all angel modifiers
-        string[] guids = AssetDatabase.FindAssets("t:RoundModifierDefinition", new[] { ModifierDefinitionsPath });
-        foreach (string guid in guids)
-        {
-            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-            var modifier = AssetDatabase.LoadAssetAtPath<RoundModifierDefinition>(assetPath);
-            if (modifier != null && modifier.type == RoundModifierDefinition.ModifierType.Angel)
-            {
-                pool.modifiers.Add(modifier);
-            }
-        }
-
-        AssetDatabase.CreateAsset(pool, path);
-        Debug.Log($"Created angel pool with {pool.modifiers.Count} modifiers: {path}");
     }
 
     private static void CreateDevilPool()
@@ -161,13 +110,13 @@ public static class RoundModifierSetupHelper
 
         var pool = ScriptableObject.CreateInstance<RoundModifierPool>();
 
-        // Find all devil modifiers
+        // Find all modifiers (since all are now effectively devil-pool candidates)
         string[] guids = AssetDatabase.FindAssets("t:RoundModifierDefinition", new[] { ModifierDefinitionsPath });
         foreach (string guid in guids)
         {
             string assetPath = AssetDatabase.GUIDToAssetPath(guid);
             var modifier = AssetDatabase.LoadAssetAtPath<RoundModifierDefinition>(assetPath);
-            if (modifier != null && modifier.type == RoundModifierDefinition.ModifierType.Devil)
+            if (modifier != null)
             {
                 pool.modifiers.Add(modifier);
             }
@@ -207,12 +156,11 @@ public static class RoundModifierSetupHelper
             return;
         }
 
-        var angelPool = AssetDatabase.LoadAssetAtPath<RoundModifierPool>($"{ModifierPoolsPath}AngelPool.asset");
         var devilPool = AssetDatabase.LoadAssetAtPath<RoundModifierPool>($"{ModifierPoolsPath}DevilPool.asset");
 
-        if (angelPool == null || devilPool == null)
+        if (devilPool == null)
         {
-            Debug.LogError("Pools not found. Run 'Create Sample Assets' first.");
+            Debug.LogError("Pool not found. Run 'Create Sample Assets' first.");
             return;
         }
 
@@ -222,18 +170,14 @@ public static class RoundModifierSetupHelper
             string path = AssetDatabase.GUIDToAssetPath(guid);
             var challenge = AssetDatabase.LoadAssetAtPath<ChallengeModeDefinition>(path);
 
-            if (challenge != null && challenge.angelPool == null && challenge.devilPool == null)
+            if (challenge != null && challenge.devilPool == null)
             {
-                challenge.angelPool = angelPool;
                 challenge.devilPool = devilPool;
-                challenge.totalRounds = 7;
-                challenge.distributionMode = RoundDistributionMode.Guaranteed;
-                challenge.guaranteedAngels = 2;
-                challenge.guaranteedDevils = 2;
+                challenge.totalRounds = 10; // Updated default for deterministic system (2 devil rounds at lvl 5 and 10)
 
                 EditorUtility.SetDirty(challenge);
                 assigned++;
-                Debug.Log($"Assigned pools to: {path}");
+                Debug.Log($"Assigned pool to: {path}");
             }
         }
 
@@ -241,7 +185,7 @@ public static class RoundModifierSetupHelper
 
         if (assigned > 0)
         {
-            Debug.Log($"Assigned pools to {assigned} challenge mode(s).");
+            Debug.Log($"Assigned pool to {assigned} challenge mode(s).");
         }
         else
         {

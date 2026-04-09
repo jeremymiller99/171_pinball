@@ -4,10 +4,17 @@ using UnityEngine;
 
 public class BallParticleHandler : MonoBehaviour
 {
-    [SerializeField] private int amountToEmit;
+    [SerializeField] private int startingEmitAmount;
+    [SerializeField] private float speedMultiplier;
     [SerializeField] private GameObject particleObject;
     [SerializeField] private Stack<GameObject> pool;
     [SerializeField] private int poolSize;
+    [SerializeField] Rigidbody rigidbody;
+
+    private void Awake()
+    {
+        rigidbody = GetComponent<Rigidbody>();
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -21,7 +28,13 @@ public class BallParticleHandler : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (Ball.GetBoardComponentsForScoring(collision.collider).Length == 0) return;
+        BoardComponent[] components = Ball.GetBoardComponentsForScoring(collision.collider);
+        if (components.Length == 0) return;
+        if (components[0].componentType == BoardComponentType.Flipper) return;
+        if (components[0].componentType == BoardComponentType.Spinner) return;
+        if (components[0].componentType == BoardComponentType.Rollover) return;
+        if (components[0].componentType == BoardComponentType.Launcher) return;
+        if (components[0].componentType == BoardComponentType.Portal) return;
         GameObject emitterObj = pool.Pop();
         ParticleSystem emitter = emitterObj.GetComponent<ParticleSystem>();
         emitter.transform.position = transform.position;
@@ -35,7 +48,8 @@ public class BallParticleHandler : MonoBehaviour
             emitterShape.rotation = Vector3.up * Vector3.Angle(transform.position - collision.transform.position, Vector3.forward);
         }
 
-        emitter.Emit(amountToEmit);
+        int emitMult = Mathf.FloorToInt(speedMultiplier * rigidbody.linearVelocity.magnitude);
+        emitter.Emit(startingEmitAmount * emitMult);
         pool.Push(emitterObj);
     }
 

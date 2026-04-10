@@ -1,6 +1,7 @@
 // Generated with Cursor (Composer) by assistant, for jjmil, on 2026-04-01.
 // Updated with Cursor (Composer) by assistant, for jjmil, on 2026-04-01 (alternatives + flash).
 // Updated with Cursor (Composer) by assistant, for jjmil, on 2026-04-01 (FlashLitVersusOffThenOff).
+// Updated with Antigravity by jjmil on 2026-04-09 (alternative emission colors).
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
@@ -37,6 +38,11 @@ public sealed class BoardLight : MonoBehaviour
 
     [Tooltip("Extra lit-only colors. Select with SetLitAlternativeIndex (0 = first element).")]
     [SerializeField] private Color[] alternativeLitColors;
+
+    [Tooltip(
+        "Emission colors matching alternativeLitColors by index. " +
+        "If an index has no entry, ScaledEmissionFromBase is used.")]
+    [SerializeField] private Color[] alternativeEmissionColors;
 
     [SerializeField] private Color offEmissionColor = Color.black;
     [SerializeField] private Color onEmissionColor = new Color(1.5f, 1.5f, 1.2f, 1f);
@@ -396,6 +402,13 @@ public sealed class BoardLight : MonoBehaviour
         if (_litAppearanceOverrideActive && _isLit)
         {
             return ScaledEmissionFromBase(baseCol);
+        }
+
+        if (_litAlternativeIndex >= 0
+            && alternativeEmissionColors != null
+            && _litAlternativeIndex < alternativeEmissionColors.Length)
+        {
+            return alternativeEmissionColors[_litAlternativeIndex];
         }
 
         return onEmissionColor;

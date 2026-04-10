@@ -54,7 +54,7 @@ Material:
     - _Octaves: 4
     - _PaletteCount: 4
     - _Scale: 80
-    - _ScrollSpeed: 0.0009
+    - _ScrollSpeed: 0.9
     - _Seed: 24680
     - _Smoothness: 0.5
     - _Speed: 0.42
@@ -71,7 +71,7 @@ Material:
     - _WarpOctaves: 3
     - _WarpScale: 141.3
     - _WarpSeed: 13579
-    - _WorldCoordScale: 1
+    - _WorldCoordScale: 0.001
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
@@ -79,7 +79,7 @@ Material:
     - _Palette1: {r: 0.4056604, g: 0.04970922, b: 0.024875412, a: 1}
     - _Palette2: {r: 0.6, g: 0.10196079, b: 0.019607844, a: 1}
     - _Palette3: {r: 0.9490197, g: 0.3803922, b: 0.050980397, a: 1}
-    - _Resolution: {r: 512, g: 288, b: 0, a: 0}
+    - _Resolution: {r: 515, g: 288, b: 0, a: 0}
     - _ScrollDir: {r: 0.35, g: 1, b: 0, a: 0}
     - _Tiling: {r: 1, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []

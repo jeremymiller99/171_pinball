@@ -11,6 +11,7 @@ TagManager:
   - Floor
   - Ceiling
   - FirstButton
+  - Default Board Light
   layers:
   - Default
   - TransparentFX

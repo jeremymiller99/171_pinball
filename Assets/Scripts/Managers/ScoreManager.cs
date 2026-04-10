@@ -177,6 +177,15 @@ public class ScoreManager : MonoBehaviour
         ScoreChanged?.Invoke();
     }
 
+    public void AddRawMult(float amount)
+    {
+        mult += amount;
+        if (mult < 1f) mult = 1f;
+        displayMult = mult;
+        MultAdded?.Invoke(amount, mult);
+        ScoreChanged?.Invoke();
+    }
+
     void Awake()
     {
         ServiceLocator.Register<ScoreManager>(this);

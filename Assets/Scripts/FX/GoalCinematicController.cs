@@ -142,12 +142,8 @@ public sealed class GoalCinematicController : MonoBehaviour
             return;
         }
 
-        // If Frenzy has begun (and we're not in the hold window), this cinematic should be off.
-        if ((ServiceLocator.Get<FrenzyController>()?.IsFrenzy ?? false))
-        {
-            SmoothToward(1f);
-            return;
-        }
+        // Frenzy check removed — FrenzyController deleted;
+        // frenzy is now managed by DropTargetsScoringMode.
 
         float goal = _score.Goal;
         float live = _score.RoundTotal;

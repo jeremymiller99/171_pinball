@@ -1,3 +1,4 @@
+// Updated with Antigravity by jjmil on 2026-04-09 (reconcile pending level-ups on shop return).
 // Updated with Cursor (Composer) by assistant on 2026-03-31 (ResolveServices in StartRun/StartRound for additive board scenes).
 using System;
 using System.Collections.Generic;
@@ -378,6 +379,12 @@ public class GameRulesManager : MonoBehaviour
     {
         if (!_runActive) return;
         CloseShopAndAdvanceIndexOnly();
+
+        // Reconcile any level-ups that were blocked while the shop was open.
+        // The player may have banked a score exceeding the goal before entering
+        // the shop, but _shopOpen suppressed OnScoreChanged during that time.
+        TryProcessLevelUps();
+
         StartRound();
     }
 

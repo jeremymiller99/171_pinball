@@ -110,10 +110,15 @@ MonoBehaviour:
   driveEmission: 0
   offColor: {r: 0.4433962, g: 0.41136768, b: 0.2949003, a: 0.6}
   onColor: {r: 1, g: 0.78431374, b: 0, a: 0.6}
+  alternativeLitColors:
+  - {r: 0, g: 0.8238344, b: 1, a: 1}
+  alternativeEmissionColors:
+  - {r: 0, g: 0.8238344, b: 1, a: 1}
   offEmissionColor: {r: 0.4431373, g: 0.41176474, b: 0.29411766, a: 1}
   onEmissionColor: {r: 1, g: 0.7843138, b: 0, a: 1}
   targetLight: {fileID: 2113318248636461638}
   startLit: 1
+  flashUsesUnscaledTime: 0
   onLitChanged:
     m_PersistentCalls:
       m_Calls: []

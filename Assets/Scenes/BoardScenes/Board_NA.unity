@@ -2936,44 +2936,48 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: b0d45ca394b319d43a28f32d6b2bdaa7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 44.6
+      value: 49.894325
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b0d45ca394b319d43a28f32d6b2bdaa7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.4
+      value: -3.9668207
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b0d45ca394b319d43a28f32d6b2bdaa7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 4.8
+      value: 9.541246
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b0d45ca394b319d43a28f32d6b2bdaa7, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.71014196
+      value: -0.6599918
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b0d45ca394b319d43a28f32d6b2bdaa7, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: -0.1292683
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b0d45ca394b319d43a28f32d6b2bdaa7, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.7040586
+      value: -0.7303933
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b0d45ca394b319d43a28f32d6b2bdaa7, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: -0.11927339
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b0d45ca394b319d43a28f32d6b2bdaa7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: -0.206
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b0d45ca394b319d43a28f32d6b2bdaa7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -89.507
+      value: -264.24
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b0d45ca394b319d43a28f32d6b2bdaa7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
+      value: 20.26
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: b0d45ca394b319d43a28f32d6b2bdaa7, type: 3}
+      propertyPath: 'm_Materials.Array.data[4]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 887a46922635ffe4eb005f251fe9be7e, type: 2}
     - target: {fileID: 919132149155446097, guid: b0d45ca394b319d43a28f32d6b2bdaa7, type: 3}
       propertyPath: m_Name
       value: CommerceHub
@@ -18261,7 +18265,6 @@ MonoBehaviour:
   targetRenderer: {fileID: 2114677306}
   materialSlotIndex: 0
   normalMaterial: {fileID: 2100000, guid: 166147aafa6a17844b0dc663e79f2e9e, type: 2}
-  angelMaterial: {fileID: 2100000, guid: afa2906433ce5bf4191baec1c2a47ef0, type: 2}
   devilMaterial: {fileID: 2100000, guid: b8ceef762df798b448c0e564df18edd4, type: 2}
   transitionDuration: 0.9
   fadeInFraction: 0.4
@@ -18314,7 +18317,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  angelWashColor: {r: 1, g: 0.9, b: 0.45, a: 1}
   devilWashColor: {r: 0.45, g: 0.08, b: 0.12, a: 1}
   normalWashColor: {r: 0.12, g: 0.1, b: 0.22, a: 1}
   overlayOffset: {x: 0, y: 0, z: -0.01}

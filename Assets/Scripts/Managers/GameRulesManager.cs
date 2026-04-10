@@ -305,6 +305,10 @@ public class GameRulesManager : MonoBehaviour
         _shopAvailable = false;
         ShopAvailabilityChanged?.Invoke(false);
 
+        // Set _shopOpen before banking so the OnScoreChanged guard blocks
+        // premature level-ups (and coin awards) during the bank event.
+        _shopOpen = true;
+
         if (scoreManager != null)
         {
             scoreManager.BankCurrentBallScore();

@@ -1,3 +1,4 @@
+// Updated with Antigravity by jjmil on 2026-04-09 (restored mult text updates; fixed desync on reset).
 // Updated with Antigravity by jjmil on 2026-04-07
 // (3-canvas layout: Score Canvas / Money Canvas / Mult Canvas;
 //  removed per-ball points display; mult now shows "x1", "x1.1" etc.).
@@ -109,7 +110,6 @@ public class ScoreUIController : MonoBehaviour
     {
         ServiceLocator.Register<ScoreUIController>(this);
         EnsureCoreScoreTextBindings();
-        if (multText != null) multText.gameObject.SetActive(false);
     }
 
     private void OnEnable()
@@ -190,7 +190,7 @@ public class ScoreUIController : MonoBehaviour
         {
             multQueue.Clear();
             multUiDisplayed = 1f;
-            // Removed multText update for visibility removal
+            multText.text = FormatMultiplier(1f);
             PlayMultResetFlash();
         }
     }
@@ -222,7 +222,8 @@ public class ScoreUIController : MonoBehaviour
                     newMult, multUiDisplayed))
             {
                 multUiDisplayed = newMult;
-                // Removed multText update for visibility removal
+                multText.text =
+                    FormatMultiplier(multUiDisplayed);
             }
         }
 
@@ -268,8 +269,9 @@ public class ScoreUIController : MonoBehaviour
             {
                 multActuallyChanged = true;
                 multUiDisplayed = newMult;
+                multText.text =
+                    FormatMultiplier(multUiDisplayed);
             }
-            // Removed multText update for visibility removal
         }
 
         ScoreUiPopped?.Invoke(multActuallyChanged);

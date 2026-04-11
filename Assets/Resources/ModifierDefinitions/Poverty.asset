@@ -19,6 +19,6 @@ MonoBehaviour:
   applyTwoRandomDevilModifiers: 0
   scoreMultiplier: 1
   disableMultiplier: 0
-  goalMultiplier: 0
+  goalMultiplier: 1
   coinMultiplier: 0
   ballModifier: 0

@@ -54,7 +54,7 @@ public sealed class BallSpawner : MonoBehaviour
     private void Awake()
     {
         ServiceLocator.Register<BallSpawner>(this);
-        AssignSlotIndices();
+        EnsureHandSlotsResolved();
     }
 
     private void OnDisable()
@@ -76,6 +76,49 @@ public sealed class BallSpawner : MonoBehaviour
         {
             if (handSlots[i] != null) handSlots[i].AssignSlotIndex(i);
         }
+    }
+
+    /// <summary>
+    /// Ensures the slot list is populated and valid. Drops null/destroyed entries,
+    /// auto-discovers BallHandSlot children if the list is empty, then falls back
+    /// to a scene-wide search. Safe to call multiple times.
+    /// </summary>
+    private void EnsureHandSlotsResolved()
+    {
+        if (handSlots == null) handSlots = new List<BallHandSlot>();
+
+        for (int i = handSlots.Count - 1; i >= 0; i--)
+        {
+            if (handSlots[i] == null) handSlots.RemoveAt(i);
+        }
+
+        if (handSlots.Count == 0)
+        {
+            var children = GetComponentsInChildren<BallHandSlot>(includeInactive: true);
+            if (children != null && children.Length > 0)
+            {
+                handSlots.AddRange(children);
+            }
+        }
+
+        if (handSlots.Count == 0)
+        {
+            var scanned = FindObjectsByType<BallHandSlot>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            if (scanned != null && scanned.Length > 0)
+            {
+                handSlots.AddRange(scanned);
+                handSlots.Sort((a, b) => string.CompareOrdinal(a.name, b.name));
+            }
+        }
+
+        if (handSlots.Count == 0)
+        {
+            Debug.LogWarning(
+                $"{nameof(BallSpawner)}: no {nameof(BallHandSlot)} assigned or found in scene. " +
+                "Hand balls will fall back to the spawner's transform position.", this);
+        }
+
+        AssignSlotIndices();
     }
 
     /// <summary>
@@ -201,6 +244,7 @@ public sealed class BallSpawner : MonoBehaviour
     /// </summary>
     public void BuildHand(int count)
     {
+        EnsureHandSlotsResolved();
         count = Mathf.Max(0, count);
 
         while (_handBalls.Count > count)
@@ -231,6 +275,8 @@ public sealed class BallSpawner : MonoBehaviour
     /// </summary>
     public void BuildHandFromPrefabs(IList<GameObject> prefabs)
     {
+        EnsureHandSlotsResolved();
+
         if (prefabs == null)
         {
             BuildHand(0);

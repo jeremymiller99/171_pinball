@@ -18,8 +18,7 @@ public sealed class UnifiedShopController : MonoBehaviour
     public enum ShopState
     {
         Browsing,
-        PlacingComponent,
-        PlacingBall
+        PlacingComponent
     }
 
     [Header("Refs")]
@@ -56,7 +55,6 @@ public sealed class UnifiedShopController : MonoBehaviour
     private bool _closeRequested;
 
     private BoardComponent _targetComponent;
-    private int _targetBallSlotIndex = -1;
     private bool _dragBallHasRoom;
     private bool _isDragPreviewActive;
 
@@ -180,10 +178,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (confirmPanel != null) confirmPanel.Hide();
 
-        if (_selectedOffer.Type == ShopOffer.OfferType.BoardComponent)
-            EnterComponentPlacementMode();
-        else
-            EnterBallPlacementMode();
+        EnterComponentPlacementMode();
     }
 
     public void OnBoardComponentClicked(BoardComponent component)
@@ -203,13 +198,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (CurrentState == ShopState.Browsing)
         {
             HandleBallSwapClick(slotIndex);
-            return;
         }
-
-        if (CurrentState != ShopState.PlacingBall || _selectedOffer == null) return;
-
-        _targetBallSlotIndex = slotIndex;
-        ShowBallReplaceConfirmation(slotIndex);
     }
 
     public void ConfirmComponentPlacement()
@@ -223,40 +212,6 @@ public sealed class UnifiedShopController : MonoBehaviour
         ExitPlacementMode();
 
         SetPrompt($"Placed {def.GetSafeDisplayName()}.");
-        RefreshUI();
-    }
-
-    public void ConfirmBallPlacement()
-    {
-        if (_selectedOffer == null) return;
-
-        var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
-        if (loadoutCtrl == null) return;
-
-        BallDefinition def = _selectedOffer.BallDef;
-        int slotToReplace = _targetBallSlotIndex;
-        var loadout = loadoutCtrl.GetBallLoadoutSnapshot();
-
-        if (slotToReplace >= 0 && slotToReplace < loadout.Count)
-        {
-            BallDefinition oldBall = loadout[slotToReplace];
-            if (oldBall != null)
-            {
-                int sellPrice = (Mathf.Max(0, oldBall.Price) + 1) / 2;
-                coinController?.AddCoinsUnscaled(sellPrice);
-            }
-            loadoutCtrl.ReplaceBallInLoadout(slotToReplace, def);
-        }
-
-        _shelf.ConsumeOffer(_selectedOfferIndex);
-        ExitPlacementMode();
-
-        if (ballSpawner != null && def != null && def.Prefab != null && slotToReplace >= 0)
-        {
-            ballSpawner.ReplaceBallAnimated(slotToReplace, def.Prefab);
-        }
-
-        SetPrompt($"Replaced with {def.GetSafeDisplayName()}.");
         RefreshUI();
     }
 
@@ -510,11 +465,6 @@ public sealed class UnifiedShopController : MonoBehaviour
             BoardComponent bc = hitObject != null ? hitObject.GetComponentInParent<BoardComponent>() : null;
             _placement.UpdatePlacementHover(_selectedOffer, bc);
         }
-        else if (CurrentState == ShopState.PlacingBall)
-        {
-            int slot = ResolveDropSlotIndex(hitObject, worldRay);
-            _hand.UpdatePlacementHover(slot);
-        }
     }
 
     public void OnHandBallDragStarted(int dragSlot)
@@ -610,45 +560,6 @@ public sealed class UnifiedShopController : MonoBehaviour
         RefreshUI();
     }
 
-    private void EnterBallPlacementMode()
-    {
-        CurrentState = ShopState.PlacingBall;
-
-        var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
-        if (loadoutCtrl == null)
-        {
-            SetPrompt("Ball loadout unavailable.");
-            RefreshUI();
-            return;
-        }
-
-        int currentCount = loadoutCtrl.BallLoadoutCount;
-        int cap = Mathf.Max(1, loadoutCtrl.MaxBalls);
-
-        if (currentCount < cap)
-        {
-            int addSlot = GetFirstEmptySlotIndex();
-            bool added = loadoutCtrl.AddBallToLoadout(_selectedOffer.BallDef);
-            if (added)
-            {
-                _shelf.ConsumeOffer(_selectedOfferIndex);
-                if (ballSpawner != null && _selectedOffer.BallDef?.Prefab != null && addSlot >= 0)
-                {
-                    ballSpawner.AddBallAnimated(_selectedOffer.BallDef.Prefab, addSlot);
-                }
-
-                SetPrompt($"Added {_selectedOffer.DisplayName} to loadout.");
-                ExitPlacementMode();
-                RefreshUI();
-                return;
-            }
-        }
-
-        _hand.HighlightAllHandBallsWaitColor();
-        SetPrompt($"Click a ball in your hand to replace with {_selectedOffer.DisplayName}.");
-        RefreshUI();
-    }
-
     private void ExitPlacementMode()
     {
         _placement.DeselectAll();
@@ -662,17 +573,18 @@ public sealed class UnifiedShopController : MonoBehaviour
         _selectedOffer = null;
         _selectedOfferIndex = -1;
         _targetComponent = null;
-        _targetBallSlotIndex = -1;
 
         if (confirmPanel != null) confirmPanel.Hide();
 
         PlacementCancelled?.Invoke();
     }
 
-    private void AutoBuyBallOffer(int offerIndex, ShopOffer offer, int preferredSlot = -1)
+    private void AutoBuyBallOffer(int offerIndex, ShopOffer offer, int insertSlot)
     {
         var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
         if (loadoutCtrl == null || offer == null) return;
+
+        insertSlot = Mathf.Clamp(insertSlot, 0, loadoutCtrl.BallLoadoutCount);
 
         if (coinController == null || !coinController.TrySpendCoins(offer.Price))
         {
@@ -684,15 +596,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         ServiceLocator.Get<AudioManager>()?.PlayPurchase();
 
-        int addSlot = (preferredSlot >= 0 && preferredSlot <= loadoutCtrl.BallLoadoutCount) 
-            ? preferredSlot 
-            : GetFirstEmptySlotIndex();
-
-        bool added = (preferredSlot >= 0 && preferredSlot <= loadoutCtrl.BallLoadoutCount)
-            ? loadoutCtrl.InsertBallIntoLoadout(addSlot, offer.BallDef)
-            : loadoutCtrl.AddBallToLoadout(offer.BallDef);
-
-        if (!added)
+        if (!loadoutCtrl.InsertBallIntoLoadout(insertSlot, offer.BallDef))
         {
             coinController?.AddCoinsUnscaled(offer.Price);
             SetPrompt("Loadout full -- could not add ball.");
@@ -700,22 +604,14 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
-        if (ballSpawner != null && offer.BallDef?.Prefab != null && addSlot >= 0)
+        if (ballSpawner != null && offer.BallDef?.Prefab != null)
         {
-            ballSpawner.AddBallAnimated(offer.BallDef.Prefab, addSlot);
+            ballSpawner.AddBallAnimated(offer.BallDef.Prefab, insertSlot);
         }
 
         _shelf.ConsumeOffer(offerIndex);
         SetPrompt($"Added {offer.DisplayName} to loadout.");
         RefreshUI();
-    }
-
-    private int GetFirstEmptySlotIndex()
-    {
-        var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
-        if (loadoutCtrl == null) return -1;
-        var loadout = loadoutCtrl.GetBallLoadoutSnapshot();
-        return loadout.Count;
     }
 
     private Vector2 GetConfirmAnchorScreenPoint()
@@ -761,30 +657,6 @@ public sealed class UnifiedShopController : MonoBehaviour
             $"Replace {targetName} with {_selectedOffer.DisplayName}?",
             _selectedOffer.DisplayName, _selectedOffer.Description, _selectedOffer.Icon,
             ConfirmComponentPlacement, () => { if (confirmPanel != null) confirmPanel.Hide(); },
-            GetConfirmAnchorScreenPoint());
-    }
-
-    private void ShowBallReplaceConfirmation(int slotIndex)
-    {
-        if (confirmPanel == null)
-        {
-            ConfirmBallPlacement();
-            return;
-        }
-
-        var lc = ServiceLocator.Get<BallLoadoutController>();
-        var loadout = lc != null ? lc.GetBallLoadoutSnapshot() : new List<BallDefinition>();
-        BallDefinition old = (slotIndex >= 0 && slotIndex < loadout.Count) ? loadout[slotIndex] : null;
-        string oldName = old != null ? old.GetSafeDisplayName() : "(Empty)";
-        int sellPrice = old != null ? (Mathf.Max(0, old.Price) + 1) / 2 : 0;
-
-        string msg = old != null
-            ? $"Replace {oldName} with {_selectedOffer.DisplayName}?\nSell {oldName} for ${sellPrice}."
-            : $"Add {_selectedOffer.DisplayName} to Slot {slotIndex + 1}?";
-
-        confirmPanel.Show(
-            msg, _selectedOffer.DisplayName, _selectedOffer.Description, _selectedOffer.Icon,
-            ConfirmBallPlacement, () => { if (confirmPanel != null) confirmPanel.Hide(); },
             GetConfirmAnchorScreenPoint());
     }
 
@@ -867,6 +739,12 @@ public sealed class UnifiedShopController : MonoBehaviour
         ShopOffer offer = _shelf.GetOffer(offerIndex);
         if (offer == null || !offer.IsValid) return;
 
+        var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
+        if (loadoutCtrl == null) return;
+
+        var loadout = loadoutCtrl.GetBallLoadoutSnapshot();
+        if (slotIndex < 0 || slotIndex >= loadout.Count) return;
+
         if (coinController == null || !coinController.TrySpendCoins(offer.Price))
         {
             SetPrompt($"Not enough coins for {offer.DisplayName}.");
@@ -879,10 +757,24 @@ public sealed class UnifiedShopController : MonoBehaviour
         ServiceLocator.Get<AudioManager>()?.PlayPurchase();
         if (confirmPanel != null) confirmPanel.Hide();
 
-        _selectedOffer = offer;
-        _selectedOfferIndex = offerIndex;
-        _targetBallSlotIndex = slotIndex;
-        ConfirmBallPlacement();
+        BallDefinition newDef = offer.BallDef;
+        BallDefinition oldBall = loadout[slotIndex];
+        if (oldBall != null)
+        {
+            int sellPrice = (Mathf.Max(0, oldBall.Price) + 1) / 2;
+            coinController?.AddCoinsUnscaled(sellPrice);
+        }
+        loadoutCtrl.ReplaceBallInLoadout(slotIndex, newDef);
+
+        _shelf.ConsumeOffer(offerIndex);
+
+        if (ballSpawner != null && newDef != null && newDef.Prefab != null)
+        {
+            ballSpawner.ReplaceBallAnimated(slotIndex, newDef.Prefab);
+        }
+
+        SetPrompt($"Replaced with {newDef.GetSafeDisplayName()}.");
+        RefreshUI();
     }
 
     public void RefreshUI()

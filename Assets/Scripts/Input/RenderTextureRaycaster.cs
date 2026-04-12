@@ -188,10 +188,8 @@ public class RenderTextureRaycaster : MonoBehaviour
         }
 
         if (_cachedShopController != null
-            && (_cachedShopController.CurrentState
-                    == UnifiedShopController.ShopState.PlacingBall
-                || _cachedShopController.CurrentState
-                    == UnifiedShopController.ShopState.Browsing))
+            && _cachedShopController.CurrentState
+                == UnifiedShopController.ShopState.Browsing)
         {
             if (TryRouteHandBallClick(hitObject))
             {
@@ -408,21 +406,15 @@ public class RenderTextureRaycaster : MonoBehaviour
     }
 
     /// <summary>
-    /// During PlacingComponent / PlacingBall, forwards hover info to the
-    /// shop controller so it can apply the green "drop-here" highlight on
-    /// the specific target under the cursor.
+    /// During PlacingComponent, forwards hover info to the shop controller so it
+    /// can apply the green "drop-here" highlight on the specific target under the cursor.
     /// </summary>
     private void RouteToPlacementHover(GameObject hitObject, Ray ray)
     {
         EnsureShopController();
-        if (_cachedShopController == null)
-        {
-            return;
-        }
+        if (_cachedShopController == null) return;
 
-        var state = _cachedShopController.CurrentState;
-        if (state == UnifiedShopController.ShopState.PlacingComponent
-            || state == UnifiedShopController.ShopState.PlacingBall)
+        if (_cachedShopController.CurrentState == UnifiedShopController.ShopState.PlacingComponent)
         {
             _cachedShopController.OnPlacementHover(hitObject, ray);
         }

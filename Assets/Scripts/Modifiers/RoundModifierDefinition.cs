@@ -52,11 +52,45 @@ public class RoundModifierDefinition : ScriptableObject
 
     /// <summary>
     /// Returns a formatted string describing all active effects.
+    /// Only includes fields that differ from their neutral/default value.
     /// </summary>
     public string GetEffectsSummary()
     {
         var sb = new System.Text.StringBuilder();
 
+        if (applyTwoRandomDevilModifiers)
+        {
+            sb.AppendLine("Applies 2 random devil modifiers");
+        }
+        else
+        {
+            if (!Mathf.Approximately(scoreMultiplier, 1f))
+            {
+                string sign = scoreMultiplier > 1f ? "+" : "";
+                sb.AppendLine($"Score: {sign}{Mathf.RoundToInt((scoreMultiplier - 1f) * 100f)}%");
+            }
+
+            if (!Mathf.Approximately(goalMultiplier, 1f))
+            {
+                string sign = goalMultiplier > 1f ? "+" : "";
+                sb.AppendLine($"Goal: {sign}{Mathf.RoundToInt((goalMultiplier - 1f) * 100f)}%");
+            }
+
+            if (!Mathf.Approximately(coinMultiplier, 1f))
+            {
+                string sign = coinMultiplier > 1f ? "+" : "";
+                sb.AppendLine($"Coins: {sign}{Mathf.RoundToInt((coinMultiplier - 1f) * 100f)}%");
+            }
+
+            if (disableMultiplier)
+                sb.AppendLine("Multiplier locked at 1x");
+
+            if (ballModifier != 0)
+            {
+                string sign = ballModifier > 0 ? "+" : "";
+                sb.AppendLine($"Balls: {sign}{ballModifier}");
+            }
+        }
 
         return sb.ToString().TrimEnd();
     }

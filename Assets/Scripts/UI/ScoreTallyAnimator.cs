@@ -42,6 +42,8 @@ public class ScoreTallyAnimator : MonoBehaviour
     private const string RoundTotalObjectName = "RoundTotal";
     private const string RoundScoreObjectName = "Round Score";
 
+    private static string FormatPointsCompact(double value) => FormatPointsCompact((float)value);
+
     private static string FormatPointsCompact(float value)
     {
         float abs = Mathf.Abs(value);
@@ -171,7 +173,7 @@ public class ScoreTallyAnimator : MonoBehaviour
             yield break;
         }
 
-        float ballPoints = scoreManager.Points;
+        double ballPoints = scoreManager.Points;
         string flyingLabel =
             FormatPointsCompact(ballPoints);
 

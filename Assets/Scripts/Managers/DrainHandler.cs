@@ -111,7 +111,7 @@ public class DrainHandler : MonoBehaviour
             rules.ShowHomeRunPopup();
         }
 
-        float roundTotal;
+        double roundTotal;
         if (scoreTallyAnimator != null
             && scoreManager != null)
         {
@@ -123,7 +123,7 @@ public class DrainHandler : MonoBehaviour
         {
             BankCurrentBallIntoRoundTotal();
             roundTotal = scoreManager != null
-                ? scoreManager.RoundTotal : 0f;
+                ? scoreManager.RoundTotal : 0d;
             bankedPoints = roundTotal;
         }
 
@@ -142,6 +142,9 @@ public class DrainHandler : MonoBehaviour
             if (nextBall != null)
             {
                 _drainProcessing = false;
+                // Reconcile any level-ups that ScoreChanged events tried to trigger
+                // while _drainProcessing was true (e.g. frenzy scoring right before drain).
+                rules.ForceReconcileLevelUps();
                 yield break;
             }
         }
@@ -150,9 +153,9 @@ public class DrainHandler : MonoBehaviour
         _drainProcessing = false;
     }
 
-    private float BankCurrentBallIntoRoundTotal()
+    private double BankCurrentBallIntoRoundTotal()
     {
-        if (scoreManager == null) return 0f;
+        if (scoreManager == null) return 0d;
         return scoreManager.BankCurrentBallScore();
     }
 

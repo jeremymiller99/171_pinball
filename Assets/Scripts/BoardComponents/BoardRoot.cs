@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -8,18 +9,16 @@ public sealed class BoardRoot : MonoBehaviour
     [Header("Required")]
     [SerializeField] private Transform spawnPoint;
 
-    [Header("Optional (hand path / track)")]
-    [Tooltip("If assigned, the hand balls will be laid out along a path starting here.")]
-    [SerializeField] private Transform handPathStart;
-
-    [Tooltip("Optional corner/guide points for the hand path (in order).")]
-    [SerializeField] private Transform[] handPathWaypoints;
+    [Header("Hand slots")]
+    [Tooltip("Ordered slot GameObjects for the player's ball inventory. " +
+             "Index 0 should be closest to the launch point. Each slot needs a BallHandSlot " +
+             "+ BoxCollider (trigger) for shop drop targeting.")]
+    [SerializeField] private List<BallHandSlot> handSlots = new List<BallHandSlot>();
 
     private BoardDefinition _definition;
 
     public Transform SpawnPoint => spawnPoint;
-    public Transform HandPathStart => handPathStart;
-    public Transform[] HandPathWaypoints => handPathWaypoints;
+    public IReadOnlyList<BallHandSlot> HandSlots => handSlots;
     public BoardDefinition Definition => _definition;
 
     public void Initialize(BoardDefinition definition)
@@ -49,4 +48,3 @@ public sealed class BoardRoot : MonoBehaviour
         }
     }
 }
-

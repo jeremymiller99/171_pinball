@@ -16,6 +16,8 @@ MonoBehaviour:
   description: 1.5x credits earned but also the amount of score needed to level up
     every round. Starts each run with 1 Investor.
   shipModelPrefab: {fileID: 5566029595203772779, guid: 8dc4cc46a96de3a4797b1d267b83ef4d, type: 3}
+  elementType: 3
+  shopPriceMultiplier: 1
   startingMaxBalls: 5
   startingHand:
   - {fileID: 11400000, guid: 93f997505f7a1458389450c24a44587d, type: 2}

@@ -245,9 +245,10 @@ public class RoundModifierController : MonoBehaviour
         float shipMultMult = 1f;
         if (GameSession.Instance != null && GameSession.Instance.ActiveShip != null)
         {
-            shipScoreMult = Mathf.Max(0f, GameSession.Instance.ActiveShip.scoreMultiplier);
-            shipCoinMult = Mathf.Max(0f, GameSession.Instance.ActiveShip.coinMultiplier);
-            shipMultMult = Mathf.Max(0f, GameSession.Instance.ActiveShip.multMultiplier);
+            var ship = GameSession.Instance.ActiveShip;
+            shipScoreMult = Mathf.Max(0f, ship.scoreMultiplier);
+            shipCoinMult = Mathf.Max(0f, ship.coinMultiplier);
+            shipMultMult = Mathf.Max(0f, ship.multMultiplier);
         }
 
         if (scoreManager != null && _activeModifier != null)

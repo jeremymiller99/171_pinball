@@ -31,6 +31,8 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     [Header("Source")]
     [SerializeField] private GameRulesManager gameRules;
     [SerializeField] private BallSpawner ballSpawner;
+    [SerializeField] private ScoreManager scoreManager;
+    [SerializeField] private DropTargetsScoringMode dropTargetsScoringMode;
 
     [Header("Behavior")]
     [Tooltip("If true, shows 0 until the active ball is non-kinematic.")]
@@ -76,6 +78,10 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     [Tooltip("Where the mid color occurs along the fill amount (0..1).")]
     [Range(0f, 1f)]
     [SerializeField] private float meterColorMidPoint = 0.5f;
+
+    [Header("Frenzy Color")]
+    [Tooltip("Color of the meter when frenzy (drop-target 2x) mode is active. Should match frenzy lights in the scene.")]
+    [SerializeField] private Color frenzyMeterColor = new Color(0f, 0.85f, 1f, 1f);
 
     [Header("Color Application (debug / compatibility)")]
     [Tooltip("If enabled, also writes colors directly to Renderer.material. Use if your shader ignores MaterialPropertyBlock.")]
@@ -125,6 +131,12 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
 
         if (!gameRules)
             gameRules = ServiceLocator.Get<GameRulesManager>();
+
+        if (!scoreManager)
+            scoreManager = ServiceLocator.Get<ScoreManager>();
+
+        if (!dropTargetsScoringMode)
+            dropTargetsScoringMode = FindAnyObjectByType<DropTargetsScoringMode>();
 
         if (!meterFill)
         {
@@ -203,7 +215,10 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         if (!_activeBall || !_activeRb)
         {
             speedText.text = debugInText ? "Speed: (no active ball)" : "0.00 m/s";
-            UpdateMeter(0f, kinematic: true);
+            // Still drive meter from mult even when ball is absent.
+            float idleMult = scoreManager ? scoreManager.Mult : 1f;
+            float idleCap = (scoreManager && scoreManager.MultCap < float.MaxValue) ? scoreManager.MultCap : 10f;
+            UpdateMeter(Mathf.Clamp01((idleMult - 1f) / Mathf.Max(0.0001f, idleCap - 1f)), kinematic: true);
             return;
         }
 
@@ -212,7 +227,11 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         if (freezeWhileKinematic && kinematic)
             speed = 0f;
 
-        UpdateMeter(speed, kinematic);
+        // Meter fill is driven by multiplier, not speed.
+        float mult = scoreManager ? scoreManager.Mult : 1f;
+        float multCap = (scoreManager && scoreManager.MultCap < float.MaxValue) ? scoreManager.MultCap : 10f;
+        float multFill01 = Mathf.Clamp01((mult - 1f) / Mathf.Max(0.0001f, multCap - 1f));
+        UpdateMeter(multFill01, kinematic);
 
         string fmt = "F" + Mathf.Clamp(decimals, 0, 6);
         string units = showUnits ? " m/s" : "";
@@ -231,7 +250,7 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
             $"v=({v.x.ToString(fmt)},{v.y.ToString(fmt)},{v.z.ToString(fmt)})";
     }
 
-    private void UpdateMeter(float speedMps, bool kinematic)
+    private void UpdateMeter(float fill01, bool kinematic)
     {
         if (!meterFill)
             return;
@@ -243,19 +262,9 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
             return;
 
         if (meterFreezeWhileKinematic && kinematic)
-            speedMps = 0f;
+            fill01 = 0f;
 
-        float targetUnits;
-        if (meterMaxSpeedMps > 0f)
-        {
-            float t01 = Mathf.Clamp01(speedMps / meterMaxSpeedMps);
-            targetUnits = Mathf.Max(0f, meterMaxUnits) * t01;
-        }
-        else
-        {
-            // Legacy fallback if someone sets meterMaxSpeedMps to 0 in the inspector.
-            targetUnits = Mathf.Clamp(speedMps * Mathf.Max(0f, meterUnitsPerMps), 0f, Mathf.Max(0f, meterMaxUnits));
-        }
+        float targetUnits = Mathf.Max(0f, meterMaxUnits) * Mathf.Clamp01(fill01);
 
         if (meterSmoothing <= 0f)
         {
@@ -282,10 +291,10 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         meterFill.localPosition = axisDir * (newLen * 0.5f);
 
         // Drive fill color based on current fill percent (use smoothed units to match visuals).
-        float fill01 = meterMaxUnits > 0.0001f ? Mathf.Clamp01(_meterUnitsSmoothed / meterMaxUnits) : 0f;
-        UpdateMeterColor(fill01);
+        float smoothedFill01 = meterMaxUnits > 0.0001f ? Mathf.Clamp01(_meterUnitsSmoothed / meterMaxUnits) : 0f;
+        UpdateMeterColor(smoothedFill01);
 
-        ServiceLocator.Get<AudioManager>()?.UpdateRollingSound(fill01);
+        ServiceLocator.Get<AudioManager>()?.UpdateRollingSound(smoothedFill01);
     }
 
     private void UpdateMeterColor(float fill01)
@@ -305,7 +314,9 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
 
         _meterMPB ??= new MaterialPropertyBlock();
 
-        Color c = EvaluateMeterColor(fill01);
+        bool frenzyActive = scoreManager != null ? scoreManager.IsFrenzyActive :
+                            (dropTargetsScoringMode != null && dropTargetsScoringMode.IsFrenzyActive);
+        Color c = frenzyActive ? frenzyMeterColor : EvaluateMeterColor(fill01);
         c.a = _meterBaseAlpha;
 
         _meterRenderer.GetPropertyBlock(_meterMPB);

@@ -17,9 +17,9 @@ GameObject:
   - component: {fileID: 402034757328592053}
   - component: {fileID: 7213457856092857174}
   - component: {fileID: 8123456789012345670}
-  - component: {fileID: 1630782673804442033}
   - component: {fileID: -3425154649468333333}
   - component: {fileID: 7957356502227615885}
+  - component: {fileID: 4713034082345752408}
   m_Layer: 0
   m_Name: Eye On The Prize
   m_TagString: Ball
@@ -309,29 +309,6 @@ MonoBehaviour:
   speedForMaxAssistMps: 0.5
   speedForMinAssistMps: 20
   boardRoot: {fileID: 0}
---- !u!114 &1630782673804442033
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5723297401256486482}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b90156ebb73254be9bf6799e7e844758, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ChaosBall
-  hitCountFontAsset: {fileID: 0}
-  hitCountPopupScale: 0.7
-  hitCountPopupOffset: {x: 0, y: 40}
-  hitCountPopupColor: {r: 1, g: 1, b: 1, a: 1}
-  chaosBallPrefab: {fileID: 5723297401256486482}
-  lastBallPointsMultiplier: 3
-  whiteBallPointsMultiplier: 0.25
-  spawnRadius: 0.5
-  redColor: {r: 1, g: 0, b: 0, a: 1}
-  whiteColor: {r: 1, g: 1, b: 1, a: 1}
-  applyColors: 1
 --- !u!114 &-3425154649468333333
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -368,3 +345,27 @@ MonoBehaviour:
   speedMultiplier: 0.25
   particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
   poolSize: 15
+  _rb: {fileID: 0}
+--- !u!114 &4713034082345752408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cc7af76399941f4d940a357cfd54244, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EyeOnThePrizeBall
+  hitCountFontAsset: {fileID: 0}
+  hitCountPopupScale: 0.7
+  hitCountPopupOffset: {x: 0, y: 40}
+  hitCountPopupColor: {r: 1, g: 1, b: 1, a: 1}
+  chaosBallPrefab: {fileID: 0}
+  lastBallPointsMultiplier: 3
+  whiteBallPointsMultiplier: 0.25
+  spawnRadius: 0.5
+  redColor: {r: 1, g: 0, b: 0, a: 1}
+  whiteColor: {r: 1, g: 1, b: 1, a: 1}
+  applyColors: 1

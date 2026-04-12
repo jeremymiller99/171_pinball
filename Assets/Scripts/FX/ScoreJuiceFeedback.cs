@@ -123,11 +123,11 @@ public class ScoreJuiceFeedback : MonoBehaviour
         compTriggered = 35;
     }
 
-    private void OnPointsAdded(float applied, float newTotal)
+    private void OnPointsAdded(double applied, double newTotal)
     {
-        if (applied > 0f)
+        if (applied > 0d)
         {
-            TriggerScoreShake(applied);
+            TriggerScoreShake((float)applied);
         }
     }
 

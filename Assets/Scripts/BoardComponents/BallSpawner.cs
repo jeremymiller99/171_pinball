@@ -1,65 +1,25 @@
-// Updated by Cursor (claude-4.6-opus) for jjmil on 2026-03-27.
-// Added animated layout transitions for shop UX: PreviewInsertGap, AddBallAnimated,
-// ReplaceBallAnimated, AnimateLayoutTransition. Extracted ComputeHandLayout.
-// Updated 2026-03-27: added SwapHandBallsAnimated for reordering balls in the hand.
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Spawns a visible "hand" of balls in a left-to-right line, and promotes the next ball
-/// by lerping it to the actual spawn point when it's that ball's turn.
+/// Spawns a visible "hand" of balls at fixed slot transforms, and promotes the next ball
+/// by lerping it from its slot to the launch/spawn point when it's that ball's turn.
 ///
-/// This is 3D-physics friendly (Rigidbody/Collider).
+/// Each slot is a scene GameObject with a <see cref="BallHandSlot"/> + BoxCollider trigger.
+/// Slots are drop targets for shop drag-and-drop.
 /// </summary>
 public sealed class BallSpawner : MonoBehaviour
 {
     [Header("Prefabs / Points")]
     [SerializeField] private GameObject ballPrefab;
+    [Tooltip("Launch point: where the active ball is fired from.")]
     [SerializeField] private Transform spawnPoint;
 
-    [Header("Hand (balls remaining visual)")]
-    [Tooltip("Spacing between balls in the hand line.")]
-    [SerializeField] private float handSpacing = 0.35f;
-    [Tooltip("World-space direction for the hand line. Default is left->right (+X).")]
-    [SerializeField] private Vector3 handDirection = Vector3.right;
-
-    [Header("Hand path (optional)")]
-    [Tooltip("If set (or waypoints exist), hand balls will be placed along a path: start -> waypoints -> spawnPoint.")]
-    [SerializeField] private Transform handPathStart;
-    [Tooltip("Optional corner points for the hand path (in order).")]
-    [SerializeField] private List<Transform> handPathWaypoints = new List<Transform>();
-    [Tooltip("If true, activating the next ball will move it along the hand path to spawnPoint (instead of straight-line lerp).")]
-    [SerializeField] private bool activateAlongHandPath = true;
-    [Tooltip("If true, the hand balls will be evenly distributed along the path from end->start.\n" +
-             "Index 0 (next ball) is closest to the end/spawnPoint, and the last ball is closest to the start.")]
-    [SerializeField] private bool distributeHandEvenlyAlongPath = true;
-    [Tooltip("Distance (world units) to keep the next ball away from the end/spawnPoint while it is still in the hand.\n" +
-             "Useful if the spawnPoint area has triggers/colliders you don't want 'hand' balls to overlap.")]
-    [Min(0f)]
-    [SerializeField] private float handEndInset = 0f;
-
-    [Header("Hand distribution tuning (queue lane)")]
-    [Tooltip("Only used when there are at least 2 waypoints.\n" +
-             "The queue lane is HandPathWaypoints[0] -> HandPathWaypoints[1].\n" +
-             "Hand balls are distributed within that segment so they don't stack on the same point.")]
-    [Min(0f)]
-    [SerializeField] private float queueInsetFromStart = 0f;
-
-    [Min(0f)]
-    [SerializeField] private float queueInsetFromEnd = 0f;
-
-    [Tooltip("Shifts ALL hand balls along the queue lane (+ moves toward the queue end, - toward the queue start).")]
-    [SerializeField] private float queueGlobalOffset = 0f;
-
-    [Tooltip("0 = even spacing (uses Queue Distribution Curve).\n" +
-             "> 0 = fixed spacing in world units (measured from the queue end backwards).")]
-    [Min(0f)]
-    [SerializeField] private float queueFixedSpacing = 0f;
-
-    [Tooltip("Controls spacing bias along the queue lane when Queue Fixed Spacing = 0.\n" +
-             "X=ball index normalized (0..1), Y=position normalized (0..1).")]
-    [SerializeField] private AnimationCurve queueDistributionCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+    [Header("Hand slots")]
+    [Tooltip("Ordered slot GameObjects for the player's hand. Index 0 is the ball next to launch. " +
+             "Each slot should have a BallHandSlot + BoxCollider (trigger) for drop targeting.")]
+    [SerializeField] private List<BallHandSlot> handSlots = new List<BallHandSlot>();
 
     [Header("Turn transition")]
     [SerializeField] private float moveDuration = 0.35f;
@@ -75,7 +35,7 @@ public sealed class BallSpawner : MonoBehaviour
 
     private readonly List<GameObject> _handBalls = new List<GameObject>();
     private readonly Dictionary<int, RigidbodyState> _rbStateById = new Dictionary<int, RigidbodyState>();
-    private readonly Dictionary<int, float> _handDistanceById = new Dictionary<int, float>();
+    private readonly Dictionary<int, ColliderState[]> _colStateById = new Dictionary<int, ColliderState[]>();
 
     private Coroutine _moveCoroutine;
     private Coroutine _layoutCoroutine;
@@ -84,13 +44,38 @@ public sealed class BallSpawner : MonoBehaviour
     private List<GameObject> _activeBalls = new List<GameObject>();
 
     public List<GameObject> ActiveBalls => _activeBalls;
-    public System.Collections.Generic.IReadOnlyList<GameObject> HandBalls => _handBalls;
+    public IReadOnlyList<GameObject> HandBalls => _handBalls;
     public int HandCount => _handBalls.Count;
+    public int SlotCount => handSlots != null ? handSlots.Count : 0;
+    public IReadOnlyList<BallHandSlot> HandSlots => handSlots;
     public GameObject DefaultBallPrefab => ballPrefab;
+    public Transform SpawnPoint => spawnPoint;
 
     private void Awake()
     {
         ServiceLocator.Register<BallSpawner>(this);
+        AssignSlotIndices();
+    }
+
+    private void OnDisable()
+    {
+        ServiceLocator.Unregister<BallSpawner>();
+        CancelLayoutAnimation();
+
+        if (_moveCoroutine != null)
+        {
+            StopCoroutine(_moveCoroutine);
+            _moveCoroutine = null;
+        }
+    }
+
+    private void AssignSlotIndices()
+    {
+        if (handSlots == null) return;
+        for (int i = 0; i < handSlots.Count; i++)
+        {
+            if (handSlots[i] != null) handSlots[i].AssignSlotIndex(i);
+        }
     }
 
     /// <summary>
@@ -104,23 +89,37 @@ public sealed class BallSpawner : MonoBehaviour
     }
 
     /// <summary>
-    /// Sets the polyline path for laying out the hand and (optionally) moving active balls to spawn.
-    /// End point is always <see cref="spawnPoint"/>.
+    /// Rebinds the slot list (e.g. when a board scene is loaded). Assigns slot indices.
     /// </summary>
-    public void SetHandPath(Transform start, IList<Transform> waypoints)
+    public void SetHandSlots(IList<BallHandSlot> slots)
     {
-        handPathStart = start;
-        handPathWaypoints.Clear();
-        if (waypoints != null)
+        handSlots.Clear();
+        if (slots != null)
         {
-            for (int i = 0; i < waypoints.Count; i++)
+            for (int i = 0; i < slots.Count; i++)
             {
-                if (waypoints[i] != null)
-                    handPathWaypoints.Add(waypoints[i]);
+                if (slots[i] != null) handSlots.Add(slots[i]);
             }
         }
+        AssignSlotIndices();
         if (_handBalls.Count > 0)
             LayoutHandImmediate();
+    }
+
+    public int GetSlotIndexForHandBall(GameObject ball)
+    {
+        if (ball == null) return -1;
+        for (int i = 0; i < _handBalls.Count; i++)
+        {
+            if (_handBalls[i] == ball) return i;
+        }
+        return -1;
+    }
+
+    public GameObject GetHandBallAtSlot(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= _handBalls.Count) return null;
+        return _handBalls[slotIndex];
     }
 
     private struct RigidbodyState
@@ -132,6 +131,12 @@ public sealed class BallSpawner : MonoBehaviour
         public RigidbodyConstraints constraints;
         public RigidbodyInterpolation interpolation;
         public CollisionDetectionMode collisionDetectionMode;
+    }
+
+    private struct ColliderState
+    {
+        public Collider col;
+        public bool enabled;
     }
 
     /// <summary>
@@ -149,8 +154,9 @@ public sealed class BallSpawner : MonoBehaviour
         {
             if (_activeBalls[i] != null)
             {
-                _rbStateById.Remove(_activeBalls[i].GetInstanceID());
-                _handDistanceById.Remove(_activeBalls[i].GetInstanceID());
+                int id = _activeBalls[i].GetInstanceID();
+                _rbStateById.Remove(id);
+                _colStateById.Remove(id);
                 Destroy(_activeBalls[i]);
             }
         }
@@ -187,30 +193,29 @@ public sealed class BallSpawner : MonoBehaviour
 
         _handBalls.Clear();
         _rbStateById.Clear();
-        _handDistanceById.Clear();
+        _colStateById.Clear();
     }
 
     /// <summary>
     /// Spawns (or rebuilds) the visible hand line to exactly <paramref name="count"/> balls.
-    /// Does not automatically activate a ball.
     /// </summary>
     public void BuildHand(int count)
     {
         count = Mathf.Max(0, count);
 
-        // Shrink
         while (_handBalls.Count > count)
         {
             var b = _handBalls[_handBalls.Count - 1];
             _handBalls.RemoveAt(_handBalls.Count - 1);
             if (b != null)
             {
-                _rbStateById.Remove(b.GetInstanceID());
+                int id = b.GetInstanceID();
+                _rbStateById.Remove(id);
+                _colStateById.Remove(id);
                 Destroy(b);
             }
         }
 
-        // Grow
         while (_handBalls.Count < count)
         {
             var b = SpawnNewBallForHand();
@@ -232,13 +237,14 @@ public sealed class BallSpawner : MonoBehaviour
             return;
         }
 
-        // Clear tracked hand objects first (but keep active ball unchanged; the caller typically ClearAll()s).
         for (int i = _handBalls.Count - 1; i >= 0; i--)
         {
             var b = _handBalls[i];
             if (b != null)
             {
-                _rbStateById.Remove(b.GetInstanceID());
+                int id = b.GetInstanceID();
+                _rbStateById.Remove(id);
+                _colStateById.Remove(id);
                 Destroy(b);
             }
         }
@@ -259,7 +265,6 @@ public sealed class BallSpawner : MonoBehaviour
 
     /// <summary>
     /// Activates the next ball: removes it from the hand, then lerps it to the spawn point.
-    /// Returns the ball GameObject (may still be moving).
     /// </summary>
     public GameObject ActivateNextBall()
     {
@@ -271,7 +276,6 @@ public sealed class BallSpawner : MonoBehaviour
 
         if (_handBalls.Count == 0)
         {
-            // If no hand has been built, fall back to spawning one directly at spawn.
             return SpawnBallAtSpawnPoint();
         }
 
@@ -304,8 +308,9 @@ public sealed class BallSpawner : MonoBehaviour
         }
 
         _handBalls.Remove(ball);
-        _rbStateById.Remove(ball.GetInstanceID());
-        _handDistanceById.Remove(ball.GetInstanceID());
+        int id = ball.GetInstanceID();
+        _rbStateById.Remove(id);
+        _colStateById.Remove(id);
 
         Destroy(ball);
     }
@@ -319,12 +324,11 @@ public sealed class BallSpawner : MonoBehaviour
         }
 
         int index = _handBalls.Count;
-        float dist = handSpacing * index;
-        Vector3 pos = GetHandBallWorldPos(index, dist);
+        Vector3 pos = GetHandBallWorldPos(index);
         Quaternion rot = GetHandBallWorldRot();
 
         GameObject b = Instantiate(ballPrefab, pos, rot);
-        b.name = $"{ballPrefab.name}_HandBall_{_handBalls.Count + 1}";
+        b.name = $"{ballPrefab.name}_HandBall_{index + 1}";
 
         TrySetHandSlotIndex(b, index);
         CacheAndConfigureAsHandBall(b);
@@ -338,8 +342,7 @@ public sealed class BallSpawner : MonoBehaviour
             return null;
         }
 
-        float dist = handSpacing * index;
-        Vector3 pos = GetHandBallWorldPos(index, dist);
+        Vector3 pos = GetHandBallWorldPos(index);
         Quaternion rot = GetHandBallWorldRot();
 
         GameObject b = Instantiate(prefab, pos, rot);
@@ -352,10 +355,7 @@ public sealed class BallSpawner : MonoBehaviour
 
     private static void TrySetHandSlotIndex(GameObject ball, int slotIndex)
     {
-        if (ball == null)
-        {
-            return;
-        }
+        if (ball == null) return;
 
         var marker = ball.GetComponent<BallHandSlotMarker>();
         if (marker == null)
@@ -385,128 +385,14 @@ public sealed class BallSpawner : MonoBehaviour
         return newBall;
     }
 
-    /// <summary>
-    /// Computes target positions and path distances for <paramref name="count"/> hand balls
-    /// without modifying any transforms. Used by both immediate and animated layout.
-    /// </summary>
-    private void ComputeHandLayout(int count, out List<Vector3> positions, out List<float> distances)
+    private Vector3 GetHandBallWorldPos(int index)
     {
-        positions = new List<Vector3>(count);
-        distances = new List<float>(count);
-
-        if (TryGetHandPathPoints(out var pts))
+        if (handSlots != null && index >= 0 && index < handSlots.Count && handSlots[index] != null)
         {
-            float totalLen = GetPolylineLength(pts);
-            float endDist = Mathf.Max(0f, totalLen - Mathf.Max(0f, handEndInset));
-            int n = count;
-
-            bool hasQueueSegment = handPathWaypoints.Count >= 2 && pts.Count >= 4;
-            float queueA = 0f;
-            float queueB = 0f;
-            if (hasQueueSegment)
-            {
-                var cum = new float[pts.Count];
-                for (int p = 1; p < pts.Count; p++)
-                {
-                    cum[p] = cum[p - 1] + Vector3.Distance(pts[p - 1], pts[p]);
-                }
-
-                queueA = cum[1];
-                queueB = cum[2];
-
-                queueA = Mathf.Clamp(queueA, 0f, endDist);
-                queueB = Mathf.Clamp(queueB, 0f, endDist);
-
-                if (queueA > queueB)
-                {
-                    (queueA, queueB) = (queueB, queueA);
-                }
-
-                queueA = Mathf.Clamp(queueA + Mathf.Max(0f, queueInsetFromStart), 0f, endDist);
-                queueB = Mathf.Clamp(queueB - Mathf.Max(0f, queueInsetFromEnd), 0f, endDist);
-                if (queueA > queueB)
-                {
-                    float mid = (queueA + queueB) * 0.5f;
-                    queueA = mid;
-                    queueB = mid;
-                }
-            }
-
-            for (int i = 0; i < n; i++)
-            {
-                float dist;
-                if (distributeHandEvenlyAlongPath)
-                {
-                    if (hasQueueSegment)
-                    {
-                        if (queueFixedSpacing > 0f)
-                        {
-                            dist = queueB - (queueFixedSpacing * i);
-                        }
-                        else
-                        {
-                            float t = n <= 1 ? 0f : (float)i / (n - 1);
-                            float shaped = queueDistributionCurve != null ? queueDistributionCurve.Evaluate(Mathf.Clamp01(t)) : t;
-                            dist = Mathf.Lerp(queueB, queueA, Mathf.Clamp01(shaped));
-                        }
-
-                        dist += queueGlobalOffset;
-                        dist = Mathf.Clamp(dist, queueA, queueB);
-                    }
-                    else
-                    {
-                        float t = n <= 1 ? 0.5f : (float)i / (n - 1);
-                        dist = Mathf.Lerp(endDist, 0f, t);
-                    }
-                }
-                else
-                {
-                    dist = Mathf.Clamp(handSpacing * i, 0f, totalLen);
-                }
-
-                dist = Mathf.Min(dist, endDist);
-                positions.Add(SamplePolyline(pts, dist));
-                distances.Add(dist);
-            }
-
-            return;
+            return handSlots[index].transform.position;
         }
-
-        Vector3 anchorPos = transform.position;
-        Vector3 dir = handDirection.sqrMagnitude > 0.0001f ? handDirection.normalized : Vector3.right;
-        for (int i = 0; i < count; i++)
-        {
-            float dist = handSpacing * i;
-            positions.Add(anchorPos + dir * dist);
-            distances.Add(dist);
-        }
-    }
-
-    private void LayoutHandImmediate()
-    {
-        ComputeHandLayout(_handBalls.Count, out var positions, out var distances);
-        for (int i = 0; i < _handBalls.Count; i++)
-        {
-            var b = _handBalls[i];
-            if (b == null) continue;
-            if (i < positions.Count)
-            {
-                b.transform.position = positions[i];
-                _handDistanceById[b.GetInstanceID()] = distances[i];
-            }
-        }
-    }
-
-    private Vector3 GetHandBallWorldPos(int index, float distance)
-    {
-        if (TryGetHandPathPoints(out var pts))
-        {
-            return SamplePolyline(pts, distance);
-        }
-
-        Vector3 anchorPos = transform.position;
-        Vector3 dir = handDirection.sqrMagnitude > 0.0001f ? handDirection.normalized : Vector3.right;
-        return anchorPos + dir * (handSpacing * index);
+        // Fallback: stack at spawner transform so the scene doesn't blow up if slots aren't wired.
+        return transform.position;
     }
 
     private Quaternion GetHandBallWorldRot()
@@ -514,13 +400,36 @@ public sealed class BallSpawner : MonoBehaviour
         return Quaternion.identity;
     }
 
+    private void ComputeHandLayout(int count, out List<Vector3> positions)
+    {
+        positions = new List<Vector3>(count);
+        for (int i = 0; i < count; i++)
+        {
+            positions.Add(GetHandBallWorldPos(i));
+        }
+    }
+
+    private void LayoutHandImmediate()
+    {
+        ComputeHandLayout(_handBalls.Count, out var positions);
+        for (int i = 0; i < _handBalls.Count; i++)
+        {
+            var b = _handBalls[i];
+            if (b == null) continue;
+            if (i < positions.Count)
+            {
+                b.transform.position = positions[i];
+            }
+        }
+    }
+
     private void CacheAndConfigureAsHandBall(GameObject ball)
     {
         if (ball == null) return;
 
-        Rigidbody rb = ball.GetComponent<Rigidbody>();
         int id = ball.GetInstanceID();
 
+        Rigidbody rb = ball.GetComponent<Rigidbody>();
         if (rb != null)
         {
             _rbStateById[id] = new RigidbodyState
@@ -534,7 +443,6 @@ public sealed class BallSpawner : MonoBehaviour
                 collisionDetectionMode = rb.collisionDetectionMode
             };
 
-            // Park in hand: no physics interactions.
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
             rb.isKinematic = true;
@@ -543,6 +451,38 @@ public sealed class BallSpawner : MonoBehaviour
         else
         {
             _rbStateById[id] = new RigidbodyState { hasRb = false };
+        }
+
+        // Disable ball colliders while parked in hand so shop raycasts hit the slot cubes only.
+        Collider[] cols = ball.GetComponentsInChildren<Collider>(includeInactive: false);
+        if (cols != null && cols.Length > 0)
+        {
+            var states = new ColliderState[cols.Length];
+            for (int i = 0; i < cols.Length; i++)
+            {
+                bool wasEnabled = cols[i] != null && cols[i].enabled;
+                states[i] = new ColliderState { col = cols[i], enabled = wasEnabled };
+                if (cols[i] != null) cols[i].enabled = false;
+            }
+            _colStateById[id] = states;
+        }
+        else
+        {
+            _colStateById[id] = System.Array.Empty<ColliderState>();
+        }
+    }
+
+    private void RestoreHandBallCollidersToActive(GameObject ball)
+    {
+        if (ball == null) return;
+        int id = ball.GetInstanceID();
+        if (_colStateById.TryGetValue(id, out var states))
+        {
+            for (int i = 0; i < states.Length; i++)
+            {
+                if (states[i].col != null) states[i].col.enabled = states[i].enabled;
+            }
+            _colStateById.Remove(id);
         }
     }
 
@@ -565,12 +505,10 @@ public sealed class BallSpawner : MonoBehaviour
         }
         else
         {
-            // Reasonable defaults if we don't have cached state.
             rb.isKinematic = false;
             rb.detectCollisions = true;
         }
 
-        // Ensure the physics body matches the final transform we lerped to.
         rb.position = ball.transform.position;
         rb.rotation = ball.transform.rotation;
         rb.linearVelocity = Vector3.zero;
@@ -585,56 +523,17 @@ public sealed class BallSpawner : MonoBehaviour
             yield break;
         }
 
-        List<Vector3> pts = null;
-        bool usePath = false;
-        if (activateAlongHandPath && TryGetHandPathPoints(out var tmpPts) && tmpPts.Count >= 2)
-        {
-            pts = tmpPts;
-            usePath = true;
-        }
-
-        float startDist = 0f;
-        if (usePath)
-        {
-            // If we tracked this ball as part of the hand, start from its assigned distance.
-            // Otherwise start from the beginning of the path.
-            _handDistanceById.TryGetValue(ball.GetInstanceID(), out startDist);
-        }
-
         Rigidbody rb = ball.GetComponent<Rigidbody>();
         bool hadRb = rb != null;
 
-        // Temporarily disable interactions so the travel doesn't bump into table geometry
-        // AND so we can reliably trigger OnTriggerEnter at the end (e.g. PinballLauncher).
-        Collider[] cols = null;
-        bool[] prevColEnabled = null;
-
-        if (disablePhysicsWhileMoving)
+        if (disablePhysicsWhileMoving && hadRb)
         {
-            cols = ball.GetComponentsInChildren<Collider>(includeInactive: false);
-            if (cols != null && cols.Length > 0)
+            if (!rb.isKinematic)
             {
-                prevColEnabled = new bool[cols.Length];
-                for (int i = 0; i < cols.Length; i++)
-                {
-                    prevColEnabled[i] = cols[i] != null && cols[i].enabled;
-                    if (cols[i] != null)
-                    {
-                        cols[i].enabled = false;
-                    }
-                }
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
             }
-
-            if (hadRb)
-            {
-                // Hand balls often start as kinematic; setting velocities on kinematic RBs can warn.
-                if (!rb.isKinematic)
-                {
-                    rb.linearVelocity = Vector3.zero;
-                    rb.angularVelocity = Vector3.zero;
-                }
-                rb.isKinematic = true;
-            }
+            rb.isKinematic = true;
         }
 
         Vector3 startPos = ball.transform.position;
@@ -645,29 +544,13 @@ public sealed class BallSpawner : MonoBehaviour
         float dur = Mathf.Max(0.01f, moveDuration);
         float t = 0f;
 
-        // Cache polyline total length (used for path movement).
-        float totalLen = 0f;
-        if (usePath)
-        {
-            totalLen = GetPolylineLength(pts);
-        }
-
         while (t < 1f)
         {
             t += Time.deltaTime / dur;
             float eased = moveCurve != null ? moveCurve.Evaluate(Mathf.Clamp01(t)) : Mathf.Clamp01(t);
 
-            if (usePath)
-            {
-                float dist = Mathf.LerpUnclamped(startDist, totalLen, eased);
-                ball.transform.position = SamplePolyline(pts, dist);
-                ball.transform.rotation = endRot;
-            }
-            else
-            {
-                ball.transform.position = Vector3.LerpUnclamped(startPos, endPos, eased);
-                ball.transform.rotation = Quaternion.SlerpUnclamped(startRot, endRot, eased);
-            }
+            ball.transform.position = Vector3.LerpUnclamped(startPos, endPos, eased);
+            ball.transform.rotation = Quaternion.SlerpUnclamped(startRot, endRot, eased);
 
             yield return null;
         }
@@ -675,21 +558,10 @@ public sealed class BallSpawner : MonoBehaviour
         ball.transform.position = endPos;
         ball.transform.rotation = endRot;
 
-        // Restore original prefab RB settings (gravity/constraints/etc) for active play.
         RestoreRigidbodyForActive(ball);
+        RestoreHandBallCollidersToActive(ball);
+        Physics.SyncTransforms();
 
-        // Restore colliders after RB settings so trigger/collision callbacks fire cleanly.
-        if (disablePhysicsWhileMoving && cols != null && prevColEnabled != null)
-        {
-            for (int i = 0; i < cols.Length; i++)
-            {
-                if (cols[i] != null)
-                {
-                    cols[i].enabled = prevColEnabled[i];
-                }
-            }
-            Physics.SyncTransforms();
-        }
         _moveCoroutine = null;
     }
 
@@ -704,9 +576,6 @@ public sealed class BallSpawner : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Smoothly animates all hand balls from their current positions to the correct layout positions.
-    /// </summary>
     public void AnimateLayoutTransition()
     {
         CancelLayoutAnimation();
@@ -715,7 +584,7 @@ public sealed class BallSpawner : MonoBehaviour
 
     private IEnumerator AnimateLayoutCoroutine()
     {
-        ComputeHandLayout(_handBalls.Count, out var targets, out var targetDistances);
+        ComputeHandLayout(_handBalls.Count, out var targets);
 
         var starts = new List<Vector3>(_handBalls.Count);
         for (int i = 0; i < _handBalls.Count; i++)
@@ -749,15 +618,14 @@ public sealed class BallSpawner : MonoBehaviour
         {
             if (_handBalls[i] == null || i >= targets.Count) continue;
             _handBalls[i].transform.position = targets[i];
-            _handDistanceById[_handBalls[i].GetInstanceID()] = targetDistances[i];
         }
 
         _layoutCoroutine = null;
     }
 
     /// <summary>
-    /// Animates hand balls apart to show a gap at <paramref name="gapHandIndex"/>,
-    /// giving visual feedback that a new ball can be inserted there.
+    /// Animates hand balls to visually show an insert gap at <paramref name="gapHandIndex"/>.
+    /// Balls with index &lt; gap stay put; balls &gt;= gap shift one slot forward to make room.
     /// </summary>
     public void PreviewInsertGap(int gapHandIndex)
     {
@@ -773,9 +641,6 @@ public sealed class BallSpawner : MonoBehaviour
         _layoutCoroutine = StartCoroutine(AnimateToGapPreviewCoroutine(gapHandIndex));
     }
 
-    /// <summary>
-    /// Clears the insert-gap preview and animates balls back to normal positions.
-    /// </summary>
     public void ClearInsertGapPreview()
     {
         if (!_isGapPreviewActive)
@@ -792,7 +657,7 @@ public sealed class BallSpawner : MonoBehaviour
     private IEnumerator AnimateToGapPreviewCoroutine(int gapHandIndex)
     {
         int virtualCount = _handBalls.Count + 1;
-        ComputeHandLayout(virtualCount, out var virtualPositions, out _);
+        ComputeHandLayout(virtualCount, out var virtualPositions);
 
         gapHandIndex = Mathf.Clamp(gapHandIndex, 0, _handBalls.Count);
 
@@ -802,15 +667,12 @@ public sealed class BallSpawner : MonoBehaviour
         int realIdx = 0;
         for (int v = 0; v < virtualCount && realIdx < _handBalls.Count; v++)
         {
-            if (v == gapHandIndex)
-            {
-                continue;
-            }
+            if (v == gapHandIndex) continue;
 
             starts.Add(_handBalls[realIdx] != null
                 ? _handBalls[realIdx].transform.position
-                : virtualPositions[v]);
-            targets.Add(virtualPositions[v]);
+                : (v < virtualPositions.Count ? virtualPositions[v] : Vector3.zero));
+            targets.Add(v < virtualPositions.Count ? virtualPositions[v] : Vector3.zero);
             realIdx++;
         }
 
@@ -848,7 +710,6 @@ public sealed class BallSpawner : MonoBehaviour
     /// <summary>
     /// Spawns a new ball into the hand with a scale-up animation and smooth layout shift.
     /// The loadout must already have been updated by the caller.
-    /// Returns the new ball GameObject.
     /// </summary>
     public GameObject AddBallAnimated(GameObject prefab, int loadoutSlotIndex)
     {
@@ -856,15 +717,12 @@ public sealed class BallSpawner : MonoBehaviour
         _isGapPreviewActive = false;
         _previewGapIndex = -1;
 
-        if (prefab == null)
-        {
-            return null;
-        }
+        if (prefab == null) return null;
 
-        int handInsertIndex = FindHandInsertionIndex(loadoutSlotIndex);
+        int handInsertIndex = Mathf.Clamp(loadoutSlotIndex, 0, _handBalls.Count);
 
         int newCount = _handBalls.Count + 1;
-        ComputeHandLayout(newCount, out var targetPositions, out var targetDistances);
+        ComputeHandLayout(newCount, out var targetPositions);
 
         Vector3 spawnPos = handInsertIndex < targetPositions.Count
             ? targetPositions[handInsertIndex]
@@ -873,27 +731,18 @@ public sealed class BallSpawner : MonoBehaviour
                 : transform.position);
 
         GameObject newBall = Instantiate(prefab, spawnPos, GetHandBallWorldRot());
-        newBall.name = $"{prefab.name}_HandBall_{loadoutSlotIndex + 1}";
-        TrySetHandSlotIndex(newBall, loadoutSlotIndex);
+        newBall.name = $"{prefab.name}_HandBall_{handInsertIndex + 1}";
+        TrySetHandSlotIndex(newBall, handInsertIndex);
         CacheAndConfigureAsHandBall(newBall);
 
         Vector3 targetScale = newBall.transform.localScale;
         newBall.transform.localScale = Vector3.zero;
 
-        if (handInsertIndex >= 0 && handInsertIndex <= _handBalls.Count)
-        {
-            _handBalls.Insert(handInsertIndex, newBall);
-        }
-        else
-        {
-            _handBalls.Add(newBall);
-        }
-
-        // Renumber all markers so they stay in sync with the list index
+        _handBalls.Insert(handInsertIndex, newBall);
         SyncAllHandSlotMarkers();
 
         _layoutCoroutine = StartCoroutine(
-            AddBallAnimatedCoroutine(newBall, targetScale, targetPositions, targetDistances));
+            AddBallAnimatedCoroutine(newBall, targetScale, targetPositions));
 
         return newBall;
     }
@@ -901,8 +750,7 @@ public sealed class BallSpawner : MonoBehaviour
     private IEnumerator AddBallAnimatedCoroutine(
         GameObject newBall,
         Vector3 targetScale,
-        List<Vector3> targetPositions,
-        List<float> targetDistances)
+        List<Vector3> targetPositions)
     {
         var starts = new List<Vector3>(_handBalls.Count);
         for (int i = 0; i < _handBalls.Count; i++)
@@ -922,10 +770,7 @@ public sealed class BallSpawner : MonoBehaviour
 
             for (int i = 0; i < _handBalls.Count; i++)
             {
-                if (_handBalls[i] == null || i >= targetPositions.Count)
-                {
-                    continue;
-                }
+                if (_handBalls[i] == null || i >= targetPositions.Count) continue;
 
                 _handBalls[i].transform.position =
                     Vector3.LerpUnclamped(starts[i], targetPositions[i], eased);
@@ -942,13 +787,9 @@ public sealed class BallSpawner : MonoBehaviour
 
         for (int i = 0; i < _handBalls.Count; i++)
         {
-            if (_handBalls[i] == null || i >= targetPositions.Count)
-            {
-                continue;
-            }
+            if (_handBalls[i] == null || i >= targetPositions.Count) continue;
 
             _handBalls[i].transform.position = targetPositions[i];
-            _handDistanceById[_handBalls[i].GetInstanceID()] = targetDistances[i];
 
             if (_handBalls[i] == newBall)
             {
@@ -961,37 +802,31 @@ public sealed class BallSpawner : MonoBehaviour
 
     /// <summary>
     /// Replaces the ball at <paramref name="loadoutSlotIndex"/> with a new prefab,
-    /// animating the old ball out and the new ball in. The loadout must already have
-    /// been updated by the caller.
+    /// animating the old ball out and the new ball in.
     /// </summary>
     public void ReplaceBallAnimated(int loadoutSlotIndex, GameObject newPrefab)
     {
         CancelLayoutAnimation();
 
-        if (newPrefab == null)
-        {
-            return;
-        }
+        if (newPrefab == null) return;
 
-        int handIndex = FindHandIndexForLoadoutSlot(loadoutSlotIndex);
-        if (handIndex < 0 || handIndex >= _handBalls.Count)
-        {
-            return;
-        }
+        int handIndex = Mathf.Clamp(loadoutSlotIndex, 0, _handBalls.Count - 1);
+        if (handIndex < 0 || handIndex >= _handBalls.Count) return;
 
         GameObject oldBall = _handBalls[handIndex];
-        Vector3 pos = oldBall != null ? oldBall.transform.position : transform.position;
+        Vector3 pos = oldBall != null ? oldBall.transform.position : GetHandBallWorldPos(handIndex);
 
         if (oldBall != null)
         {
-            _rbStateById.Remove(oldBall.GetInstanceID());
-            _handDistanceById.Remove(oldBall.GetInstanceID());
+            int id = oldBall.GetInstanceID();
+            _rbStateById.Remove(id);
+            _colStateById.Remove(id);
             Destroy(oldBall);
         }
 
         GameObject newBall = Instantiate(newPrefab, pos, GetHandBallWorldRot());
-        newBall.name = $"{newPrefab.name}_HandBall_{loadoutSlotIndex + 1}";
-        TrySetHandSlotIndex(newBall, loadoutSlotIndex);
+        newBall.name = $"{newPrefab.name}_HandBall_{handIndex + 1}";
+        TrySetHandSlotIndex(newBall, handIndex);
         CacheAndConfigureAsHandBall(newBall);
 
         Vector3 targetScale = newBall.transform.localScale;
@@ -1005,10 +840,7 @@ public sealed class BallSpawner : MonoBehaviour
 
     private IEnumerator ReplaceBallAnimatedCoroutine(GameObject newBall, Vector3 targetScale)
     {
-        if (newBall == null)
-        {
-            yield break;
-        }
+        if (newBall == null) yield break;
 
         float dur = Mathf.Max(0.01f, layoutAnimDuration);
         float t = 0f;
@@ -1036,52 +868,32 @@ public sealed class BallSpawner : MonoBehaviour
         _layoutCoroutine = null;
     }
 
-    /// <summary>
-    /// Swaps two hand balls (identified by loadout slot) with a smooth animation.
-    /// The caller must have already swapped the loadout via GameRulesManager.
-    /// </summary>
     public void SwapHandBallsAnimated(int loadoutSlotA, int loadoutSlotB)
     {
         CancelLayoutAnimation();
 
-        int handA = FindHandIndexForLoadoutSlot(loadoutSlotA);
-        int handB = FindHandIndexForLoadoutSlot(loadoutSlotB);
+        if (loadoutSlotA < 0 || loadoutSlotB < 0) return;
+        if (loadoutSlotA >= _handBalls.Count || loadoutSlotB >= _handBalls.Count) return;
+        if (loadoutSlotA == loadoutSlotB) return;
 
-        if (handA < 0 || handB < 0 || handA == handB)
-        {
-            return;
-        }
-
-        (_handBalls[handA], _handBalls[handB]) = (_handBalls[handB], _handBalls[handA]);
-
+        (_handBalls[loadoutSlotA], _handBalls[loadoutSlotB]) = (_handBalls[loadoutSlotB], _handBalls[loadoutSlotA]);
         SyncAllHandSlotMarkers();
-
         AnimateLayoutTransition();
     }
 
-    /// <summary>
-    /// Moves a hand ball from one slot to another (shifting others) with a smooth animation.
-    /// The caller must have already moved the loadout via BallLoadoutController.
-    /// </summary>
     public void MoveHandBallAnimated(int loadoutSlotFrom, int loadoutSlotTo)
     {
         CancelLayoutAnimation();
 
-        int handFrom = FindHandIndexForLoadoutSlot(loadoutSlotFrom);
-        if (handFrom < 0) return;
-
-        // Note: we can't use FindHandIndexForLoadoutSlot for the target because it might shift.
-        // But since we are moving BY RANK/INDEX in the loadout, and we are syncing markers,
-        // we can just treat the target slot as the list index we want to reach.
+        if (loadoutSlotFrom < 0 || loadoutSlotFrom >= _handBalls.Count) return;
         int targetIdx = Mathf.Clamp(loadoutSlotTo, 0, _handBalls.Count - 1);
-        if (handFrom == targetIdx) return;
+        if (loadoutSlotFrom == targetIdx) return;
 
-        GameObject ball = _handBalls[handFrom];
-        _handBalls.RemoveAt(handFrom);
+        GameObject ball = _handBalls[loadoutSlotFrom];
+        _handBalls.RemoveAt(loadoutSlotFrom);
         _handBalls.Insert(targetIdx, ball);
 
         SyncAllHandSlotMarkers();
-
         AnimateLayoutTransition();
     }
 
@@ -1096,149 +908,5 @@ public sealed class BallSpawner : MonoBehaviour
         }
     }
 
-    private int FindHandIndexForLoadoutSlot(int loadoutSlotIndex)
-    {
-        for (int i = 0; i < _handBalls.Count; i++)
-        {
-            if (_handBalls[i] == null)
-            {
-                continue;
-            }
-
-            var marker = _handBalls[i].GetComponent<BallHandSlotMarker>();
-            if (marker != null && marker.SlotIndex == loadoutSlotIndex)
-            {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-    private int FindHandInsertionIndex(int loadoutSlotIndex)
-    {
-        for (int i = 0; i < _handBalls.Count; i++)
-        {
-            if (_handBalls[i] == null)
-            {
-                continue;
-            }
-
-            var marker = _handBalls[i].GetComponent<BallHandSlotMarker>();
-            if (marker != null && marker.SlotIndex > loadoutSlotIndex)
-            {
-                return i;
-            }
-        }
-
-        return _handBalls.Count;
-    }
-
     #endregion
-
-    private void OnDisable()
-    {
-        ServiceLocator.Unregister<BallSpawner>();
-        CancelLayoutAnimation();
-
-        if (_moveCoroutine != null)
-        {
-            StopCoroutine(_moveCoroutine);
-            _moveCoroutine = null;
-        }
-    }
-
-    private bool TryGetHandPathPoints(out List<Vector3> points)
-    {
-        points = null;
-        if (spawnPoint == null)
-            return false;
-
-        // Enable path mode if either start is set or there are any waypoints set.
-        bool hasAnyWaypoint = false;
-        for (int i = 0; i < handPathWaypoints.Count; i++)
-        {
-            if (handPathWaypoints[i] != null)
-            {
-                hasAnyWaypoint = true;
-                break;
-            }
-        }
-
-        // If nothing is configured, don't treat this as "path mode".
-        if (handPathStart == null && !hasAnyWaypoint)
-            return false;
-
-        Transform startT = handPathStart != null ? handPathStart : transform;
-
-        points = new List<Vector3>(2 + handPathWaypoints.Count)
-        {
-            startT.position
-        };
-
-        for (int i = 0; i < handPathWaypoints.Count; i++)
-        {
-            if (handPathWaypoints[i] != null)
-                points.Add(handPathWaypoints[i].position);
-        }
-
-        points.Add(spawnPoint.position);
-
-        // Remove consecutive duplicates (prevents zero-length segments).
-        for (int i = points.Count - 2; i >= 0; i--)
-        {
-            if ((points[i + 1] - points[i]).sqrMagnitude < 0.0000001f)
-                points.RemoveAt(i + 1);
-        }
-
-        return points.Count >= 2;
-    }
-
-    private static float GetPolylineLength(IList<Vector3> pts)
-    {
-        if (pts == null || pts.Count < 2) return 0f;
-        float len = 0f;
-        for (int i = 0; i < pts.Count - 1; i++)
-        {
-            len += Vector3.Distance(pts[i], pts[i + 1]);
-        }
-        return len;
-    }
-
-    private static Vector3 SamplePolyline(IList<Vector3> pts, float distance)
-    {
-        if (pts == null || pts.Count == 0) return Vector3.zero;
-        if (pts.Count == 1) return pts[0];
-
-        distance = Mathf.Max(0f, distance);
-
-        for (int i = 0; i < pts.Count - 1; i++)
-        {
-            Vector3 a = pts[i];
-            Vector3 b = pts[i + 1];
-            float segLen = Vector3.Distance(a, b);
-            if (segLen <= 0.000001f)
-                continue;
-
-            if (distance <= segLen)
-            {
-                float t = distance / segLen;
-                return Vector3.LerpUnclamped(a, b, t);
-            }
-
-            distance -= segLen;
-        }
-
-        // If we ran past the end, extrapolate along the last valid segment.
-        Vector3 last = pts[pts.Count - 1];
-        Vector3 prev = pts[pts.Count - 2];
-        Vector3 dir = (last - prev);
-        if (dir.sqrMagnitude > 0.000001f)
-        {
-            dir.Normalize();
-            return last + dir * distance;
-        }
-        return last;
-    }
 }
-

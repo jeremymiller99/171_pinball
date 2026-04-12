@@ -6,8 +6,10 @@ using UnityEngine;
 public sealed class ShopHandInteractionController : MonoBehaviour
 {
     [Header("Drag-drop")]
-    [Tooltip("Ray distance to hand balls for ball-offer drops when colliders are off.")]
-    [SerializeField] private float handBallDropRayRadius = 0.25f;
+    [Tooltip("Layer mask for raycasting onto BallHandSlot cube colliders.")]
+    [SerializeField] private LayerMask handSlotRaycastMask = ~0;
+    [Tooltip("Max distance for slot raycasts.")]
+    [SerializeField] private float handSlotRaycastMaxDistance = 1000f;
 
     [Header("Drag Preview Visuals")]
     [SerializeField] private Color handBallSelectColor = Color.white;
@@ -56,44 +58,28 @@ public sealed class ShopHandInteractionController : MonoBehaviour
     public bool TryGetHandBallSlotFromRay(Ray ray, out int slotIndex)
     {
         slotIndex = -1;
-        if (_ballSpawner == null) return false;
 
-        var handBalls = _ballSpawner.HandBalls;
-        if (handBalls == null || handBalls.Count == 0) return false;
+        var hits = Physics.RaycastAll(ray, handSlotRaycastMaxDistance, handSlotRaycastMask);
+        if (hits == null || hits.Length == 0) return false;
 
-        float radiusSq = handBallDropRayRadius * handBallDropRayRadius;
-        float bestDistSq = float.MaxValue;
-        GameObject bestBall = null;
-
-        for (int i = 0; i < handBalls.Count; i++)
+        float bestDist = float.MaxValue;
+        int bestSlot = -1;
+        for (int i = 0; i < hits.Length; i++)
         {
-            GameObject b = handBalls[i];
-            if (b == null) continue;
-
-            Vector3 toCenter = b.transform.position - ray.origin;
-            float dot = Vector3.Dot(toCenter, ray.direction);
-            if (dot < 0f) continue;
-
-            Vector3 closest = ray.origin + ray.direction * dot;
-            float distSq = (b.transform.position - closest).sqrMagnitude;
-
-            if (distSq <= radiusSq && distSq < bestDistSq)
+            var col = hits[i].collider;
+            if (col == null) continue;
+            var slot = col.GetComponentInParent<BallHandSlot>();
+            if (slot == null || slot.SlotIndex < 0) continue;
+            if (hits[i].distance < bestDist)
             {
-                bestDistSq = distSq;
-                bestBall = b;
+                bestDist = hits[i].distance;
+                bestSlot = slot.SlotIndex;
             }
         }
 
-        if (bestBall == null) return false;
-
-        var marker = bestBall.GetComponentInParent<BallHandSlotMarker>();
-        if (marker != null && marker.SlotIndex >= 0)
-        {
-            slotIndex = marker.SlotIndex;
-            return true;
-        }
-
-        return false;
+        if (bestSlot < 0) return false;
+        slotIndex = bestSlot;
+        return true;
     }
 
     public int GetSwapSelectedSlot() => _swapSelectedSlot;

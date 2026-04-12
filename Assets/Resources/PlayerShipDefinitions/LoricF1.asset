@@ -15,7 +15,11 @@ MonoBehaviour:
   displayName: Loric F1
   description: A reliable generic spacecraft.
   shipModelPrefab: {fileID: 260427457679054806, guid: ee4b8cfe6d97c84488eab7090f816656, type: 3}
+  elementType: 1
+  shopPriceMultiplier: 1
   startingMaxBalls: 5
   startingHand: []
   scoreMultiplier: 1
   coinMultiplier: 1
+  multMultiplier: 1
+  startingCoins: 0

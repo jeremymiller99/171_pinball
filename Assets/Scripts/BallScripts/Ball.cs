@@ -12,27 +12,27 @@ public class Ball : MonoBehaviour
 {
     protected ScoreManager scoreManager;
     protected int componentHits;
-    protected float pointMultiplier = 1f;
-    protected float multMultiplier = 1f;
-    protected int coinMultiplier = 1;
+    protected float ballPointMultiplier = 1f;
+    protected float ballMultMultiplier = 1f;
+    protected int ballCoinMultiplier = 1;
     protected GameObject lastObjectHit;
 
     public int ComponentHits => componentHits;
     public GameObject LastObjectHit => lastObjectHit;
     public float PointMultiplier
     {
-        get => pointMultiplier;
-        set => pointMultiplier = value;
+        get => ballPointMultiplier;
+        set => ballPointMultiplier = value;
     }
     public float MultMultiplier
     {
-        get => multMultiplier;
-        set => multMultiplier = value;
+        get => ballMultMultiplier;
+        set => ballMultMultiplier = value;
     }
     public int CoinMultiplier
     {
-        get => coinMultiplier;
-        set => coinMultiplier = value;
+        get => ballCoinMultiplier;
+        set => ballCoinMultiplier = value;
     }
 
     public void ResetComponentHits()
@@ -52,7 +52,7 @@ public class Ball : MonoBehaviour
 
     protected virtual int HitIntervalForPopup => 0;
 
-    public virtual float PointsAwardMultiplier => pointMultiplier;
+    public virtual float PointsAwardMultiplier => ballPointMultiplier;
 
     virtual protected void OnCollisionEnter(Collision collision)
         => HandleBoardComponentHit(collision.collider, collision);
@@ -156,13 +156,13 @@ public class Ball : MonoBehaviour
         switch (typeOfScore)
         {
             case TypeOfScore.points:
-                scoreManager.AddScore(amount * pointMultiplier, typeOfScore, pos);
+                scoreManager.AddScore(amount * ballPointMultiplier, typeOfScore, pos);
                 break;
             case TypeOfScore.mult:
-                scoreManager.AddScore(amount * multMultiplier, typeOfScore, pos);
+                scoreManager.AddScore(amount * ballMultMultiplier, typeOfScore, pos);
                 break;
             case TypeOfScore.coins:
-                scoreManager.AddScore(amount * coinMultiplier, typeOfScore, pos);
+                scoreManager.AddScore(amount * ballCoinMultiplier, typeOfScore, pos);
                 break;
         }
     }

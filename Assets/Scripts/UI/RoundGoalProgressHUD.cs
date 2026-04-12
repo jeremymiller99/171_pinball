@@ -227,7 +227,7 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
             InitMeterIfNeeded();
 
         float goal = scoreManager != null ? scoreManager.Goal : 0f;
-        float live = scoreManager != null ? scoreManager.LiveLevelProgress : 0f;
+        double live = scoreManager != null ? scoreManager.LiveLevelProgress : 0d;
 
         if (roundTotalText)
         {
@@ -237,9 +237,9 @@ public sealed class RoundGoalProgressHUD : MonoBehaviour
 
         int tier = 0;
         float t01 = 0f;
-        if (goal > 0f && live > 0f)
+        if (goal > 0f && live > 0d)
         {
-            float raw = live / goal;
+            float raw = (float)(live / goal);
             // Compute tier independently of ScoreManager's optional tier scaling feature.
             // Add a tiny epsilon to reduce float edge cases at exact boundaries.
             tier = Mathf.Max(0, Mathf.FloorToInt(raw + 0.0001f));

@@ -66,7 +66,7 @@ public class ScoreUIController : MonoBehaviour
 
     private float multUiDisplayed;
     private int coinsUiDisplayed;
-    private float _goalUiLast = -1f;
+    private double _goalUiLast = -1d;
 
     private readonly Queue<float> multQueue =
         new Queue<float>();
@@ -79,11 +79,23 @@ public class ScoreUIController : MonoBehaviour
     private Color _roundIndexBaseColor;
     private Coroutine _roundIndexPopRoutine;
 
+    [Header("Mult Text Pulse Animation")]
+    [Tooltip("Peak pulse speed (cycles/sec) at full strength (meter full / frenzy active).")]
+    [Min(0.1f)]
+    [SerializeField] private float multPulseSpeed = 3.5f;
+    [Tooltip("Peak scale amplitude at full strength (meter full / frenzy active).")]
+    [Range(0f, 0.5f)]
+    [SerializeField] private float multPulseScaleAmp = 0.18f;
+    [Tooltip("Fill fraction below which no pulse is applied (keeps the x1 display calm).")]
+    [Range(0f, 1f)]
+    [SerializeField] private float multPulseDeadzone = 0.05f;
+
     private Vector3 _multBaseLocalScale;
     private Color _multBaseColor;
     private bool _multBaselineCaptured;
     private int _multTextInstanceId;
     private Coroutine _multResetFlashRoutine;
+    private Coroutine _multPulseRoutine;
 
     private const string ScoreCanvasRootName =
         "Score Canvas";
@@ -126,6 +138,7 @@ public class ScoreUIController : MonoBehaviour
         }
 
         EnsureCoreScoreTextBindings();
+        StartMultPulse();
     }
 
     private void OnDisable()
@@ -139,6 +152,8 @@ public class ScoreUIController : MonoBehaviour
             sm.MultReset -= OnMultReset;
             sm.ScoreChanged -= OnScoreChanged;
         }
+
+        StopMultPulse();
 
         ServiceLocator.Unregister<ScoreUIController>();
     }
@@ -169,6 +184,11 @@ public class ScoreUIController : MonoBehaviour
                 RefreshAllText();
             }
         }
+
+        // Pulse coroutine runs continuously; strength is
+        // read from ScoreManager each frame inside it.
+        if (_multPulseRoutine == null && multText != null)
+            StartMultPulse();
     }
 
     private void HandleSceneLoaded(
@@ -229,12 +249,12 @@ public class ScoreUIController : MonoBehaviour
 
         if (goalText != null)
         {
-            float currentGoal = sm.CumulativeGoal;
-            if (_goalUiLast < 0f)
+            double currentGoal = sm.CumulativeGoal;
+            if (_goalUiLast < 0d)
             {
                 _goalUiLast = currentGoal;
             }
-            else if (currentGoal > _goalUiLast && !Mathf.Approximately(currentGoal, _goalUiLast))
+            else if (currentGoal > _goalUiLast && Math.Abs(currentGoal - _goalUiLast) > 0.0001d)
             {
                 _goalUiLast = currentGoal;
                 if (ServiceLocator.TryGet<FloatingTextSpawner>(out var spawner) && spawner != null)
@@ -520,6 +540,107 @@ public class ScoreUIController : MonoBehaviour
         _multResetFlashRoutine = null;
     }
 
+    private void StartMultPulse()
+    {
+        if (multText == null) return;
+        CaptureMultBaselineIfNeeded();
+
+        if (_multPulseRoutine != null)
+            StopCoroutine(_multPulseRoutine);
+
+        _multPulseRoutine = StartCoroutine(MultPulseRoutine());
+    }
+
+    private void StopMultPulse()
+    {
+        if (_multPulseRoutine != null)
+        {
+            StopCoroutine(_multPulseRoutine);
+            _multPulseRoutine = null;
+        }
+
+        if (multText != null && _multBaselineCaptured)
+        {
+            multText.rectTransform.localScale = _multBaseLocalScale;
+            multText.color = Color.white;
+        }
+    }
+
+    /// <summary>
+    /// Single unified pulse: same shape as the old frenzy pulse, but its
+    /// strength is driven by the multiplier fill fraction (or forced to
+    /// max while frenzy is active). Text stays white — no color lerp.
+    /// </summary>
+    private System.Collections.IEnumerator MultPulseRoutine()
+    {
+        TMP_Text text = multText;
+        if (text == null) yield break;
+
+        RectTransform rt = text.rectTransform;
+        Vector3 baseScale = _multBaseLocalScale;
+
+        float phase = 0f;
+
+        while (true)
+        {
+            // Swap text ref if it changed (scene reload).
+            if (text == null || text != multText)
+            {
+                text = multText;
+                if (text == null) yield break;
+                rt = text.rectTransform;
+                CaptureMultBaselineIfNeeded();
+                baseScale = _multBaseLocalScale;
+            }
+
+            // Reset flash owns the text; don't fight it.
+            if (_multResetFlashRoutine != null)
+            {
+                yield return null;
+                continue;
+            }
+
+            // Always white — no tinting.
+            text.color = Color.white;
+
+            float strength = 0f;
+            if (ServiceLocator.TryGet<ScoreManager>(out var sm))
+            {
+                if (sm.IsFrenzyActive)
+                {
+                    strength = 1f;
+                }
+                else
+                {
+                    float cap = sm.MultCap < float.MaxValue ? sm.MultCap : 10f;
+                    float fill01 = Mathf.Clamp01(
+                        (sm.DisplayMult - 1f)
+                        / Mathf.Max(0.0001f, cap - 1f));
+                    strength = Mathf.Clamp01(
+                        (fill01 - multPulseDeadzone)
+                        / Mathf.Max(0.0001f, 1f - multPulseDeadzone));
+                }
+            }
+
+            if (strength <= 0f)
+            {
+                rt.localScale = baseScale;
+                phase = 0f;
+                yield return null;
+                continue;
+            }
+
+            phase += Time.unscaledDeltaTime * multPulseSpeed * strength;
+
+            // Scale: breathes between 1.0 and 1 + amp*strength.
+            float scaleSin = (Mathf.Sin(phase) + 1f) * 0.5f;
+            float scaleMul = 1f + multPulseScaleAmp * strength * scaleSin;
+            rt.localScale = baseScale * scaleMul;
+
+            yield return null;
+        }
+    }
+
     public void EnsureCoreScoreTextBindings()
     {
         if (AllScoreTextBindingsLive())
@@ -755,6 +876,9 @@ public class ScoreUIController : MonoBehaviour
     }
 
     public static string FormatPointsCompact(
+        double value) => FormatPointsCompact((float)value);
+
+    public static string FormatPointsCompact(
         float value)
     {
         float abs = Mathf.Abs(value);
@@ -830,6 +954,9 @@ public class ScoreUIController : MonoBehaviour
         }
         return FormatPointsCompact(value);
     }
+
+    public static string FormatRoundTotalWhole(
+        double value) => FormatRoundTotalWhole((float)value);
 
     public static string FormatRoundTotalWhole(
         float value)

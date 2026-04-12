@@ -125,106 +125,47 @@ public sealed class RunFlowController : MonoBehaviour
 
         bool boardCleared = boardLoader != null
             && boardLoader.CurrentBoardRoot != null
-            && boardLoader.CurrentBoardRoot
-                .IsCleared(rulesManager);
+            && boardLoader.CurrentBoardRoot.IsCleared(rulesManager);
 
-        bool isChallenge = session != null
-            && session.ActiveChallenge != null;
-
+        bool isChallenge = session != null && session.ActiveChallenge != null;
         if (isChallenge)
-        {
             boardCleared = false;
-        }
 
-        if (!boardCleared)
+        // Board not yet cleared, or no session: stay on the current board and start the next round.
+        if (!boardCleared || session == null)
         {
-            yield return StartCoroutine(
-                CloseShopTransitionAndWait());
-
-            if (shopTransitionController != null)
-            {
-                shopTransitionController
-                    .ShowBoardUI();
-            }
-
-            rulesManager.StartRound();
-
-            if (shopTransitionController != null)
-            {
-                shopTransitionController
-                    .ResumeGameplayInput();
-            }
-
+            yield return StartCoroutine(CloseShopTransitionAndWait());
+            yield return StartCoroutine(ResumeRoundAfterShop());
             yield break;
         }
 
-        if (session == null)
-        {
-            yield return StartCoroutine(
-                CloseShopTransitionAndWait());
-
-            if (shopTransitionController != null)
-            {
-                shopTransitionController
-                    .ShowBoardUI();
-            }
-
-            rulesManager.StartRound();
-
-            if (shopTransitionController != null)
-            {
-                shopTransitionController
-                    .ResumeGameplayInput();
-            }
-
-            yield break;
-        }
-
-        BoardDefinition next =
-            session.GetNextBoard();
+        BoardDefinition next = session.GetNextBoard();
 
         if (next == null)
         {
-            yield return StartCoroutine(
-                CloseShopTransitionAndWait());
+            yield return StartCoroutine(CloseShopTransitionAndWait());
 
             if (shopTransitionController != null)
             {
-                shopTransitionController
-                    .ShowBoardUI();
-                shopTransitionController
-                    .ResumeGameplayInput();
+                shopTransitionController.ShowBoardUI();
+                shopTransitionController.ResumeGameplayInput();
             }
 
-            int levelReached =
-                rulesManager != null
-                    ? Mathf.Max(
-                        1,
-                        rulesManager.LevelIndex + 1)
-                    : 1;
-
-            long points =
-                rulesManager != null
-                    ? (long)Mathf.Round(
-                        Mathf.Max(0f, rulesManager.TotalScore))
-                    : 0L;
+            int levelReached = rulesManager != null ? Mathf.Max(1, rulesManager.LevelIndex + 1) : 1;
+            long points = rulesManager != null
+                ? (long)Math.Round(Math.Max(0d, rulesManager.TotalScore))
+                : 0L;
 
             RunCompletionHelper.RecordProgressAndShowWinScreen(
                 levelReached,
                 points,
                 afterRecordBeforeUnlocks: () =>
                 {
-                    if (session.ActiveChallenge != null
-                        && rulesManager != null)
+                    if (session.ActiveChallenge != null && rulesManager != null)
                     {
-                        long runScore = (long)Mathf.Round(
-                            rulesManager.TotalScore);
-
-                        ProfileService
-                            .RecordChallengeBestScore(
-                                session.ActiveChallenge
-                                    .displayName,
-                                runScore);
+                        long runScore = (long)Math.Round(rulesManager.TotalScore);
+                        ProfileService.RecordChallengeBestScore(
+                            session.ActiveChallenge.displayName, runScore);
                     }
                 });
 
@@ -232,9 +173,8 @@ public sealed class RunFlowController : MonoBehaviour
         }
 
         session.AdvanceToNextBoard();
-        
 
-        // Close shop transition before loading new board
+        // Close shop transition before loading new board.
         yield return StartCoroutine(CloseShopTransitionAndWait());
 
         if (boardLoader != null)
@@ -242,19 +182,25 @@ public sealed class RunFlowController : MonoBehaviour
             yield return boardLoader.LoadBoard(next);
         }
 
-        // Show board UI after new board loads
-        if (shopTransitionController != null)
-        {
-            shopTransitionController.ShowBoardUI();
-        }
-        rulesManager.StartRound();
-        if (shopTransitionController != null)
-        {
-            shopTransitionController.ResumeGameplayInput();
-        }
+        yield return StartCoroutine(ResumeRoundAfterShop());
     }
 
-    private bool _waitingForShopClose;
+    /// <summary>
+    /// Shows board UI, starts the next round, and re-enables gameplay input.
+    /// Does NOT close the shop transition — call CloseShopTransitionAndWait() first if needed.
+    /// </summary>
+    private IEnumerator ResumeRoundAfterShop()
+    {
+        if (shopTransitionController != null)
+            shopTransitionController.ShowBoardUI();
+
+        rulesManager.StartRound();
+
+        if (shopTransitionController != null)
+            shopTransitionController.ResumeGameplayInput();
+
+        yield break;
+    }
 
     private IEnumerator CloseShopTransitionAndWait()
     {
@@ -263,10 +209,10 @@ public sealed class RunFlowController : MonoBehaviour
             yield break;
         }
 
-        _waitingForShopClose = true;
-        shopTransitionController.CloseShopThen(() => _waitingForShopClose = false);
+        bool waiting = true;
+        shopTransitionController.CloseShopThen(() => waiting = false);
 
-        while (_waitingForShopClose)
+        while (waiting)
         {
             yield return null;
         }

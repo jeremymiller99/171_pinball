@@ -32,10 +32,6 @@ public class RenderTextureRaycaster : MonoBehaviour
 
     [Header("Hover Tooltip")]
     [SerializeField] private bool enableHoverTooltip = true;
-    [Tooltip(
-        "Radius used for ray-sphere hover checks on "
-        + "hand balls whose colliders are disabled.")]
-    [SerializeField] private float handBallHoverRadius = 0.25f;
 
     [Header("Shop offer drag")]
     [SerializeField] private float offerDragThresholdPixels = 12f;
@@ -128,19 +124,19 @@ public class RenderTextureRaycaster : MonoBehaviour
                 && _cachedShopController.CurrentState
                     == UnifiedShopController.ShopState.Browsing)
             {
-                GameObject handBall = FindClosestHandBallOnRay(ray);
-                if (handBall != null)
+                if (TryGetSlotIndexFromRay(ray, out int clickedSlot))
                 {
-                    BallHandSlotMarker marker =
-                        handBall.GetComponentInParent<BallHandSlotMarker>();
+                    if (_cachedSpawner == null) _cachedSpawner = ServiceLocator.Get<BallSpawner>();
+                    GameObject handBall = _cachedSpawner != null
+                        ? _cachedSpawner.GetHandBallAtSlot(clickedSlot)
+                        : null;
 
-                    if (marker != null && marker.SlotIndex >= 0)
+                    if (handBall != null)
                     {
                         _handBallDragObject = handBall;
-                        _handBallDragSlot = marker.SlotIndex;
+                        _handBallDragSlot = clickedSlot;
                         _handBallDragStartScreenPos = mouseScreenPos;
-                        _handBallDragOriginalPos =
-                            handBall.transform.position;
+                        _handBallDragOriginalPos = handBall.transform.position;
                         _handBallDragThresholdExceeded = false;
                         return;
                     }
@@ -275,7 +271,8 @@ public class RenderTextureRaycaster : MonoBehaviour
         if (_offerDragEntry != null) _offerDragEntry.gameObject.SetActive(true);
 
         if (hitObject == null
-            || hitObject.GetComponentInParent<BallHandSlotMarker>() == null)
+            || (hitObject.GetComponentInParent<BallHandSlot>() == null
+                && hitObject.GetComponentInParent<BallHandSlotMarker>() == null))
         {
             GameObject handBall = FindClosestHandBallOnRay(ray);
             if (handBall != null)
@@ -310,9 +307,14 @@ public class RenderTextureRaycaster : MonoBehaviour
             return false;
         }
 
-        BallHandSlotMarker marker =
-            hitObject.GetComponentInParent<BallHandSlotMarker>();
+        BallHandSlot slot = hitObject.GetComponentInParent<BallHandSlot>();
+        if (slot != null && slot.SlotIndex >= 0)
+        {
+            _cachedShopController.OnBallSlotClicked(slot.SlotIndex);
+            return true;
+        }
 
+        BallHandSlotMarker marker = hitObject.GetComponentInParent<BallHandSlotMarker>();
         if (marker != null && marker.SlotIndex >= 0)
         {
             _cachedShopController.OnBallSlotClicked(marker.SlotIndex);
@@ -505,66 +507,46 @@ public class RenderTextureRaycaster : MonoBehaviour
         return FindClosestHandBallOnRay(ray, null);
     }
 
-    private GameObject FindClosestHandBallOnRay(
-        Ray ray, GameObject exclude)
+    /// <summary>
+    /// Raycasts for a <see cref="BallHandSlot"/> cube collider and returns the ball
+    /// currently occupying that slot (or null if the slot is empty / excluded).
+    /// </summary>
+    private GameObject FindClosestHandBallOnRay(Ray ray, GameObject exclude)
     {
-        if (_cachedSpawner == null)
+        if (TryGetSlotIndexFromRay(ray, out int slotIndex))
         {
-            _cachedSpawner =
-                ServiceLocator.Get<BallSpawner>();
+            if (_cachedSpawner == null) _cachedSpawner = ServiceLocator.Get<BallSpawner>();
+            if (_cachedSpawner == null) return null;
+
+            GameObject ball = _cachedSpawner.GetHandBallAtSlot(slotIndex);
+            if (ball != null && ball != exclude) return ball;
         }
+        return null;
+    }
 
-        if (_cachedSpawner == null)
+    private bool TryGetSlotIndexFromRay(Ray ray, out int slotIndex)
+    {
+        slotIndex = -1;
+        var hits = Physics.RaycastAll(ray, maxRayDistance, clickableLayers);
+        if (hits == null || hits.Length == 0) return false;
+
+        float bestDist = float.MaxValue;
+        int bestSlot = -1;
+        for (int i = 0; i < hits.Length; i++)
         {
-            return null;
-        }
-
-        var handBalls = _cachedSpawner.HandBalls;
-
-        if (handBalls == null || handBalls.Count == 0)
-        {
-            return null;
-        }
-
-        float radiusSq =
-            handBallHoverRadius * handBallHoverRadius;
-        float bestDistSq = float.MaxValue;
-        GameObject bestBall = null;
-
-        for (int i = 0; i < handBalls.Count; i++)
-        {
-            GameObject b = handBalls[i];
-
-            if (b == null || b == exclude)
+            var col = hits[i].collider;
+            if (col == null) continue;
+            var slot = col.GetComponentInParent<BallHandSlot>();
+            if (slot == null || slot.SlotIndex < 0) continue;
+            if (hits[i].distance < bestDist)
             {
-                continue;
-            }
-
-            Vector3 toCenter =
-                b.transform.position - ray.origin;
-            float dot =
-                Vector3.Dot(toCenter, ray.direction);
-
-            if (dot < 0f)
-            {
-                continue;
-            }
-
-            Vector3 closest =
-                ray.origin + ray.direction * dot;
-            float distSq =
-                (b.transform.position - closest)
-                    .sqrMagnitude;
-
-            if (distSq <= radiusSq
-                && distSq < bestDistSq)
-            {
-                bestDistSq = distSq;
-                bestBall = b;
+                bestDist = hits[i].distance;
+                bestSlot = slot.SlotIndex;
             }
         }
-
-        return bestBall;
+        if (bestSlot < 0) return false;
+        slotIndex = bestSlot;
+        return true;
     }
 
     private void HandleOfferDragEnd(Vector2 mouseScreenPos)

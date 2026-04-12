@@ -15,25 +15,36 @@ public enum TypeOfScore
 
 public class ScoreManager : MonoBehaviour
 {
-    [SerializeField] private float points;
+    [SerializeField] private double points;
     [SerializeField] private float mult;
-    [SerializeField] private float roundTotal;
+    [SerializeField] private double roundTotal;
 
-    public float Points => points;
+    public double Points => points;
     public float Mult => mult;
-    public float RoundTotal => roundTotal;
+    public double RoundTotal => roundTotal;
 
-    private float displayPoints;
+    // Mult cap (set per-ship; default = uncapped)
+    private float _multCap = float.MaxValue;
+    // Frenzy bonus sits on top of the cap — not subject to it
+    private float _frenzyMult;
+
+    public float MultCap => _multCap;
+    public float FrenzyMult => _frenzyMult;
+    /// <summary>Effective multiplier used for scoring: capped earned mult + uncapped frenzy bonus.</summary>
+    public float EffectiveMult => mult + _frenzyMult;
+    public bool IsFrenzyActive => _frenzyMult > 0f;
+
+    private double displayPoints;
     private float displayMult = 1f;
 
-    public float DisplayPoints => displayPoints;
+    public double DisplayPoints => displayPoints;
     public float DisplayMult => displayMult;
-    public float DisplayRoundTotal => roundTotal + displayPoints;
+    public double DisplayRoundTotal => roundTotal + displayPoints;
 
 
     [Header("Level Progress (runtime)")]
     [SerializeField, Tooltip("Read-only at runtime. Tracks how much cumulative score has been consumed by level-ups.")]
-    private float levelProgressOffset;
+    private double levelProgressOffset;
 
     [SerializeField] private FloatingTextSpawner floatingTextSpawner;
 
@@ -114,7 +125,7 @@ public class ScoreManager : MonoBehaviour
     public event Action BallBanked;
     public event Action<int> GoalTierChanged;
 
-    public event Action<float, float> PointsAdded; // (appliedAmount, currentStoredPoints)
+    public event Action<double, double> PointsAdded; // (appliedAmount, currentStoredPoints)
     public event Action<float, float> MultAdded; // (appliedAmount, currentStoredMult)
     public event Action MultReset;
     public event Action<int, int> CoinsAdded; // (appliedAmount, currentCoins)
@@ -122,14 +133,14 @@ public class ScoreManager : MonoBehaviour
     // Properties
 
     public float Goal => _goal;
-    public float CumulativeGoal => Mathf.Max(0f, levelProgressOffset + _goal);
+    public double CumulativeGoal => Math.Max(0d, levelProgressOffset + _goal);
     public int GoalTier => _goalTier;
     public float ScoreAwardMultiplier => 1f + (_goalTier * scoreIncreasePerGoalTier);
     public float SpeedMultiplier => 1f + (_goalTier * speedIncreasePerGoalTier);
     public float SpeedIncreasePerGoalTier => speedIncreasePerGoalTier;
     public float ScoreIncreasePerGoalTier => scoreIncreasePerGoalTier;
-    public float LiveRoundTotal => roundTotal + points;
-    public float LiveLevelProgress => Mathf.Max(0f, LiveRoundTotal - levelProgressOffset);
+    public double LiveRoundTotal => roundTotal + points;
+    public double LiveLevelProgress => Math.Max(0d, LiveRoundTotal - levelProgressOffset);
     public float ComponentHitAssistAccelerationBonus => _componentHitAssistAccelerationBonus;
     public float ExternalTimeScaleMultiplier => externalTimeScaleMultiplier;
     public float ExternalScoreAwardMultiplier => externalScoreAwardMultiplier;
@@ -171,7 +182,7 @@ public class ScoreManager : MonoBehaviour
         ApplySpeedFromTier(force: true);
     }
 
-    public void AddRawPoints(float amount)
+    public void AddRawPoints(double amount)
     {
         points += amount;
         ScoreChanged?.Invoke();
@@ -181,8 +192,38 @@ public class ScoreManager : MonoBehaviour
     {
         mult += amount;
         if (mult < 1f) mult = 1f;
+        if (_multCap > 0f && _multCap < float.MaxValue)
+            mult = Mathf.Min(mult, _multCap);
         displayMult = mult;
         MultAdded?.Invoke(amount, mult);
+        ScoreChanged?.Invoke();
+    }
+
+    /// <summary>Sets the maximum mult the player can earn (from their ship). Does not affect frenzy bonus.</summary>
+    public void SetMultCap(float cap)
+    {
+        _multCap = Mathf.Max(1f, cap);
+        // Clamp current mult to the new cap
+        if (mult > _multCap)
+        {
+            mult = _multCap;
+            displayMult = mult;
+            ScoreChanged?.Invoke();
+        }
+    }
+
+    /// <summary>Adds a frenzy multiplier bonus that bypasses the cap. Call from frenzy systems only.</summary>
+    public void AddFrenzyMult(float amount)
+    {
+        _frenzyMult += amount;
+        if (_frenzyMult < 0f) _frenzyMult = 0f;
+        ScoreChanged?.Invoke();
+    }
+
+    /// <summary>Removes the frenzy multiplier bonus entirely.</summary>
+    public void RemoveFrenzyMult()
+    {
+        _frenzyMult = 0f;
         ScoreChanged?.Invoke();
     }
 
@@ -220,13 +261,13 @@ public class ScoreManager : MonoBehaviour
 
     private void Start()
     {
-        points = 0f;
+        points = 0d;
         mult = 1f;
-        roundTotal = 0f;
+        roundTotal = 0d;
         _goal = 0f;
         _goalTier = 0;
-        
-        displayPoints = 0f;
+
+        displayPoints = 0d;
         displayMult = 1f;
 
         CaptureTimeBaseIfNeeded();
@@ -267,12 +308,12 @@ public class ScoreManager : MonoBehaviour
     {
         if (scoringLocked || applied == 0) return;
 
-        float scaled = applied * mult;
+        double scaled = applied * EffectiveMult;
         points += scaled;
-        
+
         if (floatingTextSpawner != null)
         {
-            floatingTextSpawner.SpawnPointsText(pos.position, "+" + scaled, scaled, () => 
+            floatingTextSpawner.SpawnPointsText(pos.position, "+" + scaled, (float)scaled, () =>
             {
                 displayPoints += scaled;
                 ScoreChanged?.Invoke();
@@ -293,6 +334,8 @@ public class ScoreManager : MonoBehaviour
         if (scoringLocked || applied == 0) return;
 
         mult += applied;
+        if (_multCap > 0f && _multCap < float.MaxValue)
+            mult = Mathf.Min(mult, _multCap);
 
         if (floatingTextSpawner != null)
         {
@@ -337,18 +380,19 @@ public class ScoreManager : MonoBehaviour
     {
         mult = 1f;
         displayMult = 1f;
+        _frenzyMult = 0f;
         MultReset?.Invoke();
         ScoreChanged?.Invoke();
     }
 
-    public float BankCurrentBallScore()
+    public double BankCurrentBallScore()
     {
-        float banked = points;
+        double banked = points;
         roundTotal += banked;
 
         BallBanked?.Invoke();
-        points = 0f;
-        displayPoints = 0f;
+        points = 0d;
+        displayPoints = 0d;
         displayMult = mult; // Sync display mult just in case
         _componentHitAssistAccelerationBonus = 0f;
         _componentHitTimeScaleBonus = 0f;
@@ -361,12 +405,13 @@ public class ScoreManager : MonoBehaviour
 
     public void ResetForNewRound()
     {
-        levelProgressOffset = 0f;
-        roundTotal = 0f;
-        points = 0f;
+        levelProgressOffset = 0d;
+        roundTotal = 0d;
+        points = 0d;
         BallBanked?.Invoke();
         mult = 1f;
-        displayPoints = 0f;
+        _frenzyMult = 0f;
+        displayPoints = 0d;
         displayMult = 1f;
         _goalTier = 0;
         totalComponentHits = 0;
@@ -389,10 +434,10 @@ public class ScoreManager : MonoBehaviour
 
     public void ConsumeLevelProgress(float amount)
     {
-        float a = Mathf.Max(0f, amount);
-        if (a <= 0.0001f) return;
+        double a = Math.Max(0d, amount);
+        if (a <= 0.0001d) return;
 
-        levelProgressOffset = Mathf.Max(0f, levelProgressOffset + a);
+        levelProgressOffset = Math.Max(0d, levelProgressOffset + a);
         _hasCompletedLevelThisRound = true;
         UpdateGoalTierAndApplySpeed();
         ScoreChanged?.Invoke();
@@ -475,11 +520,11 @@ public class ScoreManager : MonoBehaviour
         if (!enableGoalTierScaling) return 0;
         if (_goal <= 0f) return 0;
 
-        float live = LiveLevelProgress;
-        if (live <= 0f) return 0;
+        double live = LiveLevelProgress;
+        if (live <= 0d) return 0;
 
-        int tier = Mathf.FloorToInt(live / _goal);
-        return Mathf.Max(0, tier);
+        int tier = (int)Math.Floor(live / _goal);
+        return Math.Max(0, tier);
     }
 
     private void CaptureTimeBaseIfNeeded()

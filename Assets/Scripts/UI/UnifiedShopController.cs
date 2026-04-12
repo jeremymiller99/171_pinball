@@ -146,6 +146,13 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         _hand.ClearSwapSelection();
 
+        // Ball offers can only be acquired via drag-and-drop onto a hand slot.
+        if (offer.Type == ShopOffer.OfferType.Ball)
+        {
+            SetPrompt($"Drag {offer.DisplayName} onto a hand slot to buy it.");
+            return;
+        }
+
         _selectedOffer = offer;
         _selectedOfferIndex = offerIndex;
         OfferSelected?.Invoke(offer);
@@ -386,42 +393,42 @@ public sealed class UnifiedShopController : MonoBehaviour
         var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
         if (loadoutCtrl == null) return;
 
+        int dropSlot = ResolveDropSlotIndex(hitObject, worldRay);
+        if (dropSlot < 0)
+        {
+            SetPrompt("Drop onto a hand slot to buy the ball.");
+            return;
+        }
+
         int currentCount = loadoutCtrl.BallLoadoutCount;
         int cap = Mathf.Max(1, loadoutCtrl.MaxBalls);
 
         if (currentCount < cap)
         {
-            int targetSlot = -1;
-            if (hitObject != null)
-            {
-                BallHandSlotMarker marker = hitObject.GetComponentInParent<BallHandSlotMarker>();
-                if (marker != null) targetSlot = marker.SlotIndex;
-            }
-            if (targetSlot < 0) _hand.TryGetHandBallSlotFromRay(worldRay, out targetSlot);
-
-            AutoBuyBallOffer(offerIndex, offer, targetSlot);
+            // Partial inventory: drop onto any slot inserts at that position
+            // (or appends at end if the slot is past the filled range).
+            int insertIdx = Mathf.Clamp(dropSlot, 0, currentCount);
+            AutoBuyBallOffer(offerIndex, offer, insertIdx);
             return;
         }
 
-        int slotIndex = -1;
+        if (dropSlot >= loadoutCtrl.BallLoadoutCount) return;
+
+        ShowDragDropBallReplaceConfirm(offerIndex, dropSlot);
+    }
+
+    private int ResolveDropSlotIndex(GameObject hitObject, Ray worldRay)
+    {
         if (hitObject != null)
         {
-            BallHandSlotMarker marker = hitObject.GetComponentInParent<BallHandSlotMarker>();
-            if (marker != null && marker.SlotIndex >= 0) slotIndex = marker.SlotIndex;
+            var slot = hitObject.GetComponentInParent<BallHandSlot>();
+            if (slot != null && slot.SlotIndex >= 0) return slot.SlotIndex;
+
+            var marker = hitObject.GetComponentInParent<BallHandSlotMarker>();
+            if (marker != null && marker.SlotIndex >= 0) return marker.SlotIndex;
         }
-
-        if (slotIndex < 0) _hand.TryGetHandBallSlotFromRay(worldRay, out slotIndex);
-
-        if (slotIndex < 0)
-        {
-            SetPrompt("Drop onto a ball in your hand to replace.");
-            return;
-        }
-
-        var loadout = loadoutCtrl.GetBallLoadoutSnapshot();
-        if (slotIndex >= loadout.Count) return;
-
-        ShowDragDropBallReplaceConfirm(offerIndex, slotIndex);
+        if (_hand.TryGetHandBallSlotFromRay(worldRay, out int slotIdx)) return slotIdx;
+        return -1;
     }
 
     public void OnOfferDragStarted(ShopOffer offer)
@@ -465,15 +472,8 @@ public sealed class UnifiedShopController : MonoBehaviour
         }
         else
         {
-            int slot = -1;
-            if (hitObject != null)
-            {
-                var marker = hitObject.GetComponentInParent<BallHandSlotMarker>();
-                if (marker != null) slot = marker.SlotIndex;
-            }
+            int slot = ResolveDropSlotIndex(hitObject, worldRay);
 
-            if (slot < 0) _hand.TryGetHandBallSlotFromRay(worldRay, out slot);
-            
             if (_dragBallHasRoom)
             {
                 if (ballSpawner != null)
@@ -512,15 +512,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         }
         else if (CurrentState == ShopState.PlacingBall)
         {
-            int slot = -1;
-            if (hitObject != null)
-            {
-                var marker = hitObject.GetComponentInParent<BallHandSlotMarker>();
-                if (marker != null) slot = marker.SlotIndex;
-            }
-
-            if (slot < 0) _hand.TryGetHandBallSlotFromRay(worldRay, out slot);
-
+            int slot = ResolveDropSlotIndex(hitObject, worldRay);
             _hand.UpdatePlacementHover(slot);
         }
     }

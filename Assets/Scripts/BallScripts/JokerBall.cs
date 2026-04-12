@@ -4,7 +4,7 @@ public class JokerBall : Ball
 {
     void Awake()
     {
-        pointMultiplier = 1.25f;
-        multMultiplier = 1.25f;
+        ballPointMultiplier = 1.25f;
+        ballMultMultiplier = 1.25f;
     }
 }

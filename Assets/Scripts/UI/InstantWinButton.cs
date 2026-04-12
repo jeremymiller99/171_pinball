@@ -69,10 +69,10 @@ public sealed class InstantWinButton : MonoBehaviour
         float currentMult = scoreManager.Mult;
         if (currentMult <= 0f) currentMult = 1f;
 
-        float extraNeeded =
+        double extraNeeded =
             goal - scoreManager.LiveLevelProgress;
 
-        if (extraNeeded > 0f)
+        if (extraNeeded > 0d)
             scoreManager.AddRawPoints(
                 extraNeeded / currentMult);
 

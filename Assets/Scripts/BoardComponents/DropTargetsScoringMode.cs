@@ -77,6 +77,12 @@ public class DropTargetsScoringMode : MonoBehaviour
         "Font for bonus popups. If null, uses spawner's default.")]
     [SerializeField] private TMP_FontAsset popupFontAsset;
 
+    [Header("Frenzy HUD Color")]
+    [Tooltip("Color applied to the multiplier HUD meter during frenzy. Should match your frenzy lights.")]
+    [SerializeField] private Color frenzyHudColor = new Color(0f, 0.85f, 1f, 1f);
+
+    public Color FrenzyHudColor => frenzyHudColor;
+
     private bool _allDownBonusAwardedThisCycle;
     private bool _wasAllDown;
     private Coroutine _deferredCheckRoutine;
@@ -276,7 +282,7 @@ public class DropTargetsScoringMode : MonoBehaviour
         if (scoreManager == null) return;
 
         _frenzyMultBonus = scoreManager.Mult;
-        scoreManager.AddRawMult(_frenzyMultBonus);
+        scoreManager.AddFrenzyMult(_frenzyMultBonus);
         _isFrenzyActive = true;
         OnFrenzyActivated?.Invoke();
 
@@ -298,9 +304,9 @@ public class DropTargetsScoringMode : MonoBehaviour
 
         EnsureRefs();
 
-        if (scoreManager != null && _frenzyMultBonus > 0f)
+        if (scoreManager != null)
         {
-            scoreManager.AddRawMult(-_frenzyMultBonus);
+            scoreManager.RemoveFrenzyMult();
         }
 
         _frenzyMultBonus = 0f;

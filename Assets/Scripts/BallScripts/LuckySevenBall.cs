@@ -23,8 +23,8 @@ public class LuckySevenBall : Ball
         get
         {
             return (componentHits > 0 && componentHits % hitInterval == 0)
-                ? pointMultiplier * pointsMultiplierOnInterval
-                : pointMultiplier;
+                ? ballPointMultiplier * pointsMultiplierOnInterval
+                : ballPointMultiplier;
         }
     }
 }

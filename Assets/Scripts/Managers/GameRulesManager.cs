@@ -39,7 +39,7 @@ public class GameRulesManager : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private int roundIndex;
     [SerializeField] private int ballsRemaining;
-    [SerializeField] private float roundTotal;
+    [SerializeField] private double roundTotal;
 
     [Header("Drain")]
     [SerializeField] private DrainHandler drainHandler;
@@ -57,13 +57,13 @@ public class GameRulesManager : MonoBehaviour
     public event Action<bool> ShopAvailabilityChanged;
 
     public int LevelIndex => roundIndex;
-    public float TotalScore => roundTotal;
+    public double TotalScore => roundTotal;
     public float RunElapsedTime => Time.unscaledTime - _runStartTime;
 
     public int RoundIndex => roundIndex;
     public int BallsRemaining => ballsRemaining;
     public int Coins => ServiceLocator.Get<CoinController>()?.Coins ?? 0;
-    public float RoundTotal => roundTotal;
+    public double RoundTotal => roundTotal;
     public float CurrentGoal => goalScaler != null
         ? goalScaler.GetGoal(roundIndex, ActiveModifier, ModifierController)
         : 0f;
@@ -202,7 +202,7 @@ public class GameRulesManager : MonoBehaviour
         // Subbed in for legacy modifier popups
         if (ActiveModifier != null)
         {
-            bool hasCard = ServiceLocator.Get<ModifierCardPopupController>() != null || FindFirstObjectByType<ModifierCardPopupController>(FindObjectsInactive.Include) != null;
+            bool hasCard = ServiceLocator.Get<ModifierCardPopupController>() != null || FindAnyObjectByType<ModifierCardPopupController>(FindObjectsInactive.Include) != null;
             if (!hasCard && floatingTextSpawner != null)
             {
                 if (ActiveModifier.applyTwoRandomDevilModifiers && ModifierController.UnluckyDayActiveModifiers?.Count > 0)
@@ -239,6 +239,17 @@ public class GameRulesManager : MonoBehaviour
     {
         bool draining = drainHandler != null && drainHandler.IsDrainProcessing;
         if (!_runActive || _shopOpen || draining) return;
+        TryProcessLevelUps();
+    }
+
+    /// <summary>
+    /// External trigger to reconcile any level-ups that were blocked during a drain or
+    /// shop-open window. Safe to call at any time; respects _shopOpen guard so it won't
+    /// advance levels while the player is in the shop.
+    /// </summary>
+    public void ForceReconcileLevelUps()
+    {
+        if (!_runActive || _shopOpen) return;
         TryProcessLevelUps();
     }
 
@@ -292,7 +303,7 @@ public class GameRulesManager : MonoBehaviour
 
     #region DrainHandler Callbacks
 
-    public void SyncRoundTotal(float total)
+    public void SyncRoundTotal(double total)
     {
         roundTotal = total;
     }
@@ -351,7 +362,7 @@ public class GameRulesManager : MonoBehaviour
     private void CompleteRunAndShowWinScreen()
     {
         int levelReached = Mathf.Max(1, LevelIndex + 1);
-        long points = (long)Math.Round(Math.Max(0f, TotalScore));
+        long points = (long)Math.Round(Math.Max(0d, TotalScore));
 
         RunCompletionHelper.RecordProgressAndShowWinScreen(
             levelReached,
@@ -468,7 +479,7 @@ public class GameRulesManager : MonoBehaviour
         var panel = roundFailedUIRoot != null ? roundFailedUIRoot.GetComponent<RoundFailedPanelController>() : null;
         if (panel != null)
         {
-            panel.Show(roundTotal, CurrentGoal, roundIndex, ballsRemaining, Coins, RunElapsedTime, challenge);
+            panel.Show((float)roundTotal, CurrentGoal, roundIndex, ballsRemaining, Coins, RunElapsedTime, challenge);
         }
         else
         {
@@ -477,7 +488,7 @@ public class GameRulesManager : MonoBehaviour
 
         if (challenge != null)
         {
-            long score = (long)Math.Round(Math.Max(0f, roundTotal));
+            long score = (long)Math.Round(Math.Max(0d, roundTotal));
             ProfileService.RecordChallengeBestScore(challenge.displayName, score);
         }
     }
@@ -493,7 +504,7 @@ public class GameRulesManager : MonoBehaviour
         var panel = roundFailedUIRoot.GetComponent<RoundFailedPanelController>();
         if (panel != null)
         {
-            if (open) panel.Show(roundTotal, CurrentGoal, roundIndex, ballsRemaining, Coins, RunElapsedTime, GameSession.Instance?.ActiveChallenge);
+            if (open) panel.Show((float)roundTotal, CurrentGoal, roundIndex, ballsRemaining, Coins, RunElapsedTime, GameSession.Instance?.ActiveChallenge);
             else panel.Hide();
             return;
         }

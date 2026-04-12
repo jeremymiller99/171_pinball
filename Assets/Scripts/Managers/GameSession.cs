@@ -168,11 +168,6 @@ public sealed class GameSession : MonoBehaviour
     /// Call this after ConfigureChallenge and before starting the run.
     /// </summary>
     /// <param name="totalRounds">The total number of rounds to generate.</param>
-    /// <summary>
-    /// Generates round data for the run using the active challenge's settings.
-    /// Call this after ConfigureChallenge and before starting the run.
-    /// </summary>
-    /// <param name="totalRounds">The total number of rounds to generate.</param>
     public void GenerateRounds(int totalRounds)
     {
         generatedRounds.Clear();

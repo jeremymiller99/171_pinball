@@ -95,29 +95,26 @@ public sealed class BoardLoader : MonoBehaviour
         // GameplayCore provides the main view; additive boards must not have competing cameras/input.
         DisableBoardSceneDuplicates(loadedScene);
 
-        // Bind spawn/play point into core systems.
-        // Convention:
-        // - HandPathWaypoints[0] = queue start
-        // - HandPathWaypoints[1] = queue end
-        // - HandPathWaypoints[2] = play/activation point (optional override)
         Transform sp = currentBoardRoot.SpawnPoint;
-        var wps = currentBoardRoot.HandPathWaypoints;
-        if (wps != null && wps.Length >= 3 && wps[2] != null)
-        {
-            sp = wps[2];
-        }
-
         if (sp == null)
         {
-            Debug.LogError($"{nameof(BoardLoader)}: BoardRoot '{currentBoardRoot.name}' has no spawn/play point assigned. Assign SpawnPoint or HandPathWaypoints[2].", currentBoardRoot);
+            Debug.LogError($"{nameof(BoardLoader)}: BoardRoot '{currentBoardRoot.name}' has no SpawnPoint assigned.", currentBoardRoot);
             yield break;
         }
 
         if (ballSpawner != null)
         {
             ballSpawner.SetSpawnPoint(sp);
-            // Hand path start; if unset, the spawner will fall back to its own transform.
-            ballSpawner.SetHandPath(currentBoardRoot.HandPathStart, currentBoardRoot.HandPathWaypoints);
+            var slots = currentBoardRoot.HandSlots;
+            if (slots != null)
+            {
+                var list = new System.Collections.Generic.List<BallHandSlot>(slots.Count);
+                for (int i = 0; i < slots.Count; i++)
+                {
+                    if (slots[i] != null) list.Add(slots[i]);
+                }
+                ballSpawner.SetHandSlots(list);
+            }
         }
     }
 

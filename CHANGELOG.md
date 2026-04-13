@@ -10,6 +10,10 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.7.1 — debug unlock-all button
+_2026-04-13 · Contributor: DrewWhitmer_
+- Added an "unlock everything" button to the debug menu that unlocks all balls and shop components.
+
 ## 0.7.0 — Eye On The Prize, Board_NA overhaul, ShopHub
 _2026-04-12 · Contributor: JJ_
 - Renamed `ChaosBall` → `EyeOnThePrizeBall` and reworked the ball prefab/behavior.

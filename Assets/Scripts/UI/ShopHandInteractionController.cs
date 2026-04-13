@@ -44,8 +44,29 @@ public sealed class ShopHandInteractionController : MonoBehaviour
     {
         UnhighlightAllHandBalls();
         ClearSwapSelection();
+        ClearAllSlotHoverHighlights();
         ClearState();
         if (_ballSpawner != null) _ballSpawner.ClearInsertGapPreview();
+    }
+
+    private void SetSlotHoverHighlight(int slotIndex, bool on)
+    {
+        if (_ballSpawner == null || slotIndex < 0) return;
+        var slots = _ballSpawner.HandSlots;
+        if (slots == null || slotIndex >= slots.Count) return;
+        var slot = slots[slotIndex];
+        if (slot != null) slot.SetHoverHighlight(on);
+    }
+
+    private void ClearAllSlotHoverHighlights()
+    {
+        if (_ballSpawner == null) return;
+        var slots = _ballSpawner.HandSlots;
+        if (slots == null) return;
+        for (int i = 0; i < slots.Count; i++)
+        {
+            if (slots[i] != null) slots[i].SetHoverHighlight(false);
+        }
     }
 
     private void ClearState()
@@ -160,6 +181,7 @@ public sealed class ShopHandInteractionController : MonoBehaviour
             {
                 SetHandBallOutlineColor(_dragHoveredBallSlot, handBallSelectColor);
                 SetBallHoverScale(_dragHoveredBallSlot, false);
+                SetSlotHoverHighlight(_dragHoveredBallSlot, false);
             }
 
             _dragHoveredBallSlot = hoveredSlot;
@@ -168,6 +190,7 @@ public sealed class ShopHandInteractionController : MonoBehaviour
             {
                 SetHandBallOutlineColor(hoveredSlot, handBallDragTargetColor);
                 SetBallHoverScale(hoveredSlot, true);
+                SetSlotHoverHighlight(hoveredSlot, true);
             }
         }
     }
@@ -175,6 +198,7 @@ public sealed class ShopHandInteractionController : MonoBehaviour
     public void EndDragHover()
     {
         UnhighlightAllHandBalls();
+        if (_dragHoveredBallSlot >= 0) SetSlotHoverHighlight(_dragHoveredBallSlot, false);
         _dragHoveredBallSlot = -1;
     }
 
@@ -186,6 +210,7 @@ public sealed class ShopHandInteractionController : MonoBehaviour
             {
                 SetHandBallOutlineColor(_placementHoveredBallSlot, handBallSelectColor);
                 SetBallHoverScale(_placementHoveredBallSlot, false);
+                SetSlotHoverHighlight(_placementHoveredBallSlot, false);
             }
 
             _placementHoveredBallSlot = slot;
@@ -194,6 +219,7 @@ public sealed class ShopHandInteractionController : MonoBehaviour
             {
                 SetHandBallOutlineColor(slot, handBallDragTargetColor);
                 SetBallHoverScale(slot, true);
+                SetSlotHoverHighlight(slot, true);
             }
         }
     }
@@ -204,6 +230,7 @@ public sealed class ShopHandInteractionController : MonoBehaviour
         {
             SetHandBallOutlineColor(_placementHoveredBallSlot, handBallSelectColor);
             SetBallHoverScale(_placementHoveredBallSlot, false);
+            SetSlotHoverHighlight(_placementHoveredBallSlot, false);
             _placementHoveredBallSlot = -1;
         }
     }

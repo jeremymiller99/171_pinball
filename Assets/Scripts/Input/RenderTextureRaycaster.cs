@@ -43,6 +43,7 @@ public class RenderTextureRaycaster : MonoBehaviour
     private Outline _highlightedOutline;
     private Color _highlightedOutlinePrevColor;
     private UnifiedShopController _cachedShopController;
+    private ShopHub _highlightedHub;
 
     private ShopOffer3DEntry _offerDragEntry;
     private Vector2 _offerDragStartScreenPos;
@@ -440,6 +441,19 @@ public class RenderTextureRaycaster : MonoBehaviour
             return;
         }
 
+        ShopHub hub = obj.GetComponentInParent<ShopHub>();
+        if (hub != null)
+        {
+            UnifiedShopController shopCtrl =
+                ServiceLocator.Get<UnifiedShopController>();
+            if (shopCtrl != null && shopCtrl.IsShopActive)
+            {
+                title = hub.DisplayName;
+                desc = hub.Description;
+                return;
+            }
+        }
+
         ShopShipController shopShip =
             obj.GetComponentInParent<ShopShipController>();
 
@@ -514,6 +528,28 @@ public class RenderTextureRaycaster : MonoBehaviour
             if (ball != null && ball != exclude) return ball;
         }
         return null;
+    }
+
+    private bool TryGetShopHubOnRay(Ray ray, out ShopHub hub)
+    {
+        hub = null;
+        var hits = Physics.RaycastAll(ray, maxRayDistance, clickableLayers);
+        if (hits == null || hits.Length == 0) return false;
+
+        float bestDist = float.MaxValue;
+        for (int i = 0; i < hits.Length; i++)
+        {
+            var col = hits[i].collider;
+            if (col == null) continue;
+            var found = col.GetComponentInParent<ShopHub>();
+            if (found == null) continue;
+            if (hits[i].distance < bestDist)
+            {
+                bestDist = hits[i].distance;
+                hub = found;
+            }
+        }
+        return hub != null;
     }
 
     private bool TryGetSlotIndexFromRay(Ray ray, out int slotIndex)
@@ -599,6 +635,20 @@ public class RenderTextureRaycaster : MonoBehaviour
         }
 
         entry.gameObject.SetActive(true);
+
+        // Mirror the hover-path fallback so the drop commits to the same slot
+        // the player visually saw highlighted. Without this, the first-hit
+        // raycast can miss a slot that RaycastAll-based hover would have found.
+        if (hitObject == null
+            || (hitObject.GetComponentInParent<BallHandSlot>() == null
+                && hitObject.GetComponentInParent<BallHandSlotMarker>() == null))
+        {
+            GameObject handBall = FindClosestHandBallOnRay(ray);
+            if (handBall != null)
+            {
+                hitObject = handBall;
+            }
+        }
 
         _cachedShopController.TryDropOfferAfterDrag(
             entry.OfferIndex,
@@ -696,6 +746,14 @@ public class RenderTextureRaycaster : MonoBehaviour
                 ScreenToViewport(mouseScreenPos);
             Ray ray =
                 targetCamera.ViewportPointToRay(viewportPoint);
+
+            if (TryGetShopHubOnRay(ray, out ShopHub hub)
+                && _cachedShopController != null)
+            {
+                _cachedShopController.OnHandBallDragSell(
+                    draggedSlot, hub);
+                return;
+            }
 
             GameObject target =
                 FindClosestHandBallOnRay(ray, draggedBall);
@@ -923,6 +981,19 @@ public class RenderTextureRaycaster : MonoBehaviour
             return;
         }
 
+        ShopHub hub = obj.GetComponentInParent<ShopHub>();
+        if (hub != null)
+        {
+            EnsureShopController();
+            if (_cachedShopController != null
+                && _cachedShopController.IsShopActive)
+            {
+                _highlightedHub = hub;
+                hub.SetHovered(true);
+                return;
+            }
+        }
+
         BoardComponent bc =
             obj.GetComponentInParent<BoardComponent>();
 
@@ -952,6 +1023,12 @@ public class RenderTextureRaycaster : MonoBehaviour
 
     private void ClearHighlight()
     {
+        if (_highlightedHub != null)
+        {
+            _highlightedHub.SetHovered(false);
+            _highlightedHub = null;
+        }
+
         if (_highlightedComponent != null)
         {
             _highlightedComponent.UnhighlightHover();

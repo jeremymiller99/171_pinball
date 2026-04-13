@@ -1027,7 +1027,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   enableHoverTooltip: 1
-  handBallHoverRadius: 0.25
   offerDragThresholdPixels: 12
 --- !u!1 &349540273
 GameObject:
@@ -1176,6 +1175,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  multPulseSpeed: 3.5
+  multPulseScaleAmp: 0.18
+  multPulseDeadzone: 0.05
 --- !u!114 &349540277
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3038,7 +3040,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5797467164811375367, guid: b748b7db4b2be164f875f89d0ab0dff7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.36
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5797467164811375367, guid: b748b7db4b2be164f875f89d0ab0dff7, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3046,7 +3048,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5797467164811375367, guid: b748b7db4b2be164f875f89d0ab0dff7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 7.28
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5797467164811375367, guid: b748b7db4b2be164f875f89d0ab0dff7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -4028,7 +4030,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3203472347065765131, guid: ee4b8cfe6d97c84488eab7090f816656, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4.72
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3203472347065765131, guid: ee4b8cfe6d97c84488eab7090f816656, type: 3}
       propertyPath: m_LocalPosition.y
@@ -4036,7 +4038,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3203472347065765131, guid: ee4b8cfe6d97c84488eab7090f816656, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.75
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3203472347065765131, guid: ee4b8cfe6d97c84488eab7090f816656, type: 3}
       propertyPath: m_LocalRotation.w
@@ -5988,13 +5990,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 657b0a7ecdf8f17458b38f28e2395a1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelUpFireworksController
-  defaultShow: {fileID: 11400000, guid: c9fee6f2863c8a6429b791323b607107, type: 2}
-  milestoneShow: {fileID: 11400000, guid: c9fee6f2863c8a6429b791323b607107, type: 2}
-  milestoneLevelInterval: 5
-  spawnCamera: {fileID: 0}
-  _score: {fileID: 0}
-  _rules: {fileID: 0}
-  _lastSeenTier: 0
 --- !u!4 &2085081887
 Transform:
   m_ObjectHideFlags: 0

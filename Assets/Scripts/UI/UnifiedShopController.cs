@@ -41,6 +41,9 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     public ShopState CurrentState { get; private set; } = ShopState.Browsing;
 
+    public bool IsShopActive => isActiveAndEnabled
+        && shopCanvasRoot != null && shopCanvasRoot.activeInHierarchy;
+
     public event Action<ShopOffer> OfferSelected;
     public event Action PlacementCancelled;
     public event Action ShopClosed;
@@ -104,6 +107,14 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (_spaceship != null)
         {
             _spaceship.SpaceshipParked += OnSpaceshipParked;
+
+            // If the ship has already parked (e.g., second shop visit, or the
+            // transition fired before our OnEnable), build offers now instead
+            // of waiting for a parked event that won't come.
+            if (_spaceship.IsParked)
+            {
+                _shelf.RebuildOffers();
+            }
         }
         else
         {
@@ -186,8 +197,11 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (CurrentState != ShopState.PlacingComponent || _selectedOffer == null) return;
         if (component == null) return;
 
-        BoardComponentType typeOfDef = _selectedOffer.ComponentDef.ComponentType;
-        if (typeOfDef != component.componentType) return;
+        if (!ShopComponentPlacementController.IsValidPlacementTarget(_selectedOffer, component))
+        {
+            SetPrompt($"{_selectedOffer.DisplayName} can only replace a {_selectedOffer.ComponentDef.ComponentType}.");
+            return;
+        }
 
         _targetComponent = component;
         ShowComponentReplaceConfirmation(component);
@@ -205,10 +219,20 @@ public sealed class UnifiedShopController : MonoBehaviour
     {
         if (_selectedOffer == null || _targetComponent == null) return;
 
-        _placement.ReplaceComponent(_targetComponent, _selectedOffer.ComponentDef);
-        _shelf.ConsumeOffer(_selectedOfferIndex);
-        
         BoardComponentDefinition def = _selectedOffer.ComponentDef;
+        int price = _selectedOffer.Price;
+
+        if (!_placement.ReplaceComponent(_targetComponent, def))
+        {
+            coinController?.AddCoinsUnscaled(price);
+            SetPrompt($"Could not place {def.GetSafeDisplayName()}. Coins refunded.");
+            ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
+            ExitPlacementMode();
+            RefreshUI();
+            return;
+        }
+
+        _shelf.ConsumeOffer(_selectedOfferIndex);
         ExitPlacementMode();
 
         SetPrompt($"Placed {def.GetSafeDisplayName()}.");
@@ -276,6 +300,12 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (confirmPanel != null) confirmPanel.Hide();
 
+        if (CurrentState == ShopState.PlacingComponent && _selectedOffer != null)
+        {
+            coinController?.AddCoinsUnscaled(_selectedOffer.Price);
+            Debug.Log($"[UnifiedShopController] Refunded in-flight placement for {_selectedOffer.DisplayName} on shop close.");
+        }
+
         _shelf.ClearOfferDisplays();
 
         ExitPlacementMode();
@@ -309,6 +339,12 @@ public sealed class UnifiedShopController : MonoBehaviour
     {
         if (CurrentState != ShopState.Browsing) return;
 
+        if (_spaceship != null && !_spaceship.IsParked)
+        {
+            SetPrompt("The merchant is still arriving...");
+            return;
+        }
+
         ShopOffer offer = _shelf.GetOffer(offerIndex);
         if (offer == null || !offer.IsValid) return;
 
@@ -317,28 +353,14 @@ public sealed class UnifiedShopController : MonoBehaviour
             BoardComponent bc = hitObject != null ? hitObject.GetComponentInParent<BoardComponent>() : null;
             if (bc == null)
             {
-                SetPrompt("Drop onto a bumper or target on the board.");
+                SetPrompt("Drop onto a bumper, target, or flipper on the board.");
                 return;
             }
 
-            bool offerIsBumper = offer.ComponentDef.ComponentType == BoardComponentType.Bumper;
-            if (offerIsBumper && bc.componentType != BoardComponentType.Bumper)
+            if (!ShopComponentPlacementController.IsValidPlacementTarget(offer, bc))
             {
-                SetPrompt("Drop bumpers onto bumpers.");
+                SetPrompt($"Drop {offer.ComponentDef.ComponentType.ToString().ToLower()}s onto {offer.ComponentDef.ComponentType.ToString().ToLower()}s.");
                 return;
-            }
-
-            bool offerIsTarget = offer.ComponentDef.ComponentType == BoardComponentType.Target;
-            if (offerIsTarget && bc.componentType != BoardComponentType.Target)
-            {
-                SetPrompt("Drop targets onto targets.");
-                return;
-            }
-
-            bool offerIsFlipper = offer.ComponentDef.ComponentType == BoardComponentType.Flipper;
-            if (offerIsFlipper && bc.componentType != BoardComponentType.Flipper)
-            {
-                SetPrompt("Drop flippers onto flippers.");
             }
 
             ShowDragDropBoardPurchaseConfirm(offerIndex, bc);
@@ -389,6 +411,14 @@ public sealed class UnifiedShopController : MonoBehaviour
     public void OnOfferDragStarted(ShopOffer offer)
     {
         if (offer == null || CurrentState != ShopState.Browsing) return;
+
+        // If the merchant ship is mid-flight, the shelf may be cleared or
+        // about to be rerolled — reject drags until it parks.
+        if (_spaceship != null && !_spaceship.IsParked)
+        {
+            SetPrompt("The merchant is still arriving...");
+            return;
+        }
 
         _isDragPreviewActive = true;
         _hand.ClearSwapSelection();
@@ -486,6 +516,37 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (!_isDragPreviewActive) return;
         _isDragPreviewActive = false;
         _hand.EndDragHover();
+    }
+
+    public void OnHandBallDragSell(int slot, ShopHub hub)
+    {
+        if (!IsShopActive) return;
+        if (CurrentState != ShopState.Browsing) return;
+        if (hub == null || slot < 0) return;
+
+        _hand.ClearSwapSelection();
+
+        if (!hub.TrySellBall(slot, out BallDefinition sold, out int refund, out string failReason))
+        {
+            SetPrompt(string.IsNullOrEmpty(failReason) ? "Could not sell ball." : failReason);
+            ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
+            return;
+        }
+
+        if (refund > 0) coinController?.AddCoinsUnscaled(refund);
+
+        if (ballSpawner != null)
+        {
+            var lc = ServiceLocator.Get<BallLoadoutController>();
+            if (lc != null)
+            {
+                ballSpawner.BuildHandFromPrefabs(lc.GetBallLoadoutPrefabSnapshot());
+            }
+        }
+
+        ServiceLocator.Get<AudioManager>()?.PlayPurchase();
+        SetPrompt($"Sold {sold.GetSafeDisplayName()} for ${refund}.");
+        RefreshUI();
     }
 
     public void OnHandBallDragSwap(int fromSlot, int toSlot)

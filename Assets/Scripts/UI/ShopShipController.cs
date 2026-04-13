@@ -79,6 +79,8 @@ public class ShopShipController : MonoBehaviour
 
     public int MaxOffers => maxOffers;
 
+    public bool IsParked => _isParked;
+
     private void Start()
     {
         // Move far away initially so it's not visible at 0,0,0 if the board isn't fully loaded yet.

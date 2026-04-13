@@ -80,18 +80,21 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
         foreach (BoardComponent bc in _flippers) if (bc != null) bc.DeSelect();
     }
 
+    /// <summary>
+    /// True when the offer is a board component and its type matches the hit component.
+    /// Null inputs are invalid.
+    /// </summary>
+    public static bool IsValidPlacementTarget(ShopOffer offer, BoardComponent hitComponent)
+    {
+        if (offer == null || hitComponent == null) return false;
+        if (offer.Type != ShopOffer.OfferType.BoardComponent) return false;
+        if (offer.ComponentDef == null) return false;
+        return offer.ComponentDef.ComponentType == hitComponent.componentType;
+    }
+
     public void UpdateDragHover(ShopOffer offer, BoardComponent hitComponent)
     {
-        BoardComponent bc = hitComponent;
-
-        if (bc != null && offer != null && offer.ComponentDef != null)
-        {
-            BoardComponentType typeOfOffer = offer.ComponentDef.ComponentType;
-            if (typeOfOffer != bc.componentType)
-            {
-                bc = null;
-            }
-        }
+        BoardComponent bc = IsValidPlacementTarget(offer, hitComponent) ? hitComponent : null;
 
         if (bc != _dragHoveredComponent)
         {
@@ -109,16 +112,7 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
 
     public void UpdatePlacementHover(ShopOffer offer, BoardComponent hitComponent)
     {
-        BoardComponent bc = hitComponent;
-
-        if (bc != null && offer != null && offer.ComponentDef != null)
-        {
-            BoardComponentType typeOfOffer = offer.ComponentDef.ComponentType;
-            if (typeOfOffer != bc.componentType)
-            {
-                bc = null;
-            }
-        }
+        BoardComponent bc = IsValidPlacementTarget(offer, hitComponent) ? hitComponent : null;
 
         if (bc != _placementHoveredComponent)
         {
@@ -128,9 +122,19 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
         }
     }
 
-    public void ReplaceComponent(BoardComponent targetComponent, BoardComponentDefinition newDef)
+    public bool ReplaceComponent(BoardComponent targetComponent, BoardComponentDefinition newDef)
     {
-        if (targetComponent == null || newDef == null) return;
+        if (targetComponent == null || newDef == null)
+        {
+            Debug.LogWarning("[ShopComponentPlacement] ReplaceComponent: null target or definition.");
+            return false;
+        }
+
+        if (newDef.Prefab == null)
+        {
+            Debug.LogError($"[ShopComponentPlacement] ReplaceComponent: '{newDef.GetSafeDisplayName()}' has no prefab assigned.");
+            return false;
+        }
 
         GameObject newGo = Instantiate(newDef.Prefab, targetComponent.transform.parent);
         newGo.transform.position = targetComponent.transform.position;
@@ -138,32 +142,49 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
         newGo.transform.localScale = targetComponent.startingSize;
 
         BoardComponent newComp = newGo.GetComponent<BoardComponent>();
-        if (newComp != null)
+        if (newComp == null)
         {
-            newComp.startingSize = targetComponent.startingSize;
+            Debug.LogError($"[ShopComponentPlacement] ReplaceComponent: prefab '{newDef.GetSafeDisplayName()}' has no BoardComponent script.");
+            Destroy(newGo);
+            return false;
+        }
+
+        newComp.startingSize = targetComponent.startingSize;
+
+        if (newDef.ComponentType == BoardComponentType.Flipper)
+        {
+            PinballFlipper newFlipper = newComp.GetComponent<PinballFlipper>();
+            PinballFlipper oldFlipper = targetComponent.GetComponent<PinballFlipper>();
+            if (newFlipper == null || oldFlipper == null)
+            {
+                Debug.LogError("[ShopComponentPlacement] ReplaceComponent: flipper replacement missing PinballFlipper component (new=" +
+                               (newFlipper != null) + ", old=" + (oldFlipper != null) + ").");
+                Destroy(newGo);
+                return false;
+            }
+            newFlipper.CopyFlipperProperties(oldFlipper);
         }
 
         if (newDef.ComponentType == BoardComponentType.Bumper)
         {
-            _bumpers.Add(newComp);
             _bumpers.Remove(targetComponent);
+            _bumpers.Add(newComp);
             _bumpers.Sort();
         }
         else if (newDef.ComponentType == BoardComponentType.Target)
         {
-            _targets.Add(newComp);
             _targets.Remove(targetComponent);
+            _targets.Add(newComp);
             _targets.Sort();
-        } else if (newDef.ComponentType == BoardComponentType.Flipper)
+        }
+        else if (newDef.ComponentType == BoardComponentType.Flipper)
         {
-            Debug.Log("new:" + newComp.gameObject);
-            Debug.Log("old:" + targetComponent.gameObject);
-            _flippers.Add(newComp);
             _flippers.Remove(targetComponent);
+            _flippers.Add(newComp);
             _flippers.Sort();
-            newComp.GetComponent<PinballFlipper>().CopyFlipperProperties(targetComponent.GetComponent<PinballFlipper>());
         }
 
         Destroy(targetComponent.gameObject);
+        return true;
     }
 }

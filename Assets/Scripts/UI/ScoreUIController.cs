@@ -600,14 +600,13 @@ public class ScoreUIController : MonoBehaviour
                 continue;
             }
 
-            // Always white — no tinting.
-            text.color = Color.white;
-
             float strength = 0f;
+            bool frenzyActive = false;
             if (ServiceLocator.TryGet<ScoreManager>(out var sm))
             {
                 if (sm.IsFrenzyActive)
                 {
+                    frenzyActive = true;
                     strength = 1f;
                 }
                 else
@@ -621,6 +620,8 @@ public class ScoreUIController : MonoBehaviour
                         / Mathf.Max(0.0001f, 1f - multPulseDeadzone));
                 }
             }
+
+            text.color = frenzyActive ? new Color(0.3f, 0.6f, 1f, 1f) : Color.white;
 
             if (strength <= 0f)
             {

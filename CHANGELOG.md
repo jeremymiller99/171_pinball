@@ -11,7 +11,7 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 ---
 
 ## 0.7.0 — Eye On The Prize, Board_NA overhaul, ShopHub
-_Contributor: JJ_
+_2026-04-12 · Contributor: JJ_
 - Renamed `ChaosBall` → `EyeOnThePrizeBall` and reworked the ball prefab/behavior.
 - Large `Board_NA` scene overhaul (lighting, layout, new props).
 - New `ShopHub` system consolidating shop entry points.
@@ -21,78 +21,78 @@ _Contributor: JJ_
 - Moved `ModifierPools` into `Resources/` so they load at runtime.
 
 ## 0.6.3 — frenzy mode + fireworks
-_Contributor: JJ_
+_2026-04-09 to 2026-04-10 · Contributor: JJ_
 - Updated drop target frenzy mode.
 - Added fireworks FX.
 
 ## 0.6.2 — scoring fix
-_Contributor: JJ_
+_2026-04-09 · Contributor: JJ_
 - Fixed a game-breaking scoring glitch.
 
 ## 0.6.1 — FMOD restructure
-_Contributors: jjanzen93, JJ_
+_2026-04-09 · Contributors: jjanzen93, JJ_
 - Restructured FMOD event naming and audio banks.
 - Removed unused modifier code exposed by the audio refactor.
 
 ## 0.6.0 — modifier rework
-_Contributor: JJ_
+_2026-04-09 · Contributor: JJ_
 - Devil modifiers now trigger every 5 rounds.
 - Omitted angel rounds and pruned unused modifier code paths.
 
 ## 0.5.2 — shop & ball particle polish
-_Contributors: JJ, DrewWhitmer_
+_2026-04-08 to 2026-04-09 · Contributors: JJ, DrewWhitmer_
 - Added shop button and fixed several shop/gameplay bugs.
 - Dynamic ball particles tied to component type and speed.
 - Shop fixes and board updates.
 
 ## 0.5.1 — shop models, board UI, tooling
-_Contributor: JJ_
+_2026-04-07 · Contributor: JJ_
 - New shop model; ball and component type system.
 - New in-game board UI.
 - Added an unreferenced asset detector editor tool.
 
 ## 0.5.0 — flipper upgrades, component shop, particle refactor
-_Contributors: DrewWhitmer, JJ_
+_2026-04-05 · Contributors: DrewWhitmer, JJ_
 - Flipper upgrades system + component shop fix.
 - Ball particle script refactor; brighter particles.
 
 ## 0.4.8 — coins text fix
-_Contributor: JJ_
+_2026-04-01 · Contributor: JJ_
 - Fixed coins text display.
 
 ## 0.4.7 — lighting + build config
-_Contributors: JJ, DrewWhitmer_
+_2026-04-01 · Contributors: JJ, DrewWhitmer_
 - New lighting pass across scenes.
 - Removed stale tests and fixed the build name.
 
 ## 0.4.6 — game rules refactor
-_Contributor: JJ_
+_2026-03-31 · Contributor: JJ_
 - Split `GameRulesManager` into `DrainHandler` and `GoalScaler` for clearer separation of concerns.
 - Reworked `Ball`, `ResetZone`, `DuplicatingComponent`, `AlienShip`, `ScoreManager`, and `RoundModifierController` to use the new handlers.
 - Cleaned up `BasicTutorialPanelController`.
 
 ## 0.4.5 — component prefab refactor
-_Contributor: JJ_
+_2026-03-31 · Contributor: JJ_
 - Normalized all board component prefabs (Bumpers, Targets, Drop Target, Locked Target, Roll Over, and themed variants: Bomb, Casino, Duplicating, Fire, Frozen) to a shared structure.
 
 ## 0.4.4 — manager refactor + coin system
-_Contributor: JJ_
+_2026-03-31 · Contributor: JJ_
 - Extracted coin handling out of `GameRulesManager`/`ScoreManager` into a new `CoinController`.
 - Updated `CoinAdder`, `ScoreJuiceFeedback`, `FloatingText`, `ComponentUIController`, and `RoundTypeIconStripUI` to use it.
 - Misc tweaks to `PinballFlipper`, `BallHideController`, `BoardBackgroundMaterialSwitcher`.
 
 ## 0.4.3 — service locator standardization
-_Contributor: JJ_
+_2026-03-31 · Contributor: JJ_
 - Converted many singleton/`Instance` calls across the codebase to go through the service locator.
 - Updated ball scripts, board components (Bumper, LockedTarget, Flipper, Launcher, Portal, ResetZone, AlienShip), FX (`AudioManager`, `CameraShake`, `HapticManager`, `ScoreJuiceFeedback`, `GoalCinematicController`), input bindings, and display settings.
 
 ## 0.4.2 — dead code cleanup
-_Contributor: JJ_
+_2026-03-31 · Contributor: JJ_
 - Removed unused scenes (`Game.unity`, `RolloverTest.unity`, `Test.unity`).
 - Deleted unused scripts: `PointAdder`, `MultAdder`, `BoardRoundResetter`, old `DropTarget` bits.
 
 ## 0.4.1 — ships, board GUIDs, portal polish
-_Contributor: JJ_
+_2026-03-31 · Contributor: JJ_
 - Added `BoardComponentGuidAssigner` editor tool.
 - New player ship definitions: `LoricF1`, `Silverwolf` (prefabs + assets).
 - Added `Board_NA` scene and `Challenge_NA` challenge mode.

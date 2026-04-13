@@ -621,7 +621,7 @@ public class ScoreUIController : MonoBehaviour
                 }
             }
 
-            text.color = frenzyActive ? new Color(0.3f, 0.6f, 1f, 1f) : Color.white;
+            text.color = frenzyActive ? new Color(0f, 0.85f, 1f, 1f) : Color.white;
 
             if (strength <= 0f)
             {

@@ -1,4 +1,4 @@
-// Updated with Cursor (Composer) by assistant on 2026-03-31 (ResolveServices in StartRun/StartRound for additive board scenes).
+// was never launched from the hand that level; eligibility resets each StartRound (BallLoadoutController).
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -160,6 +160,8 @@ public class GameRulesManager : MonoBehaviour
         ResolveServices();
         if (ballSpawner == null) return;
 
+        LoadoutController?.ResetPiggyBankHandGrowthEligibilityForNewLevel();
+
         _shopOpen = false;
         SetShopOpen(false);
         SetRoundFailedOpen(false);
@@ -270,6 +272,7 @@ public class GameRulesManager : MonoBehaviour
 
                 scoreManager.ConsumeLevelProgress(prevGoal);
                 roundIndex = Mathf.Max(0, roundIndex + 1);
+                LoadoutController?.ApplyPiggyBankRoundSellGrowth();
                 ApplyCurrentRoundFromWindow();
 
                 ServiceLocator.Get<ScoreUIController>()?.SetRoundIndex(roundIndex);

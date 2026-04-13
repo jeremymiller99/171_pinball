@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33bdd2ce9371b3542bd29e4b7ab752b8, type: 3}
+  m_Name: MatryoshkaDoll
+  m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
+  id: MatryoshkaDoll
+  displayName: Matryoshka Doll
+  description: Every 10 component hits, splits into two smaller copies. Each copy can
+    split once more — up to four tiny balls. Splitter class.
+  rarity: 0
+  elementType: 4
+  icon: {fileID: 21300000, guid: af63de4465c43cf499133b557e6ee7cb, type: 3}
+  prefab: {fileID: 5723297401256486482, guid: b2c3d4e5f6475869708a9b0c1d2e3f4b, type: 3}
+  price: 12

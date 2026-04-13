@@ -1,4 +1,3 @@
-// Updated with Cursor (claude-4.6-opus) by jjmil on 2026-03-24.
 using System.Collections.Generic;
 using System.Collections;
 
@@ -15,6 +14,10 @@ public class Ball : MonoBehaviour
     protected float pointMultiplier = 1f;
     protected float multMultiplier = 1f;
     protected int coinMultiplier = 1;
+
+    [SerializeField, Tooltip(
+        "Flat mult added after amount * multMultiplier for each mult-type board score.")]
+    private float flatMultAddPerMultHit;
     protected GameObject lastObjectHit;
 
     public int ComponentHits => componentHits;
@@ -33,6 +36,11 @@ public class Ball : MonoBehaviour
     {
         get => coinMultiplier;
         set => coinMultiplier = value;
+    }
+
+    public void AddPermanentFlatMultPerMultHit(float delta)
+    {
+        flatMultAddPerMultHit += delta;
     }
 
     public void ResetComponentHits()
@@ -63,6 +71,11 @@ public class Ball : MonoBehaviour
     private void HandleBoardComponentHit(
         Collider collider, Collision collision = null)
     {
+        if (collider != null && ShouldIgnoreBoardHitFromCollider(collider))
+        {
+            return;
+        }
+
         lastObjectHit = collider.gameObject;
         BoardComponent[] components = GetBoardComponentsForScoring(collider);
         if (components.Length == 0) return;
@@ -85,10 +98,13 @@ public class Ball : MonoBehaviour
         }
     }
 
-    private void TrySpawnHitCountPopup()
+    protected virtual void TrySpawnHitCountPopup()
     {
         int interval = HitIntervalForPopup;
-        if (interval <= 0) return;
+        if (interval <= 0)
+        {
+            return;
+        }
 
         int progress = ((componentHits - 1) % interval) + 1;
         SpawnHitCountPopup(progress, interval);
@@ -107,6 +123,15 @@ public class Ball : MonoBehaviour
     protected virtual bool ShouldScoreBoardComponent(BoardComponent component)
     {
         return component.amountToScore != 0;
+    }
+
+    /// <summary>
+    /// When true, this contact is skipped for scoring, haptics, and
+    /// <see cref="componentHits"/> (e.g. ball–ball for confetti shards).
+    /// </summary>
+    protected virtual bool ShouldIgnoreBoardHitFromCollider(Collider collider)
+    {
+        return false;
     }
 
     /// <summary>
@@ -159,7 +184,9 @@ public class Ball : MonoBehaviour
                 scoreManager.AddScore(amount * pointMultiplier, typeOfScore, pos);
                 break;
             case TypeOfScore.mult:
-                scoreManager.AddScore(amount * multMultiplier, typeOfScore, pos);
+                float multAward =
+                    amount * multMultiplier + flatMultAddPerMultHit;
+                scoreManager.AddScore(multAward, typeOfScore, pos);
                 break;
             case TypeOfScore.coins:
                 scoreManager.AddScore(amount * coinMultiplier, typeOfScore, pos);

@@ -1,5 +1,4 @@
 // Updated with Antigravity by jjmil on 2026-04-07 (removed bankMultiplier).
-// Generated with Cursor (Composer) by assistant on 2026-03-31.
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -97,6 +96,11 @@ public class DrainHandler : MonoBehaviour
             if (marker != null) slotHint = marker.SlotIndex;
         }
 
+        AmpUpBall ampUpBall =
+            ball != null ? ball.GetComponent<AmpUpBall>() : null;
+        float ampUpFlatMultDelta =
+            ampUpBall != null ? ampUpBall.FlatMultBonusForBallBehind : 0f;
+
         double bankedPoints = 0d;
         if (scoreManager != null)
         {
@@ -133,6 +137,13 @@ public class DrainHandler : MonoBehaviour
         DrainBankCompleted?.Invoke();
 
         var loadout = ServiceLocator.Get<BallLoadoutController>();
+        if (ampUpBall != null)
+        {
+            loadout?.TryApplyAmpUpBonusBehindDrainedSlot(
+                slotHint,
+                ampUpFlatMultDelta);
+        }
+
         loadout?.ConsumeActiveBallFromLoadout(slotHint);
         rules.RefreshBallsRemaining();
 

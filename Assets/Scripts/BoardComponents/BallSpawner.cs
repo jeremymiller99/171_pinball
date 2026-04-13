@@ -1,7 +1,7 @@
-// Updated by Cursor (claude-4.6-opus) for jjmil on 2026-03-27.
 // Added animated layout transitions for shop UX: PreviewInsertGap, AddBallAnimated,
 // ReplaceBallAnimated, AnimateLayoutTransition. Extracted ComputeHandLayout.
 // Updated 2026-03-27: added SwapHandBallsAnimated for reordering balls in the hand.
+// level growth can skip balls that were played that level.
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -276,10 +276,24 @@ public sealed class BallSpawner : MonoBehaviour
         }
 
         GameObject next = _handBalls[0];
+        int loadoutSlotHint = -1;
+        var slotMarker = next.GetComponent<BallHandSlotMarker>();
+        if (slotMarker != null)
+        {
+            loadoutSlotHint = slotMarker.SlotIndex;
+        }
+
         _handBalls.RemoveAt(0);
         LayoutHandImmediate();
+        SyncAllHandSlotMarkers();
+
+        if (ServiceLocator.TryGet<BallLoadoutController>(out var loadoutForLaunch))
+        {
+            loadoutForLaunch.NotifyPiggyBankLaunchedFromHand(loadoutSlotHint);
+        }
 
         _activeBalls.Add(next);
+        ApplyPendingLoadoutFlatMultBonus(next);
 
         if (_moveCoroutine != null)
         {
@@ -1083,6 +1097,38 @@ public sealed class BallSpawner : MonoBehaviour
         SyncAllHandSlotMarkers();
 
         AnimateLayoutTransition();
+    }
+
+    private void ApplyPendingLoadoutFlatMultBonus(GameObject ball)
+    {
+        if (ball == null)
+        {
+            return;
+        }
+
+        if (!ServiceLocator.TryGet<BallLoadoutController>(out var loadout))
+        {
+            return;
+        }
+
+        int slotIndex = 0;
+        var marker = ball.GetComponent<BallHandSlotMarker>();
+        if (marker != null)
+        {
+            slotIndex = marker.SlotIndex;
+        }
+
+        float bonus = loadout.ConsumePendingFlatMultBonusForLoadoutSlot(slotIndex);
+        if (bonus == 0f)
+        {
+            return;
+        }
+
+        Ball ballComponent = ball.GetComponent<Ball>();
+        if (ballComponent != null)
+        {
+            ballComponent.AddPermanentFlatMultPerMultHit(bonus);
+        }
     }
 
     private void SyncAllHandSlotMarkers()

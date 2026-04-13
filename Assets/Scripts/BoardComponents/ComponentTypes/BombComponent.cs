@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-public class BombComponent : BoardComponent
+public class BombComponent : Bumper
 {
     [Header("Explosion")]
     [SerializeField] private int ballHitsToExplode;

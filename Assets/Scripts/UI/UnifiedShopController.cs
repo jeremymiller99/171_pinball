@@ -65,11 +65,18 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     private void Awake()
     {
+        ServiceLocator.Register<UnifiedShopController>(this);
+
         _shelf = GetComponent<ShopOfferShelfController>();
         _hand = GetComponent<ShopHandInteractionController>();
         _placement = GetComponent<ShopComponentPlacementController>();
-        
+
         ResolveReferences();
+    }
+
+    private void OnDestroy()
+    {
+        ServiceLocator.Unregister<UnifiedShopController>();
     }
 
     private void OnEnable()

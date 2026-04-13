@@ -10,6 +10,12 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.7.2 — retry-breaks-dragging fix
+_2026-04-13 · Contributor: JJ_
+- Fixed a bug where ball/offer/board-component dragging broke after dying and retrying a round. Root cause: `ServiceLocator.Get<T>()` cached a reference via its `FindAnyObjectByType` fallback and kept returning it after the Unity object was destroyed, so `RenderTextureRaycaster` saw a fake-null `UnifiedShopController` and silently blocked every drag gate.
+- `ServiceLocator.Get`/`TryGet` now detect Unity-destroyed cached references, purge them, and re-resolve via the fallback.
+- `UnifiedShopController` now self-registers with `ServiceLocator` in `Awake` / `OnDestroy` so the fallback path is never exercised.
+
 ## 0.7.1 — debug unlock-all button
 _2026-04-13 · Contributor: DrewWhitmer_
 - Added an "unlock everything" button to the debug menu that unlocks all balls and shop components.

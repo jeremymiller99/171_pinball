@@ -43,7 +43,18 @@ public static class ServiceLocator
     {
         if (services.TryGetValue(typeof(T), out object obj))
         {
-            return obj as T;
+            T cached = obj as T;
+            // Unity's overloaded == catches destroyed components/GameObjects even though
+            // the C# reference is non-null. Purge the stale entry and fall through.
+            if (cached is UnityEngine.Object unityObj)
+            {
+                if (unityObj != null) return cached;
+                services.Remove(typeof(T));
+            }
+            else if (cached != null)
+            {
+                return cached;
+            }
         }
 
         // Fallback for MonoBehaviours that load out-of-order during additive scene loads.
@@ -68,8 +79,21 @@ public static class ServiceLocator
     {
         if (services.TryGetValue(typeof(T), out object obj))
         {
-            instance = obj as T;
-            return instance != null;
+            T cached = obj as T;
+            if (cached is UnityEngine.Object unityObj)
+            {
+                if (unityObj != null)
+                {
+                    instance = cached;
+                    return true;
+                }
+                services.Remove(typeof(T));
+            }
+            else if (cached != null)
+            {
+                instance = cached;
+                return true;
+            }
         }
 
         if (typeof(UnityEngine.Component).IsAssignableFrom(typeof(T)))

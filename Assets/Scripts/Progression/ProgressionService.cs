@@ -18,6 +18,9 @@ public sealed class ProgressionService : MonoBehaviour
     public static event Action<BoardComponentDefinition>
         ComponentUnlocked;
 
+    [Header("Debug")]
+    public bool everythingUnlocked = false;
+
     [Header("Config")]
     [Tooltip(
         "Assign the ProgressionConfig asset. "
@@ -148,6 +151,7 @@ public sealed class ProgressionService : MonoBehaviour
 
     public bool IsBallUnlocked(string ballId)
     {
+        if (everythingUnlocked) return true;
         if (string.IsNullOrEmpty(ballId))
         {
             return false;
@@ -167,6 +171,7 @@ public sealed class ProgressionService : MonoBehaviour
 
     public bool IsComponentUnlocked(string componentId)
     {
+        if (everythingUnlocked) return true;
         if (string.IsNullOrEmpty(componentId))
         {
             return false;

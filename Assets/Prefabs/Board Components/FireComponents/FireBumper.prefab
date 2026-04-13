@@ -123,6 +123,10 @@ MonoBehaviour:
   selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   hoverOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   dragTargetOutlineColor: {r: 0.3, g: 1, b: 0.3, a: 1}
+  bumperCollider: {fileID: 0}
+  bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
   ballHitsToFire: 3
   timeForHits: 10
   timeOnFire: 5

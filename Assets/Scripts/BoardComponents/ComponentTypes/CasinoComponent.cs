@@ -2,7 +2,7 @@
 using System.IO;
 using UnityEngine;
 
-public class CasinoComponent : BoardComponent
+public class CasinoComponent : Bumper
 {
     [Header("Casino")]
     [SerializeField] private float minScoreToAdd;

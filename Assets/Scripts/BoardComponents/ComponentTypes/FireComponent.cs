@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class FireComponent : BoardComponent
+public class FireComponent : Bumper
 {
     [Header("Fire")]
     [SerializeField] private int ballHitsToFire;

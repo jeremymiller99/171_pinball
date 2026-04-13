@@ -362,7 +362,7 @@ MonoBehaviour:
   hitCountPopupScale: 0.7
   hitCountPopupOffset: {x: 0, y: 40}
   hitCountPopupColor: {r: 1, g: 1, b: 1, a: 1}
-  chaosBallPrefab: {fileID: 100100000, guid: 1c5c28d68e2bc445baaf3f95ce58cbf4, type: 3}
+  chaosBallPrefab: {fileID: 5723297401256486482, guid: 033d99f73f115d846a140c40987ca5fe, type: 3}
   lastBallPointsMultiplier: 3
   whiteBallPointsMultiplier: 0.25
   spawnRadius: 0.5

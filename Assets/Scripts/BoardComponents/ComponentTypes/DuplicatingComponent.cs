@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DuplicatingComponent : BoardComponent
+public class DuplicatingComponent : Bumper
 {
     [Header("Duplication")]
     [SerializeField] private int ballHitsToDuplicate;

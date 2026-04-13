@@ -1,7 +1,7 @@
 // Updated with Cursor (claude-4.6-opus) by jjmil on 2026-03-24.
 using UnityEngine;
 
-public class FrozenComponent : BoardComponent
+public class FrozenComponent : Bumper
 {
     [Header("Frozen")]
     [SerializeField] private float cachedAmountToScore;

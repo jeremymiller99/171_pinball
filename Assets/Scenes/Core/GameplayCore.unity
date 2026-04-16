@@ -1086,7 +1086,6 @@ MonoBehaviour:
   multModifierMultiplier: 1
   coinMultiplier: 1
   coinModifierMultiplier: 1
-  modifierTimeScaleMultiplier: 1
 --- !u!4 &349540275
 Transform:
   m_ObjectHideFlags: 0
@@ -1236,7 +1235,6 @@ MonoBehaviour:
   rulesManager: {fileID: 1398822445}
   boardLoader: {fileID: 1689049482}
   shopTransitionController: {fileID: 987650103}
-  roundPreviewPanel: {fileID: 912259837}
   gameplayCoreSceneName: GameplayCore
   mainMenuSceneName: MainMenu
   hasStartedRun: 0
@@ -2870,21 +2868,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6efd2a3e71d5e4a4ca9198ee78d218e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoundPreviewPanel
-  panelRoot: {fileID: 724694935}
-  cardsContainer: {fileID: 1722597381}
-  continueButton: {fileID: 621555611}
-  titleText: {fileID: 1951998750}
-  continueButtonText: {fileID: 0}
-  largeCardPrefab: {fileID: 7036255464453409327, guid: 1f03350f96d99e14daef2ef4a6989a7b, type: 3}
-  mediumCardPrefab: {fileID: 7036255464453409327, guid: 58103889ea59f6a42a643360b84a8b3b, type: 3}
-  smallCardPrefab: {fileID: 7036255464453409327, guid: 2dc2c91f6f43c5645865d84fb11f0eba, type: 3}
-  cardSpacing: 10
-  horizontalPadding: 40
-  minScale: 0.5
-  cardsOffset: {x: 0, y: 0}
-  autoCenter: 0
-  manualStartX: 50
-  cardsY: 250
 --- !u!1 &954094285
 GameObject:
   m_ObjectHideFlags: 0
@@ -3912,12 +3895,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d15257239c16c24fb51a0bc99df15fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoundModifierController
-  guaranteedBagSizeFallback: 7
-  defaultAngelPool: {fileID: 0}
   defaultDevilPool: {fileID: 0}
-  quickRunAngelChance: 0.2
-  quickRunDevilChance: 0.2
-  quickRunNormalChance: 0.6
   previewLookaheadRounds: 2
   generatedRoundWindowStartIndex: 0
   generatedRoundWindowEndIndex: 0

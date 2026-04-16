@@ -232,7 +232,7 @@ public sealed class ShopConfirmPanel : MonoBehaviour
         _panelRect.anchoredPosition = pos;
     }
 
-    private void OnConfirmClicked()
+    public void OnConfirmClicked()
     {
         Action cb = _onConfirm;
         ClearCallbacks();

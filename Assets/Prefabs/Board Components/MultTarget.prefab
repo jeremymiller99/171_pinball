@@ -107,6 +107,8 @@ MonoBehaviour:
   outlineMode: 0
   outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 6
+  renderQueueOffset: 0
+  stencilRef: 1
   precomputeOutline: 1
   bakeKeys:
   - {fileID: -3992379723766706587, guid: 169db9c380e0c1c44b7da5d87ecda119, type: 3}
@@ -640,7 +642,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
-  camShake: {fileID: 0}
+  typeOfScore: 0
+  amountToScore: 0
+  componentType: 1
+  isConfirmed: 0
+  maxPulseScale: 0
+  pulseAmount: 0
+  startingSize: {x: 0, y: 0, z: 0}
+  directionOfPulse: 1
+  ballHits: 0
+  scoreManager: {fileID: 0}
+  componentGuid: faa28bff-f390-47aa-8ab7-a5b4ee0fa608
+  enableHitCountPopup: 0
+  hitCountFontAsset: {fileID: 0}
+  hitCountPopupScale: 0.7
+  hitCountPopupOffset: {x: 0, y: 40}
+  hitCountPopupColor: {r: 1, g: 1, b: 1, a: 1}
+  useSelectionOutline: 1
+  selectionOutlineMode: 1
+  defaultOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWidth: 6
+  confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  hoverOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  dragTargetOutlineColor: {r: 0.3, g: 1, b: 0.3, a: 1}
+  bumperCollider: {fileID: 0}
   bounceForce: 25
   shakeDuration: 0.22
   shakeMagnitude: 0.16
@@ -662,6 +688,13 @@ MonoBehaviour:
   popUpDurationSeconds: 0.06
   popDownDurationSeconds: 0.08
   minTriggerIntervalSeconds: 0.04
+  hitSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!114 &3605252038188508271
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -677,7 +710,6 @@ MonoBehaviour:
   typeOfScore: 1
   amountToScore: 0.1
   componentType: 1
-  components: []
   isConfirmed: 0
   maxPulseScale: 1.25
   pulseAmount: 0.025
@@ -685,11 +717,20 @@ MonoBehaviour:
   directionOfPulse: 1
   ballHits: 0
   scoreManager: {fileID: 0}
+  componentGuid: b9d932dc-aa7c-4a7b-9b12-a4681ce69e82
+  enableHitCountPopup: 0
+  hitCountFontAsset: {fileID: 0}
+  hitCountPopupScale: 0.7
+  hitCountPopupOffset: {x: 0, y: 40}
+  hitCountPopupColor: {r: 1, g: 1, b: 1, a: 1}
   useSelectionOutline: 1
   selectionOutlineMode: 1
+  defaultOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWidth: 6
   confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  selectionOutlineWidth: 8
+  hoverOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  dragTargetOutlineColor: {r: 0.3, g: 1, b: 0.3, a: 1}
 --- !u!54 &1797207729555026595
 Rigidbody:
   m_ObjectHideFlags: 0

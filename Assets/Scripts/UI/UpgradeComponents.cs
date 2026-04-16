@@ -33,7 +33,7 @@ public class UpgradeComponents : MonoBehaviour, IPointerEnterHandler, ISelectHan
     {
         componentUIController.buyingComponentDefinition = boardComponentDefinition;
         buyingComponentText.text = boardComponentDefinition.Description;
-        uiScript.SelectComponents();
+        //uiScript.SelectComponents();
         componentUIController.Refresh();
     }
 

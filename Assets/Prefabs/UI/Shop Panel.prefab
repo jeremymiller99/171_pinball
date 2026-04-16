@@ -92,6 +92,7 @@ GameObject:
   - component: {fileID: 4560419963199066672}
   - component: {fileID: 1771633196146134346}
   - component: {fileID: 5009721989972573697}
+  - component: {fileID: 5905611621019066673}
   m_Layer: 5
   m_Name: Shop Panel
   m_TagString: Untagged
@@ -149,12 +150,19 @@ MonoBehaviour:
   shopTransitionController: {fileID: 0}
   shopCanvasRoot: {fileID: 0}
   ballSpawner: {fileID: 0}
+  renderTextureRaycaster: {fileID: 0}
+  uiScript: {fileID: 0}
   coinsText: {fileID: 3392310373012325023}
   promptText: {fileID: 0}
   continueButton: {fileID: 4307660393837170516}
   rerollButton: {fileID: 0}
   rerollCost: 2
+  movementThreshold: 0
+  currentOfferObject: {fileID: 0}
+  currentOfferIndex: 0
+  currentComponentIndex: 0
   confirmPanel: {fileID: 5277920733326585311}
+  SelectingButtons: 0
 --- !u!114 &4560419963199066672
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236,6 +244,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ed43ced6c92bed498b5f414e2b223e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopComponentPlacementController
+--- !u!114 &5905611621019066673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 411292097836914733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+  m_Actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: 
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!1 &1254162835821821777
 GameObject:
   m_ObjectHideFlags: 0

@@ -405,6 +405,33 @@ public class RenderTextureRaycaster : MonoBehaviour
         RouteToPlacementHover(hitObject, ray);
     }
 
+    public void HandleControllerHighlight(GameObject selectedOffer)
+    {
+        Vector2 posOnScreen = targetCamera.WorldToViewportPoint(selectedOffer.transform.position);
+        posOnScreen.x *= Screen.width;
+        posOnScreen.y *= Screen.height;
+        string title = null;
+        string desc = null;
+        ElementType elementType = ElementType.None;
+
+        if (selectedOffer != null)
+        {
+            TryResolveTooltipFromObject(
+                selectedOffer, out title, out desc,
+                out elementType);
+        }
+
+        if (selectedOffer != _lastHoveredObject)
+        {
+            ClearHighlight();
+            _lastHoveredObject = selectedOffer;
+            ApplyHighlight(selectedOffer);
+            TooltipManager.ShowAtPosition(
+                title, desc, posOnScreen, elementType);
+            _tooltipShownByHover = true;
+        }
+    } 
+
     /// <summary>
     /// During PlacingComponent / PlacingBall, forwards hover info to the
     /// shop controller so it can apply the green "drop-here" highlight on
@@ -426,7 +453,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         }
     }
 
-    private static void TryResolveTooltipFromObject(
+    public static void TryResolveTooltipFromObject(
         GameObject obj,
         out string title,
         out string desc,
@@ -463,6 +490,10 @@ public class RenderTextureRaycaster : MonoBehaviour
 
         ShopOffer3DEntry offerEntry =
             obj.GetComponentInParent<ShopOffer3DEntry>();
+        if (!offerEntry)
+        {
+            offerEntry = obj.GetComponent<ShopOffer3DEntry>();
+        }
 
         if (offerEntry != null
             && offerEntry.Offer != null)
@@ -929,7 +960,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         }
     }
 
-    private void ClearHover()
+    public void ClearHover()
     {
         ClearHighlight();
 

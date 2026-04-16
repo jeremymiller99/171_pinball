@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class ShopButton3D : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class ShopButton3D : MonoBehaviour
     [SerializeField] private TextMeshProUGUI buttonText;
     [SerializeField] private Color activatedTextColor = Color.green;
     [SerializeField] private Color deactivatedTextColor = Color.gray;
+    [SerializeField] private InputActionReference shopAction;
 
     private void Start()
     {
@@ -51,7 +53,7 @@ public class ShopButton3D : MonoBehaviour
 
     private void Update()
     {
-        if (ControlsBindingsService.WasPressedThisFrame(ControlAction.UISelect))
+        if (shopAction.action.WasPressedThisFrame())
         {
             OnClick();
         }

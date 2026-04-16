@@ -16,10 +16,8 @@ public class SuspenseBall : Ball, IPortalTeleportListener
     private Renderer ballRenderer;
     private bool suspenseActive;
 
-#if ENABLE_INPUT_SYSTEM
-    private UnityEngine.InputSystem.InputAction _leftFlipAction;
-    private UnityEngine.InputSystem.InputAction _rightFlipAction;
-#endif
+    [SerializeField] private InputActionReference leftFlipAction;
+    [SerializeField] private InputActionReference rightFlipAction;
 
     void Awake()
     {
@@ -30,14 +28,6 @@ public class SuspenseBall : Ball, IPortalTeleportListener
             ballRenderer.material.color = lightPurple;
         }
 
-#if ENABLE_INPUT_SYSTEM
-        var actions = InputSystem.actions;
-        if (actions != null)
-        {
-            _leftFlipAction = actions.FindAction("LeftFlip");
-            _rightFlipAction = actions.FindAction("RightFlip");
-        }
-#endif
     }
 
     public void OnTeleportedThroughPortal()
@@ -63,14 +53,17 @@ public class SuspenseBall : Ball, IPortalTeleportListener
 
     private bool WasFlipperPressedThisFrame()
     {
-#if ENABLE_INPUT_SYSTEM
-        if (_leftFlipAction != null && _leftFlipAction.WasPressedThisFrame())
+        if (leftFlipAction.action.WasPressedThisFrame())
+        {
             return true;
-        if (_rightFlipAction != null && _rightFlipAction.WasPressedThisFrame())
+        }
+            
+        if (rightFlipAction.action.WasPressedThisFrame())
+        {
             return true;
-#endif
-        return ControlsBindingsService.WasPressedThisFrame(ControlAction.LeftFlipper) ||
-               ControlsBindingsService.WasPressedThisFrame(ControlAction.RightFlipper);
+        }
+
+        return false;
     }
 
     private void UpdateColor()

@@ -43,6 +43,7 @@
     - All sound files should be .bank files for FMOD integration.
 
 3. Input System:
+    - Use the Unity Input System for ALL input.
     - Make sure keyboard controls are set to the 0th index for binding.
     - Make sure gamepad/controller controls are set to the 1st index for binding.
 

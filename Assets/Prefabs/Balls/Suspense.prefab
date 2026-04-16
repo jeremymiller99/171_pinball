@@ -329,6 +329,8 @@ MonoBehaviour:
   lightPurple: {r: 0.76, g: 0.56, b: 1, a: 1}
   darkPurple: {r: 0.2, g: 0, b: 0.35, a: 1}
   maxColorTime: 10
+  leftFlipAction: {fileID: 8477151212117506289, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  rightFlipAction: {fileID: -6709775960681819615, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!114 &-9134760856319731848
 MonoBehaviour:
   m_ObjectHideFlags: 0

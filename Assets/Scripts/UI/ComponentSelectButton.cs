@@ -17,7 +17,7 @@ public class ComponentSelectButton : MonoBehaviour
     }
     public void OnSelect()
     {
-        uiScript.SelectComponents();
+        //uiScript.SelectComponents();
         componentUIController.Refresh();
     }
 }

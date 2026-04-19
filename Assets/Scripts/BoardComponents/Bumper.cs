@@ -42,11 +42,6 @@ public class Bumper : BoardComponent
         Vector3 forceDir = (collision.transform.position - bumperCenter).normalized;
         rb.AddForce(forceDir * baseBounceForce, ForceMode.Impulse);
 
-        if (amountToScore != 0f)
-        {
-            AddScore();
-        }
-
         CameraShake camShake = ServiceLocator.Get<CameraShake>();
         if (camShake != null && camShake.isActiveAndEnabled)
         {

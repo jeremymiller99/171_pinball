@@ -13,5 +13,6 @@ public enum BoardComponentType
     Rollover,
     Launcher,
     Flipper,
+    Kicker,
     Other
 }

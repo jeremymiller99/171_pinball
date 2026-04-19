@@ -11,9 +11,11 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
 
     private BoardComponent _dragHoveredComponent;
     private BoardComponent _placementHoveredComponent;
+    private ShopTransitionController _transitionController;
 
     public void Initialize()
     {
+        _transitionController = FindAnyObjectByType<ShopTransitionController>();
         DiscoverBoardComponents();
     }
 
@@ -163,6 +165,8 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
                 return false;
             }
             newFlipper.CopyFlipperProperties(oldFlipper);
+            //Disable the new flipper's ability to flip until the player leaves the shop.
+            _transitionController.TrackAndDisable(newFlipper);
         }
 
         if (newDef.ComponentType == BoardComponentType.Bumper)

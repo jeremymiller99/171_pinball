@@ -13,11 +13,13 @@ public sealed class ShopOffer3DEntry : MonoBehaviour
     private const float DefaultOutlineWidth = 5f;
 
     private UnifiedShopController _shop;
-    private int _offerIndex = -1;
+    [SerializeField] private int _offerIndex = -1;
     private ShopOffer _offer;
     private Outline _outline;
     private bool _isHighlighted;
     private bool _isDragVisual;
+    private float _flipperScale = 0.5f;
+    private Vector3 _flipperOffset = Vector3.right * 2;
 
     public int OfferIndex => _offerIndex;
     public ShopOffer Offer => _offer;
@@ -27,6 +29,14 @@ public sealed class ShopOffer3DEntry : MonoBehaviour
         _shop = shop;
         _offerIndex = offerIndex;
         _offer = offer;
+
+        // Needed for flippers since they start off large/off-center
+        // - Drew
+        if (_offer.ComponentDef != null && _offer.ComponentDef.ComponentType == BoardComponentType.Flipper)
+        {
+            transform.localScale *= _flipperScale;
+            transform.position += _flipperOffset;
+        }
 
         EnsureCollider();
         EnsureDefinitionLink();

@@ -18,7 +18,8 @@ public sealed class UnifiedShopController : MonoBehaviour
     public enum ShopState
     {
         Browsing,
-        PlacingComponent
+        PlacingComponent,
+        PlacingBall
     }
 
     [Header("Refs")]
@@ -986,24 +987,65 @@ public sealed class UnifiedShopController : MonoBehaviour
             {
                 keepMoving = true;
             }
+        } else if (CurrentState == ShopState.PlacingBall)
+        {
+            if (moveVector.y < -movementThreshold)
+            {
+                if (keepMoving)
+                {
+                    currentBallIndex--;
+                    if (currentBallIndex < 0)
+                    {
+                        currentBallIndex = ballSpawner.HandCount - 1;
+                    }
+                }
+            } else if (moveVector.y > movementThreshold)
+            {
+                if (keepMoving)
+                {
+                    currentBallIndex++;
+                    if (currentBallIndex > ballSpawner.HandCount - 1)
+                    {
+                        currentBallIndex = 0;
+                    }
+                }
+            } else
+            {
+                keepMoving = true;
+            }
         }
     }
 
     public void OnEnter()
     {
         if (currentOfferObject == null) return;
-        if (currentOfferObject.GetComponent<Ball>()) return; // Will make this work after merge
+        
         if (CurrentState == ShopState.Browsing)
         {
-            CurrentState = ShopState.PlacingComponent;
-            ShopOffer offer = currentOfferObject.GetComponent<ShopOffer3DEntry>().Offer;
-            _placement.SetSelectionStateForPlacement(offer.ComponentDef.ComponentType);
-            _targetComponentIndex = 0;
-            SetTargetComponent(offer.ComponentDef.ComponentType);
+            if (currentOfferObject.GetComponent<Ball>())
+            {
+                CurrentState = ShopState.PlacingBall;
+                ShopOffer offer = currentOfferObject.GetComponent<ShopOffer3DEntry>().Offer;
+                currentBallIndex = 0;
+            } else
+            {
+                CurrentState = ShopState.PlacingComponent;
+                ShopOffer offer = currentOfferObject.GetComponent<ShopOffer3DEntry>().Offer;
+                _placement.SetSelectionStateForPlacement(offer.ComponentDef.ComponentType);
+                _targetComponentIndex = 0;
+                SetTargetComponent(offer.ComponentDef.ComponentType);
+            }
         }
         else if (CurrentState == ShopState.PlacingComponent)
         {
             ConfirmDragDropBoardPurchase(currentOfferIndex, _targetComponent);
+            CheckForEmptyShop();
+        } else if (CurrentState == ShopState.PlacingBall)
+        {
+            ShopOffer offer = currentOfferObject.GetComponent<ShopOffer3DEntry>().Offer;
+            ConfirmDragDropBallReplace(currentOfferIndex, currentBallIndex);
+            CurrentState = ShopState.Browsing;
+            CheckForEmptyShop();
         }
 
 
@@ -1060,6 +1102,20 @@ public sealed class UnifiedShopController : MonoBehaviour
         currentOfferIndex = 0;
         SelectingButtons = false;
         currentOfferObject = _shelf.OfferEntries[currentOfferIndex].gameObject;
+        CheckForEmptyShop();
+    }
+
+    private void CheckForEmptyShop()
+    {
+        if (_shelf.OfferEntries.Count == 0)
+        {
+            currentOfferIndex = 0;
+            currentOfferObject = null;
+            SelectingButtons = true;
+            uiScript.SelectButton();
+            TooltipManager.Hide();
+            return;
+        }
     }
 
     private void Update()
@@ -1072,8 +1128,12 @@ public sealed class UnifiedShopController : MonoBehaviour
         }
         else if (CurrentState == ShopState.PlacingComponent)
         {
-            ShopOffer offer = currentOfferObject.GetComponent<ShopOffer3DEntry>().Offer;
             renderTextureRaycaster.HandleControllerHighlight(_targetComponent.gameObject);
+        } else if (CurrentState == ShopState.PlacingBall)
+        {
+            GameObject ball = ballSpawner.GetHandBallAtSlot(currentBallIndex);
+            if (!ball) return;
+            renderTextureRaycaster.HandleControllerHighlight(ball);
         }
 
     }

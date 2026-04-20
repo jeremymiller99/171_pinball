@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinition
   id: Variety Flipper
   displayName: Variety Flipper
-  description: Scores 1 points when ball rolls over it.
+  description: Gives 5 points every time a ball hits it that is different from the
+    last ,increasing by 5 every time this happens in succession.
   componentType: 7
   elementType: 1
   icon: {fileID: 0}

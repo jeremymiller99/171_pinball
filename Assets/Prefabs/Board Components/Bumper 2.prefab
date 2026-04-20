@@ -253,7 +253,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   typeOfScore: 0
   amountToScore: 5
-  componentType: 0
+  componentType: 8
   isConfirmed: 0
   maxPulseScale: 1.25
   pulseAmount: 0.025
@@ -343,4 +343,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
-  definition: {fileID: 11400000, guid: 13204215165f7414882f9580f30c7dee, type: 2}
+  definition: {fileID: 11400000, guid: 8fac0714be692874880c24fbc6bbaf9c, type: 2}

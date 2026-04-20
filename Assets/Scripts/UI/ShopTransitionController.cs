@@ -498,7 +498,7 @@ public sealed class ShopTransitionController : MonoBehaviour
         _disabledInputBehaviours.Clear();
     }
 
-    private void TrackAndDisable(Behaviour b)
+    public void TrackAndDisable(Behaviour b)
     {
         if (b == null)
             return;

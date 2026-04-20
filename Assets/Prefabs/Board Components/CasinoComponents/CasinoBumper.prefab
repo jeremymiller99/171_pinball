@@ -59,7 +59,7 @@ CapsuleCollider:
   m_Radius: 0.5000001
   m_Height: 2
   m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+  m_Center: {x: 0.000000059604645, y: 1, z: -0.00000008940697}
 --- !u!114 &9000000000000000005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,6 +121,10 @@ MonoBehaviour:
   selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   hoverOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   dragTargetOutlineColor: {r: 0.3, g: 1, b: 0.3, a: 1}
+  bumperCollider: {fileID: 0}
+  bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
   minScoreToAdd: 1
   maxScoreToAdd: 20
   ballHitsToGamble: 3
@@ -175,15 +179,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: m_LocalScale.x
-      value: 7.297099
+      value: 6.67
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: m_LocalScale.y
-      value: 27.989754
+      value: 18.09842
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: m_LocalScale.z
-      value: 7.297099
+      value: 6.67
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -226,9 +230,21 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
       objectReference: {fileID: 2100000, guid: fac3f08216e02eb4fbf46b280ee01540, type: 2}
+    - target: {fileID: -7511558181221131132, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
+      propertyPath: 'm_Materials.Array.data[2]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 28ff08ac17303c641a3b1e0bd348583f, type: 2}
+    - target: {fileID: -5754084199372789682, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -5835660915980135161, guid: bfcc258bb5a610f4bb8d3529cdcd6450, type: 3}
     - target: {fileID: 919132149155446097, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: m_Name
       value: BumperRinged

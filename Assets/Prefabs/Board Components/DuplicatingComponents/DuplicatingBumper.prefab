@@ -148,10 +148,13 @@ MonoBehaviour:
   selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   hoverOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   dragTargetOutlineColor: {r: 0.3, g: 1, b: 0.3, a: 1}
+  bumperCollider: {fileID: 0}
+  bounceForce: 50
+  shakeDuration: 0.22
+  shakeMagnitude: 0.16
   ballHitsToDuplicate: 10
   duplicatedBalls: []
   ballsToDestroy: []
-  gameRulesManager: {fileID: 0}
   componentHitsToDestroy: 10
 --- !u!114 &5425447132945149220
 MonoBehaviour:
@@ -180,7 +183,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: m_LocalScale.y
-      value: 27.989754
+      value: 19.66
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: m_LocalScale.z
@@ -227,9 +230,21 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
       objectReference: {fileID: 2100000, guid: a13f54ff103f43543928a080410174e3, type: 2}
+    - target: {fileID: -7511558181221131132, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
+      propertyPath: 'm_Materials.Array.data[2]'
+      value: 
+      objectReference: {fileID: 6060447027086554203, guid: 29d6b12c18306eb4a868b6107f87d3d6, type: 3}
+    - target: {fileID: -5754084199372789682, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -1291267638880965496, guid: 29d6b12c18306eb4a868b6107f87d3d6, type: 3}
     - target: {fileID: 919132149155446097, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: m_Name
       value: BumperRinged

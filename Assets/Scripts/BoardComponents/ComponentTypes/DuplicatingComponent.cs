@@ -22,10 +22,11 @@ public class DuplicatingComponent : Bumper
 
     new void OnCollisionEnter(Collision collision)
     {
+        base.OnCollisionEnter(collision);
+
         Ball ball = collision.collider.GetComponent<Ball>();
         if (ball)
         {
-            ballHits++;
             SpawnBoardHitCountPopup(ballHits, ballHitsToDuplicate);
             if (ballHits % ballHitsToDuplicate == 0)
             {

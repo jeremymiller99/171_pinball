@@ -5809,6 +5809,70 @@ PrefabInstance:
       propertyPath: offerDisplayScale
       value: 1.5
       objectReference: {fileID: 0}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: allComponentDefinitions.Array.size
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: 'allComponentDefinitions.Array.data[4]'
+      value: 
+      objectReference: {fileID: 11400000, guid: f22b0a11bcce1314889410572c6f5dc9, type: 2}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: 'allComponentDefinitions.Array.data[5]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 6f9b4cc038851094d90dd3b794b754ea, type: 2}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: 'allComponentDefinitions.Array.data[6]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 2e273d8f0ebdcd4468266621efe53fbc, type: 2}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: 'allComponentDefinitions.Array.data[7]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 2c99ec52697a8a840a8f0ce2c523e050, type: 2}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: 'allComponentDefinitions.Array.data[8]'
+      value: 
+      objectReference: {fileID: 11400000, guid: de01d113460379245af3316a58b26496, type: 2}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: 'allComponentDefinitions.Array.data[9]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 17e438f1b4d78114e82945f1a1505113, type: 2}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: 'allComponentDefinitions.Array.data[10]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 98dfc8b51082f9345b5f1f4759fcf959, type: 2}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: 'allComponentDefinitions.Array.data[11]'
+      value: 
+      objectReference: {fileID: 11400000, guid: bded03c7a8388984f91044d1043a8e3f, type: 2}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: 'allComponentDefinitions.Array.data[12]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 9d1a46d067131414f994a4a1013f8d74, type: 2}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: 'allComponentDefinitions.Array.data[13]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 1e887c70726bf8142b4060862fd1be46, type: 2}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: 'allComponentDefinitions.Array.data[14]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 581a3858bbf188a4fbb2c076c0deb0d7, type: 2}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: 'allComponentDefinitions.Array.data[15]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 1f5f576ac6e501149a01da1ecf80877f, type: 2}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: 'allComponentDefinitions.Array.data[16]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 13204215165f7414882f9580f30c7dee, type: 2}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: 'allComponentDefinitions.Array.data[17]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 8fac0714be692874880c24fbc6bbaf9c, type: 2}
+    - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
+      propertyPath: 'allComponentDefinitions.Array.data[18]'
+      value: 
+      objectReference: {fileID: 11400000, guid: adf1dac8a000a604cbd27f9ebf5c24f2, type: 2}
     - target: {fileID: 5277920733326585311, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: cancelButton
       value: 

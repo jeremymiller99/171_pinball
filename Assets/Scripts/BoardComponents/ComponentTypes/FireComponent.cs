@@ -23,9 +23,10 @@ public class FireComponent : Bumper
 
     new protected void OnCollisionEnter(Collision collision)
     {
+        base.OnCollisionEnter(collision);
+
         if (collision.collider.GetComponent<Ball>())
         {
-            ballHits++;
             if (enableHitCountPopup)
                 SpawnBoardHitCountPopup(ballHits, 0);
 

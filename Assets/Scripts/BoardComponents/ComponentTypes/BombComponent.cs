@@ -19,9 +19,9 @@ public class BombComponent : Bumper
 
     new void OnCollisionEnter(Collision collision)
     {
+        base.OnCollisionEnter(collision);
         if (collision.collider.GetComponent<Ball>())
         {
-            ballHits++;
             SpawnBoardHitCountPopup(ballHits, ballHitsToExplode);
             if (ballHits % ballHitsToExplode == 0)
             {

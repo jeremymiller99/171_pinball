@@ -19650,6 +19650,7 @@ MonoBehaviour:
   buttonText: {fileID: 236446664}
   activatedTextColor: {r: 1, g: 1, b: 1, a: 1}
   deactivatedTextColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  shopAction: {fileID: 1064514270297456241, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!1 &1105204349
 GameObject:
   m_ObjectHideFlags: 0

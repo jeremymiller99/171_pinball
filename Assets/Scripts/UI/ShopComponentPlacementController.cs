@@ -5,9 +5,9 @@ using UnityEngine;
 [RequireComponent(typeof(UnifiedShopController))]
 public sealed class ShopComponentPlacementController : MonoBehaviour
 {
-    private readonly List<BoardComponent> _bumpers = new List<BoardComponent>();
-    private readonly List<BoardComponent> _targets = new List<BoardComponent>();
-    private readonly List<BoardComponent> _flippers = new List<BoardComponent>();
+    public readonly List<BoardComponent> Bumpers = new List<BoardComponent>();
+    public readonly List<BoardComponent> Targets = new List<BoardComponent>();
+    public readonly List<BoardComponent> Flippers = new List<BoardComponent>();
 
     private BoardComponent _dragHoveredComponent;
     private BoardComponent _placementHoveredComponent;
@@ -28,58 +28,58 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
 
     private void DiscoverBoardComponents()
     {
-        _bumpers.Clear();
-        _targets.Clear();
-        _flippers.Clear();
+        Bumpers.Clear();
+        Targets.Clear();
+        Flippers.Clear();
 
         BoardComponent[] all = Object.FindObjectsByType<BoardComponent>(FindObjectsSortMode.None);
         foreach (BoardComponent bc in all)
         {
             if (bc == null || bc.gameObject == null) continue;
 
-            if (bc.componentType == BoardComponentType.Bumper && !_bumpers.Contains(bc))
-                _bumpers.Add(bc);
-            else if (bc.componentType == BoardComponentType.Target && !_targets.Contains(bc))
-                _targets.Add(bc);
-            else if (bc.componentType == BoardComponentType.Flipper && !_flippers.Contains(bc))
-                _flippers.Add(bc);
+            if (bc.componentType == BoardComponentType.Bumper && !Bumpers.Contains(bc))
+                Bumpers.Add(bc);
+            else if (bc.componentType == BoardComponentType.Target && !Targets.Contains(bc))
+                Targets.Add(bc);
+            else if (bc.componentType == BoardComponentType.Flipper && !Flippers.Contains(bc))
+                Flippers.Add(bc);
         }
 
-        _bumpers.Sort();
-        _targets.Sort();
-        _flippers.Sort();
+        Bumpers.Sort();
+        Targets.Sort();
+        Flippers.Sort();
 
         PrewarmOutlines();
     }
 
     private void PrewarmOutlines()
     {
-        foreach (BoardComponent bc in _bumpers) if (bc != null) bc.PrewarmSelectionOutline();
-        foreach (BoardComponent bc in _targets) if (bc != null) bc.PrewarmSelectionOutline();
-        foreach (BoardComponent bc in _flippers) if (bc != null) bc.PrewarmSelectionOutline();
+        foreach (BoardComponent bc in Bumpers) if (bc != null) bc.PrewarmSelectionOutline();
+        foreach (BoardComponent bc in Targets) if (bc != null) bc.PrewarmSelectionOutline();
+        foreach (BoardComponent bc in Flippers) if (bc != null) bc.PrewarmSelectionOutline();
     }
 
     public void SetSelectionStateForPlacement(BoardComponentType type)
     {
         if (type == BoardComponentType.Bumper)
         {
-            foreach (BoardComponent bc in _bumpers) if (bc != null) bc.Select();
+            foreach (BoardComponent bc in Bumpers) if (bc != null) bc.Select();
         }
         else if (type == BoardComponentType.Target)
         {
-            foreach (BoardComponent bc in _targets) if (bc != null) bc.Select();
+            foreach (BoardComponent bc in Targets) if (bc != null) bc.Select();
         }
         else if (type == BoardComponentType.Flipper)
         {
-            foreach (BoardComponent bc in _flippers) if (bc != null) bc.Select();
+            foreach (BoardComponent bc in Flippers) if (bc != null) bc.Select();
         }
     }
 
     public void DeselectAll()
     {
-        foreach (BoardComponent bc in _bumpers) if (bc != null) bc.DeSelect();
-        foreach (BoardComponent bc in _targets) if (bc != null) bc.DeSelect();
-        foreach (BoardComponent bc in _flippers) if (bc != null) bc.DeSelect();
+        foreach (BoardComponent bc in Bumpers) if (bc != null) bc.DeSelect();
+        foreach (BoardComponent bc in Targets) if (bc != null) bc.DeSelect();
+        foreach (BoardComponent bc in Flippers) if (bc != null) bc.DeSelect();
     }
 
     /// <summary>
@@ -171,21 +171,21 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
 
         if (newDef.ComponentType == BoardComponentType.Bumper)
         {
-            _bumpers.Remove(targetComponent);
-            _bumpers.Add(newComp);
-            _bumpers.Sort();
+            Bumpers.Remove(targetComponent);
+            Bumpers.Add(newComp);
+            Bumpers.Sort();
         }
         else if (newDef.ComponentType == BoardComponentType.Target)
         {
-            _targets.Remove(targetComponent);
-            _targets.Add(newComp);
-            _targets.Sort();
+            Targets.Remove(targetComponent);
+            Targets.Add(newComp);
+            Targets.Sort();
         }
         else if (newDef.ComponentType == BoardComponentType.Flipper)
         {
-            _flippers.Remove(targetComponent);
-            _flippers.Add(newComp);
-            _flippers.Sort();
+            Flippers.Remove(targetComponent);
+            Flippers.Add(newComp);
+            Flippers.Sort();
         }
 
         Destroy(targetComponent.gameObject);

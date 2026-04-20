@@ -28,6 +28,8 @@ public sealed class UnifiedShopController : MonoBehaviour
     [SerializeField] private ShopTransitionController shopTransitionController;
     [SerializeField] private GameObject shopCanvasRoot;
     [SerializeField] private BallSpawner ballSpawner;
+    [SerializeField] private RenderTextureRaycaster renderTextureRaycaster;
+    [SerializeField] private UIScript uiScript;
 
     [Header("UI")]
     [SerializeField] private TMP_Text coinsText;
@@ -35,6 +37,12 @@ public sealed class UnifiedShopController : MonoBehaviour
     [SerializeField] private Button continueButton;
     [SerializeField] private Button rerollButton;
     [SerializeField] private int rerollCost = 2;
+    [SerializeField] private float movementThreshold;
+    [SerializeField] private GameObject currentOfferObject;
+    [SerializeField] private int currentOfferIndex;
+    [SerializeField] private int currentComponentIndex;
+    [SerializeField] private int currentBallIndex;
+    [SerializeField] private bool keepMoving;
 
     [Header("Confirm Panel")]
     [SerializeField] private ShopConfirmPanel confirmPanel;
@@ -43,6 +51,8 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     public bool IsShopActive => isActiveAndEnabled
         && shopCanvasRoot != null && shopCanvasRoot.activeInHierarchy;
+
+    public bool SelectingButtons;
 
     public event Action<ShopOffer> OfferSelected;
     public event Action PlacementCancelled;
@@ -58,6 +68,7 @@ public sealed class UnifiedShopController : MonoBehaviour
     private bool _closeRequested;
 
     private BoardComponent _targetComponent;
+    private int _targetComponentIndex;
     private bool _dragBallHasRoom;
     private bool _isDragPreviewActive;
 
@@ -84,6 +95,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         Debug.Log("[UnifiedShopController] OnEnable triggered. Resetting state.");
         _closeRequested = false;
         CurrentState = ShopState.Browsing;
+        SelectingButtons = true;
 
         ResolveReferences();
 
@@ -863,6 +875,8 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (shopTransitionController == null) shopTransitionController = ServiceLocator.Get<ShopTransitionController>();
         if (shopCanvasRoot == null) shopCanvasRoot = gameObject;
         if (ballSpawner == null) ballSpawner = ServiceLocator.Get<BallSpawner>();
+        if (renderTextureRaycaster == null) renderTextureRaycaster = ServiceLocator.Get<RenderTextureRaycaster>();
+        if (uiScript == null) uiScript = ServiceLocator.Get<UIScript>();
     }
 
     private void WireContinueButton()
@@ -898,4 +912,172 @@ public sealed class UnifiedShopController : MonoBehaviour
     }
 
     #endregion
+
+    #region Controller Integration
+
+    public void OnUIMovement(InputValue context)
+    {
+        if (SelectingButtons) return;
+        Vector2 moveVector = context.Get<Vector2>();
+        if (CurrentState == ShopState.Browsing)
+        {
+            if (moveVector.y < -movementThreshold)
+            {
+                if (keepMoving)
+                {
+                    keepMoving = false;
+                    currentOfferIndex++;
+                    if (currentOfferIndex >= _shelf.OfferEntries.Count)
+                    {
+                        currentOfferIndex--;
+                    }
+                    renderTextureRaycaster.ClearHover();
+                    currentOfferObject = _shelf.OfferEntries[currentOfferIndex].gameObject;
+                }
+            }
+            else if (moveVector.y > movementThreshold)
+            {
+                if (keepMoving)
+                {
+                    keepMoving = false;
+                    currentOfferIndex--;
+                    renderTextureRaycaster.ClearHover();
+                    if (currentOfferIndex < 0)
+                    {
+                        currentOfferIndex = 0;
+                        currentOfferObject = null;
+                        SelectingButtons = true;
+                        uiScript.SelectButton();
+                        TooltipManager.Hide();
+                        return;
+                    }
+                    currentOfferObject = _shelf.OfferEntries[currentOfferIndex].gameObject;
+                }
+
+            }
+            else
+            {
+                keepMoving = true;
+            }
+        }
+        else if (CurrentState == ShopState.PlacingComponent)
+        {
+            if (moveVector.x < -movementThreshold)
+            {
+                if (keepMoving)
+                {
+                    keepMoving = false;
+                    _targetComponentIndex--;
+                    ShopOffer offer = currentOfferObject.GetComponent<ShopOffer3DEntry>().Offer;
+                    SetTargetComponent(offer.ComponentDef.ComponentType);
+                }
+            }
+            else if (moveVector.x > movementThreshold)
+            {
+                if (keepMoving)
+                {
+                    keepMoving = false;
+                    _targetComponentIndex++;
+                    ShopOffer offer = currentOfferObject.GetComponent<ShopOffer3DEntry>().Offer;
+                    SetTargetComponent(offer.ComponentDef.ComponentType);
+                }
+            }
+            else
+            {
+                keepMoving = true;
+            }
+        }
+    }
+
+    public void OnEnter()
+    {
+        if (currentOfferObject == null) return;
+        if (currentOfferObject.GetComponent<Ball>()) return; // Will make this work after merge
+        if (CurrentState == ShopState.Browsing)
+        {
+            CurrentState = ShopState.PlacingComponent;
+            ShopOffer offer = currentOfferObject.GetComponent<ShopOffer3DEntry>().Offer;
+            _placement.SetSelectionStateForPlacement(offer.ComponentDef.ComponentType);
+            _targetComponentIndex = 0;
+            SetTargetComponent(offer.ComponentDef.ComponentType);
+        }
+        else if (CurrentState == ShopState.PlacingComponent)
+        {
+            ConfirmDragDropBoardPurchase(currentOfferIndex, _targetComponent);
+        }
+
+
+    }
+
+    private void SetTargetComponent(BoardComponentType typeOfComponent)
+    {
+        if (typeOfComponent == BoardComponentType.Bumper)
+        {
+            int index = _targetComponentIndex % _placement.Bumpers.Count;
+            if (index < 0)
+            {
+                index = _placement.Bumpers.Count - 1;
+                _targetComponentIndex = index;
+            }
+            _targetComponent = _placement.Bumpers[index];
+        }
+        else if (typeOfComponent == BoardComponentType.Target)
+        {
+            int index = _targetComponentIndex % _placement.Targets.Count;
+            if (index < 0)
+            {
+                index = _placement.Targets.Count - 1;
+                _targetComponentIndex = index;
+            }
+            _targetComponent = _placement.Targets[index];
+        }
+        else if (typeOfComponent == BoardComponentType.Flipper)
+        {
+            int index = _targetComponentIndex % _placement.Flippers.Count;
+            if (index < 0)
+            {
+                index = _placement.Flippers.Count - 1;
+                _targetComponentIndex = index;
+            }
+            _targetComponent = _placement.Flippers[index];
+        }
+    }
+
+    public void OnBack()
+    {
+        CurrentState = ShopState.Browsing;
+        _placement.Cleanup();
+    }
+
+    public void SelectShop()
+    {
+        if (_shelf.OfferEntries.Count == 0)
+        {
+            uiScript.SelectButton();
+            return;
+        }
+
+        currentOfferIndex = 0;
+        SelectingButtons = false;
+        currentOfferObject = _shelf.OfferEntries[currentOfferIndex].gameObject;
+    }
+
+    private void Update()
+    {
+        if (SelectingButtons) return;
+
+        if (CurrentState == ShopState.Browsing && currentOfferObject)
+        {
+            renderTextureRaycaster.HandleControllerHighlight(currentOfferObject);
+        }
+        else if (CurrentState == ShopState.PlacingComponent)
+        {
+            ShopOffer offer = currentOfferObject.GetComponent<ShopOffer3DEntry>().Offer;
+            renderTextureRaycaster.HandleControllerHighlight(_targetComponent.gameObject);
+        }
+
+    }
+
+    #endregion
+
 }

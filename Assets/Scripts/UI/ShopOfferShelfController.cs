@@ -35,14 +35,14 @@ public sealed class ShopOfferShelfController : MonoBehaviour
         "items are placed.")]
     [SerializeField] private float offerYOffset = 0f;
 
+    public readonly List<ShopOffer3DEntry> OfferEntries =
+        new List<ShopOffer3DEntry>();
+
     private ShopOfferPanel _panel;
     private ShopOfferGenerator _generator;
 
     private readonly List<ShopOffer> _currentOffers =
         new List<ShopOffer>();
-
-    private readonly List<ShopOffer3DEntry> _offerEntries =
-        new List<ShopOffer3DEntry>();
 
     private UnifiedShopController _shop;
 
@@ -93,18 +93,18 @@ public sealed class ShopOfferShelfController : MonoBehaviour
 
         _currentOffers[offerIndex] = null;
 
-        for (int i = _offerEntries.Count - 1; i >= 0; i--)
+        for (int i = OfferEntries.Count - 1; i >= 0; i--)
         {
-            ShopOffer3DEntry entry = _offerEntries[i];
+            ShopOffer3DEntry entry = OfferEntries[i];
             if (entry == null)
             {
-                _offerEntries.RemoveAt(i);
+                OfferEntries.RemoveAt(i);
                 continue;
             }
 
             if (entry.OfferIndex == offerIndex)
             {
-                _offerEntries.RemoveAt(i);
+                OfferEntries.RemoveAt(i);
                 Destroy(entry.gameObject);
                 break;
             }
@@ -225,14 +225,14 @@ public sealed class ShopOfferShelfController : MonoBehaviour
         }
 
         entry.Init(_shop, index, offer);
-        _offerEntries.Add(entry);
+        OfferEntries.Add(entry);
     }
 
     public void ClearOfferDisplays()
     {
-        for (int i = _offerEntries.Count - 1; i >= 0; i--)
+        for (int i = OfferEntries.Count - 1; i >= 0; i--)
         {
-            ShopOffer3DEntry entry = _offerEntries[i];
+            ShopOffer3DEntry entry = OfferEntries[i];
             if (entry != null
                 && entry.gameObject != null)
             {
@@ -240,7 +240,7 @@ public sealed class ShopOfferShelfController : MonoBehaviour
             }
         }
 
-        _offerEntries.Clear();
+        OfferEntries.Clear();
     }
 
     private static void DisableGameplayBehaviours(

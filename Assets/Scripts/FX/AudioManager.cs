@@ -165,7 +165,12 @@ public class AudioManager : MonoBehaviour
         hoverEntry.callback.AddListener((data) => { PlayButtonHover(); });
         trigger.triggers.Add(hoverEntry);
 
-        trigger.triggers.RemoveAll(entry => entry.eventID == EventTriggerType.Select);
+        /*
+        I commented this out because I need a Select event on the "Enter Shop Button"
+        GameObject in order for controller support to work :(
+        - Drew
+        */
+        //trigger.triggers.RemoveAll(entry => entry.eventID == EventTriggerType.Select);
         EventTrigger.Entry selectEntry = new EventTrigger.Entry();
         selectEntry.eventID = EventTriggerType.Select;
         selectEntry.callback.AddListener((data) =>

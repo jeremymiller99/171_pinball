@@ -12,6 +12,7 @@ using UnityEngine.InputSystem;
 public sealed class DebugPanelToggleHotkey : MonoBehaviour
 {
     [SerializeField] private GameObject debugPanelRoot;
+    [SerializeField] private InputActionReference debugAction;
 
     private bool _warnedMissingPanel;
 
@@ -24,7 +25,7 @@ public sealed class DebugPanelToggleHotkey : MonoBehaviour
 
     private void Update()
     {
-        if (!WasTogglePressed())
+        if (!debugAction.action.WasPressedThisFrame())
             return;
 
         if (debugPanelRoot == null)
@@ -40,10 +41,5 @@ public sealed class DebugPanelToggleHotkey : MonoBehaviour
         debugPanelRoot.SetActive(!debugPanelRoot.activeSelf);
     }
 
-    private static bool WasTogglePressed()
-    {
-        // Centralized binding (default: backquote/tilde).
-        return ControlsBindingsService.WasPressedThisFrame(ControlAction.ToggleDebugPanel);
-    }
 }
 

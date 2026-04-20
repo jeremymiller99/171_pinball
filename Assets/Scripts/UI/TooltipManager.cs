@@ -64,6 +64,21 @@ public sealed class TooltipManager : MonoBehaviour
             title, description, elementType);
     }
 
+    public static void ShowAtPosition(
+        string title,
+        string description, Vector2 position,
+        ElementType elementType = ElementType.None)
+    {
+        var mgr = ServiceLocator.Get<TooltipManager>();
+        if (mgr == null || mgr._instance == null)
+        {
+            return;
+        }
+
+        mgr._instance.ShowAtPosition(
+            title, description, position, elementType);
+    }
+
     public static void Hide()
     {
         var mgr = ServiceLocator.Get<TooltipManager>();

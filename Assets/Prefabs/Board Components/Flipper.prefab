@@ -240,7 +240,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc5299dc26faf25438106c6f5f7280a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinballFlipper
-  ballHits: 0
+  amountOfFlips: 0
   latestBallHit: {fileID: 0}
   flipperAction: 1
   invertDirection: 0
@@ -285,7 +285,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
-  definition: {fileID: 11400000, guid: 2e3c1ebfe0ad7c5488f6318befaa635b, type: 2}
+  definition: {fileID: 11400000, guid: 704380cfa962885438ef8457aa873d19, type: 2}
 --- !u!114 &-8483716545398291006
 MonoBehaviour:
   m_ObjectHideFlags: 0

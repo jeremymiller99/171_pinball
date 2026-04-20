@@ -22,6 +22,8 @@ public sealed class TooltipUI : MonoBehaviour
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private TMP_Text typeText;
     [SerializeField] private TMP_Text descText;
+    [SerializeField] private bool controllerInUse = false;
+    [SerializeField] private Vector2 cachedVector;
 
     private RectTransform _rect;
     private Canvas _rootCanvas;
@@ -30,6 +32,7 @@ public sealed class TooltipUI : MonoBehaviour
 
     private const float cursorOffsetY = 40f;
     private const float screenEdgePadding = 12f;
+    
 
     private void Awake()
     {
@@ -42,7 +45,13 @@ public sealed class TooltipUI : MonoBehaviour
 
     private void LateUpdate()
     {
-        PositionAtMouse();
+        if (!controllerInUse)
+        {
+            PositionAtMouse();
+        } else
+        {
+            _rect.anchoredPosition = cachedVector;
+        }
     }
 
     public void Show(
@@ -59,9 +68,7 @@ public sealed class TooltipUI : MonoBehaviour
 
         if (typeText != null)
         {
-            string typeName =
-                ElementTypeColors.GetDisplayName(
-                    elementType);
+            string typeName = ElementTypeColors.GetDisplayName(elementType);
             Color typeColor =
                 ElementTypeColors.GetColor(
                     elementType);
@@ -80,7 +87,76 @@ public sealed class TooltipUI : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(
             _rect);
         PositionAtMouse();
+        controllerInUse = false;
     }
+
+    public void ShowAtPosition(string title, string description, Vector2 position, ElementType elementType = ElementType.None)
+    {
+        if (nameText == null || descText == null)
+        {
+            return;
+        }
+
+        nameText.text = title;
+
+        if (typeText != null)
+        {
+            string typeName = ElementTypeColors.GetDisplayName(elementType);
+            Color typeColor =
+                ElementTypeColors.GetColor(
+                    elementType);
+            typeText.text = typeName;
+            typeText.color = typeColor;
+        }
+
+        descText.text =
+            string.IsNullOrWhiteSpace(description)
+                ? "No description."
+                : description;
+
+        gameObject.SetActive(true);
+        _rect.SetAsLastSibling();
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(_rect);
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                _canvasRect,
+                position,
+                _rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : _rootCanvas.worldCamera,
+                out Vector2 localPos);
+
+
+        Vector2 tooltipSize = _rect.rect.size;
+        localPos.y +=
+            cursorOffsetY
+            + tooltipSize.y * (1f - _rect.pivot.y);
+        Vector2 canvasSize = _canvasRect.rect.size;
+        Vector2 halfCanvas = canvasSize * 0.5f;
+
+        float minX =
+            -halfCanvas.x + screenEdgePadding
+            + tooltipSize.x * _rect.pivot.x;
+
+        float maxX =
+            halfCanvas.x - screenEdgePadding
+            - tooltipSize.x * (1f - _rect.pivot.x);
+
+        float minY =
+            -halfCanvas.y + screenEdgePadding
+            + tooltipSize.y * _rect.pivot.y;
+
+        float maxY =
+            halfCanvas.y - screenEdgePadding
+            - tooltipSize.y * (1f - _rect.pivot.y);
+
+        localPos.x = Mathf.Clamp(localPos.x, minX, maxX);
+        localPos.y = Mathf.Clamp(localPos.y, minY, maxY);
+
+        _rect.anchoredPosition = localPos;
+        cachedVector = localPos;
+        controllerInUse = true;
+    }
+
 
     public void Hide()
     {

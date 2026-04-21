@@ -52,6 +52,13 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private EventReference eggCrackSound;
     [SerializeField] private EventReference explosionSound;
     [SerializeField] private EventReference ballSplitSound;
+    
+    // Newly Added Gameplay Sounds
+    [SerializeField] private EventReference fireworksSound;
+    [SerializeField] private EventReference frenzyGateSound;
+    [SerializeField] private EventReference dropTargetDownSound;
+    [SerializeField] private EventReference dropTargetUpSound;
+    [SerializeField] private EventReference frenzyActivatedSound;
 
     [Header("Scoring Sounds")]
     [SerializeField] private EventReference pointsAddEvent;
@@ -331,12 +338,16 @@ public class AudioManager : MonoBehaviour
     public void PlayPortal(Vector3 position) => PlayOneShot(portalSound, position);
     public void PlayBallLost() => PlayOneShot(ballLostSound);
     public void PlayWhoosh() => PlayOneShot(textWhooshSound);
-
-    // Uncategorized Sounds
+    
     public void PlayShatter(Vector3 position = default) => PlayOneShot(shatterSound, position);
     public void PlayEggCrack(Vector3 position = default) => PlayOneShot(eggCrackSound, position);
     public void PlayExplosion(Vector3 position = default) => PlayOneShot(explosionSound, position);
     public void PlayBallSplit(Vector3 position = default) => PlayOneShot(ballSplitSound, position);
+    public void PlayFireworks(Vector3 position = default) => PlayOneShot(fireworksSound, position);
+    public void PlayFrenzyGate(Vector3 position = default) => PlayOneShot(frenzyGateSound, position);
+    public void PlayDropTargetDown(Vector3 position = default) => PlayOneShot(dropTargetDownSound, position);
+    public void PlayDropTargetUp(Vector3 position = default) => PlayOneShot(dropTargetUpSound, position);
+    public void PlayFrenzyActivated() => PlayOneShot(frenzyActivatedSound);
 
     // Scoring Logic
 

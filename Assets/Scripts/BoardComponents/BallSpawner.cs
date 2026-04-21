@@ -307,6 +307,21 @@ public sealed class BallSpawner : MonoBehaviour
         }
 
         LayoutHandImmediate();
+        SyncAmpedUpStateFromLoadout();
+    }
+
+    private void SyncAmpedUpStateFromLoadout()
+    {
+        var loadout = ServiceLocator.Get<BallLoadoutController>();
+        if (loadout == null) return;
+
+        for (int i = 0; i < _handBalls.Count; i++)
+        {
+            if (_handBalls[i] == null) continue;
+            Ball ball = _handBalls[i].GetComponent<Ball>();
+            if (ball == null) continue;
+            ball.SetAmpedUp(loadout.GetAmpedUpForSlot(i));
+        }
     }
 
     /// <summary>

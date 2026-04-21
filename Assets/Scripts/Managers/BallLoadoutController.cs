@@ -22,11 +22,11 @@ public class BallLoadoutController : MonoBehaviour
     private readonly List<BallDefinition> _ballLoadout = new List<BallDefinition>();
 
     /// <summary>
-    /// Parallel to <see cref="_ballLoadout"/> indices: pending flat mult per mult-hit,
-    /// applied when that slot's ball is activated (then cleared from this list).
+    /// Parallel to <see cref="_ballLoadout"/>: true if the ball in this slot has been
+    /// permanently amped up by an <see cref="AmpUpBall"/> used in front of it.
+    /// An amped ball gains a 1/4 chance per component hit to award +0.1 mult.
     /// </summary>
-    private readonly List<float> _flatMultBonusByLoadoutSlot =
-        new List<float>();
+    private readonly List<bool> _ampedUpBySlot = new List<bool>();
 
     /// <summary>
     /// Parallel to <see cref="_ballLoadout"/>: extra coin payout for
@@ -102,7 +102,7 @@ public class BallLoadoutController : MonoBehaviour
         if (_ballLoadout.Count < maxBalls)
         {
             _ballLoadout.Add(def);
-            _flatMultBonusByLoadoutSlot.Add(0f);
+            _ampedUpBySlot.Add(false);
             _piggyBankExtraSellBySlot.Add(0);
             _piggyBankHandGrowthEligibleThisLevel.Add(true);
             return true;
@@ -118,7 +118,7 @@ public class BallLoadoutController : MonoBehaviour
         if (_ballLoadout.Count < maxBalls)
         {
             _ballLoadout.Insert(index, def);
-            _flatMultBonusByLoadoutSlot.Insert(index, 0f);
+            _ampedUpBySlot.Insert(index, false);
             _piggyBankExtraSellBySlot.Insert(index, 0);
             _piggyBankHandGrowthEligibleThisLevel.Insert(index, true);
             return true;
@@ -137,11 +137,11 @@ public class BallLoadoutController : MonoBehaviour
         _ballLoadout.Insert(toIndex, def);
 
         EnsureRuntimeSlotParallelListsMatchLoadout();
-        if (fromIndex >= 0 && fromIndex < _flatMultBonusByLoadoutSlot.Count)
+        if (fromIndex >= 0 && fromIndex < _ampedUpBySlot.Count)
         {
-            float bonus = _flatMultBonusByLoadoutSlot[fromIndex];
-            _flatMultBonusByLoadoutSlot.RemoveAt(fromIndex);
-            _flatMultBonusByLoadoutSlot.Insert(toIndex, bonus);
+            bool amped = _ampedUpBySlot[fromIndex];
+            _ampedUpBySlot.RemoveAt(fromIndex);
+            _ampedUpBySlot.Insert(toIndex, amped);
         }
 
         if (fromIndex >= 0 && fromIndex < _piggyBankExtraSellBySlot.Count)
@@ -168,12 +168,16 @@ public class BallLoadoutController : MonoBehaviour
 
         _ballLoadout[index] = newDef;
         EnsureRuntimeSlotParallelListsMatchLoadout();
+        if (index >= 0 && index < _ampedUpBySlot.Count)
+        {
+            _ampedUpBySlot[index] = false;
+        }
+
         if (index >= 0 && index < _piggyBankExtraSellBySlot.Count)
         {
             _piggyBankExtraSellBySlot[index] = 0;
         }
 
-        EnsureRuntimeSlotParallelListsMatchLoadout();
         if (index >= 0 && index < _piggyBankHandGrowthEligibleThisLevel.Count)
         {
             _piggyBankHandGrowthEligibleThisLevel[index] = true;
@@ -223,11 +227,11 @@ public class BallLoadoutController : MonoBehaviour
 
         (_ballLoadout[a], _ballLoadout[b]) = (_ballLoadout[b], _ballLoadout[a]);
         EnsureRuntimeSlotParallelListsMatchLoadout();
-        if (a < _flatMultBonusByLoadoutSlot.Count
-            && b < _flatMultBonusByLoadoutSlot.Count)
+        if (a < _ampedUpBySlot.Count
+            && b < _ampedUpBySlot.Count)
         {
-            (_flatMultBonusByLoadoutSlot[a], _flatMultBonusByLoadoutSlot[b]) =
-                (_flatMultBonusByLoadoutSlot[b], _flatMultBonusByLoadoutSlot[a]);
+            (_ampedUpBySlot[a], _ampedUpBySlot[b]) =
+                (_ampedUpBySlot[b], _ampedUpBySlot[a]);
         }
 
         if (a < _piggyBankExtraSellBySlot.Count
@@ -248,44 +252,40 @@ public class BallLoadoutController : MonoBehaviour
     }
 
     /// <summary>
-    /// When <see cref="AmpUpBall"/> drains, adds a run-long flat mult bonus for the
-    /// loadout slot immediately after the drained ball's slot.
+    /// When an <see cref="AmpUpBall"/> is used, marks the loadout slot immediately
+    /// behind it as permanently amped up. Call before
+    /// <see cref="ConsumeActiveBallFromLoadout"/> so the "behind" index is still valid.
     /// </summary>
-    public void TryApplyAmpUpBonusBehindDrainedSlot(
-        int drainedSlotHint,
-        float flatMultDelta)
+    public void ApplyAmpUpToSlotBehind(int ampSlotHint)
     {
-        if (flatMultDelta == 0f || _ballLoadout.Count < 2)
+        if (_ballLoadout.Count < 2)
         {
             return;
         }
 
-        int drainedIndex = drainedSlotHint >= 0 ? drainedSlotHint : 0;
-        int behindIndex = drainedIndex + 1;
-        if (behindIndex < 0 || behindIndex >= _ballLoadout.Count)
+        int ampIndex = ampSlotHint >= 0 && ampSlotHint < _ballLoadout.Count
+            ? ampSlotHint
+            : 0;
+        int behindIndex = ampIndex + 1;
+        if (behindIndex >= _ballLoadout.Count)
         {
             return;
         }
 
         EnsureRuntimeSlotParallelListsMatchLoadout();
-        _flatMultBonusByLoadoutSlot[behindIndex] += flatMultDelta;
+        _ampedUpBySlot[behindIndex] = true;
     }
 
-    /// <summary>
-    /// Reads and clears pending flat mult for a loadout slot when its ball is activated.
-    /// </summary>
-    public float ConsumePendingFlatMultBonusForLoadoutSlot(int loadoutSlotIndex)
+    public bool GetAmpedUpForSlot(int loadoutSlotIndex)
     {
         EnsureRuntimeSlotParallelListsMatchLoadout();
         if (loadoutSlotIndex < 0
-            || loadoutSlotIndex >= _flatMultBonusByLoadoutSlot.Count)
+            || loadoutSlotIndex >= _ampedUpBySlot.Count)
         {
-            return 0f;
+            return false;
         }
 
-        float value = _flatMultBonusByLoadoutSlot[loadoutSlotIndex];
-        _flatMultBonusByLoadoutSlot[loadoutSlotIndex] = 0f;
-        return value;
+        return _ampedUpBySlot[loadoutSlotIndex];
     }
 
     /// <summary>
@@ -376,7 +376,7 @@ public class BallLoadoutController : MonoBehaviour
     public void InitializeForNewRun()
     {
         _ballLoadout.Clear();
-        _flatMultBonusByLoadoutSlot.Clear();
+        _ampedUpBySlot.Clear();
         _piggyBankExtraSellBySlot.Clear();
         _piggyBankHandGrowthEligibleThisLevel.Clear();
 
@@ -398,7 +398,7 @@ public class BallLoadoutController : MonoBehaviour
                     if (def != null && def.Prefab != null)
                     {
                         _ballLoadout.Add(def);
-                        _flatMultBonusByLoadoutSlot.Add(0f);
+                        _ampedUpBySlot.Add(false);
                         _piggyBankExtraSellBySlot.Add(0);
                         _piggyBankHandGrowthEligibleThisLevel.Add(true);
                     }
@@ -417,7 +417,7 @@ public class BallLoadoutController : MonoBehaviour
                     if (def != null && def.Prefab != null)
                     {
                         _ballLoadout.Add(def);
-                        _flatMultBonusByLoadoutSlot.Add(0f);
+                        _ampedUpBySlot.Add(false);
                         _piggyBankExtraSellBySlot.Add(0);
                         _piggyBankHandGrowthEligibleThisLevel.Add(true);
                     }
@@ -444,7 +444,7 @@ public class BallLoadoutController : MonoBehaviour
                             runtimePrice: 0);
                     }
                     _ballLoadout.Add(def);
-                    _flatMultBonusByLoadoutSlot.Add(0f);
+                    _ampedUpBySlot.Add(false);
                     _piggyBankExtraSellBySlot.Add(0);
                     _piggyBankHandGrowthEligibleThisLevel.Add(true);
                 }
@@ -487,7 +487,7 @@ public class BallLoadoutController : MonoBehaviour
             if (_ballLoadout.Count < maxBalls)
             {
                 _ballLoadout.Add(def);
-                _flatMultBonusByLoadoutSlot.Add(0f);
+                _ampedUpBySlot.Add(false);
                 _piggyBankExtraSellBySlot.Add(0);
                 _piggyBankHandGrowthEligibleThisLevel.Add(true);
             }
@@ -502,10 +502,10 @@ public class BallLoadoutController : MonoBehaviour
         for (int i = 0; i < toRemove; i++)
         {
             _ballLoadout.RemoveAt(_ballLoadout.Count - 1);
-            if (_flatMultBonusByLoadoutSlot.Count > 0)
+            if (_ampedUpBySlot.Count > 0)
             {
-                _flatMultBonusByLoadoutSlot.RemoveAt(
-                    _flatMultBonusByLoadoutSlot.Count - 1);
+                _ampedUpBySlot.RemoveAt(
+                    _ampedUpBySlot.Count - 1);
             }
 
             if (_piggyBankExtraSellBySlot.Count > 0)
@@ -529,9 +529,9 @@ public class BallLoadoutController : MonoBehaviour
 
     private void EnsureRuntimeSlotParallelListsMatchLoadout()
     {
-        while (_flatMultBonusByLoadoutSlot.Count < _ballLoadout.Count)
+        while (_ampedUpBySlot.Count < _ballLoadout.Count)
         {
-            _flatMultBonusByLoadoutSlot.Add(0f);
+            _ampedUpBySlot.Add(false);
         }
 
         while (_piggyBankExtraSellBySlot.Count < _ballLoadout.Count)
@@ -544,11 +544,11 @@ public class BallLoadoutController : MonoBehaviour
             _piggyBankHandGrowthEligibleThisLevel.Add(true);
         }
 
-        while (_flatMultBonusByLoadoutSlot.Count > _ballLoadout.Count
-               && _flatMultBonusByLoadoutSlot.Count > 0)
+        while (_ampedUpBySlot.Count > _ballLoadout.Count
+               && _ampedUpBySlot.Count > 0)
         {
-            _flatMultBonusByLoadoutSlot.RemoveAt(
-                _flatMultBonusByLoadoutSlot.Count - 1);
+            _ampedUpBySlot.RemoveAt(
+                _ampedUpBySlot.Count - 1);
         }
 
         while (_piggyBankExtraSellBySlot.Count > _ballLoadout.Count
@@ -568,9 +568,9 @@ public class BallLoadoutController : MonoBehaviour
 
     private void RemoveRuntimeSlotParallelDataAt(int index)
     {
-        if (index >= 0 && index < _flatMultBonusByLoadoutSlot.Count)
+        if (index >= 0 && index < _ampedUpBySlot.Count)
         {
-            _flatMultBonusByLoadoutSlot.RemoveAt(index);
+            _ampedUpBySlot.RemoveAt(index);
         }
 
         if (index >= 0 && index < _piggyBankExtraSellBySlot.Count)

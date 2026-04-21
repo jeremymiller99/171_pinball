@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: AmpUp
   displayName: Amp Up
-  description: One use. When drained, the ball behind it in your loadout gains +0.25 flat mult on every mult hit for the rest of the run.
+  description: One use. On first component hit, destroys itself and permanently amps up the ball queued behind it (25% chance per hit to give +0.1 mult).
   rarity: 1
   elementType: 6
   icon: {fileID: 21300000, guid: e681d574556e4974e9a4c5a6ac0c74ab, type: 3}

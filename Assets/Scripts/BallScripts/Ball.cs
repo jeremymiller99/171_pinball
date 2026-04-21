@@ -1,4 +1,4 @@
-// Updated with Cursor (claude-4.6-opus) by jjmil on 2026-03-24.
+// Updated with Claude Code (claude-opus-4-7) by jjmil on 2026-04-20.
 using System.Collections.Generic;
 using System.Collections;
 
@@ -10,15 +10,21 @@ using System;
 
 public class Ball : MonoBehaviour
 {
+    public const float ampedUpProcChance = 0.25f;
+    public const float ampedUpMultReward = 0.1f;
+
     protected ScoreManager scoreManager;
     protected int componentHits;
     protected float ballPointMultiplier = 1f;
     protected float ballMultMultiplier = 1f;
     protected int ballCoinMultiplier = 1;
     protected GameObject lastObjectHit;
+    protected bool isAmpedUp;
 
     public int ComponentHits => componentHits;
     public GameObject LastObjectHit => lastObjectHit;
+    public bool IsAmpedUp => isAmpedUp;
+
     public float PointMultiplier
     {
         get => ballPointMultiplier;
@@ -33,6 +39,11 @@ public class Ball : MonoBehaviour
     {
         get => ballCoinMultiplier;
         set => ballCoinMultiplier = value;
+    }
+
+    public void SetAmpedUp(bool value)
+    {
+        isAmpedUp = value;
     }
 
     public void ResetComponentHits()
@@ -63,6 +74,8 @@ public class Ball : MonoBehaviour
     private void HandleBoardComponentHit(
         Collider collider, Collision collision = null)
     {
+        if (ShouldIgnoreBoardHitFromCollider(collider)) return;
+
         lastObjectHit = collider.gameObject;
         BoardComponent[] components = GetBoardComponentsForScoring(collider);
         if (components.Length == 0) return;
@@ -82,7 +95,21 @@ public class Ball : MonoBehaviour
         {
             componentHits++;
             TrySpawnHitCountPopup();
+            TryProcAmpedUpMult();
         }
+    }
+
+    private void TryProcAmpedUpMult()
+    {
+        if (!isAmpedUp) return;
+        if (UnityEngine.Random.value > ampedUpProcChance) return;
+
+        if (scoreManager == null)
+            scoreManager = ServiceLocator.Get<ScoreManager>();
+        if (scoreManager == null) return;
+
+        scoreManager.AddScore(
+            ampedUpMultReward, TypeOfScore.mult, transform);
     }
 
     private void TrySpawnHitCountPopup()
@@ -107,6 +134,11 @@ public class Ball : MonoBehaviour
     protected virtual bool ShouldScoreBoardComponent(BoardComponent component)
     {
         return component.amountToScore != 0;
+    }
+
+    protected virtual bool ShouldIgnoreBoardHitFromCollider(Collider collider)
+    {
+        return false;
     }
 
     /// <summary>

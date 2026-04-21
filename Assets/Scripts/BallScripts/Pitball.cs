@@ -74,7 +74,7 @@ public class Pitball : Ball
 
     private void AwardPassiveMult()
     {
-        float scaled = multAwardPerTick * multMultiplier;
+        float scaled = multAwardPerTick * ballMultMultiplier;
         base.AddScore(scaled, TypeOfScore.mult, transform);
     }
 }

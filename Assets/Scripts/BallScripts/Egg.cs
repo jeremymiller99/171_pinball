@@ -1,4 +1,5 @@
 // Updated with Cursor (GPT-5.2) by OpenAI assistant for jjmil on 2026-02-24.
+// Updated with Claude Code (claude-opus-4-7) by jjmil on 2026-04-20 (exposed next-ball factors).
 
 using UnityEngine;
 
@@ -9,6 +10,16 @@ public class EggBall : Ball
     [SerializeField] private int nextBallCoinMultiplier;
     [SerializeField] private BallSpawner ballSpawner;
     [SerializeField] private bool applyOnUseOnly = true;
+
+    public float NextBallPointMultiplier => nextBallPointMultiplier;
+    public float NextBallMultMultiplier => nextBallMultMultiplier;
+    public int NextBallCoinMultiplier => nextBallCoinMultiplier;
+
+    public void GetEffectiveFactors(
+        out float pointFactor, out float multFactor, out int coinFactor)
+    {
+        GetEffectiveNextBallFactors(out pointFactor, out multFactor, out coinFactor);
+    }
 
     private bool wasUsed;
     [Header("Stacking (runtime)")]

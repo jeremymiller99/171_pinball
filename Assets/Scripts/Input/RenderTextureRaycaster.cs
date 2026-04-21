@@ -521,7 +521,8 @@ public class RenderTextureRaycaster : MonoBehaviour
                 out BallDefinition ballDef))
         {
             title = ballDef.GetSafeDisplayName();
-            desc = ballDef.Description;
+            desc = BuildBallTooltipDescription(
+                ballLink.gameObject, ballDef);
             elementType = ballDef.ElementType;
             return;
         }
@@ -537,6 +538,117 @@ public class RenderTextureRaycaster : MonoBehaviour
             desc = compDef.Description;
             elementType = compDef.ElementType;
         }
+    }
+
+    /// <summary>
+    /// Returns the ball's static description plus any active runtime effects
+    /// (amped-up status, pending egg multipliers from the chain of eggs queued in front).
+    /// </summary>
+    private static string BuildBallTooltipDescription(
+        GameObject ballObject, BallDefinition ballDef)
+    {
+        string baseDesc = ballDef != null ? ballDef.Description : "";
+        Ball ball = ballObject != null
+            ? ballObject.GetComponentInParent<Ball>()
+            : null;
+
+        string ampedLine = TryGetAmpedUpTooltipLine(ballObject, ball);
+        string eggLine = TryGetEggPendingTooltipLine(ballObject);
+
+        string result = baseDesc ?? "";
+        if (!string.IsNullOrEmpty(ampedLine))
+        {
+            if (result.Length > 0) result += "\n";
+            result += ampedLine;
+        }
+
+        if (!string.IsNullOrEmpty(eggLine))
+        {
+            if (result.Length > 0) result += "\n";
+            result += eggLine;
+        }
+
+        return result;
+    }
+
+    private static string TryGetAmpedUpTooltipLine(
+        GameObject ballObject, Ball ball)
+    {
+        bool amped = ball != null && ball.IsAmpedUp;
+
+        if (!amped && ballObject != null)
+        {
+            int slot = GetHandSlotIndexForBall(ballObject);
+            if (slot >= 0)
+            {
+                var loadout = ServiceLocator.Get<BallLoadoutController>();
+                if (loadout != null && loadout.GetAmpedUpForSlot(slot))
+                {
+                    amped = true;
+                }
+            }
+        }
+
+        if (!amped) return null;
+
+        int chancePercent = Mathf.RoundToInt(Ball.ampedUpProcChance * 100f);
+        return $"Amped Up: {chancePercent}% chance to give +{Ball.ampedUpMultReward:0.##} mult per hit.";
+    }
+
+    private static string TryGetEggPendingTooltipLine(GameObject ballObject)
+    {
+        if (ballObject == null) return null;
+
+        int slot = GetHandSlotIndexForBall(ballObject);
+        if (slot <= 0) return null;
+
+        BallSpawner spawner = ServiceLocator.Get<BallSpawner>();
+        if (spawner == null) return null;
+
+        float point = 1f;
+        float mult = 1f;
+        int coin = 1;
+        bool anyEgg = false;
+
+        for (int i = slot - 1; i >= 0; i--)
+        {
+            GameObject handBall = spawner.GetHandBallAtSlot(i);
+            if (handBall == null) break;
+
+            EggBall egg = handBall.GetComponent<EggBall>();
+            if (egg == null) break;
+
+            float eggPoint = egg.NextBallPointMultiplier;
+            float eggMult = egg.NextBallMultMultiplier;
+            int eggCoin = egg.NextBallCoinMultiplier;
+
+            point *= eggPoint <= 0f ? 1f : eggPoint;
+            mult *= eggMult <= 0f ? 1f : eggMult;
+            coin *= eggCoin <= 0 ? 1 : eggCoin;
+            anyEgg = true;
+        }
+
+        if (!anyEgg) return null;
+
+        return $"Egg bonus when promoted: ×{point:0.##} points, ×{mult:0.##} mult, ×{coin} coins.";
+    }
+
+    private static int GetHandSlotIndexForBall(GameObject ballObject)
+    {
+        if (ballObject == null) return -1;
+
+        BallHandSlotMarker marker =
+            ballObject.GetComponentInParent<BallHandSlotMarker>();
+        if (marker == null) return -1;
+
+        BallSpawner spawner = ServiceLocator.Get<BallSpawner>();
+        if (spawner == null) return marker.SlotIndex;
+
+        GameObject atMarkerSlot = spawner.GetHandBallAtSlot(marker.SlotIndex);
+        if (atMarkerSlot == marker.gameObject) return marker.SlotIndex;
+
+        int live = spawner.GetSlotIndexForHandBall(marker.gameObject);
+        return live;
     }
 
     private GameObject FindClosestHandBallOnRay(Ray ray)

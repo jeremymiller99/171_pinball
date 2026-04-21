@@ -1,4 +1,5 @@
 // Updated with Antigravity by jjmil on 2026-04-07 (removed bankMultiplier).
+// Updated with Claude Code (claude-opus-4-7) by jjmil on 2026-04-20 (removed AmpUpBall drain hook).
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -96,11 +97,6 @@ public class DrainHandler : MonoBehaviour
             if (marker != null) slotHint = marker.SlotIndex;
         }
 
-        AmpUpBall ampUpBall =
-            ball != null ? ball.GetComponent<AmpUpBall>() : null;
-        float ampUpFlatMultDelta =
-            ampUpBall != null ? ampUpBall.FlatMultBonusForBallBehind : 0f;
-
         double bankedPoints = 0d;
         if (scoreManager != null)
         {
@@ -137,13 +133,6 @@ public class DrainHandler : MonoBehaviour
         DrainBankCompleted?.Invoke();
 
         var loadout = ServiceLocator.Get<BallLoadoutController>();
-        if (ampUpBall != null)
-        {
-            loadout?.TryApplyAmpUpBonusBehindDrainedSlot(
-                slotHint,
-                ampUpFlatMultDelta);
-        }
-
         loadout?.ConsumeActiveBallFromLoadout(slotHint);
         rules.RefreshBallsRemaining();
 

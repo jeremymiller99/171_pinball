@@ -14,7 +14,7 @@ public sealed class CrossEyedBall : Ball
 
     private void Awake()
     {
-        multMultiplier = multScoreScale;
+        ballMultMultiplier = multScoreScale;
     }
 
     /// <summary>

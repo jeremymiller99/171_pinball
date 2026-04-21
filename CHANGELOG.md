@@ -10,6 +10,13 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.7.3 — Amp Up rework + tooltip runtime effects
+_2026-04-20 · Contributor: JJ_
+- `AmpUpBall` now destroys itself on first component hit (like the Egg) and permanently amps up the ball queued behind it in the loadout. An amped ball has a 25% chance per component hit to award +0.1 mult.
+- Amped-up status persists per-loadout-slot via `BallLoadoutController._ampedUpBySlot`, survives hand rebuilds, and is re-synced to live `Ball` instances after `BallSpawner.BuildHandFromPrefabs`.
+- Hover tooltips on hand balls now show the ball's active amped-up status and any pending egg multipliers (chain-multiplied across consecutive eggs queued in front).
+- Removed the old AmpUp-on-drain flat-mult path (`_flatMultBonusByLoadoutSlot`, `TryApplyAmpUpBonusBehindDrainedSlot`, `ConsumePendingFlatMultBonusForLoadoutSlot`, `DrainHandler` AmpUp hook).
+
 ## 0.7.2 — retry-breaks-dragging fix
 _2026-04-13 · Contributor: JJ_
 - Fixed a bug where ball/offer/board-component dragging broke after dying and retrying a round. Root cause: `ServiceLocator.Get<T>()` cached a reference via its `FindAnyObjectByType` fallback and kept returning it after the Unity object was destroyed, so `RenderTextureRaycaster` saw a fake-null `UnifiedShopController` and silently blocked every drag gate.

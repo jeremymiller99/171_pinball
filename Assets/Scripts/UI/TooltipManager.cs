@@ -79,6 +79,72 @@ public sealed class TooltipManager : MonoBehaviour
             title, description, position, elementType);
     }
 
+    public static void ShowBuy(
+        string title,
+        string description,
+        ElementType elementType,
+        int price)
+    {
+        var mgr = ServiceLocator.Get<TooltipManager>();
+        if (mgr == null || mgr._instance == null)
+        {
+            return;
+        }
+
+        mgr._instance.ShowBuy(
+            title, description, elementType, price);
+    }
+
+    public static void ShowSell(
+        string title,
+        string description,
+        ElementType elementType,
+        int price)
+    {
+        var mgr = ServiceLocator.Get<TooltipManager>();
+        if (mgr == null || mgr._instance == null)
+        {
+            return;
+        }
+
+        mgr._instance.ShowSell(
+            title, description, elementType, price);
+    }
+
+    public static void ShowBuyAtPosition(
+        string title,
+        string description,
+        Vector2 position,
+        ElementType elementType,
+        int price)
+    {
+        var mgr = ServiceLocator.Get<TooltipManager>();
+        if (mgr == null || mgr._instance == null)
+        {
+            return;
+        }
+
+        mgr._instance.ShowBuyAtPosition(
+            title, description, position, elementType, price);
+    }
+
+    public static void ShowSellAtPosition(
+        string title,
+        string description,
+        Vector2 position,
+        ElementType elementType,
+        int price)
+    {
+        var mgr = ServiceLocator.Get<TooltipManager>();
+        if (mgr == null || mgr._instance == null)
+        {
+            return;
+        }
+
+        mgr._instance.ShowSellAtPosition(
+            title, description, position, elementType, price);
+    }
+
     public static void Hide()
     {
         var mgr = ServiceLocator.Get<TooltipManager>();

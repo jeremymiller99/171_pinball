@@ -10,6 +10,12 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.7.5 — firework, drop-target, and frenzy-portal SFX hooks
+_2026-04-21 · Contributor: JJ_
+- `LevelUpVFXTrigger` now calls `AudioManager.PlayFireworks` at each firework spawn point during the stagger coroutine, so the level-up visual is matched by a firework SFX per burst.
+- `DropTarget` plays `PlayDropTargetDown` on every ball hit (fresh hit in `OnCollisionEnter`/`OnTriggerEnter` and re-hit during rise via `BeginFallFromCurrentPosition`) and `PlayDropTargetUp` when the reset timer expires and the rise animation begins.
+- `FrenzyPortal` plays `PlayFrenzyActivated` only on a successful frenzy state transition (compares `IsFrenzyActive` before and after `ActivateFrenzy`), so repeat portal entries during an active frenzy don't re-trigger the sound.
+
 ## 0.7.4 — pixelation setting, pause-menu settings access, main-menu polish, art-asset reorg
 _2026-04-21 · Contributor: JJ_ (commit `fee2eda`)
 **Pixelation + pause-menu settings**

@@ -1,5 +1,6 @@
 // Generated with Antigravity by jjmil on 2026-04-09.
 // Drop‑target frenzy: bumper split‑open, portal reveal, multiplier doubling.
+// Frenzy-gate SFX hook added by Claude Code (Opus 4.7) for jjmil on 2026-04-21.
 using System;
 using System.Collections;
 using TMPro;
@@ -206,6 +207,10 @@ public class DropTargetsScoringMode : MonoBehaviour
                 _wasAllDown = true;
                 AnimateBumpers(true);
                 SetFrenzyPortalsActive(true);
+                ServiceLocator.Get<AudioManager>()?.PlayFrenzyGate(
+                    bonusSpawnPosition != null
+                        ? bonusSpawnPosition.position
+                        : transform.position);
                 OnAllTargetsDown?.Invoke();
             }
 

@@ -291,7 +291,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01885ebeb25ac6d4d8363e996aa00dbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinitionLink
-  definition: {fileID: 0}
+  definition: {fileID: 11400000, guid: 8eadf0f135ce4045a3a4d014666d1e55, type: 2}
 --- !u!114 &8123456789012345670
 MonoBehaviour:
   m_ObjectHideFlags: 0

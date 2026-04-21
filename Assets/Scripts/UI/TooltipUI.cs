@@ -3,6 +3,9 @@
 // Updated 2026-03-27: screen-space center for shop confirm panel placement.
 // Updated 2026-04-06 by Antigravity (claude-4.6-opus):
 // added ElementType color label between title and description.
+// Updated 2026-04-21: added ShowBuy/ShowSell with dedicated price panels
+// so buy/sell prices render inside the prefab-authored panels instead of
+// being prepended to the description string.
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,9 +22,32 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CanvasGroup))]
 public sealed class TooltipUI : MonoBehaviour
 {
+    public enum PriceMode
+    {
+        None,
+        Buy,
+        Sell,
+    }
+
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private TMP_Text typeText;
     [SerializeField] private TMP_Text descText;
+
+    [Header("Price panels")]
+    [Tooltip("Child panel shown when the tooltip describes a buyable item. "
+        + "Toggled on by ShowBuy, off by Show/ShowSell.")]
+    [SerializeField] private GameObject shopPanel;
+
+    [Tooltip("Text inside the shop panel that renders the item cost.")]
+    [SerializeField] private TMP_Text costText;
+
+    [Tooltip("Child panel shown when the tooltip describes a sellable item. "
+        + "Toggled on by ShowSell, off by Show/ShowBuy.")]
+    [SerializeField] private GameObject sellPanel;
+
+    [Tooltip("Text inside the sell panel that renders the item sell price.")]
+    [SerializeField] private TMP_Text sellPriceText;
+
     [SerializeField] private bool controllerInUse = false;
     [SerializeField] private Vector2 cachedVector;
 
@@ -32,10 +58,19 @@ public sealed class TooltipUI : MonoBehaviour
 
     private const float cursorOffsetY = 40f;
     private const float screenEdgePadding = 12f;
-    
+
 
     private void Awake()
     {
+        // The prefab accidentally carries a TooltipUI on each child price
+        // panel. Disable nested instances so they don't self-hide in Awake
+        // or fight the root for mouse-positioning in LateUpdate.
+        if (HasAncestorTooltipUI())
+        {
+            enabled = false;
+            return;
+        }
+
         _rect = GetComponent<RectTransform>();
         _canvasGroup = GetComponent<CanvasGroup>();
         _canvasGroup.blocksRaycasts = false;
@@ -59,27 +94,8 @@ public sealed class TooltipUI : MonoBehaviour
         string description,
         ElementType elementType = ElementType.None)
     {
-        if (nameText == null || descText == null)
-        {
-            return;
-        }
-
-        nameText.text = title;
-
-        if (typeText != null)
-        {
-            string typeName = ElementTypeColors.GetDisplayName(elementType);
-            Color typeColor =
-                ElementTypeColors.GetColor(
-                    elementType);
-            typeText.text = typeName;
-            typeText.color = typeColor;
-        }
-
-        descText.text =
-            string.IsNullOrWhiteSpace(description)
-                ? "No description."
-                : description;
+        ApplyContent(title, description, elementType);
+        SetPricePanels(PriceMode.None, 0);
 
         gameObject.SetActive(true);
         _rect.SetAsLastSibling();
@@ -90,29 +106,30 @@ public sealed class TooltipUI : MonoBehaviour
         controllerInUse = false;
     }
 
+    public void ShowBuy(
+        string title,
+        string description,
+        ElementType elementType,
+        int price)
+    {
+        Show(title, description, elementType);
+        SetPricePanels(PriceMode.Buy, price);
+    }
+
+    public void ShowSell(
+        string title,
+        string description,
+        ElementType elementType,
+        int price)
+    {
+        Show(title, description, elementType);
+        SetPricePanels(PriceMode.Sell, price);
+    }
+
     public void ShowAtPosition(string title, string description, Vector2 position, ElementType elementType = ElementType.None)
     {
-        if (nameText == null || descText == null)
-        {
-            return;
-        }
-
-        nameText.text = title;
-
-        if (typeText != null)
-        {
-            string typeName = ElementTypeColors.GetDisplayName(elementType);
-            Color typeColor =
-                ElementTypeColors.GetColor(
-                    elementType);
-            typeText.text = typeName;
-            typeText.color = typeColor;
-        }
-
-        descText.text =
-            string.IsNullOrWhiteSpace(description)
-                ? "No description."
-                : description;
+        ApplyContent(title, description, elementType);
+        SetPricePanels(PriceMode.None, 0);
 
         gameObject.SetActive(true);
         _rect.SetAsLastSibling();
@@ -155,6 +172,28 @@ public sealed class TooltipUI : MonoBehaviour
         _rect.anchoredPosition = localPos;
         cachedVector = localPos;
         controllerInUse = true;
+    }
+
+    public void ShowBuyAtPosition(
+        string title,
+        string description,
+        Vector2 position,
+        ElementType elementType,
+        int price)
+    {
+        ShowAtPosition(title, description, position, elementType);
+        SetPricePanels(PriceMode.Buy, price);
+    }
+
+    public void ShowSellAtPosition(
+        string title,
+        string description,
+        Vector2 position,
+        ElementType elementType,
+        int price)
+    {
+        ShowAtPosition(title, description, position, elementType);
+        SetPricePanels(PriceMode.Sell, price);
     }
 
 
@@ -219,6 +258,77 @@ public sealed class TooltipUI : MonoBehaviour
         nameText = name;
         typeText = type;
         descText = desc;
+    }
+
+    private void ApplyContent(
+        string title,
+        string description,
+        ElementType elementType)
+    {
+        if (nameText == null || descText == null)
+        {
+            return;
+        }
+
+        nameText.text = title;
+
+        if (typeText != null)
+        {
+            string typeName = ElementTypeColors.GetDisplayName(elementType);
+            Color typeColor =
+                ElementTypeColors.GetColor(elementType);
+            typeText.text = typeName;
+            typeText.color = typeColor;
+        }
+
+        descText.text =
+            string.IsNullOrWhiteSpace(description)
+                ? "No description."
+                : description;
+    }
+
+    private void SetPricePanels(PriceMode mode, int price)
+    {
+        if (shopPanel != null)
+        {
+            bool buyActive = mode == PriceMode.Buy;
+            if (shopPanel.activeSelf != buyActive)
+            {
+                shopPanel.SetActive(buyActive);
+            }
+        }
+
+        if (sellPanel != null)
+        {
+            bool sellActive = mode == PriceMode.Sell;
+            if (sellPanel.activeSelf != sellActive)
+            {
+                sellPanel.SetActive(sellActive);
+            }
+        }
+
+        if (mode == PriceMode.Buy && costText != null)
+        {
+            costText.text = $"${price}";
+        }
+        else if (mode == PriceMode.Sell && sellPriceText != null)
+        {
+            sellPriceText.text = $"Sell Price: ${price}";
+        }
+    }
+
+    private bool HasAncestorTooltipUI()
+    {
+        Transform parent = transform.parent;
+        while (parent != null)
+        {
+            if (parent.GetComponent<TooltipUI>() != null)
+            {
+                return true;
+            }
+            parent = parent.parent;
+        }
+        return false;
     }
 
     private void CacheCanvas()

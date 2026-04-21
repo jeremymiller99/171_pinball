@@ -1,6 +1,7 @@
 // Generated with Antigravity by jjmil on 2026-04-09.
 // Frenzy portal: awards bonus + activates frenzy via
 // DropTargetsScoringMode when the ball enters.
+// Frenzy-activation SFX hook added by Claude Code (Opus 4.7) for jjmil on 2026-04-21.
 using UnityEngine;
 
 /// <summary>
@@ -58,7 +59,13 @@ public class FrenzyPortal : MonoBehaviour
 
         if (scoringMode != null)
         {
+            bool wasActive = scoringMode.IsFrenzyActive;
             scoringMode.ActivateFrenzy();
+
+            if (!wasActive && scoringMode.IsFrenzyActive)
+            {
+                ServiceLocator.Get<AudioManager>()?.PlayFrenzyActivated();
+            }
         }
     }
 

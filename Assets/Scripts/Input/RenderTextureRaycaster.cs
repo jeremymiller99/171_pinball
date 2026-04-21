@@ -113,6 +113,12 @@ public class RenderTextureRaycaster : MonoBehaviour
 
                 if (offerEntry != null)
                 {
+                    if (!CanAffordOffer(offerEntry.Offer))
+                    {
+                        ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
+                        return;
+                    }
+
                     _offerDragEntry = offerEntry;
                     _offerDragStartScreenPos = mouseScreenPos;
                     offerEntry.SetDragVisual(true);
@@ -293,6 +299,17 @@ public class RenderTextureRaycaster : MonoBehaviour
         }
     }
 
+    private static bool CanAffordOffer(ShopOffer offer)
+    {
+        if (offer == null) return true;
+        if (offer.Price <= 0) return true;
+
+        CoinController coinController = ServiceLocator.Get<CoinController>();
+        if (coinController == null) return true;
+
+        return coinController.Coins >= offer.Price;
+    }
+
     /// <summary>
     /// Checks if the hit object belongs to a hand ball with a
     /// <see cref="BallHandSlotMarker"/> and routes the click to
@@ -364,12 +381,14 @@ public class RenderTextureRaycaster : MonoBehaviour
         string title = null;
         string desc = null;
         ElementType elementType = ElementType.None;
+        TooltipUI.PriceMode priceMode = TooltipUI.PriceMode.None;
+        int price = 0;
 
         if (hitObject != null)
         {
             TryResolveTooltipFromObject(
                 hitObject, out title, out desc,
-                out elementType);
+                out elementType, out priceMode, out price);
         }
 
         if (title == null)
@@ -382,7 +401,7 @@ public class RenderTextureRaycaster : MonoBehaviour
                 hitObject = handBall;
                 TryResolveTooltipFromObject(
                     handBall, out title, out desc,
-                    out elementType);
+                    out elementType, out priceMode, out price);
             }
         }
 
@@ -398,12 +417,54 @@ public class RenderTextureRaycaster : MonoBehaviour
             ClearHighlight();
             _lastHoveredObject = hitObject;
             ApplyHighlight(hitObject);
-            TooltipManager.Show(
-                title, desc, elementType);
+            ShowTooltip(title, desc, elementType, priceMode, price);
             _tooltipShownByHover = true;
         }
 
         RouteToPlacementHover(hitObject, ray);
+    }
+
+    private static void ShowTooltip(
+        string title,
+        string desc,
+        ElementType elementType,
+        TooltipUI.PriceMode priceMode,
+        int price)
+    {
+        switch (priceMode)
+        {
+            case TooltipUI.PriceMode.Buy:
+                TooltipManager.ShowBuy(title, desc, elementType, price);
+                break;
+            case TooltipUI.PriceMode.Sell:
+                TooltipManager.ShowSell(title, desc, elementType, price);
+                break;
+            default:
+                TooltipManager.Show(title, desc, elementType);
+                break;
+        }
+    }
+
+    private static void ShowTooltipAtPosition(
+        string title,
+        string desc,
+        Vector2 position,
+        ElementType elementType,
+        TooltipUI.PriceMode priceMode,
+        int price)
+    {
+        switch (priceMode)
+        {
+            case TooltipUI.PriceMode.Buy:
+                TooltipManager.ShowBuyAtPosition(title, desc, position, elementType, price);
+                break;
+            case TooltipUI.PriceMode.Sell:
+                TooltipManager.ShowSellAtPosition(title, desc, position, elementType, price);
+                break;
+            default:
+                TooltipManager.ShowAtPosition(title, desc, position, elementType);
+                break;
+        }
     }
 
     public void HandleControllerHighlight(GameObject selectedOffer)
@@ -414,12 +475,14 @@ public class RenderTextureRaycaster : MonoBehaviour
         string title = null;
         string desc = null;
         ElementType elementType = ElementType.None;
+        TooltipUI.PriceMode priceMode = TooltipUI.PriceMode.None;
+        int price = 0;
 
         if (selectedOffer != null)
         {
             TryResolveTooltipFromObject(
                 selectedOffer, out title, out desc,
-                out elementType);
+                out elementType, out priceMode, out price);
         }
 
         if (selectedOffer != _lastHoveredObject)
@@ -427,11 +490,11 @@ public class RenderTextureRaycaster : MonoBehaviour
             ClearHighlight();
             _lastHoveredObject = selectedOffer;
             ApplyHighlight(selectedOffer);
-            TooltipManager.ShowAtPosition(
-                title, desc, posOnScreen, elementType);
+            ShowTooltipAtPosition(
+                title, desc, posOnScreen, elementType, priceMode, price);
             _tooltipShownByHover = true;
         }
-    } 
+    }
 
     /// <summary>
     /// During PlacingComponent, forwards hover info to the shop controller so it
@@ -452,11 +515,15 @@ public class RenderTextureRaycaster : MonoBehaviour
         GameObject obj,
         out string title,
         out string desc,
-        out ElementType elementType)
+        out ElementType elementType,
+        out TooltipUI.PriceMode priceMode,
+        out int price)
     {
         title = null;
         desc = null;
         elementType = ElementType.None;
+        priceMode = TooltipUI.PriceMode.None;
+        price = 0;
 
         PlayerShipVisual shipVis =
             obj.GetComponentInParent<PlayerShipVisual>();
@@ -508,8 +575,10 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             ShopOffer offer = offerEntry.Offer;
             title = offer.DisplayName;
-            desc = $"${offer.Price}\n{offer.Description}";
+            desc = offer.Description;
             elementType = offer.ElementType;
+            priceMode = TooltipUI.PriceMode.Buy;
+            price = Mathf.Max(0, offer.Price);
             return;
         }
 
@@ -524,6 +593,12 @@ public class RenderTextureRaycaster : MonoBehaviour
             desc = BuildBallTooltipDescription(
                 ballLink.gameObject, ballDef);
             elementType = ballDef.ElementType;
+
+            if (IsHandBallInShop(ballLink.gameObject))
+            {
+                priceMode = TooltipUI.PriceMode.Sell;
+                price = ComputeBallSellPrice(ballDef);
+            }
             return;
         }
 
@@ -538,6 +613,25 @@ public class RenderTextureRaycaster : MonoBehaviour
             desc = compDef.Description;
             elementType = compDef.ElementType;
         }
+    }
+
+    private static bool IsHandBallInShop(GameObject ballObject)
+    {
+        UnifiedShopController shopCtrl =
+            ServiceLocator.Get<UnifiedShopController>();
+        if (shopCtrl == null || !shopCtrl.IsShopActive)
+        {
+            return false;
+        }
+
+        return GetHandSlotIndexForBall(ballObject) >= 0;
+    }
+
+    private static int ComputeBallSellPrice(BallDefinition def)
+    {
+        if (def == null) return 0;
+        // Matches the formula used by UnifiedShopController for actual sales.
+        return (Mathf.Max(0, def.Price) + 1) / 2;
     }
 
     /// <summary>

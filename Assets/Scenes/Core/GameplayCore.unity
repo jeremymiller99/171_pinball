@@ -1206,10 +1206,10 @@ MonoBehaviour:
   speedIncreasePerGoalTier: 0.1
   scoreIncreasePerGoalTier: 0.5
   applySpeedToTimeScale: 1
-  baselineTimeScale: 1.1
+  baselineTimeScale: 1.05
   externalTimeScaleMultiplier: 1
   externalScoreAwardMultiplier: 1
-  maxTimeScale: 1
+  maxTimeScale: 1.05
   maxFixedDeltaTime: 0.1
   componentHitAssistAccelerationIncrement: 0
   componentHitTimeScaleIncrement: 0
@@ -6403,7 +6403,7 @@ MonoBehaviour:
   canvas: {fileID: 912259833}
   targetCamera: {fileID: 248943762}
   spawnOffset: {x: 100, y: 0}
-  overallScaleMultiplier: 1.75
+  overallScaleMultiplier: 1.2
   enableSpawnStacking: 1
   spawnStackWindowSeconds: 0.2
   spawnStackStep: {x: 14, y: 18}

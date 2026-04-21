@@ -1,4 +1,5 @@
 // Generated with Antigravity by jjmil on 2026-04-09.
+// Firework SFX hook added by Claude Code (Opus 4.7) for jjmil on 2026-04-21.
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -123,6 +124,8 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
 
             instance.transform.localScale =
                 Vector3.one * scale;
+
+            ServiceLocator.Get<AudioManager>()?.PlayFireworks(point);
 
             if (fireworkLifetime > 0f)
             {

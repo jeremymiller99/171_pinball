@@ -10,11 +10,25 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
-## 0.7.4 — pixelation setting + pause menu settings access
-_2026-04-20 · Contributor: JJ_
+## 0.7.4 — pixelation setting, pause-menu settings access, main-menu polish, art-asset reorg
+_2026-04-21 · Contributor: JJ_ (commit `fee2eda`)
+**Pixelation + pause-menu settings**
 - Added `PixelationSettingsManager` (auto-created singleton) that resizes the shared pixel render texture at runtime based on a saved level. Five presets: Crisp (1280x720), Smooth (960x540), Normal (640x360), Retro (400x225, default), Pixel Art (320x180). Setting persists via `PlayerPrefs` and is re-applied on each scene load.
 - Added `PixelationSettingsUI` dropdown (mirrors the existing `DisplaySettingsUI`/`VolumeSettingsUI` pattern). Drops into the Settings Panel prefab with a single `TMP_Dropdown` reference.
 - `PauseMenuController` now supports opening the Settings Panel from the pause menu: auto-wires a `Settings Button` under the Pause Menu panel by name, instantiates a serialized Settings Panel prefab under the pause canvas, and closes back to the pause menu when the pause action is pressed again.
+- New shared `Assets/Prefabs/Settings.prefab` plus a large rework of the Main Menu `Settings Panel.prefab` (~1900-line diff) to host the new pixelation dropdown alongside the existing display/volume sections.
+
+**Main menu polish**
+- Added `SpaceshipSilverwolf` prefab instance to the main menu scene as a hero visual.
+- `UIHoverBob` attached to the title so it floats (8px amplitude, 1.5 Hz bob, 1.5° rotation wobble).
+- New "Team 22" label on the menu.
+- Credits panel: swapped the title font credit from "Jersey 10 (Google Fonts)" to "Bacteria (somepx)" to match the new main-menu font.
+- `version` text bumped to `0.7.4`.
+
+**Art-asset reorganization**
+- Moved `Fonts/`, `Materials/`, `Meshes/` (and loose sprites) under a new `Assets/ArtAssets/{Fonts,Materials,Meshes,Sprites}/` root so art is centralized instead of scattered at `Assets/` root. ~440 file moves; all references updated via GUID — no behavior change, but every prefab/scene touching those assets shows up in this commit.
+- Added new fonts: **Bacteria 12**, **Desert 6**, **Manticore 14** (each with SDF assets) and a Pinballistic Steam store sprite.
+- Misc ball prefab tweaks on `Gear.prefab` and `PiggyBank.prefab` that rode along with the asset move.
 
 ## 0.7.3 — Amp Up rework + tooltip runtime effects
 _2026-04-20 · Contributor: JJ_

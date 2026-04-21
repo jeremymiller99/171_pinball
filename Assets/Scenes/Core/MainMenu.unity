@@ -932,6 +932,41 @@ MonoBehaviour:
       Data3: 1274781323
       Data4: 948996533
     Path: event:/ingame/ball__generic/ball_split
+  fireworksSound:
+    Guid:
+      Data1: 1229958813
+      Data2: 1173960574
+      Data3: 1835367359
+      Data4: -1674099114
+    Path: event:/environment/env_firework
+  frenzyGateSound:
+    Guid:
+      Data1: -931508970
+      Data2: 1335308406
+      Data3: -797266242
+      Data4: -847394481
+    Path: event:/ingame/special/spec_frenzy_gate
+  dropTargetDownSound:
+    Guid:
+      Data1: -800675365
+      Data2: 1139403564
+      Data3: -1036019013
+      Data4: -996737294
+    Path: event:/ingame/comp_generic/comp_drop_down
+  dropTargetUpSound:
+    Guid:
+      Data1: 1142996374
+      Data2: 1088531185
+      Data3: 646550162
+      Data4: -1244978873
+    Path: event:/ingame/comp_generic/comp_drop_up
+  frenzyActivatedSound:
+    Guid:
+      Data1: -563308715
+      Data2: 1280991478
+      Data3: 422247610
+      Data4: -2004864642
+    Path: event:/value/value_frenzy_start
   pointsAddEvent:
     Guid:
       Data1: -418338245

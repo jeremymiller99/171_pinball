@@ -21,6 +21,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f35bd4ffe10094a47bf0d293cdf9a5d6, type: 2}
   - {fileID: 11400000, guid: 4b14eb5ea0e14ea469f9dc777aade6eb, type: 2}
   - {fileID: 11400000, guid: c1d8ad878e4616b4bbd42ef637c67545, type: 2}
+  - {fileID: 11400000, guid: d0e1f2a3b4c5465768798a9b0c1d2e3f, type: 2}
+  - {fileID: 11400000, guid: b2c3d4e5f6a70829394a5b6c7d8e9f02, type: 2}
+  - {fileID: 11400000, guid: d5c4b3a2918071625344354657687980, type: 2}
+  - {fileID: 11400000, guid: 8eadf0f135ce4045a3a4d014666d1e55, type: 2}
+  - {fileID: 11400000, guid: 745875e768204b88bf408ae7c832b2df, type: 2}
+  - {fileID: 11400000, guid: c3d4e5f647586970819a0b1c2d3e4f5c, type: 2}
+  - {fileID: 11400000, guid: f2a3b4c5d6e7859608b9c0d1e2f3a4b5, type: 2}
+  - {fileID: 11400000, guid: f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8, type: 2}
   starterComponents:
   - {fileID: 11400000, guid: 2e273d8f0ebdcd4468266621efe53fbc, type: 2}
   - {fileID: 11400000, guid: de01d113460379245af3316a58b26496, type: 2}

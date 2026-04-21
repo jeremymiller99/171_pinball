@@ -10,6 +10,12 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.7.4 — pixelation setting + pause menu settings access
+_2026-04-20 · Contributor: JJ_
+- Added `PixelationSettingsManager` (auto-created singleton) that resizes the shared pixel render texture at runtime based on a saved level. Five presets: Crisp (1280x720), Smooth (960x540), Normal (640x360), Retro (400x225, default), Pixel Art (320x180). Setting persists via `PlayerPrefs` and is re-applied on each scene load.
+- Added `PixelationSettingsUI` dropdown (mirrors the existing `DisplaySettingsUI`/`VolumeSettingsUI` pattern). Drops into the Settings Panel prefab with a single `TMP_Dropdown` reference.
+- `PauseMenuController` now supports opening the Settings Panel from the pause menu: auto-wires a `Settings Button` under the Pause Menu panel by name, instantiates a serialized Settings Panel prefab under the pause canvas, and closes back to the pause menu when the pause action is pressed again.
+
 ## 0.7.3 — Amp Up rework + tooltip runtime effects
 _2026-04-20 · Contributor: JJ_
 - `AmpUpBall` now destroys itself on first component hit (like the Egg) and permanently amps up the ball queued behind it in the loadout. An amped ball has a 25% chance per component hit to award +0.1 mult.
@@ -22,6 +28,20 @@ _2026-04-13 · Contributor: JJ_
 - Fixed a bug where ball/offer/board-component dragging broke after dying and retrying a round. Root cause: `ServiceLocator.Get<T>()` cached a reference via its `FindAnyObjectByType` fallback and kept returning it after the Unity object was destroyed, so `RenderTextureRaycaster` saw a fake-null `UnifiedShopController` and silently blocked every drag gate.
 - `ServiceLocator.Get`/`TryGet` now detect Unity-destroyed cached references, purge them, and re-resolve via the fallback.
 - `UnifiedShopController` now self-registers with `ServiceLocator` in `Awake` / `OnDestroy` so the fallback path is never exercised.
+
+### Bundled into the 0.7.3 release — contributions merged 0.7.2 → 0.7.3
+_2026-04-13 to 2026-04-20 · Contributors: Devin Alvarez, DrewWhitmer, JJ_
+These commits landed on `main` between the 0.7.2 and 0.7.3 changelog entries but were never given their own version bumps. Reconstructed retroactively from git (commits `e0be397`..`10220c5`).
+- **Devin Alvarez — 9 new balls** (`30b9ca0`, 2026-04-13): added `Pitball`, `Snowball`, `Gear`, `Confetti` (+ `ConfettiShard` shard), `AmpUp`, `PiggyBank`, `Matryoshka`, and `CrossEyed` ball prefabs / definitions (Recall split off to a separate branch).
+- **DrewWhitmer — component upgrade lights + bounce** (`e0be397`, 2026-04-13): upgrade-tier lights and bounce behavior on components.
+- **DrewWhitmer — bomb component update** (`a06880d`, 2026-04-13): bomb component polish.
+- **DrewWhitmer — controller support for components** (`1714324`, 2026-04-16, PR #26): gamepad navigation through the component shop/board interactions.
+- **JJ — main menu tests + camera movement** (`f11843b`, `f6c9ce2`, 2026-04-16): menu-screen test scaffolding and menu camera motion pass.
+- **DrewWhitmer — updated flippers** (`7619157`, 2026-04-19): flipper behavior tuning.
+- **DrewWhitmer — better kickers, bumpers** (`be4bdfa`, 2026-04-19): kicker/bumper behavior + feel improvements.
+- **DrewWhitmer — bouncing component upgrades** (`3d3ec82`, 2026-04-19): bouncing upgrade tier for components.
+- **DrewWhitmer — focused shop** (`dc0728c`, 2026-04-20, PR #29): focused-shop layout/flow revision.
+- **DrewWhitmer — new shop controller support** (`16678f6` merge / `4e19932` + `9ab57f6`, 2026-04-20): gamepad navigation through the shop + ball controller interactions.
 
 ## 0.7.1 — debug unlock-all button
 _2026-04-13 · Contributor: DrewWhitmer_

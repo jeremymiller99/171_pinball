@@ -1,4 +1,5 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant for jjmil on 2026-02-24.
+// Modified with Claude Code (Opus 4.7) by JJ on 2026-04-20: added Settings Panel access.
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -14,6 +15,7 @@ public sealed class PauseMenuController : MonoBehaviour
     private const string PauseMenuPanelName = "Pause Menu";
     private const string ResumeButtonName = "Resume Button";
     private const string QuitButtonName = "Quit Button";
+    private const string SettingsButtonName = "Settings Button";
     private const float MinFixedDeltaTime = 0.0001f;
 
     [Header("Scene")]
@@ -23,6 +25,10 @@ public sealed class PauseMenuController : MonoBehaviour
     [SerializeField] private GameObject pauseMenuPanel;
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button quitButton;
+    [SerializeField] private Button settingsButton;
+
+    [Header("Settings Panel")]
+    [SerializeField] private GameObject settingsPanelPrefab;
 
     [Header("Behavior")]
     [SerializeField] private bool pauseAudioListener = true;
@@ -45,6 +51,8 @@ public sealed class PauseMenuController : MonoBehaviour
     private readonly List<Behaviour> _disabledWhileOpen = new List<Behaviour>();
 
     private bool _buttonsWired;
+
+    private GameObject _settingsInstance;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void InstallIfPauseMenuExists()
@@ -94,6 +102,12 @@ public sealed class PauseMenuController : MonoBehaviour
         if (pauseAction == null || pauseAction.action == null
             || !pauseAction.action.WasPressedThisFrame())
         {
+            return;
+        }
+
+        if (_settingsInstance != null)
+        {
+            CloseSettings();
             return;
         }
 
@@ -157,6 +171,12 @@ public sealed class PauseMenuController : MonoBehaviour
     private void Close()
     {
         isOpen = false;
+
+        if (_settingsInstance != null)
+        {
+            Destroy(_settingsInstance);
+            _settingsInstance = null;
+        }
 
         if (pauseMenuPanel != null)
         {
@@ -307,7 +327,80 @@ public sealed class PauseMenuController : MonoBehaviour
             quitButton.onClick.AddListener(QuitToMainMenu);
         }
 
-        _buttonsWired = resumeButton != null || quitButton != null;
+        if (settingsButton != null)
+        {
+            settingsButton.onClick.RemoveListener(OpenSettings);
+            settingsButton.onClick.AddListener(OpenSettings);
+        }
+
+        _buttonsWired = resumeButton != null
+            || quitButton != null
+            || settingsButton != null;
+    }
+
+    private void OpenSettings()
+    {
+        if (_settingsInstance != null)
+        {
+            return;
+        }
+
+        if (settingsPanelPrefab == null)
+        {
+            Debug.LogWarning(
+                $"{nameof(PauseMenuController)}: settingsPanelPrefab is not assigned.",
+                this);
+            return;
+        }
+
+        Transform parent = pauseMenuPanel != null
+            ? pauseMenuPanel.transform.parent
+            : transform;
+
+        _settingsInstance = Instantiate(settingsPanelPrefab, parent, false);
+        _settingsInstance.SetActive(true);
+
+        if (pauseMenuPanel != null)
+        {
+            pauseMenuPanel.SetActive(false);
+        }
+
+        SelectFirstSelectable(_settingsInstance);
+    }
+
+    private void CloseSettings()
+    {
+        if (_settingsInstance != null)
+        {
+            Destroy(_settingsInstance);
+            _settingsInstance = null;
+        }
+
+        if (!isOpen)
+        {
+            return;
+        }
+
+        if (pauseMenuPanel != null)
+        {
+            pauseMenuPanel.SetActive(true);
+        }
+
+        if (resumeButton != null)
+        {
+            SelectButton(resumeButton);
+        }
+    }
+
+    private static void SelectFirstSelectable(GameObject root)
+    {
+        if (root == null || EventSystem.current == null) return;
+
+        Selectable first = root.GetComponentInChildren<Selectable>(true);
+        if (first != null)
+        {
+            EventSystem.current.SetSelectedGameObject(first.gameObject);
+        }
     }
 
     private bool AutoWireUiIfNeeded()
@@ -330,6 +423,11 @@ public sealed class PauseMenuController : MonoBehaviour
         if (quitButton == null)
         {
             quitButton = FindButtonUnder(pauseMenuPanel, QuitButtonName);
+        }
+
+        if (settingsButton == null)
+        {
+            settingsButton = FindButtonUnder(pauseMenuPanel, SettingsButtonName);
         }
 
         return true;

@@ -376,7 +376,7 @@ public class AudioManager : MonoBehaviour
         for (int i = 0; i < amount; i++)
         {
             PlayOneShot(coinAddEvent);
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.025f);
         }
     }
 

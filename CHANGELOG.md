@@ -10,6 +10,15 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.7.7 — PinballRail thick-walled trough
+_2026-04-21 · Contributor: JJ_
+- `PinballRail` trough collider is now a hollow tube with real wall thickness (inner + outer ring per sample, bridged along the length) instead of a zero-thickness single-walled tube. Inner-surface normals face the tube interior so a ball inside the trough is pushed back toward the center instead of being ejected through the wall. Tube ends are left open so the ball can roll in one end and out the other. New `troughWallThickness` serialized field (default 0.1).
+
+## 0.7.6 — PinballRail spline-driven trough + decorative wires
+_2026-04-21 · Contributor: JJ_
+- New `PinballRail` component (`Assets/Scripts/BoardComponents/PinballRail.cs`) that drives 3D rail geometry from a single `SplineContainer`. On any spline change (or inspector edit) it samples the spline and rebuilds three tube meshes in sync: a smooth continuous tube used as a `MeshCollider` for the physics trough (renderer disabled by default) plus two decorative wire tubes offset laterally by `wireLateralOffset` along the spline's right-vector and vertically by `wireVerticalOffset`. Separating the single smooth collider from the visual wires avoids the ball catching on per-segment collider seams that happened when the same mesh was used for both roles.
+- Children `_RailTrough`, `_RailLeftWire`, `_RailRightWire` are auto-created/reused under the component's GameObject; meshes use `HideFlags.DontSave` so they regenerate on each load.
+
 ## 0.7.5 — firework, drop-target, and frenzy-portal SFX hooks
 _2026-04-21 · Contributor: JJ_
 - `LevelUpVFXTrigger` now calls `AudioManager.PlayFireworks` at each firework spawn point during the stagger coroutine, so the level-up visual is matched by a firework SFX per burst.

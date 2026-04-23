@@ -993,18 +993,20 @@ public sealed class UnifiedShopController : MonoBehaviour
             {
                 if (keepMoving)
                 {
+                    _hand.SetSlotHoverHighlight(currentBallIndex, false);
                     currentBallIndex--;
                     if (currentBallIndex < 0)
                     {
-                        currentBallIndex = ballSpawner.HandCount - 1;
+                        currentBallIndex = ballSpawner.HandSlots.Count - 1;
                     }
                 }
             } else if (moveVector.y > movementThreshold)
             {
                 if (keepMoving)
                 {
+                    _hand.SetSlotHoverHighlight(currentBallIndex, false);
                     currentBallIndex++;
-                    if (currentBallIndex > ballSpawner.HandCount - 1)
+                    if (currentBallIndex > ballSpawner.HandSlots.Count - 1)
                     {
                         currentBallIndex = 0;
                     }
@@ -1038,14 +1040,25 @@ public sealed class UnifiedShopController : MonoBehaviour
         }
         else if (CurrentState == ShopState.PlacingComponent)
         {
-            ConfirmDragDropBoardPurchase(currentOfferIndex, _targetComponent);
+            ShopOffer3DEntry offer = currentOfferObject.GetComponent<ShopOffer3DEntry>();
+            ConfirmDragDropBoardPurchase(offer.OfferIndex, _targetComponent);
             CheckForEmptyShop();
         } else if (CurrentState == ShopState.PlacingBall)
         {
-            ShopOffer offer = currentOfferObject.GetComponent<ShopOffer3DEntry>().Offer;
-            ConfirmDragDropBallReplace(currentOfferIndex, currentBallIndex);
-            CurrentState = ShopState.Browsing;
-            CheckForEmptyShop();
+            ShopOffer3DEntry offer = currentOfferObject.GetComponent<ShopOffer3DEntry>();
+            if (!ballSpawner.GetHandBallAtSlot(currentBallIndex))
+            {
+                AutoBuyBallOffer(offer.OfferIndex, offer.Offer, currentBallIndex);
+                _hand.SetSlotHoverHighlight(currentBallIndex, false);
+                CurrentState = ShopState.Browsing;
+                CheckForEmptyShop();
+            } else
+            {
+                ConfirmDragDropBallReplace(offer.OfferIndex, currentBallIndex);
+                CurrentState = ShopState.Browsing;
+                CheckForEmptyShop();
+            }
+            
         }
 
 
@@ -1132,8 +1145,14 @@ public sealed class UnifiedShopController : MonoBehaviour
         } else if (CurrentState == ShopState.PlacingBall)
         {
             GameObject ball = ballSpawner.GetHandBallAtSlot(currentBallIndex);
-            if (!ball) return;
-            renderTextureRaycaster.HandleControllerHighlight(ball);
+            if (ball)
+            {
+                renderTextureRaycaster.HandleControllerHighlight(ball);
+            } else
+            {
+                _hand.SetSlotHoverHighlight(currentBallIndex, true);
+            }
+            
         }
 
     }

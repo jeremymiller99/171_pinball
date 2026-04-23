@@ -99,6 +99,10 @@ public sealed class RunFlowController : MonoBehaviour
         {
             shopTransitionController.ResumeGameplayInput();
         }
+
+        // Wait one frame so the first gameplay frame renders under the black overlay before we fade in.
+        yield return null;
+        SceneFader.Instance.FadeIn();
     }
 
     /// <summary>

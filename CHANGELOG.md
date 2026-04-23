@@ -10,6 +10,13 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.7.6 — main-menu → gameplay fade transition
+_2026-04-22 · Contributor: JJ_
+- Added `SceneFader` (`Assets/Scripts/UI/SceneFader.cs`): self-bootstrapping `DontDestroyOnLoad` singleton that builds its own top-most (sort order 32000) screen-space overlay canvas + black `Image` and drives an unscaled-time fade `CanvasGroup`. No scene/prefab wiring required — spawns via `RuntimeInitializeOnLoadMethod(BeforeSceneLoad)`.
+- `MainMenuUI.StartQuickRun` / `StartChallengeBoards` / `LoadMenuScene` now go through `SceneFader.FadeAndLoadScene` instead of `SceneManager.LoadScene`. Both play paths pass `holdBlackUntilReady: true` so the screen stays fully black across `GameplayCore` load + the additive board-scene load (no flash of empty core).
+- `RunFlowController.StartRunFromSession` now calls `SceneFader.Instance.FadeIn()` one frame after `LoadBoard` + `StartRun` + `ResumeGameplayInput` complete, so the fade-in reveals the finished board rather than racing the additive load.
+- Menu-scene version text bumped to `v0.7.6`.
+
 ## 0.7.5 — firework, drop-target, and frenzy-portal SFX hooks
 _2026-04-21 · Contributor: JJ_
 - `LevelUpVFXTrigger` now calls `AudioManager.PlayFireworks` at each firework spawn point during the stagger coroutine, so the level-up visual is matched by a firework SFX per burst.

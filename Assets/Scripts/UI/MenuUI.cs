@@ -141,7 +141,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void LoadMenuScene()
     {
-        SceneManager.LoadScene("MainMenu");
+        SceneFader.Instance.FadeAndLoadScene("MainMenu");
     }
 
     private void Start()
@@ -1189,7 +1189,8 @@ public class MainMenuUI : MonoBehaviour
     {
         int seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
         GameSession.Instance.ConfigureQuickRun(quickRunBoards, seed);
-        SceneManager.LoadScene(gameplayCoreSceneName);
+        SceneFader.Instance.FadeAndLoadScene(gameplayCoreSceneName,
+            SceneFader.DefaultFadeOutDuration, SceneFader.DefaultFadeInDuration, holdBlackUntilReady: true);
     }
 
     public void StartChallengeBoards(BoardDefinition[] boards)
@@ -1210,10 +1211,11 @@ public class MainMenuUI : MonoBehaviour
         {
             GameSession.Instance.ConfigureChallenge(boards, seed); // Fallback single boards
             // Single board challenge Config doesn't have ship parameter right now, let's just ignore or update it if needed.
-            // Since User said "no just challenges", we pass it for ChallengeModeDefinition. 
+            // Since User said "no just challenges", we pass it for ChallengeModeDefinition.
         }
 
-        SceneManager.LoadScene(gameplayCoreSceneName);
+        SceneFader.Instance.FadeAndLoadScene(gameplayCoreSceneName,
+            SceneFader.DefaultFadeOutDuration, SceneFader.DefaultFadeInDuration, holdBlackUntilReady: true);
     }
 
     public void OpenRunSelectorPanel()

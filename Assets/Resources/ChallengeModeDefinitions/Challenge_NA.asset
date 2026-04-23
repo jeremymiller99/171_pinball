@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82d0d182ddbe25a41967d0f099516017, type: 3}
   m_Name: Challenge_NA
   m_EditorClassIdentifier: Assembly-CSharp::ChallengeModeDefinition
-  displayName: OG 3
+  displayName: Test Flight
   icon: {fileID: 0}
-  description: Knock down all 3 drop targets simultaneously to reach frenzy mode.
+  description: 'Great for beginners
+
+    Knock down all 3 drop targets to reach frenzy
+    mode'
   winConditionDescription: 3 Stars
   boards:
   - {fileID: 11400000, guid: 94aa8e7624e37f943a9d60f03d1c0ab7, type: 2}

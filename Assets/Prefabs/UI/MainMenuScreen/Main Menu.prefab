@@ -850,7 +850,7 @@ PrefabInstance:
     - target: {fileID: 2217866839087320859, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
       propertyPath: m_SpriteState.m_SelectedSprite
       value: 
-      objectReference: {fileID: 21300000, guid: 290d1ea6f75bbf542a1af2770f6fcae6, type: 3}
+      objectReference: {fileID: 21300000, guid: 75679eed3dbd33e48a7634b37e11c981, type: 3}
     - target: {fileID: 2217866839087320859, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: PlaySound
@@ -869,11 +869,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4582733711460541707, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
       propertyPath: m_fontSize
-      value: 28
+      value: 45.39
+      objectReference: {fileID: 0}
+    - target: {fileID: 4582733711460541707, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 2c6bf484250e8044fa5345624663e733, type: 2}
+    - target: {fileID: 4582733711460541707, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4582733711460541707, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
       propertyPath: m_fontSizeBase
-      value: 28
+      value: 45.39
+      objectReference: {fileID: 0}
+    - target: {fileID: 4582733711460541707, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 6439523049958671114, guid: 2c6bf484250e8044fa5345624663e733, type: 2}
+    - target: {fileID: 4582733711460541707, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4973205814177108435, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
       propertyPath: m_Enabled
@@ -887,6 +903,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5982617507860444508, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 75679eed3dbd33e48a7634b37e11c981, type: 3}
     - target: {fileID: 7412342444153923411, guid: 5a6e02a4ddf4eee46b2e40f43030a512, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

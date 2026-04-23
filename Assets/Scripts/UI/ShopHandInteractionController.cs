@@ -49,7 +49,7 @@ public sealed class ShopHandInteractionController : MonoBehaviour
         if (_ballSpawner != null) _ballSpawner.ClearInsertGapPreview();
     }
 
-    private void SetSlotHoverHighlight(int slotIndex, bool on)
+    public void SetSlotHoverHighlight(int slotIndex, bool on)
     {
         if (_ballSpawner == null || slotIndex < 0) return;
         var slots = _ballSpawner.HandSlots;

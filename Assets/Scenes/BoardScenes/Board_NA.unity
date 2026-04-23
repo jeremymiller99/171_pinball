@@ -18965,61 +18965,13 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6128317739597231693, guid: e63e99e8f4dffeb44b47e111ac9a8e6b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 543450652145992312}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7994282982738389196, guid: e63e99e8f4dffeb44b47e111ac9a8e6b, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1007962166}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e63e99e8f4dffeb44b47e111ac9a8e6b, type: 3}
 --- !u!4 &1007962164 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6128317739597231693, guid: e63e99e8f4dffeb44b47e111ac9a8e6b, type: 3}
   m_PrefabInstance: {fileID: 1007962163}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1007962165 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7994282982738389196, guid: e63e99e8f4dffeb44b47e111ac9a8e6b, type: 3}
-  m_PrefabInstance: {fileID: 1007962163}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1007962166
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1007962165}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a6d8573f37a5ff48afbd5349418aa81, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Bumper
-  typeOfScore: 0
-  amountToScore: 0
-  componentType: 0
-  isConfirmed: 0
-  maxPulseScale: 0
-  pulseAmount: 0
-  startingSize: {x: 0, y: 0, z: 0}
-  directionOfPulse: 1
-  ballHits: 0
-  scoreManager: {fileID: 0}
-  componentGuid: fd0a8bd0-01af-4c9f-be1c-52d90a21b6ae
-  enableHitCountPopup: 0
-  hitCountFontAsset: {fileID: 0}
-  hitCountPopupScale: 0.7
-  hitCountPopupOffset: {x: 0, y: 40}
-  hitCountPopupColor: {r: 1, g: 1, b: 1, a: 1}
-  useSelectionOutline: 1
-  selectionOutlineMode: 1
-  defaultOutlineColor: {r: 0, g: 0, b: 0, a: 1}
-  outlineWidth: 6
-  confirmOutlineColor: {r: 1, g: 1, b: 1, a: 1}
-  selectionOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  hoverOutlineColor: {r: 1, g: 1, b: 1, a: 1}
-  dragTargetOutlineColor: {r: 0.3, g: 1, b: 0.3, a: 1}
-  bumperCollider: {fileID: 3469287838209723870}
-  bounceForce: 10
-  shakeDuration: 0.22
-  shakeMagnitude: 0.16
 --- !u!1001 &1010677436
 PrefabInstance:
   m_ObjectHideFlags: 0

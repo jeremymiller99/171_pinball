@@ -536,6 +536,10 @@ public class RenderTextureRaycaster : MonoBehaviour
         }
 
         ShopHub hub = obj.GetComponentInParent<ShopHub>();
+        if (!hub)
+        {
+            hub = obj.GetComponent<ShopHub>();
+        }
         if (hub != null)
         {
             UnifiedShopController shopCtrl =

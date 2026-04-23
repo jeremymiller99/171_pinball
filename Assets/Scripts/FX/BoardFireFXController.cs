@@ -80,7 +80,7 @@ public class BoardFireFXController : MonoBehaviour
             if (_lastAppliedScalar != 0f)
             {
                 ApplySetActive(false);
-                ServiceLocator.Get<AudioManager>()?.StopBurningSound();
+                ServiceLocator.Get<AudioManager>()?.StopBurningSound(true);
                 _lastAppliedScalar = 0f;
             }
             return;

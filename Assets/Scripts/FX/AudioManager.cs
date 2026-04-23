@@ -436,12 +436,12 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public void StopBurningSound()
+    public void StopBurningSound(bool stopAll=false)
     {
         activeBurnCount--; 
 
         // Only actually stop the sound if nothing else is still burning
-        if (activeBurnCount <= 0)
+        if (activeBurnCount <= 0 || stopAll)
         {
             activeBurnCount = 0; // Prevent negative values just in case
             if (burningSoundInstance.isValid())

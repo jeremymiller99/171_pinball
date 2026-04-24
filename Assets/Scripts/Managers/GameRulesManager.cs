@@ -280,6 +280,9 @@ public class GameRulesManager : MonoBehaviour
                     cc?.ApplyDeferredCoinsUi(coinsAwarded);
                 }
 
+                if (ModifierController?.CurrentRoundData?.type == RoundType.Devil)
+                    ProfileService.RecordDevilRoundCompleted();
+
                 scoreManager.ConsumeLevelProgress(prevGoal);
                 roundIndex = Mathf.Max(0, roundIndex + 1);
                 ApplyCurrentRoundFromWindow();
@@ -475,6 +478,14 @@ public class GameRulesManager : MonoBehaviour
 
         var session = GameSession.Instance;
         var challenge = session?.ActiveChallenge;
+
+        var currentBoard = session?.GetCurrentBoard();
+        if (currentBoard != null)
+        {
+            long score = (long)Math.Round(Math.Max(0d, roundTotal));
+            SteamLeaderboards.UploadScore(currentBoard.boardSceneName,
+                (int)Math.Min(score, int.MaxValue));
+        }
 
         var panel = roundFailedUIRoot != null ? roundFailedUIRoot.GetComponent<RoundFailedPanelController>() : null;
         if (panel != null)

@@ -19,6 +19,16 @@ public static class RunCompletionHelper
         ProfileService.RecordRunCompleted();
         afterRecordBeforeUnlocks?.Invoke();
         ProgressionService.Instance?.CheckAndGrantUnlocks();
+
+        SteamAchievements.UnlockFirstWin();
+        var board = GameSession.Instance?.GetCurrentBoard();
+        if (board != null)
+        {
+            SteamAchievements.UnlockBoardWin(board.boardSceneName);
+            SteamLeaderboards.UploadScore(board.boardSceneName,
+                (int)Math.Min(points, int.MaxValue));
+        }
+
         beforeShowWin?.Invoke();
         WinScreenController.Show(levelReached, points);
     }

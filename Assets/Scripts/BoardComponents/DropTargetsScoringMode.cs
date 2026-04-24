@@ -289,6 +289,7 @@ public class DropTargetsScoringMode : MonoBehaviour
         _frenzyMultBonus = scoreManager.Mult;
         scoreManager.AddFrenzyMult(_frenzyMultBonus);
         _isFrenzyActive = true;
+        SteamAchievements.UnlockFirstFrenzy();
         OnFrenzyActivated?.Invoke();
 
         if (floatingTextSpawner != null

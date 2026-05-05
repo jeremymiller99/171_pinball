@@ -202,7 +202,7 @@ public class GameRulesManager : MonoBehaviour
         // Subbed in for legacy modifier popups
         if (ActiveModifier != null)
         {
-            bool hasCard = ServiceLocator.Get<ModifierCardPopupController>() != null || FindAnyObjectByType<ModifierCardPopupController>(FindObjectsInactive.Include) != null;
+            bool hasCard = ServiceLocator.Get<ModifierCardPopupController>();
             if (!hasCard && floatingTextSpawner != null)
             {
                 if (ActiveModifier.applyTwoRandomDevilModifiers && ModifierController.UnluckyDayActiveModifiers?.Count > 0)
@@ -268,7 +268,11 @@ public class GameRulesManager : MonoBehaviour
                 float prevGoal = CurrentGoal;
                 var cc = ServiceLocator.Get<CoinController>();
                 int coinsAwarded = cc?.AddCoinsScaledDeferredUi(coinsPerLevelUp) ?? 0;
-
+                ActiveIncomeArtifact[] artifacts = FindObjectsByType<ActiveIncomeArtifact>(FindObjectsSortMode.None);
+                if (artifacts.Length > 0)
+                {
+                    coinsAwarded /= Mathf.FloorToInt(artifacts[0].passiveIncomeDivider * artifacts.Length);
+                } 
                 if (showLevelUpCoinsPopup && floatingTextSpawner != null)
                 {
                     int awarded = coinsAwarded;

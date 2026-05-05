@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class UIScript : MonoBehaviour
 {
+    public bool usingMouse;
     [SerializeField] private EventSystem eventSystem;
     [SerializeField] private bool selectingShop = false;
     [SerializeField] private GameObject selectedObject;
@@ -15,6 +16,7 @@ public class UIScript : MonoBehaviour
     void Awake()
     {
         eventSystem = GetComponent<EventSystem>();
+        usingMouse = true;
     }
 
     private void EnsureShopController()
@@ -33,8 +35,14 @@ public class UIScript : MonoBehaviour
         } else if (!selectingShop && 
             (Gamepad.all.Count != 0 && Gamepad.current.wasUpdatedThisFrame || Keyboard.current.wasUpdatedThisFrame))
         {
+            usingMouse = false;
             eventSystem.sendNavigationEvents = false;
             SelectButton();
+        }
+
+        if (Mouse.current.wasUpdatedThisFrame)
+        {
+                usingMouse = true;
         }
     }
 
@@ -42,8 +50,7 @@ public class UIScript : MonoBehaviour
     // This has to be done in the late update function in order to avoid telling the event system
     // to target a different game object twice in the same frame. This way, the navigation event
     // gets sent in the next frame instead of the same frame it's being told to select the first
-    // button object. 
-    // -Drew
+    // button object.
     private void LateUpdate()
     {
         if (!selectingShop && !eventSystem.sendNavigationEvents)

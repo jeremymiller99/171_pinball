@@ -1,4 +1,5 @@
 // Updated with Cursor (claude-4.6-opus) by jjmil on 2026-03-24.
+using System;
 using UnityEngine;
 
 public class MultiBall : Ball
@@ -14,6 +15,8 @@ public class MultiBall : Ball
 
     [SerializeField] private bool hasSplit;
 
+    public event Action<MultiBall> OnSplit;
+
     protected override int HitIntervalForPopup => hasSplit ? 0 : componentHitsToSplit;
 
 
@@ -27,7 +30,7 @@ public class MultiBall : Ball
         if (componentHitsToSplit < 1) componentHitsToSplit = 1;
     }
 
-    private void SplitNow()
+    public void SplitNow()
     {
         readyToSplit = false;
         hasSplit = true;
@@ -60,6 +63,7 @@ public class MultiBall : Ball
         if (componentHits >= componentHitsToSplit && !hasSplit)
         {
             SplitNow();
+            OnSplit?.Invoke(this);
             componentHits = 0;
         }
         

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -43,6 +44,7 @@ public sealed class BallSpawner : MonoBehaviour
     private bool _isGapPreviewActive;
     private List<GameObject> _activeBalls = new List<GameObject>();
 
+    public event Action<GameObject> ActivateBall;
     public List<GameObject> ActiveBalls => _activeBalls;
     public IReadOnlyList<GameObject> HandBalls => _handBalls;
     public int HandCount => _handBalls.Count;
@@ -345,6 +347,7 @@ public sealed class BallSpawner : MonoBehaviour
         LayoutHandImmediate();
 
         _activeBalls.Add(next);
+        ActivateBall?.Invoke(next);
 
         if (_moveCoroutine != null)
         {

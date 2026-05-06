@@ -124,6 +124,7 @@ public sealed class ProfileService : MonoBehaviour
         p.stats.AddPoints(points);
         Instance.SaveSlot(Instance.activeSlot);
         ProfileChanged?.Invoke(Instance.activeSlot);
+        SteamAchievements.CheckScoreMilestones(p.stats.totalPointsScored);
     }
 
     public static void RecordRunCompleted()
@@ -139,6 +140,22 @@ public sealed class ProfileService : MonoBehaviour
         p.stats.RecordRunCompleted();
         Instance.SaveSlot(Instance.activeSlot);
         ProfileChanged?.Invoke(Instance.activeSlot);
+        SteamAchievements.CheckRunMilestones(p.stats.totalBoardWins);
+    }
+
+    public static void RecordDevilRoundCompleted()
+    {
+        if (Instance == null) return;
+
+        ProfileSaveData p = Instance.GetOrCreateActiveProfile();
+        if (p.stats == null)
+        {
+            p.stats = new ProfileStats();
+        }
+
+        p.stats.devilRoundsCompleted++;
+        Instance.SaveSlot(Instance.activeSlot);
+        SteamAchievements.CheckDevilRounds(p.stats.devilRoundsCompleted);
     }
 
     public static bool HasAnsweredFirstTimePlayingPrompt()

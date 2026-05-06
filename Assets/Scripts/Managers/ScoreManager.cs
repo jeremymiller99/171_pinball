@@ -217,6 +217,7 @@ public class ScoreManager : MonoBehaviour
     {
         _frenzyMult += amount;
         if (_frenzyMult < 0f) _frenzyMult = 0f;
+        SteamAchievements.CheckMultMilestone(EffectiveMult);
         ScoreChanged?.Invoke();
     }
 
@@ -336,6 +337,8 @@ public class ScoreManager : MonoBehaviour
         mult += applied;
         if (_multCap > 0f && _multCap < float.MaxValue)
             mult = Mathf.Min(mult, _multCap);
+
+        SteamAchievements.CheckMultMilestone(EffectiveMult);
 
         if (floatingTextSpawner != null)
         {

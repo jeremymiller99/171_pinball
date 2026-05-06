@@ -82,4 +82,12 @@ public class UIScript : MonoBehaviour
         shopController.SelectShop();
     }
 
+    public void SelectBalls()
+    {
+        EnsureShopController();
+        selectingShop = true;
+        eventSystem.sendNavigationEvents = false;
+        shopController.SelectBalls();
+    }
+
 }

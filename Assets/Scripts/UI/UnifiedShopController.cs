@@ -19,7 +19,8 @@ public sealed class UnifiedShopController : MonoBehaviour
     {
         Browsing,
         PlacingComponent,
-        PlacingBall
+        PlacingBall,
+        SelectingBall
     }
 
     [Header("Refs")]
@@ -31,6 +32,7 @@ public sealed class UnifiedShopController : MonoBehaviour
     [SerializeField] private BallSpawner ballSpawner;
     [SerializeField] private RenderTextureRaycaster renderTextureRaycaster;
     [SerializeField] private UIScript uiScript;
+    [SerializeField] private ShopHub shopHub;
 
     [Header("UI")]
     [SerializeField] private TMP_Text coinsText;
@@ -44,6 +46,7 @@ public sealed class UnifiedShopController : MonoBehaviour
     [SerializeField] private int currentComponentIndex;
     [SerializeField] private int currentBallIndex;
     [SerializeField] private bool keepMoving;
+    [SerializeField] private int selectedBallIndex;
 
     [Header("Confirm Panel")]
     [SerializeField] private ShopConfirmPanel confirmPanel;
@@ -541,7 +544,7 @@ public sealed class UnifiedShopController : MonoBehaviour
     public void OnHandBallDragSell(int slot, ShopHub hub)
     {
         if (!IsShopActive) return;
-        if (CurrentState != ShopState.Browsing) return;
+        if (!(CurrentState == ShopState.Browsing || CurrentState == ShopState.SelectingBall)) return;
         if (hub == null || slot < 0) return;
 
         _hand.ClearSwapSelection();
@@ -878,6 +881,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (ballSpawner == null) ballSpawner = ServiceLocator.Get<BallSpawner>();
         if (renderTextureRaycaster == null) renderTextureRaycaster = ServiceLocator.Get<RenderTextureRaycaster>();
         if (uiScript == null) uiScript = ServiceLocator.Get<UIScript>();
+        if (shopHub == null) shopHub = ServiceLocator.Get<ShopHub>();
     }
 
     private void WireContinueButton()
@@ -997,7 +1001,7 @@ public sealed class UnifiedShopController : MonoBehaviour
                     currentBallIndex--;
                     if (currentBallIndex < 0)
                     {
-                        currentBallIndex = ballSpawner.HandSlots.Count - 1;
+                        currentBallIndex = ballSpawner.SlotCount - 1;
                     }
                 }
             } else if (moveVector.y > movementThreshold)
@@ -1006,10 +1010,55 @@ public sealed class UnifiedShopController : MonoBehaviour
                 {
                     _hand.SetSlotHoverHighlight(currentBallIndex, false);
                     currentBallIndex++;
-                    if (currentBallIndex > ballSpawner.HandSlots.Count - 1)
+                    if (currentBallIndex > ballSpawner.SlotCount - 1)
                     {
                         currentBallIndex = 0;
                     }
+                }
+            } else
+            {
+                keepMoving = true;
+            }
+        } else if (CurrentState == ShopState.SelectingBall)
+        {
+            if (moveVector.y < -movementThreshold)
+            {
+                if (keepMoving)
+                {
+                    _hand.SetSlotHoverHighlight(currentBallIndex, false);
+                    shopHub.SetHovered(false);
+                    currentBallIndex--;
+                    if (currentBallIndex < 0)
+                    {
+                        currentBallIndex = ballSpawner.SlotCount;
+                    }
+                }
+            }
+            else if (moveVector.y > movementThreshold)
+            {
+                if (keepMoving)
+                {
+                    _hand.SetSlotHoverHighlight(currentBallIndex, false);
+                    currentBallIndex++;
+                    if (currentBallIndex == ballSpawner.SlotCount)
+                    {
+                        shopHub.SetHovered(true);
+                    } else if (currentBallIndex > ballSpawner.SlotCount)
+                    {
+                        shopHub.SetHovered(false);
+                        currentBallIndex = 0;
+                    }
+                }
+            }
+            else if (moveVector.x > movementThreshold)
+            {
+                if (keepMoving)
+                {
+                    SelectingButtons = true;
+                    uiScript.SelectButton();
+                    TooltipManager.Hide();
+                    selectedBallIndex = -1;
+                    _hand.ClearSwapSelection();
                 }
             } else
             {
@@ -1020,7 +1069,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     public void OnEnter()
     {
-        if (currentOfferObject == null) return;
+        if (currentOfferObject == null && CurrentState != ShopState.SelectingBall) return;
         
         if (CurrentState == ShopState.Browsing)
         {
@@ -1059,8 +1108,23 @@ public sealed class UnifiedShopController : MonoBehaviour
                 CheckForEmptyShop();
             }
             
+        } else if (CurrentState == ShopState.SelectingBall)
+        {
+            if (selectedBallIndex != -1 && currentBallIndex != ballSpawner.SlotCount)
+            {
+                Debug.Log("Swap");
+                HandleBallSwapClick(currentBallIndex);
+                selectedBallIndex = -1;
+            } else if (selectedBallIndex != -1 && currentBallIndex == ballSpawner.SlotCount)
+            {
+                OnHandBallDragSell(selectedBallIndex, shopHub);
+                selectedBallIndex = -1;
+            } else
+            {
+                selectedBallIndex = currentBallIndex;
+                _hand.SetSwapSelectedSlot(selectedBallIndex);
+            }
         }
-
 
     }
 
@@ -1100,6 +1164,13 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     public void OnBack()
     {
+        if (CurrentState == ShopState.SelectingBall && selectedBallIndex != -1)
+        {
+            selectedBallIndex = -1;
+            _hand.ClearSwapSelection();
+            return;
+        }
+
         CurrentState = ShopState.Browsing;
         _placement.Cleanup();
     }
@@ -1115,7 +1186,22 @@ public sealed class UnifiedShopController : MonoBehaviour
         currentOfferIndex = 0;
         SelectingButtons = false;
         currentOfferObject = _shelf.OfferEntries[currentOfferIndex].gameObject;
+        CurrentState = ShopState.Browsing;
         CheckForEmptyShop();
+    }
+
+    public void SelectBalls()
+    {
+        if (ballSpawner.HandCount == 0)
+        {
+            uiScript.SelectButton();
+            return;
+        }
+
+        CurrentState = ShopState.SelectingBall;
+        currentBallIndex = 0;
+        selectedBallIndex = -1;
+        SelectingButtons = false;
     }
 
     private void CheckForEmptyShop()
@@ -1142,15 +1228,19 @@ public sealed class UnifiedShopController : MonoBehaviour
         else if (CurrentState == ShopState.PlacingComponent)
         {
             renderTextureRaycaster.HandleControllerHighlight(_targetComponent.gameObject);
-        } else if (CurrentState == ShopState.PlacingBall)
+        } else if (CurrentState == ShopState.PlacingBall || CurrentState == ShopState.SelectingBall)
         {
             GameObject ball = ballSpawner.GetHandBallAtSlot(currentBallIndex);
             if (ball)
             {
                 renderTextureRaycaster.HandleControllerHighlight(ball);
-            } else
+            } else if (currentBallIndex != ballSpawner.SlotCount)
             {
                 _hand.SetSlotHoverHighlight(currentBallIndex, true);
+            } else
+            {
+                shopHub.SetHovered(true);
+                renderTextureRaycaster.HandleControllerHighlight(shopHub.gameObject);
             }
             
         }

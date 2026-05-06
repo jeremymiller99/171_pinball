@@ -1262,6 +1262,7 @@ public class MainMenuUI : MonoBehaviour
     {
         if (mode == null) return;
 
+        challengeButtonsRoot.gameObject.SetActive(false);
         _pendingChallengeMode = mode;
         _pendingChallengeBoards = mode.boards;
 
@@ -1357,6 +1358,7 @@ public class MainMenuUI : MonoBehaviour
     {
         _pendingChallengeBoards = null;
         _pendingChallengeMode = null;
+        challengeButtonsRoot.gameObject.SetActive(true);
         if (modeInfoPanel != null)
             modeInfoPanel.SetActive(false);
     }

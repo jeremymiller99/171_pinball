@@ -11,6 +11,9 @@ public sealed class ProfileStats
     [Tooltip("Total runs completed.")]
     public int totalBoardWins;
 
+    [Tooltip("Total devil modifier rounds survived.")]
+    public int devilRoundsCompleted;
+
     public void AddPoints(double points)
     {
         if (points <= 0d)

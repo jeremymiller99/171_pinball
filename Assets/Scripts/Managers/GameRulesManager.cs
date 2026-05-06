@@ -202,7 +202,7 @@ public class GameRulesManager : MonoBehaviour
         // Subbed in for legacy modifier popups
         if (ActiveModifier != null)
         {
-            bool hasCard = ServiceLocator.Get<ModifierCardPopupController>() != null || FindAnyObjectByType<ModifierCardPopupController>(FindObjectsInactive.Include) != null;
+            bool hasCard = ServiceLocator.Get<ModifierCardPopupController>();
             if (!hasCard && floatingTextSpawner != null)
             {
                 if (ActiveModifier.applyTwoRandomDevilModifiers && ModifierController.UnluckyDayActiveModifiers?.Count > 0)
@@ -268,7 +268,11 @@ public class GameRulesManager : MonoBehaviour
                 float prevGoal = CurrentGoal;
                 var cc = ServiceLocator.Get<CoinController>();
                 int coinsAwarded = cc?.AddCoinsScaledDeferredUi(coinsPerLevelUp) ?? 0;
-
+                ActiveIncomeArtifact[] artifacts = FindObjectsByType<ActiveIncomeArtifact>(FindObjectsSortMode.None);
+                if (artifacts.Length > 0)
+                {
+                    coinsAwarded /= Mathf.FloorToInt(artifacts[0].passiveIncomeDivider * artifacts.Length);
+                } 
                 if (showLevelUpCoinsPopup && floatingTextSpawner != null)
                 {
                     int awarded = coinsAwarded;
@@ -279,6 +283,9 @@ public class GameRulesManager : MonoBehaviour
                 {
                     cc?.ApplyDeferredCoinsUi(coinsAwarded);
                 }
+
+                if (ModifierController?.CurrentRoundData?.type == RoundType.Devil)
+                    ProfileService.RecordDevilRoundCompleted();
 
                 scoreManager.ConsumeLevelProgress(prevGoal);
                 roundIndex = Mathf.Max(0, roundIndex + 1);
@@ -475,6 +482,14 @@ public class GameRulesManager : MonoBehaviour
 
         var session = GameSession.Instance;
         var challenge = session?.ActiveChallenge;
+
+        var currentBoard = session?.GetCurrentBoard();
+        if (currentBoard != null)
+        {
+            long score = (long)Math.Round(Math.Max(0d, roundTotal));
+            SteamLeaderboards.UploadScore(currentBoard.boardSceneName,
+                (int)Math.Min(score, int.MaxValue));
+        }
 
         var panel = roundFailedUIRoot != null ? roundFailedUIRoot.GetComponent<RoundFailedPanelController>() : null;
         if (panel != null)

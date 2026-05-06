@@ -8,7 +8,7 @@ using UnityEngine;
 /// Central source of truth for a ball's shop + UI metadata.
 /// </summary>
 [CreateAssetMenu(menuName = "Pinball/Ball Definition", fileName = "BallDefinition_")]
-public sealed class BallDefinition : ScriptableObject
+public class BallDefinition : ScriptableObject
 {
     [Header("Identity")]
     [Tooltip("Stable unique id for this ball (used for references and future persistence).")]

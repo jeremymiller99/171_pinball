@@ -83,6 +83,15 @@ public sealed class ShopOfferShelfController : MonoBehaviour
         return _currentOffers[offerIndex];
     }
 
+    /// <summary>
+    /// Resolves a mystery-ball offer to a concrete unlocked ball of the given
+    /// rarity. Returns null if no eligible ball exists in the catalog.
+    /// </summary>
+    public BallDefinition ResolveMysteryBall(BallRarity rarity)
+    {
+        return MysteryBallResolver.Resolve(rarity, allBallDefinitions);
+    }
+
     public void ConsumeOffer(int offerIndex)
     {
         if (offerIndex < 0

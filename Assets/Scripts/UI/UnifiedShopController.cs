@@ -678,9 +678,27 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
+        BallDefinition ballToGrant = offer.BallDef;
+        bool wasMystery = ballToGrant is MysteryBallDefinition;
+
+        if (wasMystery)
+        {
+            var mystery = (MysteryBallDefinition)ballToGrant;
+            ballToGrant = _shelf.ResolveMysteryBall(mystery.TargetRarity);
+
+            if (ballToGrant == null)
+            {
+                coinController?.AddCoinsUnscaled(offer.Price);
+                SetPrompt($"No {mystery.TargetRarity} balls available -- purchase refunded.");
+                ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
+                RefreshUI();
+                return;
+            }
+        }
+
         ServiceLocator.Get<AudioManager>()?.PlayPurchase();
 
-        if (!loadoutCtrl.InsertBallIntoLoadout(insertSlot, offer.BallDef))
+        if (!loadoutCtrl.InsertBallIntoLoadout(insertSlot, ballToGrant))
         {
             coinController?.AddCoinsUnscaled(offer.Price);
             SetPrompt("Loadout full -- could not add ball.");
@@ -688,13 +706,22 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
-        if (ballSpawner != null && offer.BallDef?.Prefab != null)
+        if (ballSpawner != null && ballToGrant.Prefab != null)
         {
-            ballSpawner.AddBallAnimated(offer.BallDef.Prefab, insertSlot);
+            ballSpawner.AddBallAnimated(ballToGrant.Prefab, insertSlot);
         }
 
         _shelf.ConsumeOffer(offerIndex);
-        SetPrompt($"Added {offer.DisplayName} to loadout.");
+
+        if (wasMystery)
+        {
+            SetPrompt($"Mystery revealed: {ballToGrant.GetSafeDisplayName()}!");
+        }
+        else
+        {
+            SetPrompt($"Added {offer.DisplayName} to loadout.");
+        }
+
         RefreshUI();
     }
 

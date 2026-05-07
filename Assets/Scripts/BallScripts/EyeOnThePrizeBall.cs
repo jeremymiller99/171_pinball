@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EyeOnThePrizeBall : Ball
+public class EyeOnThePrizeBall : Ball, ISplitter
 {
     [SerializeField] private GameObject chaosBallPrefab;
     [SerializeField] private float lastBallPointsMultiplier = 3f;
@@ -14,6 +14,8 @@ public class EyeOnThePrizeBall : Ball
     private bool _isRed;
     private bool _hasSpawned;
     private BallSpawner _spawner;
+
+    public int BallsOnSplit { get; set; } = 9;
 
     void Awake()
     {
@@ -47,9 +49,9 @@ public class EyeOnThePrizeBall : Ball
         var allBalls = new List<EyeOnThePrizeBall> { this };
         Vector3 center = transform.position;
 
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < BallsOnSplit; i++)
         {
-            float angle = (i / 9f) * 360f * Mathf.Deg2Rad;
+            float angle = (i / (float)BallsOnSplit) * 360f * Mathf.Deg2Rad;
             Vector3 offset = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * spawnRadius;
             GameObject go = Instantiate(chaosBallPrefab, center + offset, Quaternion.identity);
             EnsureOwnMaterials(go);

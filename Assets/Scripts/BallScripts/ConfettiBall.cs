@@ -3,12 +3,12 @@ using UnityEngine;
 
 /// <summary>
 /// Splitter-class ball: every <see cref="hitsPerBurst"/> scoring component hits,
-/// spawns <see cref="shardsPerBurst"/> colorful mini-balls that pop after
+/// spawns <see cref="BallsOnSplit"/> colorful mini-balls that pop after
 /// <see cref="ConfettiShardBall.HitsToPopDefault"/> hits. Fires
 /// <see cref="BurstsPerBallDefault"/> shard bursts per main ball by default
 /// (<see cref="maxBursts"/>).
 /// </summary>
-public sealed class ConfettiBall : Ball
+public sealed class ConfettiBall : Ball, ISplitter
 {
     public const string DefinitionId = "Confetti";
 
@@ -27,7 +27,7 @@ public sealed class ConfettiBall : Ball
     [SerializeField] private int hitsPerBurst = 4;
 
     [Min(1)]
-    [SerializeField] private int shardsPerBurst = 3;
+    public int BallsOnSplit { get; set; } = 3;
 
     [Min(1)]
     [Tooltip("How many times this ball spawns a shard burst (default matches BurstsPerBallDefault).")]
@@ -53,7 +53,7 @@ public sealed class ConfettiBall : Ball
     private void OnValidate()
     {
         hitsPerBurst = Mathf.Max(1, hitsPerBurst);
-        shardsPerBurst = Mathf.Max(1, shardsPerBurst);
+        BallsOnSplit = Mathf.Max(1, BallsOnSplit);
         maxBursts = Mathf.Max(1, maxBursts);
         shardSpawnUniformScale = Mathf.Max(0.01f, shardSpawnUniformScale);
     }
@@ -108,9 +108,9 @@ public sealed class ConfettiBall : Ball
         Rigidbody parentRb = GetComponent<Rigidbody>();
         Vector3 baseVel = parentRb != null ? parentRb.linearVelocity : Vector3.zero;
 
-        for (int i = 0; i < shardsPerBurst; i++)
+        for (int i = 0; i < BallsOnSplit; i++)
         {
-            float ang = i * (Mathf.PI * 2f / shardsPerBurst);
+            float ang = i * (Mathf.PI * 2f / BallsOnSplit);
             Vector3 ring = new Vector3(Mathf.Cos(ang), 0.35f, Mathf.Sin(ang));
             Vector3 spawnPos = transform.position + ring * 0.18f;
 

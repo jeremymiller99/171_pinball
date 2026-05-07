@@ -13,15 +13,10 @@ public class ExtraSplitArtifact : MonoBehaviour
 
     private void AddSplitBall(GameObject ball)
     {
-        MultiBall multi = ball.GetComponent<MultiBall>();
-        if (multi)
+        ISplitter splittingInterface = ball.GetComponent<ISplitter>();
+        if (splittingInterface != null)
         {
-            multi.OnSplit += ReactivateSplitter;
+            splittingInterface.BallsOnSplit++;
         }
-    }
-
-    private void ReactivateSplitter(MultiBall ball)
-    {
-        ball.SplitNow();
     }
 }

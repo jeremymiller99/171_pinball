@@ -30,6 +30,15 @@ public static class RunCompletionHelper
         }
 
         beforeShowWin?.Invoke();
-        WinScreenController.Show(levelReached, points);
+
+        string boardName = board != null ? board.boardSceneName : "";
+        int capturedLevel = levelReached;
+        long capturedPoints = points;
+        LeaderboardPanelController.Show(
+            capturedPoints,
+            capturedLevel,
+            boardName,
+            wasWin: true,
+            onContinue: () => WinScreenController.Show(capturedLevel, capturedPoints));
     }
 }

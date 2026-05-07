@@ -14,5 +14,6 @@ public enum ElementType
     Mint,
     Splitter,
     Anomaly,
-    Catalyst
+    Catalyst,
+    Artifact
 }

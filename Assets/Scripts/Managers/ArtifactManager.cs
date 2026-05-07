@@ -30,6 +30,11 @@ public class ArtifactManager : MonoBehaviour
         _timeScaleBeforePause = Time.timeScale;
         _fixedDeltaBeforePause = Time.fixedDeltaTime;
         Time.timeScale = 0f;
+        // Disable floating text so it's not in the way of the artifact cards
+        foreach (var text in FindObjectsByType<FloatingText>(FindObjectsSortMode.None))
+        {
+            text.gameObject.SetActive(false);
+        }
 
         // Get 3 random artifacts and populate the cards
         List<ArtifactDefinition> artifacts = artifactPool.GetThreeRandomArtifacts();
@@ -55,6 +60,12 @@ public class ArtifactManager : MonoBehaviour
         // Resume gameplay
         Time.timeScale = _timeScaleBeforePause;
         Time.fixedDeltaTime = _fixedDeltaBeforePause;
+
+        // Enable floating text again
+        foreach (var text in FindObjectsByType<FloatingText>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            text.gameObject.SetActive(true);
+        }
     }
 
     public void TryActivateCards()

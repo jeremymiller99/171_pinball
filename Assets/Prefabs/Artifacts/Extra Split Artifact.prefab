@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2602778532944142056}
   - component: {fileID: 4692461571960005916}
   - component: {fileID: 162118465792206557}
+  - component: {fileID: -1158564599345889582}
   m_Layer: 0
   m_Name: Extra Split Artifact
   m_TagString: Untagged
@@ -125,4 +126,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExtraSplitArtifact
   ballSpawner: {fileID: 0}
-  passiveIncomeDivider: 0
+--- !u!114 &-1158564599345889582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8234933386589820079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d69a2c8adb1344b4c80f5195ef048974, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArtifactDefinitionLink
+  definition: {fileID: 11400000, guid: 4031097ccdc95d74cad6a77375a8a696, type: 2}

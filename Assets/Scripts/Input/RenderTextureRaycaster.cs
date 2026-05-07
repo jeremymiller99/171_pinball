@@ -617,6 +617,18 @@ public class RenderTextureRaycaster : MonoBehaviour
             desc = compDef.Description;
             elementType = compDef.ElementType;
         }
+
+        ArtifactDefinitionLink artifactLink =
+            obj.GetComponentInParent<ArtifactDefinitionLink>();
+
+        if (artifactLink != null
+            && artifactLink.TryGetDefinition(
+                out ArtifactDefinition artifactDef))
+        {
+            title = artifactDef.GetSafeDisplayName();
+            desc = artifactDef.Description;
+            elementType = ElementType.Artifact;
+        }
     }
 
     private static bool IsHandBallInShop(GameObject ballObject)

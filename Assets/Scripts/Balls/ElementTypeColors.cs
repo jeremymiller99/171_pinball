@@ -41,7 +41,7 @@ public static class ElementTypeColors
             ElementType.Anomaly => "Anomaly",
             ElementType.Catalyst => "Catalyst",
             ElementType.Artifact => "Artifact",
-            _ => ""
+            _ => "N/A"
         };
     }
 }

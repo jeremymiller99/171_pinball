@@ -32,17 +32,21 @@ public class UIScript : MonoBehaviour
         if (eventSystem.currentSelectedGameObject && eventSystem.currentSelectedGameObject.activeInHierarchy)
         {
             selectedObject = eventSystem.currentSelectedGameObject;
-        } else if (!selectingShop && 
-            (Gamepad.all.Count != 0 && Gamepad.current.wasUpdatedThisFrame || Keyboard.current.wasUpdatedThisFrame))
+        } else if (!selectingShop &&
+            ((Gamepad.all.Count != 0 && Gamepad.current.wasUpdatedThisFrame) || Keyboard.current.wasUpdatedThisFrame))
         {
-            usingMouse = false;
             eventSystem.sendNavigationEvents = false;
             SelectButton();
         }
 
-        if (Mouse.current.wasUpdatedThisFrame)
+        if (Mouse.current.leftButton.isPressed || Mouse.current.rightButton.isPressed)
         {
-                usingMouse = true;
+            usingMouse = true;
+        }
+        
+        if ((Gamepad.all.Count != 0 && Gamepad.current.wasUpdatedThisFrame) || Keyboard.current.wasUpdatedThisFrame)
+        {
+            usingMouse = false;
         }
     }
 

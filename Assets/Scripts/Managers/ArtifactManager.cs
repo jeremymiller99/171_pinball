@@ -1,7 +1,8 @@
 using NUnit.Framework;
-using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class ArtifactManager : MonoBehaviour
@@ -12,8 +13,11 @@ public class ArtifactManager : MonoBehaviour
     [SerializeField] private ArtifactSpawnPoint artifactSpawnPoint;
     [SerializeField] private GameRulesManager gameRulesManager;
     [SerializeField] private Image image;
+    [SerializeField] private float timeUntilDeselectArtifacts;
     private float _timeScaleBeforePause;
     private float _fixedDeltaBeforePause;
+
+    public bool SelectingArtifact;
 
     private void Awake()
     {
@@ -30,8 +34,13 @@ public class ArtifactManager : MonoBehaviour
         _timeScaleBeforePause = Time.timeScale;
         _fixedDeltaBeforePause = Time.fixedDeltaTime;
         Time.timeScale = 0f;
+        SelectingArtifact = true;
+        // Disable floating text so it's not in the way of the artifact cards
+        foreach (var text in FindObjectsByType<FloatingText>(FindObjectsSortMode.None))
+        {
+            text.gameObject.SetActive(false);
+        }
 
-        // Get 3 random artifacts and populate the cards
         List<ArtifactDefinition> artifacts = artifactPool.GetThreeRandomArtifacts();
         for (int i = 0; i < artifacts.Count; i++)
         {
@@ -55,6 +64,13 @@ public class ArtifactManager : MonoBehaviour
         // Resume gameplay
         Time.timeScale = _timeScaleBeforePause;
         Time.fixedDeltaTime = _fixedDeltaBeforePause;
+        StartCoroutine(WaitThenDeselectArtifacts());
+
+        // Enable floating text again
+        foreach (var text in FindObjectsByType<FloatingText>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            text.gameObject.SetActive(true);
+        }
     }
 
     public void TryActivateCards()
@@ -72,5 +88,11 @@ public class ArtifactManager : MonoBehaviour
         {
             card.SetActive(enabled);
         }
+    }
+
+    private IEnumerator WaitThenDeselectArtifacts()
+    {
+        yield return new WaitForSeconds(timeUntilDeselectArtifacts);
+        SelectingArtifact = false;
     }
 }

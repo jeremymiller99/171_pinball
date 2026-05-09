@@ -2,7 +2,7 @@
 using System;
 using UnityEngine;
 
-public class MultiBall : Ball
+public class MultiBall : Ball, ISplitter
 {
     [SerializeField] private GameObject prefab;
     [SerializeField] private BallSpawner ballSpawner;
@@ -12,10 +12,10 @@ public class MultiBall : Ball
     [Tooltip("Split after this many board component hits.")]
     [Min(1)]
     [SerializeField] private int componentHitsToSplit = 5;
+    public int BallsOnSplit { get; set; } = 1;
 
     [SerializeField] private bool hasSplit;
-
-    public event Action<MultiBall> OnSplit;
+    
 
     protected override int HitIntervalForPopup => hasSplit ? 0 : componentHitsToSplit;
 
@@ -39,22 +39,24 @@ public class MultiBall : Ball
         {
             ballSpawner = ServiceLocator.Get<BallSpawner>();
         }
-
-        GameObject newBall = Instantiate(prefab, transform.position, transform.rotation);
-        EnsureOwnMaterials(newBall);
-
-        MultiBall child = newBall.GetComponent<MultiBall>();
-        if (child != null)
+        for (int i = 0; i < BallsOnSplit; i++)
         {
-            child.readyToSplit = false;
-            child.hasSplit = true;
-            child.componentHits = 0;
-            child.componentHitsToSplit = componentHitsToSplit;
-        }
+            GameObject newBall = Instantiate(prefab, transform.position, transform.rotation);
+            EnsureOwnMaterials(newBall);
 
-        if (ballSpawner != null)
-        {
-            ballSpawner.ActiveBalls.Add(newBall);
+            MultiBall child = newBall.GetComponent<MultiBall>();
+            if (child != null)
+            {
+                child.readyToSplit = false;
+                child.hasSplit = true;
+                child.componentHits = 0;
+                child.componentHitsToSplit = componentHitsToSplit;
+            }
+
+            if (ballSpawner != null)
+            {
+                ballSpawner.ActiveBalls.Add(newBall);
+            }
         }
     }
 
@@ -63,7 +65,6 @@ public class MultiBall : Ball
         if (componentHits >= componentHitsToSplit && !hasSplit)
         {
             SplitNow();
-            OnSplit?.Invoke(this);
             componentHits = 0;
         }
         

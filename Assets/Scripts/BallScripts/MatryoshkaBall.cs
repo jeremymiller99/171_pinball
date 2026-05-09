@@ -3,11 +3,11 @@ using UnityEngine;
 
 /// <summary>
 /// Splitter-class ball: every <see cref="hitsPerSplit"/> scoring component hits,
-/// splits into <see cref="ballsPerSplit"/> smaller copies. Each copy can split again
+/// splits into <see cref="BallsOnSplit"/> smaller copies. Each copy can split again
 /// until <see cref="terminalSplitGeneration"/> (exclusive) — default yields two split
 /// waves and up to four smallest balls.
 /// </summary>
-public sealed class MatryoshkaBall : Ball
+public sealed class MatryoshkaBall : Ball, ISplitter
 {
     public const string DefinitionId = "MatryoshkaDoll";
 
@@ -22,7 +22,7 @@ public sealed class MatryoshkaBall : Ball
     [SerializeField] private int hitsPerSplit = 10;
 
     [Min(2)]
-    [SerializeField] private int ballsPerSplit = 2;
+    public int BallsOnSplit { get; set; } = 2;
 
     [Tooltip("Split while split generation is below this (2 => generations 0 and 1 split).")]
     [Min(1)]
@@ -65,7 +65,7 @@ public sealed class MatryoshkaBall : Ball
     private void OnValidate()
     {
         hitsPerSplit = Mathf.Max(1, hitsPerSplit);
-        ballsPerSplit = Mathf.Max(2, ballsPerSplit);
+        BallsOnSplit = Mathf.Max(2, BallsOnSplit);
         terminalSplitGeneration = Mathf.Max(1, terminalSplitGeneration);
         sizeScalePerSplit = Mathf.Clamp(sizeScalePerSplit, 0.25f, 0.95f);
         minimumRigidbodyMass = Mathf.Max(0.01f, minimumRigidbodyMass);
@@ -144,9 +144,9 @@ public sealed class MatryoshkaBall : Ball
 
         int childGeneration = _splitGeneration + 1;
 
-        for (int i = 0; i < ballsPerSplit; i++)
+        for (int i = 0; i < BallsOnSplit; i++)
         {
-            float ang = i * (Mathf.PI * 2f / ballsPerSplit);
+            float ang = i * (Mathf.PI * 2f / BallsOnSplit);
             Vector3 ring = new Vector3(Mathf.Cos(ang), 0.3f, Mathf.Sin(ang));
             Vector3 spawnPos = transform.position + ring * spawnRingRadius;
 

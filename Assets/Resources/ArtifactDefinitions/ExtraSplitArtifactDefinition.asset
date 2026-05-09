@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: ExtraSplitArtifactDefinition
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactDefinition
   displayName: Extra Split
-  description: All catalyst type balls will spawn one extra ball (only works on splitter
-    right now)
+  description: All splitter type balls will spawn one extra ball
   icon: {fileID: 0}
   prefab: {fileID: 8234933386589820079, guid: aaf28b76cf3820147bbddead7b5a4ea8, type: 3}

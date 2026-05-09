@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 9039905869378061523}
   - component: {fileID: 2602778532944142056}
   - component: {fileID: 4692461571960005916}
+  - component: {fileID: 416090724666446158}
+  - component: {fileID: -4011402046530651221}
   m_Layer: 0
   m_Name: Multiplier Artifact
   m_TagString: Untagged
@@ -111,3 +113,31 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &416090724666446158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8234933386589820079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba5b4c45f1af7424e990d14f86949886, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MultilplierArtifact
+  scoreManager: {fileID: 0}
+  multMultiplier: 2
+  pointDivider: 2
+--- !u!114 &-4011402046530651221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8234933386589820079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d69a2c8adb1344b4c80f5195ef048974, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArtifactDefinitionLink
+  definition: {fileID: 11400000, guid: 034a0cc831b322b4c92518784e365da3, type: 2}

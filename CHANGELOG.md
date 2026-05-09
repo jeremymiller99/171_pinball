@@ -10,6 +10,13 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.8.0 — local playtest leaderboard
+_2026-05-06 · Contributor: Devin Lopez_
+- Added `Assets/Scripts/Leaderboard/{LeaderboardEntry,LeaderboardData,LocalLeaderboard}.cs`: file-backed top-N (cap 100) leaderboard at `Application.persistentDataPath/leaderboard.json`. One entry per run, sorted by score desc; persists last entered name in PlayerPrefs (`LocalLeaderboard_LastName`) for fast turn-taking on a shared dev machine.
+- Added `Assets/Scripts/UI/LeaderboardPanelController.cs`: self-contained programmatic overlay panel. Shows score, a name input prefilled with the last name, then the top 10 with the new entry highlighted and a Continue button. Manages its own pause + gameplay-input lock (mirrors `WinScreenController`'s `PinballLauncher`/`PinballFlipper` disable). No prefab wiring required — built fully in code.
+- `RunCompletionHelper.RecordProgressAndShowWinScreen` and `GameRulesManager.ShowRoundFailed` now show the leaderboard before the existing win/fail UI, with the original UI as the continuation callback. Both completed and drained runs submit. Existing `SteamLeaderboards.UploadScore` calls are unchanged — the local board runs in parallel and does not depend on Steam.
+- Menu-scene version text bumped to `v0.8.0`.
+
 ## 0.7.6 — main-menu → gameplay fade transition
 _2026-04-22 · Contributor: JJ_
 - Added `SceneFader` (`Assets/Scripts/UI/SceneFader.cs`): self-bootstrapping `DontDestroyOnLoad` singleton that builds its own top-most (sort order 32000) screen-space overlay canvas + black `Image` and drives an unscaled-time fade `CanvasGroup`. No scene/prefab wiring required — spawns via `RuntimeInitializeOnLoadMethod(BeforeSceneLoad)`.

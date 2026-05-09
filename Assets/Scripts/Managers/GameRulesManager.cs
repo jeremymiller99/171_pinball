@@ -484,28 +484,52 @@ public class GameRulesManager : MonoBehaviour
         var challenge = session?.ActiveChallenge;
 
         var currentBoard = session?.GetCurrentBoard();
+        long capturedScore = (long)Math.Round(Math.Max(0d, roundTotal));
+        string boardName = currentBoard != null ? currentBoard.boardSceneName : "";
+
         if (currentBoard != null)
         {
-            long score = (long)Math.Round(Math.Max(0d, roundTotal));
             SteamLeaderboards.UploadScore(currentBoard.boardSceneName,
-                (int)Math.Min(score, int.MaxValue));
+                (int)Math.Min(capturedScore, int.MaxValue));
         }
 
-        var panel = roundFailedUIRoot != null ? roundFailedUIRoot.GetComponent<RoundFailedPanelController>() : null;
-        if (panel != null)
-        {
-            panel.Show((float)roundTotal, CurrentGoal, roundIndex, ballsRemaining, Coins, RunElapsedTime, challenge);
-        }
-        else
-        {
-            SetRoundFailedOpen(true);
-        }
+        var panel = roundFailedUIRoot != null
+            ? roundFailedUIRoot.GetComponent<RoundFailedPanelController>()
+            : null;
 
-        if (challenge != null)
+        float capturedRoundTotal = (float)roundTotal;
+        float capturedGoal = CurrentGoal;
+        int capturedRoundIndex = roundIndex;
+        int capturedBalls = ballsRemaining;
+        int capturedCoins = Coins;
+        float capturedElapsed = RunElapsedTime;
+        var capturedChallenge = challenge;
+
+        Action showFailUi = () =>
         {
-            long score = (long)Math.Round(Math.Max(0d, roundTotal));
-            ProfileService.RecordChallengeBestScore(challenge.displayName, score);
-        }
+            if (panel != null)
+            {
+                panel.Show(capturedRoundTotal, capturedGoal, capturedRoundIndex,
+                    capturedBalls, capturedCoins, capturedElapsed, capturedChallenge);
+            }
+            else
+            {
+                SetRoundFailedOpen(true);
+            }
+
+            if (capturedChallenge != null)
+            {
+                ProfileService.RecordChallengeBestScore(
+                    capturedChallenge.displayName, capturedScore);
+            }
+        };
+
+        LeaderboardPanelController.Show(
+            capturedScore,
+            Mathf.Max(1, capturedRoundIndex + 1),
+            boardName,
+            wasWin: false,
+            onContinue: showFailUi);
     }
 
     private void SetShopOpen(bool open)

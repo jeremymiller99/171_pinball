@@ -16,19 +16,12 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class DropTargetsScoringMode : MonoBehaviour
 {
-    private const string gameplayCoreSceneName = "GameplayCore";
 
     /// <summary>Fired when all 3 drop targets become down.</summary>
     public event Action OnAllTargetsDown;
 
     /// <summary>Fired when any target returns up.</summary>
     public event Action OnAnyTargetReturned;
-
-    /// <summary>Fired when frenzy activates (ball entered portal).</summary>
-    public event Action OnFrenzyActivated;
-
-    /// <summary>Fired when frenzy deactivates (target returned up).</summary>
-    public event Action OnFrenzyDeactivated;
 
     [Header("Drop Targets")]
     [SerializeField] private DropTarget[] dropTargets = new DropTarget[3];
@@ -72,11 +65,8 @@ public class DropTargetsScoringMode : MonoBehaviour
     [SerializeField] private GameObject frenzyPortalExit;
 
     [Header("References")]
+    [SerializeField] private FrenzyManager frenzyManager;
     [SerializeField] private ScoreManager scoreManager;
-    [SerializeField] private FloatingTextSpawner floatingTextSpawner;
-    [Tooltip(
-        "Font for bonus popups. If null, uses spawner's default.")]
-    [SerializeField] private TMP_FontAsset popupFontAsset;
 
     [Header("Frenzy HUD Color")]
     [Tooltip("Color applied to the multiplier HUD meter during frenzy. Should match your frenzy lights.")]
@@ -88,17 +78,10 @@ public class DropTargetsScoringMode : MonoBehaviour
     private bool _wasAllDown;
     private Coroutine _deferredCheckRoutine;
 
-    private bool _isFrenzyActive;
-    private float _frenzyMultBonus;
-
     // Bumper animation state
     private Vector3[] _leftClosedPos;
     private Vector3[] _rightClosedPos;
     private Coroutine _bumperAnimRoutine;
-
-    /// <summary>True when the frenzy multiplier doubling is active.
-    /// </summary>
-    public bool IsFrenzyActive => _isFrenzyActive;
 
     private void Awake()
     {
@@ -150,11 +133,6 @@ public class DropTargetsScoringMode : MonoBehaviour
                 }
             }
         }
-
-        if (_isFrenzyActive)
-        {
-            DeactivateFrenzy();
-        }
     }
 
     private void OnTargetFullyDown()
@@ -182,11 +160,6 @@ public class DropTargetsScoringMode : MonoBehaviour
             AnimateBumpers(false);
             SetFrenzyPortalsActive(false);
             OnAnyTargetReturned?.Invoke();
-        }
-
-        if (_isFrenzyActive)
-        {
-            DeactivateFrenzy();
         }
 
         _allDownBonusAwardedThisCycle = false;
@@ -229,11 +202,6 @@ public class DropTargetsScoringMode : MonoBehaviour
                 OnAnyTargetReturned?.Invoke();
             }
 
-            if (_isFrenzyActive)
-            {
-                DeactivateFrenzy();
-            }
-
             _allDownBonusAwardedThisCycle = false;
         }
 
@@ -271,54 +239,6 @@ public class DropTargetsScoringMode : MonoBehaviour
 
     /// <summary>True when all 3 drop targets are down.</summary>
     public bool AllTargetsDownNow => AllTargetsDown();
-
-    // ── Frenzy activation / deactivation ──────────────────────
-
-    /// <summary>
-    /// Called by <see cref="FrenzyPortal"/> when the ball enters
-    /// the frenzy portal. Doubles the current multiplier.
-    /// </summary>
-    public void ActivateFrenzy()
-    {
-        if (_isFrenzyActive) return;
-        if (!AllTargetsDown()) return;
-
-        EnsureRefs();
-        if (scoreManager == null) return;
-
-        _frenzyMultBonus = scoreManager.Mult;
-        scoreManager.AddFrenzyMult(_frenzyMultBonus);
-        _isFrenzyActive = true;
-        SteamAchievements.UnlockFirstFrenzy();
-        OnFrenzyActivated?.Invoke();
-
-        if (floatingTextSpawner != null
-            && bonusSpawnPosition != null)
-        {
-            floatingTextSpawner.SpawnText(
-                bonusSpawnPosition.position,
-                "FRENZY! x2 MULT!",
-                popupFontAsset,
-                0.9f,
-                popupOffset);
-        }
-    }
-
-    private void DeactivateFrenzy()
-    {
-        if (!_isFrenzyActive) return;
-
-        EnsureRefs();
-
-        if (scoreManager != null)
-        {
-            scoreManager.RemoveFrenzyMult();
-        }
-
-        _frenzyMultBonus = 0f;
-        _isFrenzyActive = false;
-        OnFrenzyDeactivated?.Invoke();
-    }
 
     // ── Bonus award ───────────────────────────────────────────
 
@@ -469,55 +389,19 @@ public class DropTargetsScoringMode : MonoBehaviour
 
     private void EnsureRefs()
     {
-        if (scoreManager != null
-            && floatingTextSpawner != null) return;
+        if (frenzyManager == null)        
+        {
+            frenzyManager = ServiceLocator.Get<FrenzyManager>();
+        }
 
         if (scoreManager == null)
         {
-            scoreManager = FindScoreManagerInGameplayCore();
+            scoreManager = ServiceLocator.Get<ScoreManager>();
         }
 
-        if (floatingTextSpawner == null)
+        if (bonusSpawnPosition == null)
         {
-            floatingTextSpawner =
-                ServiceLocator.Get<FloatingTextSpawner>();
+            bonusSpawnPosition = transform;
         }
-    }
-
-    private static ScoreManager FindScoreManagerInGameplayCore()
-    {
-        ScoreManager[] all = FindObjectsByType<ScoreManager>(
-            FindObjectsSortMode.None);
-
-        for (int i = 0; i < all.Length; i++)
-        {
-            ScoreManager sm = all[i];
-            if (sm == null) continue;
-            if (!sm.gameObject.scene.IsValid()) continue;
-            if (!string.Equals(
-                    sm.gameObject.scene.name,
-                    gameplayCoreSceneName,
-                    StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            return sm;
-        }
-
-        Scene scene = SceneManager.GetSceneByName(
-            gameplayCoreSceneName);
-
-        if (scene.IsValid() && scene.isLoaded)
-        {
-            var roots = scene.GetRootGameObjects();
-            for (int i = 0; i < roots.Length; i++)
-            {
-                var sm = roots[i]
-                    .GetComponentInChildren<ScoreManager>(
-                        includeInactive: true);
-                if (sm != null) return sm;
-            }
-        }
-
-        return ServiceLocator.Get<ScoreManager>();
     }
 }

@@ -32,7 +32,7 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     [SerializeField] private GameRulesManager gameRules;
     [SerializeField] private BallSpawner ballSpawner;
     [SerializeField] private ScoreManager scoreManager;
-    [SerializeField] private DropTargetsScoringMode dropTargetsScoringMode;
+    [SerializeField] private FrenzyManager frenzyManager;
 
     [Header("Behavior")]
     [Tooltip("If true, shows 0 until the active ball is non-kinematic.")]
@@ -135,8 +135,8 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         if (!scoreManager)
             scoreManager = ServiceLocator.Get<ScoreManager>();
 
-        if (!dropTargetsScoringMode)
-            dropTargetsScoringMode = FindAnyObjectByType<DropTargetsScoringMode>();
+        if (!frenzyManager)
+            frenzyManager = FindAnyObjectByType<FrenzyManager>();
 
         if (!meterFill)
         {
@@ -315,7 +315,7 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         _meterMPB ??= new MaterialPropertyBlock();
 
         bool frenzyActive = scoreManager != null ? scoreManager.IsFrenzyActive :
-                            (dropTargetsScoringMode != null && dropTargetsScoringMode.IsFrenzyActive);
+                            (frenzyManager != null && frenzyManager.isFrenzyActive);
         Color c = frenzyActive ? frenzyMeterColor : EvaluateMeterColor(fill01);
         c.a = _meterBaseAlpha;
 

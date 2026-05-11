@@ -45,11 +45,8 @@ public class BoardFireFXController : MonoBehaviour
 
     private void OnEnable()
     {
-        if (scoringMode != null)
-        {
-            scoringMode.OnFrenzyActivated += HandleFrenzyActivated;
-            scoringMode.OnFrenzyDeactivated += HandleFrenzyDeactivated;
-        }
+        ServiceLocator.Get<FrenzyManager>().OnFrenzyActivated += HandleFrenzyActivated;
+        ServiceLocator.Get<FrenzyManager>().OnFrenzyDeactivated += HandleFrenzyDeactivated;
 
         ApplySetActive(false);
     }
@@ -58,8 +55,8 @@ public class BoardFireFXController : MonoBehaviour
     {
         if (scoringMode != null)
         {
-            scoringMode.OnFrenzyActivated -= HandleFrenzyActivated;
-            scoringMode.OnFrenzyDeactivated -= HandleFrenzyDeactivated;
+            ServiceLocator.Get<FrenzyManager>().OnFrenzyActivated -= HandleFrenzyActivated;
+            ServiceLocator.Get<FrenzyManager>().OnFrenzyDeactivated -= HandleFrenzyDeactivated;
         }
     }
 

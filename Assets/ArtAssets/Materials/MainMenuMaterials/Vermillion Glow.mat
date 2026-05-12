@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Xenon Glow
+  m_Name: Vermillion Glow
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -119,13 +119,13 @@ Material:
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.5882353, g: 0.78431374, b: 1, a: 1}
-    - _Color: {r: 0.5882353, g: 0.78431374, b: 1, a: 1}
-    - _EmissionColor: {r: 0, g: 0.40896693, b: 1.1497636, a: 1}
+    - _BaseColor: {r: 0.8, g: 0, b: 0.003921569, a: 1}
+    - _Color: {r: 0.8, g: 0, b: 0.003921569, a: 1}
+    - _EmissionColor: {r: 1, g: 0.12743771, b: 0.031896047, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &3281464198596384480
+--- !u!114 &1547285289283071060
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}

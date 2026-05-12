@@ -233,7 +233,7 @@ public class RoundModifierController : MonoBehaviour
 
         {
             float musicState = 0f;
-            if (_currentRoundData.type == RoundType.Devil) musicState = -1f;
+            if (_currentRoundData.type == RoundType.Devil) musicState = 1f;
             ServiceLocator.Get<AudioManager>()?.SetMusicState(musicState);
         }
 

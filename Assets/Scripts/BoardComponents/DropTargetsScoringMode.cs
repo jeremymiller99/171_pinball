@@ -290,6 +290,7 @@ public class DropTargetsScoringMode : MonoBehaviour
         scoreManager.AddFrenzyMult(_frenzyMultBonus);
         _isFrenzyActive = true;
         SteamAchievements.UnlockFirstFrenzy();
+        ServiceLocator.Get<AudioManager>()?.SetMusicState(2f);
         OnFrenzyActivated?.Invoke();
 
         if (floatingTextSpawner != null
@@ -317,6 +318,9 @@ public class DropTargetsScoringMode : MonoBehaviour
 
         _frenzyMultBonus = 0f;
         _isFrenzyActive = false;
+        var modController = ServiceLocator.Get<RoundModifierController>();
+        float musicState = (modController != null && modController.CurrentRoundData?.type == RoundType.Devil) ? 1f : 0f;
+        ServiceLocator.Get<AudioManager>()?.SetMusicState(musicState);
         OnFrenzyDeactivated?.Invoke();
     }
 

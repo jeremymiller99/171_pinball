@@ -43,7 +43,7 @@ Material:
     - _Brightness: -0.15
     - _Contrast: 0.8
     - _CoordMode: 0
-    - _EmissionStrength: 0.3
+    - _EmissionStrength: 5
     - _Gain: 0.45
     - _Lacunarity: 2
     - _Metallic: 0
@@ -75,13 +75,13 @@ Material:
     - _WorldCoordScale: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 0.3, g: 0.35, b: 0.5, a: 1}
+    - _EmissionColor: {r: 1, g: 0.78431374, b: 0.5882353, a: 1}
     - _Palette0: {r: 0.01, g: 0.01, b: 0.02, a: 1}
     - _Palette1: {r: 0.03, g: 0.03, b: 0.06, a: 1}
     - _Palette2: {r: 0.05, g: 0.05, b: 0.09, a: 1}
     - _Palette3: {r: 0.09, g: 0.09, b: 0.14, a: 1}
     - _Resolution: {r: 256, g: 144, b: 0, a: 0}
     - _ScrollDir: {r: 0.1, g: 0.05, b: 0, a: 0}
-    - _Tiling: {r: 1, g: 1, b: 0, a: 0}
+    - _Tiling: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

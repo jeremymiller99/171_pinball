@@ -12,11 +12,6 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Concrete
-    second: {fileID: 2100000, guid: 28737bb67ce9a3743bd382c99c8b2b01, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
       name: Lime Glow
     second: {fileID: 2100000, guid: 056e68b1d6f9548439a3a92f082b8a17, type: 2}
   - first:
@@ -24,11 +19,6 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Vermillion Glow
     second: {fileID: 2100000, guid: d391b7213ceff1a40b8af9f6f993f8c0, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Worn Brushed Steel
-    second: {fileID: 2100000, guid: 61259ebbfb761604eb8fc03ddc04cec6, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

@@ -27,6 +27,8 @@ public class DropTarget : MonoBehaviour
         SwapToFlatCollider,
         NonBouncyMaterial
     }
+    [SerializeField] private int hitsToDrop = 1;
+    [SerializeField] private int amountOfHits = 0;
 
     [Header("On Ball Hit — Drop It")]
     [Tooltip("Units to move down (world space). Set in Inspector per target. Movement uses Lerp for smooth animation.")]
@@ -179,7 +181,6 @@ public class DropTarget : MonoBehaviour
                 }
                 break;
         }
-        DisableAwardComponents();
         OnFullyDown?.Invoke();
     }
 
@@ -206,26 +207,7 @@ public class DropTarget : MonoBehaviour
     private void FinishReturn()
     {
         _hasTriggered = false;
-        EnableAwardComponents();
         OnReturnedUp?.Invoke();
-    }
-
-    private void EnableAwardComponents()
-    {
-        var coinAdder = GetComponent<CoinAdder>();
-        if (coinAdder != null) coinAdder.enabled = true;
-
-        var multAdder = GetComponent<MultAdder>();
-        if (multAdder != null) multAdder.enabled = true;
-    }
-
-    private void DisableAwardComponents()
-    {
-        var coinAdder = GetComponent<CoinAdder>();
-        if (coinAdder != null) coinAdder.enabled = false;
-
-        var multAdder = GetComponent<MultAdder>();
-        if (multAdder != null) multAdder.enabled = false;
     }
 
     private Vector3 GetCurrentPosition()
@@ -246,6 +228,11 @@ public class DropTarget : MonoBehaviour
     {
         if (!collision.collider.CompareTag("Ball")) return;
 
+        amountOfHits++;
+        if (amountOfHits < hitsToDrop) return;
+
+        amountOfHits = 0;
+
         if (_returning)
         {
             BeginFallFromCurrentPosition();
@@ -255,7 +242,6 @@ public class DropTarget : MonoBehaviour
         if (_hasTriggered) return;
 
         _hasTriggered = true;
-        DisableAwardComponents();
         _startPosition = GetCurrentPosition();
         _fallFromPos = _startPosition;
         _falling = true;
@@ -276,7 +262,6 @@ public class DropTarget : MonoBehaviour
         if (_hasTriggered) return;
 
         _hasTriggered = true;
-        DisableAwardComponents();
         _startPosition = GetCurrentPosition();
         _fallFromPos = _startPosition;
         _falling = true;

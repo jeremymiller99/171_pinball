@@ -15,6 +15,7 @@ public class DropTargetLightBulb : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private DropTarget dropTarget;
+    [SerializeField] private FrenzyManager frenzyManager;
 
     [Tooltip("Board light for bulb mesh + optional point light. Defaults to GetComponent.")]
     [SerializeField] private BoardLight boardLight;
@@ -23,12 +24,14 @@ public class DropTargetLightBulb : MonoBehaviour
     [Tooltip("Lit color when frenzy is active (portal entered). Normal lit/unlit uses BoardLight.")]
     [SerializeField] private Color frenzyLitColor = new Color(0.337f, 0.627f, 0.827f, 1f);
 
-    [Tooltip("Assign the DropTargetsScoringMode on the board.")]
-    [SerializeField] private DropTargetsScoringMode scoringMode;
-
 
     private void Awake()
     {
+        if (frenzyManager == null)
+        {
+            frenzyManager = ServiceLocator.Get<FrenzyManager>();
+        }
+
         if (boardLight == null)
         {
             boardLight = GetComponent<BoardLight>();
@@ -48,11 +51,8 @@ public class DropTargetLightBulb : MonoBehaviour
             dropTarget.OnReturnedUp += HandleTargetStateChanged;
         }
 
-        if (scoringMode != null)
-        {
-            scoringMode.OnFrenzyActivated += HandleFrenzyStateChanged;
-            scoringMode.OnFrenzyDeactivated += HandleFrenzyStateChanged;
-        }
+        frenzyManager.OnFrenzyActivated += HandleFrenzyStateChanged;
+        frenzyManager.OnFrenzyDeactivated += HandleFrenzyStateChanged;
 
         RefreshLightState();
     }
@@ -70,11 +70,8 @@ public class DropTargetLightBulb : MonoBehaviour
             dropTarget.OnReturnedUp -= HandleTargetStateChanged;
         }
 
-        if (scoringMode != null)
-        {
-            scoringMode.OnFrenzyActivated -= HandleFrenzyStateChanged;
-            scoringMode.OnFrenzyDeactivated -= HandleFrenzyStateChanged;
-        }
+        frenzyManager.OnFrenzyActivated -= HandleFrenzyStateChanged;
+        frenzyManager.OnFrenzyDeactivated -= HandleFrenzyStateChanged;
     }
 
     private void HandleTargetStateChanged()
@@ -98,13 +95,13 @@ public class DropTargetLightBulb : MonoBehaviour
         {
             boardLight.ClearLitAppearanceOverride();
             boardLight.SetLit(false);
-            return;
+        } else
+        {
+            boardLight.ClearLitAppearanceOverride();
+            boardLight.SetLit(true);
         }
 
-        boardLight.SetLit(true);
-
-        bool frenzy = scoringMode != null
-            && scoringMode.IsFrenzyActive;
+        bool frenzy = frenzyManager.isFrenzyActive;
 
         if (frenzy)
         {

@@ -16,28 +16,33 @@ public class FrenzyBoardLightController : MonoBehaviour
     [Header("References")]
     [Tooltip("The DropTargetsScoringMode that fires frenzy events.")]
     [SerializeField]
-    private DropTargetsScoringMode scoringMode;
+    private FrenzyManager frenzyManager;
 
     private BoardLight[] _cachedLights;
 
+    private void Awake()
+    {
+        frenzyManager = ServiceLocator.Get<FrenzyManager>();
+    }
+
     private void OnEnable()
     {
-        if (scoringMode != null)
+        if (frenzyManager != null)
         {
-            scoringMode.OnFrenzyActivated +=
+            frenzyManager.OnFrenzyActivated +=
                 HandleFrenzyActivated;
-            scoringMode.OnFrenzyDeactivated +=
+            frenzyManager.OnFrenzyDeactivated +=
                 HandleFrenzyDeactivated;
         }
     }
 
     private void OnDisable()
     {
-        if (scoringMode != null)
+        if (frenzyManager != null)
         {
-            scoringMode.OnFrenzyActivated -=
+            frenzyManager.OnFrenzyActivated -=
                 HandleFrenzyActivated;
-            scoringMode.OnFrenzyDeactivated -=
+            frenzyManager.OnFrenzyDeactivated -=
                 HandleFrenzyDeactivated;
         }
     }

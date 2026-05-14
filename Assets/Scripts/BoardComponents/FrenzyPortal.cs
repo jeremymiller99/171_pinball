@@ -19,13 +19,14 @@ public class FrenzyPortal : MonoBehaviour
     [SerializeField] private float bonusPoints = 500f;
     [Tooltip("Bonus multiplier added on portal entry.")]
     [SerializeField] private float bonusMult = 0.5f;
+    [Tooltip("Canvas offset for bonus popups.")]
+    [SerializeField]
+    private Vector2 popupOffset =
+        new Vector2(0f, -100f);
 
     [Header("References")]
-    [Tooltip("The DropTargetsScoringMode that manages frenzy.")]
-    [SerializeField]
-    private DropTargetsScoringMode scoringMode;
-
-    private ScoreManager _scoreManager;
+    [SerializeField] private FrenzyManager frenzyManager;
+    [SerializeField] private ScoreManager scoreManager;
 
     private void Awake()
     {
@@ -38,11 +39,11 @@ public class FrenzyPortal : MonoBehaviour
 
         EnsureRefs();
 
-        if (_scoreManager != null)
+        if (scoreManager != null)
         {
             if (bonusPoints > 0f)
             {
-                _scoreManager.AddScore(
+                scoreManager.AddScore(
                     bonusPoints,
                     TypeOfScore.points,
                     transform);
@@ -50,31 +51,31 @@ public class FrenzyPortal : MonoBehaviour
 
             if (bonusMult > 0f)
             {
-                _scoreManager.AddScore(
+                scoreManager.AddScore(
                     bonusMult,
                     TypeOfScore.mult,
                     transform);
             }
         }
 
-        if (scoringMode != null)
+        if (frenzyManager != null)
         {
-            bool wasActive = scoringMode.IsFrenzyActive;
-            scoringMode.ActivateFrenzy();
-
-            if (!wasActive && scoringMode.IsFrenzyActive)
-            {
-                ServiceLocator.Get<AudioManager>()?.PlayFrenzyActivated();
-            }
+            frenzyManager.ActivateFrenzy(transform.position, popupOffset);
         }
     }
 
     private void EnsureRefs()
     {
-        if (_scoreManager == null)
+        if (scoreManager == null)
         {
-            _scoreManager =
+            scoreManager =
                 ServiceLocator.Get<ScoreManager>();
+        }
+
+        if (frenzyManager == null)
+        {
+            frenzyManager =
+                ServiceLocator.Get<FrenzyManager>();
         }
     }
 }

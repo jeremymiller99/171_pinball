@@ -71,6 +71,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4bfcd65970b84e36939a9859ea91a36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DropTarget
+  hitsToDrop: 1
+  amountOfHits: 0
   unitsDropped: 1.3
   fallDuration: 0.4
   boardForSlope: {fileID: 0}
@@ -179,7 +181,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
-  definition: {fileID: 11400000, guid: 394335d759f677c47b4f018571fddfbb, type: 2}
+  definition: {fileID: 11400000, guid: 9d1a46d067131414f994a4a1013f8d74, type: 2}
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

@@ -25,7 +25,7 @@ public class DropTargetResetTimerLights : MonoBehaviour
 
     [Header("Frenzy")]
     [Tooltip("Scoring mode that drives frenzy activation. When frenzy is active, lit bulbs switch to their alternative color.")]
-    [SerializeField] private DropTargetsScoringMode scoringMode;
+    [SerializeField] private FrenzyManager frenzyManager;
 
     [Tooltip("Index into each BoardLight's alternativeLitColors to use during frenzy.")]
     [Min(0)]
@@ -39,6 +39,7 @@ public class DropTargetResetTimerLights : MonoBehaviour
     private void Awake()
     {
         _gameRulesManager = ServiceLocator.Get<GameRulesManager>();
+        frenzyManager = ServiceLocator.Get<FrenzyManager>();
         if (dropTarget == null)
         {
             dropTarget = GetComponentInParent<DropTarget>();
@@ -68,14 +69,14 @@ public class DropTargetResetTimerLights : MonoBehaviour
             dropTarget.OnReturnedUp += HandleReturnedUp;
         }
 
-        if (scoringMode != null)
+        if (frenzyManager != null)
         {
-            scoringMode.OnFrenzyActivated += HandleFrenzyActivated;
-            scoringMode.OnFrenzyDeactivated += HandleFrenzyDeactivated;
+            frenzyManager.OnFrenzyActivated += HandleFrenzyActivated;
+            frenzyManager.OnFrenzyDeactivated += HandleFrenzyDeactivated;
         }
 
         SetAllLights(false);
-        ApplyFrenzyColorToAll(scoringMode != null && scoringMode.IsFrenzyActive);
+        ApplyFrenzyColorToAll(frenzyManager != null && frenzyManager.isFrenzyActive);
         _running = false;
         _elapsed = 0f;
         _nextToExtinguish = 0;
@@ -89,10 +90,10 @@ public class DropTargetResetTimerLights : MonoBehaviour
             dropTarget.OnReturnedUp -= HandleReturnedUp;
         }
 
-        if (scoringMode != null)
+        if (frenzyManager != null)
         {
-            scoringMode.OnFrenzyActivated -= HandleFrenzyActivated;
-            scoringMode.OnFrenzyDeactivated -= HandleFrenzyDeactivated;
+            frenzyManager.OnFrenzyActivated -= HandleFrenzyActivated;
+            frenzyManager.OnFrenzyDeactivated -= HandleFrenzyDeactivated;
         }
     }
 
@@ -135,7 +136,7 @@ public class DropTargetResetTimerLights : MonoBehaviour
         }
 
         SetAllLights(true);
-        ApplyFrenzyColorToAll(scoringMode != null && scoringMode.IsFrenzyActive);
+        ApplyFrenzyColorToAll(frenzyManager != null && frenzyManager.isFrenzyActive);
         _elapsed = 0f;
         _nextToExtinguish = 0;
         _running = true;

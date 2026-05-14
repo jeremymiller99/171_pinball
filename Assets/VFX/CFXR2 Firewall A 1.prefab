@@ -4861,7 +4861,6 @@ GameObject:
   - component: {fileID: 8172849020266659021}
   - component: {fileID: 8172849020266659020}
   - component: {fileID: 8172849020266659019}
-  - component: {fileID: -8327903665394420822}
   m_Layer: 0
   m_Name: CFXR2 Firewall A 1
   m_TagString: Untagged
@@ -9820,21 +9819,6 @@ MonoBehaviour:
     perlinColor: 0
     perlinColorSpeed: 1
   fadeOutReference: {fileID: 8172849020266659021}
---- !u!114 &-8327903665394420822
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8172849020266659018}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e557dbaafddbcc84ea6dab2bd6d4573a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ParticleOutline
-  scaleMultiplier: 1.15
-  outlineColor: {r: 0, g: 0, b: 0, a: 1}
-  sortingOrderOffset: -1
 --- !u!1 &8172849020746995793
 GameObject:
   m_ObjectHideFlags: 0

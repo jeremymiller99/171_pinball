@@ -15,8 +15,6 @@ using UnityEngine;
 public class FrenzyPortal : MonoBehaviour
 {
     [Header("Portal Rewards")]
-    [Tooltip("Bonus points awarded on portal entry.")]
-    [SerializeField] private float bonusPoints = 500f;
     [Tooltip("Bonus multiplier added on portal entry.")]
     [SerializeField] private float bonusMult = 0.5f;
     [Tooltip("Canvas offset for bonus popups.")]
@@ -39,23 +37,12 @@ public class FrenzyPortal : MonoBehaviour
 
         EnsureRefs();
 
-        if (scoreManager != null)
+        if (scoreManager != null && bonusMult > 0f)
         {
-            if (bonusPoints > 0f)
-            {
-                scoreManager.AddScore(
-                    bonusPoints,
-                    TypeOfScore.points,
-                    transform);
-            }
-
-            if (bonusMult > 0f)
-            {
-                scoreManager.AddScore(
-                    bonusMult,
-                    TypeOfScore.mult,
-                    transform);
-            }
+            scoreManager.AddScore(
+                bonusMult,
+                TypeOfScore.mult,
+                transform);
         }
 
         if (frenzyManager != null)

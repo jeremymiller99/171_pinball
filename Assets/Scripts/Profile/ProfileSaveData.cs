@@ -23,6 +23,8 @@ public sealed class ProfileSaveData
     public bool hasAnsweredFirstTimePlayingPrompt;
     public bool isFirstTimePlayingAnswerYes;
     public bool hasSeenShopTutorial;
+    public bool hasSeenFirstPlayTutorial;
+    public bool hasSeenLevelUpTutorial;
 
     public List<string> unlockedBallIds = new List<string>();
 

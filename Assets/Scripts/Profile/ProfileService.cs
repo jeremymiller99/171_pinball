@@ -201,6 +201,48 @@ public sealed class ProfileService : MonoBehaviour
         ProfileChanged?.Invoke(Instance.activeSlot);
     }
 
+    public static bool HasSeenFirstPlayTutorial()
+    {
+        if (Instance == null) return false;
+
+        ProfileSaveData p = Instance.GetOrCreateActiveProfile();
+        return p != null && p.hasSeenFirstPlayTutorial;
+    }
+
+    public static void RecordFirstPlayTutorialSeen()
+    {
+        if (Instance == null) return;
+
+        ProfileSaveData p = Instance.GetOrCreateActiveProfile();
+        if (p == null) return;
+
+        p.hasSeenFirstPlayTutorial = true;
+
+        Instance.SaveSlot(Instance.activeSlot);
+        ProfileChanged?.Invoke(Instance.activeSlot);
+    }
+
+    public static bool HasSeenLevelUpTutorial()
+    {
+        if (Instance == null) return false;
+
+        ProfileSaveData p = Instance.GetOrCreateActiveProfile();
+        return p != null && p.hasSeenLevelUpTutorial;
+    }
+
+    public static void RecordLevelUpTutorialSeen()
+    {
+        if (Instance == null) return;
+
+        ProfileSaveData p = Instance.GetOrCreateActiveProfile();
+        if (p == null) return;
+
+        p.hasSeenLevelUpTutorial = true;
+
+        Instance.SaveSlot(Instance.activeSlot);
+        ProfileChanged?.Invoke(Instance.activeSlot);
+    }
+
     public static bool AddUnlockedBall(string ballId)
     {
         if (Instance == null) return false;

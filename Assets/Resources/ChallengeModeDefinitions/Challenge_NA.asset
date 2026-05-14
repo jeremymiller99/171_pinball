@@ -14,10 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ChallengeModeDefinition
   displayName: Test Flight
   icon: {fileID: 0}
-  description: 'Great for beginners
-
-    Knock down all 3 drop targets to reach frenzy
-    mode'
+  description: Great for beginners
   winConditionDescription: 3 Stars
   boards:
   - {fileID: 11400000, guid: 94aa8e7624e37f943a9d60f03d1c0ab7, type: 2}

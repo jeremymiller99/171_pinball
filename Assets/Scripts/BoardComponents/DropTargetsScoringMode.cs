@@ -159,6 +159,10 @@ public class DropTargetsScoringMode : MonoBehaviour
             _wasAllDown = false;
             AnimateBumpers(false);
             SetFrenzyPortalsActive(false);
+            ServiceLocator.Get<AudioManager>()?.PlayFrenzyGate(
+                bonusSpawnPosition != null
+                    ? bonusSpawnPosition.position
+                    : transform.position);
             OnAnyTargetReturned?.Invoke();
         }
 
@@ -199,6 +203,10 @@ public class DropTargetsScoringMode : MonoBehaviour
                 _wasAllDown = false;
                 AnimateBumpers(false);
                 SetFrenzyPortalsActive(false);
+                ServiceLocator.Get<AudioManager>()?.PlayFrenzyGate(
+                    bonusSpawnPosition != null
+                        ? bonusSpawnPosition.position
+                        : transform.position);
                 OnAnyTargetReturned?.Invoke();
             }
 

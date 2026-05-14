@@ -41,6 +41,10 @@ public class PinballFlipper : MonoBehaviour
     private bool _pressed;
     private bool _previousPressed;
     private Rigidbody _rb;
+    private static int lastLeftUpFrame = -1;
+    private static int lastRightUpFrame = -1;
+    private static int lastLeftDownFrame = -1;
+    private static int lastRightDownFrame = -1;
 
     private void Awake()
     {
@@ -125,14 +129,49 @@ public class PinballFlipper : MonoBehaviour
         if (_pressed == _previousPressed)
             return;
 
+        int currentFrame = Time.frameCount;
+        bool isLeft = (flipperAction == FlipperInputAction.LeftFlipper);
+
         if (_pressed)
         {
-            ServiceLocator.Get<AudioManager>()?.PlayFlipperUp(transform.position);
-            ServiceLocator.Get<HapticManager>()?.PlayFlipperHaptic();
+            bool shouldPlay = false;
+
+            if (isLeft && lastLeftUpFrame != currentFrame)
+            {
+                lastLeftUpFrame = currentFrame;
+                shouldPlay = true;
+            }
+            else if (!isLeft && lastRightUpFrame != currentFrame)
+            {
+                lastRightUpFrame = currentFrame;
+                shouldPlay = true;
+            }
+
+            if (shouldPlay)
+            {
+                ServiceLocator.Get<AudioManager>()?.PlayFlipperUp(transform.position);
+                ServiceLocator.Get<HapticManager>()?.PlayFlipperHaptic();
+            }
         }
         else
         {
-            ServiceLocator.Get<AudioManager>()?.PlayFlipperDown(transform.position);
+            bool shouldPlay = false;
+
+            if (isLeft && lastLeftDownFrame != currentFrame)
+            {
+                lastLeftDownFrame = currentFrame;
+                shouldPlay = true;
+            }
+            else if (!isLeft && lastRightDownFrame != currentFrame)
+            {
+                lastRightDownFrame = currentFrame;
+                shouldPlay = true;
+            }
+
+            if (shouldPlay)
+            {
+                ServiceLocator.Get<AudioManager>()?.PlayFlipperDown(transform.position);
+            }
         }
 
         _previousPressed = _pressed;

@@ -166,6 +166,8 @@ public class GameRulesManager : MonoBehaviour
         SetRoundFailedOpen(false);
 
         ServiceLocator.Get<AudioManager>()?.SetMusicMuffled(false);
+        float musicState = (ModifierController?.CurrentRoundData != null && ModifierController.CurrentRoundData.type == RoundType.Devil) ? 1f : 0f;
+        ServiceLocator.Get<AudioManager>()?.SetMusicState(musicState);
 
         ballsRemaining = BallLoadoutCount;
 
@@ -467,8 +469,7 @@ public class GameRulesManager : MonoBehaviour
         ShopOpened?.Invoke();
 
         scoreManager?.ResetMultiplier();
-
-        ServiceLocator.Get<AudioManager>()?.SetMusicMuffled(true);
+        ServiceLocator.Get<AudioManager>()?.SetMusicState(3f);
 
         if (shopTransitionController != null)
             shopTransitionController.OpenShop();

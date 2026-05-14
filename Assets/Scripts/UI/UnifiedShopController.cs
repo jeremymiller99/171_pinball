@@ -255,6 +255,8 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
+        PinballAnalytics.LogShopItemPurchased(_selectedOffer);
+
         _shelf.ConsumeOffer(_selectedOfferIndex);
         ExitPlacementMode();
 
@@ -711,6 +713,8 @@ public sealed class UnifiedShopController : MonoBehaviour
             ballSpawner.AddBallAnimated(ballToGrant.Prefab, insertSlot);
         }
 
+        PinballAnalytics.LogShopItemPurchased(offer, ballToGrant, offer.Price);
+
         _shelf.ConsumeOffer(offerIndex);
 
         if (wasMystery)
@@ -876,6 +880,8 @@ public sealed class UnifiedShopController : MonoBehaviour
             coinController?.AddCoinsUnscaled(sellPrice);
         }
         loadoutCtrl.ReplaceBallInLoadout(slotIndex, newDef);
+
+        PinballAnalytics.LogShopItemPurchased(offer);
 
         _shelf.ConsumeOffer(offerIndex);
 

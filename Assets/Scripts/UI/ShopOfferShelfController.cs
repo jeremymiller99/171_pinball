@@ -235,6 +235,8 @@ public sealed class ShopOfferShelfController : MonoBehaviour
 
         entry.Init(_shop, index, offer);
         OfferEntries.Add(entry);
+
+        PinballAnalytics.LogShopItemShown(offer);
     }
 
     public void ClearOfferDisplays()

@@ -10,6 +10,14 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.8.1 — shop item analytics events
+_2026-05-13 · Contributor: JJ_
+- Added `Assets/Scripts/Analytics/PinballAnalytics.cs`: static wrapper that initializes Unity Services + `AnalyticsService` once at startup (`RuntimeInitializeOnLoadMethod` BeforeSceneLoad) and exposes `LogShopItemShown` / `LogShopItemPurchased`. All calls are no-ops until the service is ready and never throw into gameplay.
+- `ShopOfferShelfController.SpawnOfferDisplay` now logs `shopItemShown` for each offer spawned on the shelf.
+- `UnifiedShopController` now logs `shopItemPurchased` from `ConfirmComponentPlacement` (covers click-confirm + drag-drop board), `AutoBuyBallOffer` (drag ball to empty slot), and `ConfirmDragDropBallReplace` (drag ball over existing slot). Logged after `_shelf.ConsumeOffer` so refunded/failed paths don't count. Mystery balls log the placeholder id on `shown` and the resolved concrete ball id on `purchased`.
+- Each event sends `itemId`, `itemName`, `itemType` (Ball/BoardComponent), and `price` -- both events and their parameter schemas must be registered in the Unity Cloud Dashboard before data flows; per-item counters come from grouping by `itemId` in dashboard queries.
+- Menu-scene version text bumped to `v0.8.1`.
+
 ## 0.8.0 — local playtest leaderboard
 _2026-05-06 · Contributor: Devin Lopez_
 - Added `Assets/Scripts/Leaderboard/{LeaderboardEntry,LeaderboardData,LocalLeaderboard}.cs`: file-backed top-N (cap 100) leaderboard at `Application.persistentDataPath/leaderboard.json`. One entry per run, sorted by score desc; persists last entered name in PlayerPrefs (`LocalLeaderboard_LastName`) for fast turn-taking on a shared dev machine.

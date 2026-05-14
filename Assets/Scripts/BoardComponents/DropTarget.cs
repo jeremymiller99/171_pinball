@@ -19,6 +19,9 @@ public class DropTarget : MonoBehaviour
     /// <summary>Fired when the target has returned to its up position.</summary>
     public event Action OnReturnedUp;
 
+    public event Action onStartDown;
+    public event Action onStartUp;
+
     /// <summary>True when the target is fully down and not yet rising (collider disabled while down).</summary>
     public bool IsDown => _hasTriggered && !_returning && !_falling;
     public enum WhenFullyDownMode
@@ -202,6 +205,7 @@ public class DropTarget : MonoBehaviour
                     _mainCollider.sharedMaterial = _originalMaterial;
                 break;
         }
+        onStartUp?.Invoke();
     }
 
     private void FinishReturn()
@@ -222,6 +226,7 @@ public class DropTarget : MonoBehaviour
         _fallTimer = 0f;
         _fallFromPos = GetCurrentPosition();
         ServiceLocator.Get<AudioManager>()?.PlayDropTargetDown(transform.position);
+        onStartDown?.Invoke();
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -246,6 +251,7 @@ public class DropTarget : MonoBehaviour
         _fallFromPos = _startPosition;
         _falling = true;
         _fallTimer = 0f;
+        onStartDown?.Invoke();
         ServiceLocator.Get<AudioManager>()?.PlayDropTargetDown(transform.position);
     }
 
@@ -266,6 +272,7 @@ public class DropTarget : MonoBehaviour
         _fallFromPos = _startPosition;
         _falling = true;
         _fallTimer = 0f;
+        onStartDown?.Invoke();
         ServiceLocator.Get<AudioManager>()?.PlayDropTargetDown(transform.position);
     }
 }

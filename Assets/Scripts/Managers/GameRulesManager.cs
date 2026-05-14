@@ -1,3 +1,6 @@
+// Updated by Claude Code (Opus 4.7) for jjmil on 2026-05-13 (run-fail highscore + level reached analytics).
+// Updated by Claude Code (Opus 4.7) for jjmil on 2026-05-13 (shop session analytics + active-play level durations).
+// Updated by Claude Code (Opus 4.7) for jjmil on 2026-05-13 (level completion analytics).
 // Updated with Antigravity by jjmil on 2026-04-09 (reconcile pending level-ups on shop return).
 // Updated with Cursor (Composer) by assistant on 2026-03-31 (ResolveServices in StartRun/StartRound for additive board scenes).
 using System;
@@ -48,6 +51,9 @@ public class GameRulesManager : MonoBehaviour
     private bool _shopOpen;
     private bool _levelUpProcessing;
     private float _runStartTime;
+    private float _currentLevelStartTime;
+    private float _shopOpenedAt;
+    private float _shopElapsedThisLevel;
     private bool _shopAvailable;
 
     public event Action RoundStarted;
@@ -123,6 +129,8 @@ public class GameRulesManager : MonoBehaviour
         _shopAvailable = false;
         ShopAvailabilityChanged?.Invoke(false);
         _runStartTime = Time.unscaledTime;
+        _currentLevelStartTime = _runStartTime;
+        _shopElapsedThisLevel = 0f;
         roundIndex = 0;
         ServiceLocator.Get<CoinController>()?.SetRunStartingBalance(
             GameSession.Instance.ActiveShip?.startingCoins ?? 0);
@@ -290,6 +298,15 @@ public class GameRulesManager : MonoBehaviour
                     ProfileService.RecordDevilRoundCompleted();
 
                 scoreManager.ConsumeLevelProgress(prevGoal);
+
+                float rawDuration = Time.unscaledTime - _currentLevelStartTime;
+                float levelDuration = Mathf.Max(0f, rawDuration - _shopElapsedThisLevel);
+                int completedLevel = roundIndex + 1;
+                string boardId = GameSession.Instance?.GetCurrentBoard()?.boardSceneName ?? string.Empty;
+                PinballAnalytics.LogLevelCompleted(completedLevel, levelDuration, boardId);
+                _currentLevelStartTime = Time.unscaledTime;
+                _shopElapsedThisLevel = 0f;
+
                 roundIndex = Mathf.Max(0, roundIndex + 1);
                 ApplyCurrentRoundFromWindow();
 
@@ -412,10 +429,21 @@ public class GameRulesManager : MonoBehaviour
     {
         if (!_runActive) return;
 
+        bool wasOpen = _shopOpen;
+
         scoreManager?.ResetGameSpeedOnShopReturn();
 
         if (hideUi) SetShopOpen(false);
         _shopOpen = false;
+
+        if (wasOpen)
+        {
+            float shopElapsed = Mathf.Max(0f, Time.unscaledTime - _shopOpenedAt);
+            _shopElapsedThisLevel += shopElapsed;
+            string boardId = GameSession.Instance?.GetCurrentBoard()?.boardSceneName ?? string.Empty;
+            PinballAnalytics.LogShopSession(roundIndex, shopElapsed, boardId);
+        }
+
         ShopClosed?.Invoke();
     }
 
@@ -465,6 +493,7 @@ public class GameRulesManager : MonoBehaviour
     public void OpenShop()
     {
         _shopOpen = true;
+        _shopOpenedAt = Time.unscaledTime;
         if (ballSpawner != null) ballSpawner.ClearActiveBalls();
         ShopOpened?.Invoke();
 
@@ -493,6 +522,9 @@ public class GameRulesManager : MonoBehaviour
             SteamLeaderboards.UploadScore(currentBoard.boardSceneName,
                 (int)Math.Min(capturedScore, int.MaxValue));
         }
+
+        PinballAnalytics.LogRunHighScore(capturedScore, boardName);
+        PinballAnalytics.LogRunLevelReached(roundIndex + 1, boardName);
 
         var panel = roundFailedUIRoot != null
             ? roundFailedUIRoot.GetComponent<RoundFailedPanelController>()

@@ -21,12 +21,28 @@ using UnityEngine;
 ///                              itemType(string), price(int)
 ///   shopItemPurchased  params: itemId(string), itemName(string),
 ///                              itemType(string), price(int)
+///   levelCompleted     params: levelIndex(int), durationSeconds(float),
+///                              boardId(string)
+///   shopSessionCompleted
+///                      params: levelIndex(int), durationSeconds(float),
+///                              boardId(string)
+///   runHighScore       params: score(long), boardId(string)
+///   runLevelReached    params: levelReached(int), boardId(string)
 /// Per-item counters come from grouping by itemId in the dashboard query.
+/// Level durations are active-play time only — any shop time between two
+/// goal-crosses is subtracted from the next levelCompleted event.
+/// Per-player highscore comes from MAX(score) grouped by user in the
+/// dashboard; max level reached from MAX(levelReached) grouped by user.
+/// Both run-end events fire only on run failure, not on full-run completion.
 /// </summary>
 public static class PinballAnalytics
 {
     private const string shopItemShownEvent = "shopItemShown";
     private const string shopItemPurchasedEvent = "shopItemPurchased";
+    private const string levelCompletedEvent = "levelCompleted";
+    private const string shopSessionCompletedEvent = "shopSessionCompleted";
+    private const string runHighScoreEvent = "runHighScore";
+    private const string runLevelReachedEvent = "runLevelReached";
 
     private static bool _ready;
 
@@ -96,6 +112,110 @@ public static class PinballAnalytics
             name,
             "Ball",
             pricePaid);
+    }
+
+    /// <summary>
+    /// Logs the time a player spent on a single level, measured from when the
+    /// previous level's goal was crossed (or run start for level 1) to when
+    /// this level's goal was crossed. <paramref name="levelIndex"/> is 1-based
+    /// to match the value shown to the player. The reported duration includes
+    /// any shop / board-load gap that fell between the two goal-crosses.
+    /// </summary>
+    public static void LogLevelCompleted(int levelIndex, float durationSeconds, string boardId)
+    {
+        if (!_ready) return;
+
+        try
+        {
+            CustomEvent evt = new CustomEvent(levelCompletedEvent)
+            {
+                { "levelIndex", levelIndex },
+                { "durationSeconds", durationSeconds },
+                { "boardId", boardId ?? string.Empty }
+            };
+
+            AnalyticsService.Instance.RecordEvent(evt);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[PinballAnalytics] {levelCompletedEvent} failed: {e.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Logs the duration of a single shop visit. <paramref name="levelIndex"/>
+    /// is 1-based and identifies the level the player just completed before
+    /// entering this shop.
+    /// </summary>
+    public static void LogShopSession(int levelIndex, float durationSeconds, string boardId)
+    {
+        if (!_ready) return;
+
+        try
+        {
+            CustomEvent evt = new CustomEvent(shopSessionCompletedEvent)
+            {
+                { "levelIndex", levelIndex },
+                { "durationSeconds", durationSeconds },
+                { "boardId", boardId ?? string.Empty }
+            };
+
+            AnalyticsService.Instance.RecordEvent(evt);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[PinballAnalytics] {shopSessionCompletedEvent} failed: {e.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Logs the final score from a failed run. Fired once per run-fail (not
+    /// on full-run wins). The dashboard derives each player's highscore via
+    /// MAX(score) grouped by user.
+    /// </summary>
+    public static void LogRunHighScore(long score, string boardId)
+    {
+        if (!_ready) return;
+
+        try
+        {
+            CustomEvent evt = new CustomEvent(runHighScoreEvent)
+            {
+                { "score", score },
+                { "boardId", boardId ?? string.Empty }
+            };
+
+            AnalyticsService.Instance.RecordEvent(evt);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[PinballAnalytics] {runHighScoreEvent} failed: {e.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Logs the level the player reached when a run ended in failure. 1-based.
+    /// Fired once per run-fail. Dashboard derives each player's max level
+    /// reached via MAX(levelReached) grouped by user.
+    /// </summary>
+    public static void LogRunLevelReached(int levelReached, string boardId)
+    {
+        if (!_ready) return;
+
+        try
+        {
+            CustomEvent evt = new CustomEvent(runLevelReachedEvent)
+            {
+                { "levelReached", levelReached },
+                { "boardId", boardId ?? string.Empty }
+            };
+
+            AnalyticsService.Instance.RecordEvent(evt);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[PinballAnalytics] {runLevelReachedEvent} failed: {e.Message}");
+        }
     }
 
     private static void LogShopItem(string eventName, string itemId, string itemName, string itemType, int price)

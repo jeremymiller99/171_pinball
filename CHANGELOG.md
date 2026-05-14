@@ -10,6 +10,28 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.8.4 — run-fail highscore + level-reached analytics events
+_2026-05-13 · Contributor: JJ_
+- `PinballAnalytics` now exposes `LogRunHighScore(score, boardId)` and `LogRunLevelReached(levelReached, boardId)` which record two new custom events: `runHighScore` (params: `score(long)`, `boardId(string)`) and `runLevelReached` (params: `levelReached(int, 1-based)`, `boardId(string)`). Both must be registered in the Unity Cloud Dashboard with those exact param types — note `score` is a Long, not Int, because pinball scores routinely exceed `int.MaxValue`.
+- Both events fire from `GameRulesManager.ShowRoundFailed`, immediately after the existing `SteamLeaderboards.UploadScore` call, using the already-computed `capturedScore`, `boardName`, and current `roundIndex + 1`. They do **not** fire on full-run completion (`CompleteRunAndShowWinScreen`) or on quit-to-menu — only on the explicit out-of-balls fail path, since the ask was "where the player ended" when their run was over.
+- Highscore per player is derived dashboard-side via `MAX(score) GROUP BY user`; max level reached via `MAX(levelReached) GROUP BY user`. The event names are descriptive of the moment (one row per failed run), not of "personal best at the time of fire" — every run-fail emits, and the dashboard does the aggregation.
+- Menu-scene version text bumped to `v0.8.4`.
+
+## 0.8.3 — shop session time tracking (subtracted from level durations)
+_2026-05-13 · Contributor: JJ_
+- `PinballAnalytics` now exposes `LogShopSession(levelIndex, durationSeconds, boardId)` which records a new `shopSessionCompleted` custom event. Params: `levelIndex(int, 1-based — the level the player just completed before entering this shop)`, `durationSeconds(float)`, `boardId(string)`. Must be registered in the Unity Cloud Dashboard with those exact param types before data flows.
+- `GameRulesManager` stamps `_shopOpenedAt = Time.unscaledTime` in `OpenShop()` and, on `CloseShopAndAdvanceIndexOnly`, computes the elapsed, adds it to a per-level `_shopElapsedThisLevel` accumulator, and fires the `shopSessionCompleted` event. The close path is gated on the prior `_shopOpen` value so idempotent / defensive close calls don't emit phantom zero-duration sessions. Run-end paths (`CompleteRunAndShowWinScreen`, `ShowRoundFailed`, retry via `StartRun`) bypass this method, so quitting mid-shop produces no event.
+- `TryProcessLevelUps` now subtracts `_shopElapsedThisLevel` from the `levelCompleted` `durationSeconds` and resets the accumulator. Level durations are now active-play time only — the shop-time caveat from 0.8.2 no longer applies. `Mathf.Max(0f, ...)` guards against negative durations from any timer skew.
+- Menu-scene version text bumped to `v0.8.3`.
+
+## 0.8.2 — level completion time analytics event
+_2026-05-13 · Contributor: JJ_
+- `PinballAnalytics` now exposes `LogLevelCompleted(levelIndex, durationSeconds, boardId)` which records a new `levelCompleted` custom event. Params: `levelIndex(int, 1-based)`, `durationSeconds(float)`, `boardId(string, board scene name)`. The event must be registered in the Unity Cloud Dashboard with those exact param types before data flows.
+- `GameRulesManager` tracks `_currentLevelStartTime` (set in `StartRun` alongside `_runStartTime`, reset on every goal-cross inside `TryProcessLevelUps`). When the player crosses `CurrentGoal`, the duration since the previous goal-cross (or run start, for level 1) is logged and the timer is reset for the next level. Timer uses `Time.unscaledTime` to match `RunElapsedTime`.
+- Only completed levels are logged — round failures and quit-mid-level produce no event. Batched level-ups inside a single `TryProcessLevelUps` call attribute the elapsed time to the first level in the batch and ~0s to subsequent ones (sum-of-durations still equals total run time).
+- Caveat: level time includes any shop visit or board-load gap that fell between the previous goal-cross and this one — the clock keeps running through shop sessions. For a pure active-play metric, a future change would subtract a shop-elapsed accumulator.
+- Menu-scene version text bumped to `v0.8.2`.
+
 ## 0.8.1 — shop item analytics events
 _2026-05-13 · Contributor: JJ_
 - Added `Assets/Scripts/Analytics/PinballAnalytics.cs`: static wrapper that initializes Unity Services + `AnalyticsService` once at startup (`RuntimeInitializeOnLoadMethod` BeforeSceneLoad) and exposes `LogShopItemShown` / `LogShopItemPurchased`. All calls are no-ops until the service is ready and never throw into gameplay.

@@ -10,6 +10,12 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.8.5 — retry now resets board component upgrades
+_2026-05-14 · Contributor: Devin_
+- Fixed: clicking Retry after a round failure used to leave shop-purchased component upgrades in place. Shop purchases destroy the original bumper/target/flipper GameObject and instantiate the upgraded prefab in its place (`ShopComponentPlacementController.ReplaceComponent`), so a fresh `StartRun()` had no way to undo those swaps.
+- `GameRulesManager.RetryRound` now reloads the current board scene via `BoardLoader.LoadBoard(currentBoard)` before calling `StartRun()`. Reloading the additive board scene reinstantiates the original prefabs as authored, so retries begin with a pristine board layout. Falls through to the old behavior if no current board / loader can be resolved.
+- Menu-scene version text bumped to `v0.8.5`.
+
 ## 0.8.4 — run-fail highscore + level-reached analytics events
 _2026-05-13 · Contributor: JJ_
 - `PinballAnalytics` now exposes `LogRunHighScore(score, boardId)` and `LogRunLevelReached(levelReached, boardId)` which record two new custom events: `runHighScore` (params: `score(long)`, `boardId(string)`) and `runLevelReached` (params: `levelReached(int, 1-based)`, `boardId(string)`). Both must be registered in the Unity Cloud Dashboard with those exact param types — note `score` is a Long, not Int, because pinball scores routinely exceed `int.MaxValue`.

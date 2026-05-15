@@ -474,7 +474,24 @@ public class GameRulesManager : MonoBehaviour
 
     public void RetryRound()
     {
-        if (_runActive) StartRun();
+        if (!_runActive) return;
+
+        var board = GameSession.Instance?.GetCurrentBoard();
+        var loader = ServiceLocator.Get<BoardLoader>();
+
+        if (board != null && loader != null)
+        {
+            StartCoroutine(ReloadBoardThenStart(loader, board));
+            return;
+        }
+
+        StartRun();
+    }
+
+    private System.Collections.IEnumerator ReloadBoardThenStart(BoardLoader loader, BoardDefinition board)
+    {
+        yield return loader.LoadBoard(board);
+        StartRun();
     }
 
 

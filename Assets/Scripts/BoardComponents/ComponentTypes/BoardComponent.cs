@@ -13,6 +13,7 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
     private const int outlineRenderQueueOffset = 100;
     private const int outlineStencilRef = 2;
 
+    public Action onBallHit;
     public TypeOfScore typeOfScore;
     public float amountToScore;
     public BoardComponentType componentType;
@@ -293,6 +294,7 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
     {
         if (other.GetComponent<Ball>())
         {
+            onBallHit?.Invoke();
             ballHits++;
             if (enableHitCountPopup)
                 SpawnBoardHitCountPopup(ballHits, 0);
@@ -303,6 +305,7 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
     {
         if (collision.collider.GetComponent<Ball>())
         {
+            onBallHit?.Invoke();
             ballHits++;
             if (enableHitCountPopup)
                 SpawnBoardHitCountPopup(ballHits, 0);

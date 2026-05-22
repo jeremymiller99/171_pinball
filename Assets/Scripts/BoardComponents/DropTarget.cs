@@ -31,7 +31,7 @@ public class DropTarget : MonoBehaviour
         NonBouncyMaterial
     }
     [SerializeField] private int hitsToDrop = 1;
-    [SerializeField] private int amountOfHits = 0;
+    public int amountOfHits = 0;
 
     [Header("On Ball Hit — Drop It")]
     [Tooltip("Units to move down (world space). Set in Inspector per target. Movement uses Lerp for smooth animation.")]
@@ -63,7 +63,7 @@ public class DropTarget : MonoBehaviour
     private Rigidbody _rb;
     private Collider _mainCollider;
 
-    private float _resetTimer;
+    public float resetTimer;
     private bool _returning;
     private Vector3 _returnStartPos;
     private float _returnTimer;
@@ -92,7 +92,7 @@ public class DropTarget : MonoBehaviour
     {
         // Pause countdown and animations while shop is open; resume only when game is active.
         if (_gameRulesManager != null && _gameRulesManager.IsShopOpen &&
-            (_falling || _returning || (_hasTriggered && resetDelay > 0f && _resetTimer > 0f)))
+            (_falling || _returning || (_hasTriggered && resetDelay > 0f && resetTimer > 0f)))
             return;
 
         if (_falling)
@@ -118,7 +118,7 @@ public class DropTarget : MonoBehaviour
                     transform.position = targetPos;
                 ApplyWhenFullyDown();
                 if (resetDelay > 0f)
-                    _resetTimer = resetDelay;
+                    resetTimer = resetDelay;
             }
             return;
         }
@@ -147,10 +147,10 @@ public class DropTarget : MonoBehaviour
             return;
         }
 
-        if (_hasTriggered && resetDelay > 0f && _resetTimer > 0f)
+        if (_hasTriggered && resetDelay > 0f && resetTimer > 0f)
         {
-            _resetTimer -= Time.deltaTime;
-            if (_resetTimer <= 0f)
+            resetTimer -= Time.deltaTime;
+            if (resetTimer <= 0f)
             {
                 _returning = true;
                 _returnStartPos = GetCurrentPosition();

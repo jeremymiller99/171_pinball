@@ -62,8 +62,8 @@ public class ShopButton3D : MonoBehaviour
     public void OnClick()
     {
         var rules = ServiceLocator.Get<GameRulesManager>();
-        var artifactManager = ServiceLocator.Get<ArtifactManager>();
-        if (rules == null || !rules.ShopAvailable || artifactManager.SelectingArtifact) return;
+        var moduleManager = ServiceLocator.Get<ModuleManager>();
+        if (rules == null || !rules.ShopAvailable || moduleManager.SelectingModule) return;
 
         rules.TryEnterShopFromButton();
     }

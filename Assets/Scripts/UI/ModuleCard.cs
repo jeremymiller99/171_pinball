@@ -4,12 +4,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-public class ArtifactCard : MonoBehaviour, IPointerExitHandler, IPointerEnterHandler
+public class ModuleCard : MonoBehaviour, IPointerExitHandler, IPointerEnterHandler
 {
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI descriptionText;
-    [SerializeField] private GameObject artifactPrefab;
-    [SerializeField] private ArtifactManager artifactManager;
+    [SerializeField] private GameObject modulePrefab;
+    [SerializeField] private ModuleManager moduleManager;
     [SerializeField] private UIScript uiScript;
     [SerializeField] private Canvas parentCanvas;
     [SerializeField] private RectTransform cardRect;
@@ -31,23 +31,23 @@ public class ArtifactCard : MonoBehaviour, IPointerExitHandler, IPointerEnterHan
     private void Awake()
     {
         uiScript = ServiceLocator.Get<UIScript>();
-        artifactManager = ServiceLocator.Get<ArtifactManager>();
-        parentCanvas = artifactManager.GetComponentInParent<Canvas>();
+        moduleManager = ServiceLocator.Get<ModuleManager>();
+        parentCanvas = moduleManager.GetComponentInParent<Canvas>();
         cardRect = GetComponent<RectTransform>();
         cardBasePos = cardRect.anchoredPosition;
         cardBaseRot = cardRect.localRotation;
         cardBaseScale = cardRect.localScale;
     }
-    public void Populate(ArtifactDefinition artifactDefinition)
+    public void Populate(ModuleDefinition moduleDefinition)
     {
-        nameText.text = artifactDefinition.DisplayName;
-        descriptionText.text = artifactDefinition.Description;
-        artifactPrefab = artifactDefinition.Prefab;
+        nameText.text = moduleDefinition.DisplayName;
+        descriptionText.text = moduleDefinition.Description;
+        modulePrefab = moduleDefinition.Prefab;
     }
 
     public void OnClick()
     {
-        artifactManager.AddArtifactToPlay(artifactPrefab);
+        moduleManager.AddModuleToPlay(modulePrefab);
     }
 
     
@@ -121,6 +121,12 @@ public class ArtifactCard : MonoBehaviour, IPointerExitHandler, IPointerEnterHan
     }
 
     public void OnDeselect()
+    {
+        isSelected = false;
+        cardRect.localScale = cardBaseScale;
+    }
+
+    private void OnApplicationFocus(bool focus)
     {
         isSelected = false;
         cardRect.localScale = cardBaseScale;

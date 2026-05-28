@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9071b5615920698478912bb6e62a6c1c, type: 3}
-  m_Name: Default Artifact Pool
+  m_Name: Default Module Pool
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactPool
-  artifacts:
+  modules:
   - {fileID: 11400000, guid: 53bb1799daadbb6468048feb0d839f16, type: 2}
   - {fileID: 11400000, guid: 4031097ccdc95d74cad6a77375a8a696, type: 2}
-  - {fileID: 11400000, guid: 034a0cc831b322b4c92518784e365da3, type: 2}
+  - {fileID: 11400000, guid: 8487ba08f52d84547aaf56a3061aedcb, type: 2}

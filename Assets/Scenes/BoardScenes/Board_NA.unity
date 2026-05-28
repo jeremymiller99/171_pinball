@@ -23493,8 +23493,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f76a6d11b50a20b4b876f3488fdab530, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  nextArtifactOffset: {x: 2, y: 0, z: 0}
-  baseArtifactPosition: {x: 0, y: 0, z: 0}
+  nextModuleOffset: {x: 2, y: 0, z: 0}
+  baseModulePosition: {x: 0, y: 0, z: 0}
 --- !u!1 &1420397686
 GameObject:
   m_ObjectHideFlags: 0

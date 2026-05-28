@@ -12,10 +12,10 @@ GameObject:
   - component: {fileID: 9039905869378061523}
   - component: {fileID: 2602778532944142056}
   - component: {fileID: 4692461571960005916}
-  - component: {fileID: -1885992162514099256}
-  - component: {fileID: -9167655802198062356}
+  - component: {fileID: -4011402046530651221}
+  - component: {fileID: 8058398548602452869}
   m_Layer: 0
-  m_Name: Active Income Artifact
+  m_Name: Last Chance Module
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -113,21 +113,7 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-1885992162514099256
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8234933386589820079}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a5caa821537b184191e4b1c584b228c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  activeIncomeMultiplier: 2
-  passiveIncomeDivider: 2
---- !u!114 &-9167655802198062356
+--- !u!114 &-4011402046530651221
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -139,4 +125,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d69a2c8adb1344b4c80f5195ef048974, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactDefinitionLink
-  definition: {fileID: 11400000, guid: 53bb1799daadbb6468048feb0d839f16, type: 2}
+  definition: {fileID: 11400000, guid: 8487ba08f52d84547aaf56a3061aedcb, type: 2}
+--- !u!114 &8058398548602452869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8234933386589820079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e74de15bef710e468dfbaf1f9631128, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  gameRulesManager: {fileID: 0}
+  modifierController: {fileID: 0}
+  scoreManager: {fileID: 0}
+  ballLoadoutController: {fileID: 0}
+  currentRoundIsDevil: 0
+  levelUpMultiplier: 3

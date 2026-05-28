@@ -15,5 +15,5 @@ public enum ElementType
     Splitter,
     Anomaly,
     Catalyst,
-    Artifact
+    Module
 }

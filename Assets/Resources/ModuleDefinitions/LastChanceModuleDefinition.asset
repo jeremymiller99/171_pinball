@@ -10,9 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7e09892adf9efcd48b9e796a60f2bfab, type: 3}
-  m_Name: ExtraSplitArtifactDefinition
+  m_Name: LastChanceModuleDefinition
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactDefinition
-  displayName: Extra Split Module
-  description: This module makes splitter type balls spawn one extra pinball.
+  displayName: Last Chance Module
+  description: This module gives an extra 300% credits from emergencies when you
+    have no pinballs left in hand.
   icon: {fileID: 0}
-  prefab: {fileID: 8234933386589820079, guid: aaf28b76cf3820147bbddead7b5a4ea8, type: 3}
+  prefab: {fileID: 8234933386589820079, guid: ff155134b6d935745ab9b7090ece92f5, type: 3}

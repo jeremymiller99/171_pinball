@@ -1,16 +1,16 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Artifacts/Artifact Definition", fileName = "ArtifactDefinition_")]
-public sealed class ArtifactDefinition : ScriptableObject
+[CreateAssetMenu(menuName = "Modules/Module Definition", fileName = "ModuleDefinition_")]
+public sealed class ModuleDefinition : ScriptableObject
 {
     [Header("Presentation")]
-    [SerializeField] private string displayName = "Artifact";
+    [SerializeField] private string displayName = "Module";
     [TextArea]
     [SerializeField] private string description = "";
     [SerializeField] private Sprite icon;
 
     [Header("Gameplay")]
-    [Tooltip("Prefab that will be spawned/used for this artifact.")]
+    [Tooltip("Prefab that will be spawned/used for this module.")]
     [SerializeField] private GameObject prefab;
 
     public string DisplayName => displayName;
@@ -18,7 +18,7 @@ public sealed class ArtifactDefinition : ScriptableObject
     public Sprite Icon => icon;
     public GameObject Prefab => prefab;
 
-    public static ArtifactDefinition CreateRuntime(
+    public static ModuleDefinition CreateRuntime(
         string runtimeId,
         string runtimeDisplayName,
         string runtimeDescription,
@@ -28,10 +28,10 @@ public sealed class ArtifactDefinition : ScriptableObject
         GameObject runtimePrefab,
         int runtimePrice)
     {
-        var def = CreateInstance<ArtifactDefinition>();
+        var def = CreateInstance<ModuleDefinition>();
         def.displayName =
             string.IsNullOrWhiteSpace(runtimeDisplayName)
-                ? "Ball"
+                ? "Module"
                 : runtimeDisplayName;
         def.description = runtimeDescription ?? "";
         def.icon = runtimeIcon;
@@ -46,14 +46,14 @@ public sealed class ArtifactDefinition : ScriptableObject
 
     public string GetSafeDisplayName()
     {
-        return string.IsNullOrWhiteSpace(displayName) ? "Artifact" : displayName;
+        return string.IsNullOrWhiteSpace(displayName) ? "Module" : displayName;
     }
 
     private void OnValidate()
     {
         if (string.IsNullOrWhiteSpace(displayName))
         {
-            displayName = "Ball";
+            displayName = "Module";
         }
     }
 }

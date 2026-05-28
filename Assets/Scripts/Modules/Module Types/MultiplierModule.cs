@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MultilplierArtifact : MonoBehaviour
+public class MultilplierModule : MonoBehaviour
 {
     [SerializeField] private ScoreManager scoreManager;
     [SerializeField] private float multMultiplier;
@@ -8,13 +8,13 @@ public class MultilplierArtifact : MonoBehaviour
     private void Awake()
     {
         scoreManager = ServiceLocator.Get<ScoreManager>();
-        scoreManager.ArtifactMultMultiplier *= multMultiplier;
-        scoreManager.ArtifactPointMultiplier /= pointDivider;
+        scoreManager.ModuleMultMultiplier *= multMultiplier;
+        scoreManager.ModulePointMultiplier /= pointDivider;
     }
 
     private void OnDestroy()
     {
-        scoreManager.ArtifactMultMultiplier /= multMultiplier;
-        scoreManager.ArtifactPointMultiplier *= pointDivider;
+        scoreManager.ModuleMultMultiplier /= multMultiplier;
+        scoreManager.ModulePointMultiplier *= pointDivider;
     }
 }

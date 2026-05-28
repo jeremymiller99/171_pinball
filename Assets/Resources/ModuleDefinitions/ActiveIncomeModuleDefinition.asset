@@ -10,9 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7e09892adf9efcd48b9e796a60f2bfab, type: 3}
-  m_Name: MultplierArtifactDefinition
+  m_Name: ActiveIncomeModuleDefinition
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactDefinition
-  displayName: Multiplier Module
-  description: This module halves all points recieved and doubles all mult recieved.
+  displayName: Active Income Module
+  description: This module halves all coins gotten from level ups and doubles all
+    coins gotten from mint type pinballs and components.
   icon: {fileID: 0}
-  prefab: {fileID: 8234933386589820079, guid: 2e07bd526a69a9f448d73181bfdc33f2, type: 3}
+  prefab: {fileID: 8234933386589820079, guid: 826e397f772d6c34bae491d0a22dfa55, type: 3}

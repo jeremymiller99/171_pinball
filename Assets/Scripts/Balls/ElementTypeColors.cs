@@ -40,7 +40,7 @@ public static class ElementTypeColors
             ElementType.Splitter => "Splitter",
             ElementType.Anomaly => "Anomaly",
             ElementType.Catalyst => "Catalyst",
-            ElementType.Artifact => "Artifact",
+            ElementType.Module => "Module",
             _ => "N/A"
         };
     }

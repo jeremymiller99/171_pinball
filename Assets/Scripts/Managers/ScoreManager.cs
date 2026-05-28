@@ -144,9 +144,9 @@ public class ScoreManager : MonoBehaviour
     public float ComponentHitAssistAccelerationBonus => _componentHitAssistAccelerationBonus;
     public float ExternalTimeScaleMultiplier => externalTimeScaleMultiplier;
     public float ExternalScoreAwardMultiplier => externalScoreAwardMultiplier;
-    public float ArtifactPointMultiplier = 1f;
-    public float ArtifactMultMultiplier = 1f;
-    public float ArtifactCoinMultiplier = 1f;
+    public float ModulePointMultiplier = 1f;
+    public float ModuleMultMultiplier = 1f;
+    public float ModuleCoinMultiplier = 1f;
 
     public void SetExternalScoreAwardMultiplier(float multiplier)
     {
@@ -294,15 +294,15 @@ public class ScoreManager : MonoBehaviour
         switch(typeOfScore)
         {
             case TypeOfScore.points:
-                float appliedPts = amount * pointMultiplier * pointsModifierMultiplier * externalScoreAwardMultiplier * ArtifactPointMultiplier;
+                float appliedPts = amount * pointMultiplier * pointsModifierMultiplier * externalScoreAwardMultiplier * ModulePointMultiplier;
                 AddPoints(appliedPts, pos, popupAnchorOffset);
                 break;
             case TypeOfScore.mult:
-                float appliedMult = amount * multMultiplier * multModifierMultiplier * externalScoreAwardMultiplier * ArtifactMultMultiplier;
+                float appliedMult = amount * multMultiplier * multModifierMultiplier * externalScoreAwardMultiplier * ModuleMultMultiplier;
                 AddMult(appliedMult, pos);
                 break;
             case TypeOfScore.coins:
-                int appliedCoins = Mathf.RoundToInt(amount * coinMultiplier * coinModifierMultiplier * externalScoreAwardMultiplier * ArtifactCoinMultiplier);
+                int appliedCoins = Mathf.RoundToInt(amount * coinMultiplier * coinModifierMultiplier * externalScoreAwardMultiplier * ModuleCoinMultiplier);
                 AddCoins(appliedCoins, pos);
                 break;
         }

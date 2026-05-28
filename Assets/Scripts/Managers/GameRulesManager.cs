@@ -24,7 +24,7 @@ public class GameRulesManager : MonoBehaviour
     [SerializeField] private bool autoStartOnPlay = true;
 
     [Header("Levels")]
-    [Min(0)] [SerializeField] private int coinsPerLevelUp = 10;
+    [Min(0)] [SerializeField] public int coinsPerLevelUp = 10;
 
     [Header("Ball Spawning")]
     [SerializeField] private BallSpawner ballSpawner;
@@ -40,7 +40,7 @@ public class GameRulesManager : MonoBehaviour
     [SerializeField] private ShopTransitionController shopTransitionController;
 
     [Header("Debug")]
-    [SerializeField] private int roundIndex;
+    [SerializeField] public int roundIndex;
     [SerializeField] private int ballsRemaining;
     [SerializeField] private double roundTotal;
 
@@ -278,10 +278,10 @@ public class GameRulesManager : MonoBehaviour
                 float prevGoal = CurrentGoal;
                 var cc = ServiceLocator.Get<CoinController>();
                 int coinsAwarded = cc?.AddCoinsScaledDeferredUi(coinsPerLevelUp) ?? 0;
-                ActiveIncomeArtifact[] artifacts = FindObjectsByType<ActiveIncomeArtifact>(FindObjectsSortMode.None);
-                if (artifacts.Length > 0)
+                ActiveIncomeModule[] modules = FindObjectsByType<ActiveIncomeModule>(FindObjectsSortMode.None);
+                if (modules.Length > 0)
                 {
-                    coinsAwarded /= Mathf.FloorToInt(artifacts[0].passiveIncomeDivider * artifacts.Length);
+                    coinsAwarded /= Mathf.FloorToInt(modules[0].passiveIncomeDivider * modules.Length);
                 } 
                 if (showLevelUpCoinsPopup && floatingTextSpawner != null)
                 {

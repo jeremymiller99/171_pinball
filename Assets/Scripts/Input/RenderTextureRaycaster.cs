@@ -618,16 +618,16 @@ public class RenderTextureRaycaster : MonoBehaviour
             elementType = compDef.ElementType;
         }
 
-        ArtifactDefinitionLink artifactLink =
-            obj.GetComponentInParent<ArtifactDefinitionLink>();
+        ModuleDefinitionLink moduleLink =
+            obj.GetComponentInParent<ModuleDefinitionLink>();
 
-        if (artifactLink != null
-            && artifactLink.TryGetDefinition(
-                out ArtifactDefinition artifactDef))
+        if (moduleLink != null
+            && moduleLink.TryGetDefinition(
+                out ModuleDefinition moduleDef))
         {
-            title = artifactDef.GetSafeDisplayName();
-            desc = artifactDef.Description;
-            elementType = ElementType.Artifact;
+            title = moduleDef.GetSafeDisplayName();
+            desc = moduleDef.Description;
+            elementType = ElementType.Module;
         }
     }
 

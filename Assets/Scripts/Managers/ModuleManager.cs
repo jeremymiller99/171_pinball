@@ -5,19 +5,19 @@ using System.Net;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ArtifactManager : MonoBehaviour
+public class ModuleManager : MonoBehaviour
 {
-    [SerializeField] private ArtifactPool artifactPool;
-    [SerializeField] private List<GameObject> inPlayArtifactList;
-    [SerializeField] private List<GameObject> artifactCards;
-    [SerializeField] private ArtifactSpawnPoint artifactSpawnPoint;
+    [SerializeField] private ModulePool modulePool;
+    [SerializeField] private List<GameObject> inPlayModuleList;
+    [SerializeField] private List<GameObject> moduleCards;
+    [SerializeField] private ModuleSpawnPoint moduleSpawnPoint;
     [SerializeField] private GameRulesManager gameRulesManager;
     [SerializeField] private Image image;
-    [SerializeField] private float timeUntilDeselectArtifacts;
+    [SerializeField] private float timeUntilDeselectModules;
     private float _timeScaleBeforePause;
     private float _fixedDeltaBeforePause;
 
-    public bool SelectingArtifact;
+    public bool SelectingModule;
 
     private void Awake()
     {
@@ -28,43 +28,43 @@ public class ArtifactManager : MonoBehaviour
         SetCardsActive(false);
     }
 
-    public void ActivateArtifactCards()
+    public void ActivateModuleCards()
     {
         // Pause Gameplay 
         _timeScaleBeforePause = Time.timeScale;
         _fixedDeltaBeforePause = Time.fixedDeltaTime;
         Time.timeScale = 0f;
-        SelectingArtifact = true;
-        // Disable floating text so it's not in the way of the artifact cards
+        SelectingModule = true;
+        // Disable floating text so it's not in the way of the module cards
         foreach (var text in FindObjectsByType<FloatingText>(FindObjectsSortMode.None))
         {
             text.gameObject.SetActive(false);
         }
 
-        List<ArtifactDefinition> artifacts = artifactPool.GetThreeRandomArtifacts();
-        for (int i = 0; i < artifacts.Count; i++)
+        List<ModuleDefinition> modules = modulePool.GetThreeRandomModules();
+        for (int i = 0; i < modules.Count; i++)
         {
-            artifactCards[i].SetActive(true);
-            artifactCards[i].GetComponent<ArtifactCard>().Populate(artifacts[i]);
+            moduleCards[i].SetActive(true);
+            moduleCards[i].GetComponent<ModuleCard>().Populate(modules[i]);
         }
     }
 
-    public void AddArtifactToPlay(GameObject artifactPrefab)
+    public void AddModuleToPlay(GameObject modulePrefab)
     {
-        // artifactSpawnPoint can't be found in start function, needs to be done here.
-        if (!artifactSpawnPoint)
+        // moduleSpawnPoint can't be found in start function, needs to be done here.
+        if (!moduleSpawnPoint)
         {
-            artifactSpawnPoint = ServiceLocator.Get<ArtifactSpawnPoint>();
+            moduleSpawnPoint = ServiceLocator.Get<ModuleSpawnPoint>();
         }
 
-        GameObject newArtifact = artifactSpawnPoint.SpawnArtifact(artifactPrefab, inPlayArtifactList.Count);
-        inPlayArtifactList.Add(newArtifact);
+        GameObject newModule = moduleSpawnPoint.SpawnModule(modulePrefab, inPlayModuleList.Count);
+        inPlayModuleList.Add(newModule);
         SetCardsActive(false);
 
         // Resume gameplay
         Time.timeScale = _timeScaleBeforePause;
         Time.fixedDeltaTime = _fixedDeltaBeforePause;
-        StartCoroutine(WaitThenDeselectArtifacts());
+        StartCoroutine(WaitThenDeselectModules());
 
         // Enable floating text again
         foreach (var text in FindObjectsByType<FloatingText>(FindObjectsInactive.Include, FindObjectsSortMode.None))
@@ -77,22 +77,22 @@ public class ArtifactManager : MonoBehaviour
     {
         if (gameRulesManager.LevelIndex % 5 == 0 && gameRulesManager.LevelIndex != 0)
         {
-            ActivateArtifactCards();
+            ActivateModuleCards();
         }
     }
 
     private void SetCardsActive(bool enabled)
     {
         image.enabled = enabled;
-        foreach (GameObject card in artifactCards)
+        foreach (GameObject card in moduleCards)
         {
             card.SetActive(enabled);
         }
     }
 
-    private IEnumerator WaitThenDeselectArtifacts()
+    private IEnumerator WaitThenDeselectModules()
     {
-        yield return new WaitForSeconds(timeUntilDeselectArtifacts);
-        SelectingArtifact = false;
+        yield return new WaitForSeconds(timeUntilDeselectModules);
+        SelectingModule = false;
     }
 }

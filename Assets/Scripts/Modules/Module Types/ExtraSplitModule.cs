@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ExtraSplitArtifact : MonoBehaviour
+public class ExtraSplitModule : MonoBehaviour
 {
 
     [SerializeField] private BallSpawner ballSpawner;

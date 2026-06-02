@@ -115,7 +115,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 43837843045343232
-    m_Localized: Comenzar
+    m_Localized: Jugar
     m_Metadata:
       m_Items: []
   - m_Id: 43845501580206080
@@ -173,6 +173,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 43853544711774208
     m_Localized: "Partida r\xE1pida"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43967283746299904
+    m_Localized: Salir
     m_Metadata:
       m_Items: []
   references:

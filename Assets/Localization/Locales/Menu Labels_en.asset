@@ -40,7 +40,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 43837843045343232
-    m_Localized: Start
+    m_Localized: Play
     m_Metadata:
       m_Items: []
   - m_Id: 43845501580206080
@@ -92,7 +92,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 43865952318644224
-    m_Localized: Display
+    m_Localized: Display Mode
     m_Metadata:
       m_Items: []
   - m_Id: 43866057230770176
@@ -124,7 +124,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 43866163543793664
-    m_Localized: Highscore
+    m_Localized: 'Highscore:'
     m_Metadata:
       m_Items: []
   - m_Id: 43854287372017664
@@ -173,6 +173,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 43855195065540608
     m_Localized: 'Back:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43967283746299904
+    m_Localized: Quit
     m_Metadata:
       m_Items: []
   references:

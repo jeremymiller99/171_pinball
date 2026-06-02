@@ -32,7 +32,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 43837843045343232
-    m_Key: mainMenu.start
+    m_Key: mainMenu.play
     m_Metadata:
       m_Items: []
   - m_Id: 43845501580206080
@@ -152,23 +152,27 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 43865952318644224
-    m_Key: ' mainMenu.settings.displayMode'
+    m_Key: mainMenu.settings.displayMode
     m_Metadata:
       m_Items: []
   - m_Id: 43866057230770176
-    m_Key: ' mainMenu.settings.resolution'
+    m_Key: mainMenu.settings.resolution
     m_Metadata:
       m_Items: []
   - m_Id: 43866163543793664
-    m_Key: ' mainMenu.highscore'
+    m_Key: mainMenu.highscore
     m_Metadata:
       m_Items: []
   - m_Id: 43866250806288384
-    m_Key: ' mainMenu.rank'
+    m_Key: mainMenu.rank
     m_Metadata:
       m_Items: []
   - m_Id: 43868576258449408
     m_Key: mainMenu.delete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43967283746299904
+    m_Key: mainMenu.quit
     m_Metadata:
       m_Items: []
   m_Metadata:

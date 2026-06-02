@@ -18,8 +18,8 @@ MonoBehaviour:
   m_Metadata:
     m_Items: []
   m_TableData:
-  - m_Id: 39696351232
-    m_Localized: Jugar
+  - m_Id: 43868576258449408
+    m_Localized: Eliminar
     m_Metadata:
       m_Items: []
   - m_Id: 72881684480
@@ -36,6 +36,143 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 62695853670400
     m_Localized: Equipo 22
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43852928014868480
+    m_Localized: Activo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853217807720448
+    m_Localized: "Puntuaci\xF3n total:"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853614576295936
+    m_Localized: Sonido
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853658494853120
+    m_Localized: Volumen general
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853733207990272
+    m_Localized: " Volumen de m\xFAsica"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854024410128384
+    m_Localized: Volumen de efectos
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854287372017664
+    m_Localized: Pantalla
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43865952318644224
+    m_Localized: Modo de pantalla
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43866057230770176
+    m_Localized: "Resoluci\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854679291977728
+    m_Localized: Pixelado
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854746421813248
+    m_Localized: Interfaz
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854796967370752
+    m_Localized: Jugabilidad
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854836687429632
+    m_Localized: Controles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854871839891456
+    m_Localized: 'Flipper izquierdo:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854930304294912
+    m_Localized: 'Flipper derecho:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854991276892160
+    m_Localized: 'Lanzador:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43855074768707584
+    m_Localized: 'Aceptar:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43855139486818304
+    m_Localized: 'Pausa:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43855195065540608
+    m_Localized: "Atr\xE1s:"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43837843045343232
+    m_Localized: Comenzar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845501580206080
+    m_Localized: "Seleccionar Misi\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845597143228416
+    m_Localized: "Progresi\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845660493996032
+    m_Localized: "Cr\xE9ditos"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845739997028352
+    m_Localized: Cerrar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845786671243264
+    m_Localized: 'Elige tu nave:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845876030889984
+    m_Localized: Nombre de la nave
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845964908191744
+    m_Localized: "Descripci\xF3n de la nave"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43846144780918784
+    m_Localized: "Condici\xF3n de victoria"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43846245653929984
+    m_Localized: Nombre
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853295528173568
+    m_Localized: 'Victorias totales:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43846314381795328
+    m_Localized: " Programaci\xF3n\r\n  Sonido\r\n  Arte 2D\r\n  Arte 3D\r\n\r\n 
+      Agradecimientos especiales a...\r\n\r\n  Fuente\r\n  Component Outline"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43866163543793664
+    m_Localized: "R\xE9cord:"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43866250806288384
+    m_Localized: 'Rango:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853544711774208
+    m_Localized: "Partida r\xE1pida"
     m_Metadata:
       m_Items: []
   references:

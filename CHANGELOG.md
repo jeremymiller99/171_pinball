@@ -10,6 +10,15 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.8.6 — Spanish localization pass on MainMenu (work in progress)
+_2026-06-01 · Contributor: Devin_
+- Added ~35 string keys to the existing `Menu Labels` collection (Profile screen, Credits screen, ChallengeCard, Quick Run, and full Settings Panel labels) with English source values and Spanish translations. Existing 5 keys (`mainMenu.play`/`.settings`/`.collection`/`.profile`/`.team22`) were preserved and Spanish-translated; `mainMenu.play` was deleted in favour of `mainMenu.start`.
+- Wired `LocalizeStringEvent` components in `Slot.prefab` (Active / All-Time Score: / Total Wins:) and overrode the nested Button1 instance's String Reference to `mainMenu.delete`. All three save slots now switch correctly via the prefab.
+- Wired the Credits screen title (`mainMenu.credits`) and role-labels body (`mainMenu.creditsBody`) on MainMenu.unity; bumped the names column's RectTransform Pos X so the longer Spanish role labels don't overlap.
+- Reverted the unintended scene-level prefab overrides on the Profile instance in MainMenu.unity that were blocking Slot.prefab's wiring from propagating, and clearing the "No translation found" warning that came from an unwired LSE on the Credits title.
+- Work is partial — handoff details (key list, what's not yet wired, known typo keys to clean up, the pending `MainMenu` collection rename) are in `LOCALIZATION_HANDOFF.md`. Pick up from there next session.
+- Menu-scene version text bumped to `v0.8.6`.
+
 ## 0.8.5 — basic three-panel tutorial (first play, first level-up, first shop visit)
 _2026-05-14 · Contributor: JJ_
 - Added `Assets/Scripts/UI/BasicTutorialController.cs`: self-bootstrapping `DontDestroyOnLoad` singleton (RuntimeInitializeOnLoadMethod / BeforeSceneLoad) that owns its own ScreenSpaceOverlay canvas (sort order 9990) and builds three programmatic panels in code — no prefab wiring required. Subscribes to `GameRulesManager.RoundStarted` / `ShopAvailabilityChanged` / `ShopOpened` whenever GRM appears via `ServiceLocator` (rechecked on `SceneManager.sceneLoaded` and per-frame in Update so additive board scenes pick it up).

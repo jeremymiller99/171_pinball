@@ -21,6 +21,11 @@ public sealed class BoardDefinition : ScriptableObject
     [Tooltip("Scene name to load additively (must be in Build Settings). Example: Board_Alpha")]
     public string boardSceneName = "Board_Alpha";
 
+    [Header("Missions")]
+    [Tooltip("Missions (challenge modes) playable on this playfield. Drives the " +
+             "mission list shown when this board is picked in the monitor-2 menu.")]
+    public ChallengeModeDefinition[] missions;
+
     [Header("Board clear objective (checked when closing the shop)")]
     public ClearConditionKind clearCondition = ClearConditionKind.None;
 

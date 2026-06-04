@@ -122,6 +122,27 @@ public sealed class GameSession : MonoBehaviour
         generatedRounds.Clear();
     }
 
+    /// <summary>
+    /// Configures a challenge run from an explicitly-selected mission, board, and
+    /// ship. Unlike the mission-only overload, the board is supplied directly (the
+    /// playfield now owns its missions) rather than read from the mission's own
+    /// board list. Used by the monitor-2 selection menu.
+    /// </summary>
+    public void ConfigureChallenge(ChallengeModeDefinition mission, BoardDefinition board, PlayerShipDefinition ship, int runSeed)
+    {
+        startType = StartType.Challenge;
+        seed = runSeed;
+        activeRunPlan = new RunPlan();
+        activeChallenge = mission;
+        activeShip = ship;
+        if (board != null)
+        {
+            activeRunPlan.boards.Add(board);
+        }
+        currentBoardIndex = 0;
+        generatedRounds.Clear();
+    }
+
     public void ConfigureChallenge(BoardDefinition singleBoardChallenge, int runSeed)
     {
         if (singleBoardChallenge == null)

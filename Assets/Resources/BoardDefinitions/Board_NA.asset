@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f4fae2076c9d634ebeb23ae8d47dd53, type: 3}
   m_Name: Board_NA
   m_EditorClassIdentifier: Assembly-CSharp::BoardDefinition
-  displayName: NEW ART YEA
+  displayName: Starter Playfield
   boardSceneName: Board_NA
+  missions:
+  - {fileID: 11400000, guid: c6c36835797ddde498dc8b023c3108df, type: 2}
   clearCondition: 1
   targetRoundIndex: 7
   targetCoins: 10

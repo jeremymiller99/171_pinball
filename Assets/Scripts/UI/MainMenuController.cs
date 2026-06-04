@@ -57,6 +57,11 @@ public sealed class MainMenuController : MonoBehaviour
     [Tooltip("Camera rig that lerps to the second point when Play is selected.")]
     [SerializeField] private CameraLerpBetweenPoints cameraLerp;
 
+    [Header("Monitor 2")]
+    [Tooltip("Controller for the monitor-2 canvases (playfield / mission / ship / start). " +
+             "Activated once the camera arrives at the Play point.")]
+    [SerializeField] private Monitor2Controller monitor2Controller;
+
     [Header("Settings")]
     [Tooltip("Settings panel to show while the camera is at the third point. " +
              "Drag the panel instance from the scene here.")]
@@ -131,10 +136,16 @@ public sealed class MainMenuController : MonoBehaviour
     private void Update()
     {
         // Away from the main camera point, the three buttons are inert; only
-        // a back/cancel press (to return to Main) is honored here.
+        // a back/cancel press (to return to Main) is honored here. While monitor 2
+        // is active it owns Escape (and calls ReturnToMain itself), so don't also
+        // handle cancel here or we'd return twice.
         if (_location != MenuLocation.Main)
         {
-            if (WasCancelPressed())
+            bool monitor2OwnsInput = _location == MenuLocation.Play
+                && monitor2Controller != null
+                && monitor2Controller.IsActive;
+
+            if (!monitor2OwnsInput && WasCancelPressed())
             {
                 ReturnToMain();
             }
@@ -258,10 +269,35 @@ public sealed class MainMenuController : MonoBehaviour
         if (cameraLerp != null)
         {
             cameraLerp.GoToSecond();
+            if (monitor2Controller != null)
+            {
+                StartCoroutine(ActivateMonitor2WhenCameraArrives());
+            }
         }
         else
         {
             Debug.LogWarning($"{nameof(MainMenuController)}: no {nameof(CameraLerpBetweenPoints)} assigned; cannot move camera.", this);
+            if (monitor2Controller != null)
+            {
+                monitor2Controller.Activate();
+            }
+        }
+    }
+
+    private System.Collections.IEnumerator ActivateMonitor2WhenCameraArrives()
+    {
+        // Let the transition kick off, then wait for it to finish before handing
+        // input to monitor 2.
+        yield return null;
+        while (cameraLerp.IsMoving)
+        {
+            yield return null;
+        }
+
+        // The user may have already backed out during the move.
+        if (_location == MenuLocation.Play && monitor2Controller != null)
+        {
+            monitor2Controller.Activate();
         }
     }
 
@@ -307,6 +343,12 @@ public sealed class MainMenuController : MonoBehaviour
         if (_location == MenuLocation.Main)
         {
             return;
+        }
+
+        // Hand input back from monitor 2 (no-op if it wasn't active).
+        if (monitor2Controller != null)
+        {
+            monitor2Controller.Deactivate();
         }
 
         // Hide the settings panel immediately so it isn't visible during the

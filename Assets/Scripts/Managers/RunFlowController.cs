@@ -18,6 +18,9 @@ public sealed class RunFlowController : MonoBehaviour
     [SerializeField] private BoardLoader boardLoader;
     [SerializeField] private ShopTransitionController shopTransitionController;
 
+    [Tooltip("Optional: plays a one-shot camera intro pan in sync with the start-of-gameplay fade-in.")]
+    [SerializeField] private CameraIntroPan cameraIntroPan;
+
     [Header("Scene names")]
     [SerializeField] private string gameplayCoreSceneName = "GameplayCore";
     [SerializeField] private string mainMenuSceneName = "MainMenu";
@@ -102,6 +105,14 @@ public sealed class RunFlowController : MonoBehaviour
 
         // Wait one frame so the first gameplay frame renders under the black overlay before we fade in.
         yield return null;
+
+        // Kick off the camera intro pan in sync with the fade-in (snaps to the intro
+        // point, then slides into the play pose as the screen reveals).
+        if (cameraIntroPan != null)
+        {
+            cameraIntroPan.Play();
+        }
+
         SceneFader.Instance.FadeIn();
     }
 

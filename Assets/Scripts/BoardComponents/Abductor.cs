@@ -35,6 +35,7 @@ public class Abductor : MonoBehaviour
     [SerializeField] private List<Vector3> fightingPositions;
     [SerializeField] private int fightingPositionIndex = 0;
     [SerializeField] private float fightingMovementSpeed;
+    [SerializeField] private int maxHealth;
     [SerializeField] private int health;
 
     [Header("Returning Abducted Object")]
@@ -131,6 +132,7 @@ public class Abductor : MonoBehaviour
         gameObject.SetActive(true);
         abductionState = AbductionState.GoingToAbduction;
         activatedFrenzy = false;
+        health = maxHealth;
     }
 
     private void OnCollisionEnter(Collision collision)

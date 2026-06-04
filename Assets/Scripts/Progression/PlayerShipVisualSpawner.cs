@@ -20,13 +20,22 @@ public class PlayerShipVisualSpawner : MonoBehaviour
         }
 
         GameObject spawned = Instantiate(activeShip.shipModelPrefab, transform.position, transform.rotation, transform);
-        
+
         PlayerShipVisual visual = spawned.GetComponent<PlayerShipVisual>();
         if (visual == null)
         {
             visual = spawned.AddComponent<PlayerShipVisual>();
         }
-        
+
         visual.Init(activeShip);
+
+        // If a flight controller is present on this spawn point, hand off the ship so it
+        // can fly the entry path and animate to/from the shop. Otherwise the ship just
+        // hovers in place (legacy behavior).
+        PlayerShipFlightController flight = GetComponent<PlayerShipFlightController>();
+        if (flight != null)
+        {
+            flight.Bind(spawned.transform, visual);
+        }
     }
 }

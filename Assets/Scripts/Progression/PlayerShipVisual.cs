@@ -16,6 +16,7 @@ public class PlayerShipVisual : MonoBehaviour
 
     private Vector3 _startLocalPos;
     private float _timeOffset;
+    private bool _hoverEnabled = true;
 
     public void Init(PlayerShipDefinition def)
     {
@@ -26,8 +27,31 @@ public class PlayerShipVisual : MonoBehaviour
         EnsureCollider();
     }
 
+    /// <summary>
+    /// Enables/disables the idle hover. The flight controller suspends hover while
+    /// the ship is flying along a path and re-enables it once parked.
+    /// </summary>
+    public void SetHoverEnabled(bool enabled)
+    {
+        _hoverEnabled = enabled;
+    }
+
+    /// <summary>
+    /// Re-anchors the hover to the ship's current local position. Call after the ship
+    /// has been moved to a new resting/parked spot so it bobs around that spot.
+    /// </summary>
+    public void ReanchorHere()
+    {
+        _startLocalPos = transform.localPosition;
+    }
+
     private void Update()
     {
+        if (!_hoverEnabled)
+        {
+            return;
+        }
+
         float t = (Time.time + _timeOffset) * hoverFrequency;
         float bobY = Mathf.Sin(t) * hoverAmplitude;
         float driftX = Mathf.Sin(t * 0.73f + 1.1f) * driftAmplitude;

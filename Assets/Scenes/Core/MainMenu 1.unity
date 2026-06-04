@@ -2249,6 +2249,35 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 671049359b6c2cd4fbe680c8a1064a21, type: 3}
   m_PrefabInstance: {fileID: 242468269}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &253805245 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -6056437741015068820, guid: 265d6149783e9bd4eb7bb341044c63fd, type: 3}
+  m_PrefabInstance: {fileID: 1224996810}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &253805246 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -841307392443417083, guid: 265d6149783e9bd4eb7bb341044c63fd, type: 3}
+  m_PrefabInstance: {fileID: 1224996810}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &253805249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 253805245}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1557db05ee2b5ee42a9e29a05aec5616, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpaceshipElevator
+  elevator: {fileID: 253805246}
+  shipPoint: {fileID: 1788222850}
+  loweredLocalY: -25
+  raisedLocalY: -5
+  travelDuration: 1.5
+  spinDegrees: 360
+  startRaised: 1
 --- !u!1 &259140088 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5377274068582844152, guid: b67617d05cddf59459f46789b713173f, type: 3}
@@ -6357,6 +6386,8 @@ MonoBehaviour:
   startFlashInterval: 0.5
   gameplayCoreSceneName: GameplayCore
   mainMenuController: {fileID: 1889700248}
+  spaceshipElevator: {fileID: 253805249}
+  launchSequence: {fileID: 1961402495}
 --- !u!4 &560542304
 Transform:
   m_ObjectHideFlags: 0
@@ -9628,6 +9659,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 4ab8581d20de7c14ba3d43e7a2b2e9c7, type: 3}
   m_PrefabInstance: {fileID: 1019789989}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1024217186
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1024217187}
+  m_Layer: 0
+  m_Name: Ship Target Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1024217187
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1024217186}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 44.32979, y: 18.83, z: -42.62}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1961402496}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1042199778
 GameObject:
   m_ObjectHideFlags: 0
@@ -11434,6 +11496,18 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 4.79
       objectReference: {fileID: 0}
+    - target: {fileID: -841307392443417083, guid: 265d6149783e9bd4eb7bb341044c63fd, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -841307392443417083, guid: 265d6149783e9bd4eb7bb341044c63fd, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -841307392443417083, guid: 265d6149783e9bd4eb7bb341044c63fd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -90
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 265d6149783e9bd4eb7bb341044c63fd, type: 3}
       propertyPath: m_Name
       value: HangarStructure
@@ -11484,10 +11558,16 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -3036125790667716831, guid: 265d6149783e9bd4eb7bb341044c63fd, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1439259459}
+    - targetCorrespondingSourceObject: {fileID: -841307392443417083, guid: 265d6149783e9bd4eb7bb341044c63fd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1788222850}
     - targetCorrespondingSourceObject: {fileID: -5779677852877877376, guid: 265d6149783e9bd4eb7bb341044c63fd, type: 3}
       insertIndex: -1
       addedObject: {fileID: 238248139}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -6056437741015068820, guid: 265d6149783e9bd4eb7bb341044c63fd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 253805249}
   m_SourcePrefab: {fileID: 100100000, guid: 265d6149783e9bd4eb7bb341044c63fd, type: 3}
 --- !u!4 &1224996811 stripped
 Transform:
@@ -13379,7 +13459,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1375748700
 Transform:
   m_ObjectHideFlags: 0
@@ -18005,6 +18085,37 @@ Transform:
   - {fileID: 1521208305}
   m_Father: {fileID: 1844351138}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1788222849
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1788222850}
+  m_Layer: 0
+  m_Name: space ship point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1788222850
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1788222849}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 253805246}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1790049534
 GameObject:
   m_ObjectHideFlags: 0
@@ -19269,6 +19380,58 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!1 &1961402494
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1961402496}
+  - component: {fileID: 1961402495}
+  m_Layer: 0
+  m_Name: ShipLaunchSequence
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1961402495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1961402494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd4870e42a7ecb64abc072ec3de4b603, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShipLaunchSequence
+  door: {fileID: 438654783}
+  doorOpenHeight: 3
+  doorOpenDuration: 0.6
+  flightTarget: {fileID: 1024217187}
+  flightDistance: 25
+  flightDuration: 1
+  postLaunchDelay: 0.15
+--- !u!4 &1961402496
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1961402494}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 12.20021, y: 1.12678, z: 50}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1024217187}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1967233563
 GameObject:
   m_ObjectHideFlags: 0
@@ -22482,3 +22645,4 @@ SceneRoots:
   - {fileID: 1889700249}
   - {fileID: 1707021411}
   - {fileID: 560542304}
+  - {fileID: 1961402496}

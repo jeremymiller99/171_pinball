@@ -110,6 +110,13 @@ public sealed class Monitor2Controller : MonoBehaviour
     [Tooltip("Monitor-1 controller; its ReturnToMain() is called on Back/Escape.")]
     [SerializeField] private MainMenuController mainMenuController;
 
+    [Tooltip("Optional hangar elevator that rises with the selected ship's model.")]
+    [SerializeField] private SpaceshipElevator spaceshipElevator;
+
+    [Tooltip("Optional launch cinematic (door opens, ship flies out) played before " +
+             "the gameplay scene loads.")]
+    [SerializeField] private ShipLaunchSequence launchSequence;
+
     // A generated, navigable list bound to one canvas.
     private sealed class SelectionList
     {
@@ -193,6 +200,11 @@ public sealed class Monitor2Controller : MonoBehaviour
         _selectedBoard = null;
         _selectedMission = null;
         _selectedShip = null;
+
+        if (spaceshipElevator != null)
+        {
+            spaceshipElevator.Reset();
+        }
 
         BuildPlayfieldList();
         BuildShipList();
@@ -450,6 +462,10 @@ public sealed class Monitor2Controller : MonoBehaviour
                 _selectedShip = (availableShips != null && index < availableShips.Length)
                     ? availableShips[index]
                     : null;
+                if (spaceshipElevator != null)
+                {
+                    spaceshipElevator.ShowShip(_selectedShip);
+                }
                 break;
         }
 
@@ -525,6 +541,19 @@ public sealed class Monitor2Controller : MonoBehaviour
         GameSession.Instance.ConfigureChallenge(_selectedMission, _selectedBoard, _selectedShip, seed);
 
         Deactivate();
+        StartCoroutine(LaunchRoutine());
+    }
+
+    // Plays the launch cinematic (if assigned), then transitions to gameplay. The
+    // ship is detached from the elevator so it can fly out under the sequence's control.
+    private IEnumerator LaunchRoutine()
+    {
+        if (launchSequence != null)
+        {
+            GameObject ship = spaceshipElevator != null ? spaceshipElevator.ReleaseShip() : null;
+            yield return launchSequence.Play(ship != null ? ship.transform : null);
+        }
+
         SceneFader.Instance.FadeAndLoadScene(gameplayCoreSceneName,
             SceneFader.DefaultFadeOutDuration, SceneFader.DefaultFadeInDuration, holdBlackUntilReady: true);
     }

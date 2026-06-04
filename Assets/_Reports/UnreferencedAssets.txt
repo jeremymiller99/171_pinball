@@ -1,94 +1,377 @@
 ========================================
  UNREFERENCED ASSET DETECTOR — REPORT
- Generated: 2026-04-07 22:50:15
+ Generated: 2026-06-03 18:44:52
 ========================================
 
-Total candidates scanned: 307
-Unreferenced assets found: 68
-Resources/ assets (skipped): 56
+Total candidates scanned: 969
+Unreferenced assets found: 349
+Resources/ assets (skipped): 68
 Addressable entries (skipped): 5
 
---- Models (22) ---
-  Assets/Meshes/Bumpers/BumperCross.fbx
-  Assets/Meshes/Bumpers/BumperDisc.fbx
-  Assets/Meshes/Bumpers/BumperStar.fbx
-  Assets/Meshes/Bumpers/KickerEquilateral.fbx
-  Assets/Meshes/Bumpers/RolloverCircles.fbx
-  Assets/Meshes/Bumpers/RolloverRectangles.fbx
-  Assets/Meshes/Bumpers/RolloverX.fbx
-  Assets/Meshes/Bumpers/TargetRings.fbx
-  Assets/Meshes/Bumpers/TargetX.fbx
-  Assets/Meshes/FBX/BumperCross_0.fbx
-  Assets/Meshes/FBX/Kicker_0.fbx
-  Assets/Meshes/FBX/Plunger_0.fbx
-  Assets/Meshes/FBX/RailsDouble_0.fbx
-  Assets/Meshes/FBX/RailsEnd_0.fbx
-  Assets/Meshes/FBX/RailsMiddle_0.fbx
-  Assets/Meshes/FBX/Rollover_1.fbx
-  Assets/Meshes/FBX/Rollover_3.fbx
-  Assets/Meshes/FBX/Spinner_2.fbx
-  Assets/Meshes/FBX/Spinner_3.fbx
-  Assets/Meshes/Playfield_Board (2).fbx
-  Assets/Meshes/Playfield_ScoreMeter.fbx
-  Assets/Meshes/Playfield_SpeedMeter.fbx
+--- Models (40) ---
+  Assets/ArtAssets/Meshes/Bumpers/KickerEquilateral.fbx
+  Assets/ArtAssets/Meshes/Bumpers/RolloverCircles.fbx
+  Assets/ArtAssets/Meshes/Bumpers/RolloverRectangles.fbx
+  Assets/ArtAssets/Meshes/Bumpers/RolloverX.fbx
+  Assets/ArtAssets/Meshes/Bumpers/TargetRings.fbx
+  Assets/ArtAssets/Meshes/Bumpers/TargetX.fbx
+  Assets/ArtAssets/Meshes/FBX/BumperCross_0.fbx
+  Assets/ArtAssets/Meshes/FBX/Kicker_0.fbx
+  Assets/ArtAssets/Meshes/FBX/Plunger_0.fbx
+  Assets/ArtAssets/Meshes/FBX/RailsDouble_0.fbx
+  Assets/ArtAssets/Meshes/FBX/RailsEnd_0.fbx
+  Assets/ArtAssets/Meshes/FBX/RailsMiddle_0.fbx
+  Assets/ArtAssets/Meshes/FBX/Rollover_1.fbx
+  Assets/ArtAssets/Meshes/FBX/Rollover_3.fbx
+  Assets/ArtAssets/Meshes/FBX/Spinner_2.fbx
+  Assets/ArtAssets/Meshes/FBX/Spinner_3.fbx
+  Assets/ArtAssets/Meshes/MainMenuModels/AlarmButton.fbx
+  Assets/ArtAssets/Meshes/MainMenuModels/AlarmLabel.fbx
+  Assets/ArtAssets/Meshes/MainMenuModels/BlockPad.fbx
+  Assets/ArtAssets/Meshes/MainMenuModels/ConsoleModuleCore.fbx
+  Assets/ArtAssets/Meshes/MainMenuModels/ConsoleModuleSide.fbx
+  Assets/ArtAssets/Meshes/MainMenuModels/ElevatorDoor.fbx
+  Assets/ArtAssets/Meshes/ModulesModels/ModuleBug.fbx
+  Assets/ArtAssets/Meshes/ModulesModels/ModuleChip.fbx
+  Assets/ArtAssets/Meshes/ModulesModels/ModuleDish.fbx
+  Assets/ArtAssets/Meshes/ModulesModels/ModuleSolarPanels.fbx
+  Assets/ArtAssets/Meshes/ModulesModels/ModuleStardrive.fbx
+  Assets/ArtAssets/Meshes/Playfield_Board (2).fbx
+  Assets/ArtAssets/Meshes/Playfield_ScoreMeter.fbx
+  Assets/ArtAssets/Meshes/Playfield_SpeedMeter.fbx
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Meshes/cfxr electric_arc_circle.fbx
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Meshes/cfxr electric_barrier.fbx
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Meshes/cfxr mesh disk.fbx
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Meshes/cfxr mesh donut.fbx
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Meshes/cfxr mesh ring.fbx
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Meshes/cfxr mesh star6.fbx
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Meshes/cfxr mesh star8.fbx
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Meshes/cfxr particle_electric_arc.fbx
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Meshes/cfxr particle_electric_arc_2.fbx
+  Assets/Prefabs/Ships/CommerceHub.fbx
 
---- Materials (4) ---
-  Assets/Shaders/M_NoiseBG 23.mat
+--- Materials (141) ---
+  Assets/ArtAssets/Materials/Amber_Glow.mat
+  Assets/ArtAssets/Materials/Blue 3.mat
+  Assets/ArtAssets/Materials/Bronze.mat
+  Assets/ArtAssets/Materials/Bronze_PV.mat
+  Assets/ArtAssets/Materials/DarkGray.mat
+  Assets/ArtAssets/Materials/Gray.mat
+  Assets/ArtAssets/Materials/LightGray.mat
+  Assets/ArtAssets/Materials/MainMenuMaterials/Dark Gray Glass.mat
+  Assets/ArtAssets/Materials/MainMenuMaterials/Plastic black vents.mat
+  Assets/ArtAssets/Materials/New Material 1.mat
+  Assets/ArtAssets/Materials/New Material 2.mat
+  Assets/ArtAssets/Materials/New Material.mat
+  Assets/ArtAssets/Materials/Teal.mat
+  Assets/ArtAssets/Sprites/Materials/Ellipse 106.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr aura rays hdr ab nosp.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr blood dissolve ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr bubble ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr bubble hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr card club ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr card diamond ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr card heart ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr card spade ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris 3x3 ab lit emission.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris 3x3 ab lit.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris flat unlit 3x3 ab hdr.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris flat unlit 3x3 ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris ice 2x2 ab lit.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris unlit 3x3 ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris wood 3x3 ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris wood unlit 3x3 ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr electric arc anim x4.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr electric arcs x4 hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr electric small anim2 7x2 ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr electric sparks ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire circle blur hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire circle crisp hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire circle drawn blurred hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire circle drawn hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire crisp fade hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire crisp fade nosp hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire edge hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire full blurred fade hdr add.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire plain fade hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire small anim hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme blur mid fine hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme blur mid hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme blur stable fine hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme blur stable hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme blur unstable fine hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme blur unstable hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme candle hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme candle unstable hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme crisp mid fine hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme crisp mid hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme crisp stable fine hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme crisp stable hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme crisp unstable fine hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme crisp unstable hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme plain mid fine hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme plain mid hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme plain stable fine hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme plain stable hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme plain unstable fine hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme plain unstable hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fly anim.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr leave b ab lit normal.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr line loop electric ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr line loop electric hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr no texture hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr petal pink x4 ab lit normal.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr proc glow soft ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr proc glow soft ground nosp add.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr proc glow soft invert ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr proc glow soft invert add nosp.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr proc glow soft invert hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr proc glow soft nosp add.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr proc glow soft p4 add nosp.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr proc glow soft p4 add.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr proc ring electric hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr proc ring local space ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr proc ring local space hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr proc ring local space partial ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr proc ring water ripple local space arc ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr puddle dissolve ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr puddle dissolve soft ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr ring spikes revert hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr screen distortion debug.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr screen distortion perlin.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr screen distortion ring nosp.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr screen distortion ring.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr screen distortion sphere.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr skull 2 dissolve ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr skull distort hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr skull outer outline ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smiley angry ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smiley frown ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smiley happy ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smiley smile ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud corner ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud x4 ab blurred.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud x4 ab lit crisp.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud x4 ab lit normal.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud x4 ab lit soft individual bright shadow.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud x4 ab lit soft individual mid shadow.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud x4 ab lit soft individual.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud x4 ab lit soft.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud x4 crisp dissolve ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud x4 hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud x4 mult blurred.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud x4 second color underlit ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr spikes half impact hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr spikes impact dissolve invert ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr spikes impact hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr star blurred add.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr steam blur dissolve hdr add.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch rectangle ray blur add.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch rectangle ray blur hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch skull dissolve ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch smoke arc ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch spike fade add.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch spikes x2 hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch trait blur ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch triangle add.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch triangle smooth nosp ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch triangle to diamond ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr sword trail bubbles hit.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr sword trail bubbles.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr sword trail light.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr sword trail slash.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr sword trail tech hit.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr sword trail tech thin.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr sword trail tech.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr water drop blur anim hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr water small splash hollow stretch nosp ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr water small splash hollow stretch nosp hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr water small splash stretch nosp hdr ab.mat
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr ww smoke bright hdr ab.mat
+  Assets/Shaders/M_NoiseBG 4.mat
   Assets/Shaders/M_NoiseBG 5.mat
   Assets/Shaders/M_NoiseBG 6.mat
   Assets/Shaders/M_Space_CosmicDust.mat
 
---- Textures/Sprites (37) ---
-  Assets/Prefabs/NEW_MasterUI/Group 109.png
-  Assets/Prefabs/NEW_MasterUI/Group 110.png
-  Assets/Prefabs/NEW_MasterUI/Group 111.png
-  Assets/Prefabs/NEW_MasterUI/Group 112.png
-  Assets/Prefabs/NEW_MasterUI/Union (1).png
-  Assets/Prefabs/NEW_MasterUI/Union (2).png
-  Assets/Prefabs/NEW_MasterUI/Union (3).png
-  Assets/Sprites/BayerMatrixImages/bayer16.png
-  Assets/Sprites/BayerMatrixImages/bayer16tile16.png
-  Assets/Sprites/BayerMatrixImages/bayer16tile2.png
-  Assets/Sprites/BayerMatrixImages/bayer16tile4.png
-  Assets/Sprites/BayerMatrixImages/bayer16tile8.png
-  Assets/Sprites/BayerMatrixImages/bayer2.png
-  Assets/Sprites/BayerMatrixImages/bayer2tile16.png
-  Assets/Sprites/BayerMatrixImages/bayer2tile2.png
-  Assets/Sprites/BayerMatrixImages/bayer2tile4.png
-  Assets/Sprites/BayerMatrixImages/bayer2tile8.png
-  Assets/Sprites/BayerMatrixImages/bayer4.png
-  Assets/Sprites/BayerMatrixImages/bayer4tile16.png
-  Assets/Sprites/BayerMatrixImages/bayer4tile2.png
-  Assets/Sprites/BayerMatrixImages/bayer4tile4.png
-  Assets/Sprites/BayerMatrixImages/bayer4tile8.png
-  Assets/Sprites/BayerMatrixImages/bayer8.png
-  Assets/Sprites/BayerMatrixImages/bayer8tile16.png
-  Assets/Sprites/BayerMatrixImages/bayer8tile2.png
-  Assets/Sprites/BayerMatrixImages/bayer8tile8.png
-  Assets/Sprites/Frame 8.png
-  Assets/Sprites/Temp_Logo.png
-  Assets/Sprites/UI/Pinball Shop/Component Button.png
-  Assets/Sprites/UI/Pinball Shop/Component Star.png
-  Assets/Sprites/UI/Pinball Shop/Group 75.png
-  Assets/Sprites/UI/Pinball Shop/gumball_body.png
-  Assets/Sprites/UI/Pinball Shop/gumball_glass.png
-  Assets/Sprites/UI/Pinball Shop/gumball_top.png
-  Assets/Sprites/UI/Pinball Shop/ribbon.png
-  Assets/Sprites/UI/Pinball Shop/Vector 6.png
-  Assets/Sprites/UI/Pinballs/egg.png
+--- ScriptableObjects (6) ---
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr card diamond mesh.asset
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr electric small anim2 7x2 mesh.asset
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr puddle mesh.asset
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr star mesh.asset
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch sipkes x2 mesh.asset
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Meshes/cfxr ring mesh half.asset
+
+--- Textures/Sprites (153) ---
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer16.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer16tile16.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer16tile2.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer16tile4.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer16tile8.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer2.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer2tile16.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer2tile2.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer2tile4.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer2tile8.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer4.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer4tile16.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer4tile2.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer4tile4.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer4tile8.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer8.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer8tile16.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer8tile2.png
+  Assets/ArtAssets/Sprites/BayerMatrixImages/bayer8tile8.png
+  Assets/ArtAssets/Sprites/Ellipse 106.png
+  Assets/ArtAssets/Sprites/Frame 8.png
+  Assets/ArtAssets/Sprites/Pinballistic-standalonewindows64-2026-03-23-03-52-52 Screenshot 2026.03.24 - 15.37.24.63.png
+  Assets/ArtAssets/Sprites/Temp_Logo.png
+  Assets/ArtAssets/Sprites/UI/Group 109.png
+  Assets/ArtAssets/Sprites/UI/Group 110.png
+  Assets/ArtAssets/Sprites/UI/Group 111.png
+  Assets/ArtAssets/Sprites/UI/Group 112.png
+  Assets/ArtAssets/Sprites/UI/Group 117.png
+  Assets/ArtAssets/Sprites/UI/Pinball Shop/Component Button.png
+  Assets/ArtAssets/Sprites/UI/Pinball Shop/Component Star.png
+  Assets/ArtAssets/Sprites/UI/Pinball Shop/Group 75.png
+  Assets/ArtAssets/Sprites/UI/Pinball Shop/gumball_body.png
+  Assets/ArtAssets/Sprites/UI/Pinball Shop/gumball_glass.png
+  Assets/ArtAssets/Sprites/UI/Pinball Shop/gumball_top.png
+  Assets/ArtAssets/Sprites/UI/Pinball Shop/ribbon.png
+  Assets/ArtAssets/Sprites/UI/Pinball Shop/Vector 6.png
+  Assets/ArtAssets/Sprites/UI/Pinballs/egg.png
+  Assets/ArtAssets/Sprites/UI/Round Info/Ellipse 64.png
+  Assets/ArtAssets/Sprites/UI/Round Info/Group 65.png
+  Assets/ArtAssets/Sprites/UI/Round Info/Group 66.png
+  Assets/ArtAssets/Sprites/UI/Union (1).png
+  Assets/ArtAssets/Sprites/UI/Union (2).png
+  Assets/ArtAssets/Sprites/UI/Union (3).png
+  Assets/ArtAssets/Textures/MainMenuTextures/concrete_glossiness.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/concrete_height.tif
+  Assets/ArtAssets/Textures/MainMenuTextures/concrete-7_diffuse.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/concrete-7_normal.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/concrete-7_smooth.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/glass05_height.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/glass05_opacity.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/glass05_refraction_glossiness.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/grunge-2710970_1280 copy.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/metal_glossiness.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/metal_height.tif
+  Assets/ArtAssets/Textures/MainMenuTextures/Metal008_4K-JPG_Displacement.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/panels01_glossiness.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/panels01_height.tif
+  Assets/ArtAssets/Textures/MainMenuTextures/plastic_glossiness.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/plastic_height.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/Plastic006_4K-JPG_Displacement.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/Plastic006_4K-JPG_Roughness.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/plastic01_glossiness.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/plastic01_height.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/plastic01_height.tif
+  Assets/ArtAssets/Textures/MainMenuTextures/plastic01_roughness.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/plastic01_specular.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/Plastic011_4K-JPG_Displacement.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/Plastic017B_4K-JPG_Displacement.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/Plastic017B_4K-JPG_Roughness.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/plastic01a_diffuse.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/PM-T1_Plastic_Finish_roughness.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/ribs02_height.jpg
+  Assets/ArtAssets/Textures/MainMenuTextures/Sci_Fi_Panel_01_height.jpg
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr aura rays.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr blood dissolve.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr blood.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr bubble.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr card club.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr card diamond.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr card heart.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr card spade.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris 3x3 normal.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris 3x3.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris flat unlit 3x3.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris ice 2x2 normal.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris ice 2x2.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris unlit 3x3.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris wood 3x3 normal.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris wood 3x3.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr debris wood unlit 3x3.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr electric arc anim x4.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr electric arcs x4.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr electric small anim2 7x2.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire circle blur.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire circle crisp.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire circle drawn blurred.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire circle drawn.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire edge dissolve.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire edge.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fire small anim.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme candle.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme crisp.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme full blurred.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr flamme plain.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr fly anim x4.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr leave b normal.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr leave b.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr line loop electric.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr noise clouds big.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr petal normal.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr petal pink x4.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr puddle dissolve.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr puddle.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr ring arc.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr ring electric.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr ring ripple arc dissolve.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr ring spikes revert.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr screen distortion debug.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr screen distortion perlin.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr screen distortion ring.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr screen distortion sphere.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr skull 2 dissolve.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr skull 2.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr skull dissolve alt.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr skull outer outline.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smiley angry.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smiley frown.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smiley happy.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smiley smile.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud corner dissolve.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud corner.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud x4 blurred.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud x4 normal.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud x4 second color.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr smoke cloud x4 white.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr spikes half impact gradient.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr star blurred.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch rectangle ray blur.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch sipkes dissolve x2.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch sipkes x2.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch skull dissolve.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch skull.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch smoke arc dissolve.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch smoke arc.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch spike fade.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch steam blur distort.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr sword trail mask light.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr sword trail noise bubbles.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr sword trail noise tech.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr uv distortion fire perlin.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr water small splash hollow stretch.png
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr ww smoke bright.png
+  Assets/JMO Assets/Welcome Screen/CFXR_WelcomeScreen_Background.png
 
 --- Shaders (1) ---
   Assets/Shaders/RetroEffect 1.shadergraph
 
---- Fonts (3) ---
-  Assets/Fonts/balatro.otf
-  Assets/Fonts/Early GameBoy.ttf
-  Assets/Fonts/Jersey10-Regular.ttf
+--- Fonts (6) ---
+  Assets/ArtAssets/Fonts/Bacteria 12.ttf
+  Assets/ArtAssets/Fonts/balatro.otf
+  Assets/ArtAssets/Fonts/Desert 6.ttf
+  Assets/ArtAssets/Fonts/Early GameBoy.ttf
+  Assets/ArtAssets/Fonts/Jersey10-Regular.ttf
+  Assets/ArtAssets/Fonts/Manticore 14.ttf
 
---- Other (1) ---
-  Assets/Sprites/RenderTextures/RT_pixel.renderTexture
+--- Other (2) ---
+  Assets/ArtAssets/Sprites/RenderTextures/RT_pixel.renderTexture
+  Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Shaders/CFXR Particle Distortion.cfxrshader
 
---- Resources/ (potentially referenced at runtime) (56 assets skipped) ---
+--- Resources/ (potentially referenced at runtime) (68 assets skipped) ---
 
 --- Addressable Entries (potentially referenced) (5 assets skipped) ---
 

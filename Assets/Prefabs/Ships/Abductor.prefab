@@ -125,6 +125,7 @@ MonoBehaviour:
   fightingPositions: []
   fightingPositionIndex: 0
   fightingMovementSpeed: 10
+  maxHealth: 5
   health: 5
   returningObjectPosition: {x: 0, y: 0, z: 0}
   abductedObjectSize: {x: 0, y: 0, z: 0}

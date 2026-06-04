@@ -1,0 +1,111 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Gameplay_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 3b6d9abc747d374458080b42bb083066, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 390618669056
+    m_Localized: RESUME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863360
+    m_Localized: MENU
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863361
+    m_Localized: QUIT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863362
+    m_Localized: SETTINGS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863363
+    m_Localized: Game Paused
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863364
+    m_Localized: Round Info
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863365
+    m_Localized: You Win!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863366
+    m_Localized: TRY ENDLESS!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863367
+    m_Localized: GAME OVER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863368
+    m_Localized: Again
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863369
+    m_Localized: 'Score:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863370
+    m_Localized: 'Rank:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863371
+    m_Localized: 'Level:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057664
+    m_Localized: 'Time Played:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057665
+    m_Localized: REROLL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057666
+    m_Localized: DONE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057667
+    m_Localized: CONFIRM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057668
+    m_Localized: CANCEL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057669
+    m_Localized: Do you want to swap?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057670
+    m_Localized: Close
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057671
+    m_Localized: Debug
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057672
+    m_Localized: You've encountered a bug.
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

@@ -17486,6 +17486,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4700522022224305834, guid: b67617d05cddf59459f46789b713173f, type: 3}
+      propertyPath: m_StringReference.m_TableEntryReference.m_KeyId
+      value: 44296887782596608
+      objectReference: {fileID: 0}
+    - target: {fileID: 4700522022224305834, guid: b67617d05cddf59459f46789b713173f, type: 3}
+      propertyPath: m_StringReference.m_TableReference.m_TableCollectionName
+      value: GUID:1b13340a4d1910d42996bf9b6b9db652
+      objectReference: {fileID: 0}
     - target: {fileID: 4787038996588499531, guid: b67617d05cddf59459f46789b713173f, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -60
@@ -17497,6 +17505,10 @@ PrefabInstance:
     - target: {fileID: 4945205347278754010, guid: b67617d05cddf59459f46789b713173f, type: 3}
       propertyPath: m_ChildAlignment
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5365282887825328244, guid: b67617d05cddf59459f46789b713173f, type: 3}
+      propertyPath: m_StringReference.m_TableEntryReference.m_KeyId
+      value: 43868576258449408
       objectReference: {fileID: 0}
     - target: {fileID: 5455868811195971279, guid: b67617d05cddf59459f46789b713173f, type: 3}
       propertyPath: m_Sprite
@@ -17669,6 +17681,10 @@ PrefabInstance:
     - target: {fileID: 9109738628260717760, guid: b67617d05cddf59459f46789b713173f, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -765.8248
+      objectReference: {fileID: 0}
+    - target: {fileID: 9111379738464404323, guid: b67617d05cddf59459f46789b713173f, type: 3}
+      propertyPath: m_Name
+      value: Delete
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 8452190960136828153, guid: b67617d05cddf59459f46789b713173f, type: 3}

@@ -1,6 +1,108 @@
 # Localization Handoff
 
-Status of the Spanish localization pass on the MainMenu collection, current as of v0.8.7. Goal is full Spanish, French, and one more (TBD) across the whole game.
+Status of the Spanish localization pass, current as of v0.8.7. Goal is full Spanish, French, and one more (TBD) across the whole game.
+
+**Latest work: see "Session update — 2026-06-02" immediately below.** The MainMenu-specific sections further down are still accurate background.
+
+---
+
+## Session update — 2026-06-02
+
+### Done this session
+- **`mainMenu.leaderboard` key added** (created in-editor via Tables window) and the **Leaderboard button wired** to it. This was the first of the two unwired MainMenu LSEs. English "Leaderboard" / Spanish "Clasificación".
+- **New `Gameplay` String Table Collection created** (English + Spanish) and **22 keys bulk-imported** from CSV. Covers all the *static* in-game UI (pause menu, win/game-over screens, shop buttons, HUD label, error popup).
+  - Import source: **`gameplay_localization.csv`** at the **repo root** (outside `Assets/`). Re-importable anytime via Tables window → Import/Export → Import CSV.
+- **Started wiring the Gameplay keys** (in progress — see checklist below; confirm exactly what's already wired next session by switching locale to Spanish and eyeballing each panel).
+
+### MainMenu — still open
+
+1. **Second unwired LSE still needs wiring.** One of **{Profile, Progression, Settings, Play, Quit}** on the `Main Menu.prefab` instance in `MainMenu.unity` still has `String Reference = None` (KeyId 0). Find it: Hierarchy filter `t:LocalizeStringEvent` → the remaining one showing `None`. Point it at its existing key (the key already exists + has Spanish; it just isn't wired on this instance). Could not name it from disk — Unity stores nested-prefab children as composed hash IDs with no readable label.
+2. **"Delete / Settings" crossed override to verify.** A Button1 instance was observed whose **displayed text says "Delete"** but whose **LSE points at a settings key** (or vice-versa). Button1.prefab is shared across many buttons; both the **text** and the **String Reference** are per-instance overrides, so they can get crossed. Fix: select the instance, read the TMP **Text Input** field (that's what the button really is), and set its String Reference to the matching key — `mainMenu.delete` if it's truly Delete, `mainMenu.settings` if it's truly Settings.
+
+### Gameplay collection — wiring checklist (search by PARENT name, not displayed text)
+
+Reminder: **Hierarchy search matches GameObject names, never the visible words.** Most labels are named `Text (TMP)`, so search the parent button/panel name below, expand, and wire the `Text (TMP)` child.
+
+**`GameplayCore.unity`** — the in-game scene (NOT MainMenu; open it first):
+
+| Search name | Displayed text | Key |
+|---|---|---|
+| `Pause Menu` (expand) | RESUME | `gameplay.resume` |
+| `Pause Menu` → child | MENU | `gameplay.menu` |
+| `Pause Menu` → child | QUIT | `gameplay.quit` |
+| `Pause Menu` → child | Game Paused | `gameplay.paused` |
+| `Settings Button` | SETTINGS | `gameplay.settings` |
+| `Round Info` | Round Info (title) | `gameplay.roundInfo` |
+| `Endless button` | TRY ENDLESS! | `gameplay.tryEndless` |
+| `Win Screen` (expand) | You Win! | `gameplay.youWin` |
+| `Win Screen` → child | MENU | `gameplay.menu` |
+| `Debug Panel` (expand) | Debug (header) | `gameplay.debugTitle` |
+| `Debug Panel` → child | You've encountered a bug. | `gameplay.debugBody` |
+| `Debug Panel` → child | Close | `gameplay.close` |
+
+**`Round Failed Panel.prefab`** (Prefab Mode — it IS instanced in GameplayCore, so wiring here propagates):
+
+| Search name | Displayed text | Key |
+|---|---|---|
+| `Title Text` | GAME OVER | `gameplay.gameOver` |
+| `Score:` | Score: | `gameplay.score` |
+| `Rank:` | Rank: | `gameplay.rank` |
+| `Level:` | Level: | `gameplay.level` |
+| `Time Played: (1)` | Time Played: | `gameplay.timePlayed` |
+| `Retry button` (expand) | Again | `gameplay.again` |
+| `Menu Button` (expand) | Menu | `gameplay.menu` |
+
+> ⚠️ Naming trap: the object literally named **`Time Played:`** shows the *value* "0:00" (skip). The label lives on **`Time Played: (1)`**.
+
+**`Shop Panel.prefab`** (Prefab Mode — instanced in GameplayCore, propagates):
+
+| Search name | Displayed text | Key |
+|---|---|---|
+| `Continue Button` | REROLL | `gameplay.reroll` |
+| `Continue Button (1)` | DONE | `gameplay.done` |
+| `Confirm Button` | CONFIRM | `gameplay.confirm` |
+| `Cancel Button` | CANCEL | `gameplay.cancel` |
+| `Label` | Do you want to swap? | `gameplay.swapPrompt` |
+
+> ⚠️ Two near-identical `Continue Button` / `Continue Button (1)` — click each, read the TMP Text Input to tell REROLL from DONE.
+
+**`Board Canvas.prefab`** (Prefab Mode — NOT in GameplayCore; used by the `Board_*.unity` scenes):
+
+| Search name | Displayed text | Key |
+|---|---|---|
+| `Rounds` | Level: | `gameplay.level` |
+
+> ⚠️ Object named `Rounds` but displays "Level:".
+
+**`Win Screen.prefab`** — skip. Not instanced anywhere; the live win screen is the one in `GameplayCore.unity` (wired above).
+
+**Skip-list (script-driven placeholders — handle in the scripts phase, NOT with LSE):** `Round Info (1)` "Round: 1", `Home Run` "NICE!", "You reached level X and scored x points", BallSpeedText "0.00 m/s", Debug **cheat** buttons (Color Switch / Unlock Everything / Instant Level Up / Start), Round Failed value texts (`score text` / `rank text` / `level text` / the `Time Played:` 0:00 object), Shop `ConfirmText` "Replace ? with ? for $?" + `Coins`, all Board Canvas numbers, Tooltip `Name` / `Type` / `Description` + "Sell Price: $5".
+
+---
+
+## Next phase: scripted / data-driven content (the big one)
+
+None of this can use `LocalizeStringEvent` — a script writes `.text = ...` at runtime and would overwrite any LSE. Needs Unity Localization's `LocalizedString` API (or `LocalizationSettings.StringDatabase.GetLocalizedString(...)`).
+
+**Decision pending — pick the approach first:**
+- **A. `LocalizedString` fields** on each ScriptableObject (replace `string description` etc.). Unity-native, per-asset editor picker. Downside: re-enter every asset's text.
+- **B. Keyed `Content` table + ID lookup helper** — keys like `ball.<id>.desc`, one helper resolves by asset id/name at runtime with fallback. Centralizes translations. Downside: a naming convention + one helper class. **Currently leaning B.**
+
+**Scope of data-driven text (all have `displayName` and/or `description`):**
+
+| Content | Definition file |
+|---|---|
+| Challenges/missions ("Test Flight", "Great for beginners", winConditionDescription) | `Assets/Scripts/Managers/ChallengeModeDefinition.cs` |
+| Balls | `Assets/Scripts/Balls/BallDefinition.cs` |
+| Artifacts | `Assets/Scripts/Artifacts/ArtifactDefinition.cs` |
+| Components | `Assets/Scripts/BoardComponents/BoardComponentDefinition.cs` |
+| Devil rounds / modifiers | `Assets/Scripts/Modifiers/RoundModifierDefinition.cs` |
+| Ships | `Assets/Scripts/Progression/PlayerShipDefinition.cs` |
+| Boards (name only) | `Assets/Scripts/Managers/BoardDefinition.cs` |
+
+**Also script-driven (smart-string / runtime composites):** game-over rank screen values + rank labels (`GameOverRankingDisplay.cs` / `RunRankUtility`), "Round: {0}", "Score: {0}", save-slot "Save {0}", "You reached level X and scored x points", shop "Replace {0} with {1} for ${2}", "Sell Price: ${0}", tooltip Name/Type/Description. Consumers include `MenuUI`, `RenderTextureRaycaster` (hover/inspect tooltips), modifier-card popups, shop UI, game-over display.
+
+Note: code (`.cs`) edits are safe while Unity is open (it recompiles). Adding **table keys/assets** must be done in-editor or with Unity closed.
 
 ---
 

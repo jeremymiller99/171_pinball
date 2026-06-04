@@ -1,0 +1,116 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Gameplay Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Gameplay
+  m_TableCollectionNameGuidString: 3b6d9abc747d374458080b42bb083066
+  m_Entries:
+  - m_Id: 390618669056
+    m_Key: gameplay.resume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863360
+    m_Key: gameplay.menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863361
+    m_Key: gameplay.quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863362
+    m_Key: gameplay.settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863363
+    m_Key: gameplay.paused
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863364
+    m_Key: gameplay.roundInfo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863365
+    m_Key: gameplay.youWin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863366
+    m_Key: gameplay.tryEndless
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863367
+    m_Key: gameplay.gameOver
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863368
+    m_Key: gameplay.again
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863369
+    m_Key: gameplay.score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863370
+    m_Key: gameplay.rank
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390622863371
+    m_Key: gameplay.level
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057664
+    m_Key: gameplay.timePlayed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057665
+    m_Key: gameplay.reroll
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057666
+    m_Key: gameplay.done
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057667
+    m_Key: gameplay.confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057668
+    m_Key: gameplay.cancel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057669
+    m_Key: gameplay.swapPrompt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057670
+    m_Key: gameplay.close
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057671
+    m_Key: gameplay.debugTitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 390627057672
+    m_Key: gameplay.debugBody
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 1498693793804451840
+  references:
+    version: 2
+    RefIds:
+    - rid: 1498693793804451840
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1780458419259

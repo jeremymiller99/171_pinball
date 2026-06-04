@@ -175,6 +175,10 @@ MonoBehaviour:
     m_Key: mainMenu.quit
     m_Metadata:
       m_Items: []
+  - m_Id: 44296887782596608
+    m_Key: mainMenu.leaderboard
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

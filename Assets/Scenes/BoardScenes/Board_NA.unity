@@ -3913,7 +3913,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3392549938974561248, guid: 32b45f485ff0f6147945f26f1033a686, type: 3}
       propertyPath: m_Name
-      value: Drop Target (3)
+      value: Abduction target
       objectReference: {fileID: 0}
     - target: {fileID: 3392549938974561248, guid: 32b45f485ff0f6147945f26f1033a686, type: 3}
       propertyPath: m_IsActive

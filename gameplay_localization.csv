@@ -1,0 +1,23 @@
+Key,English(en),Spanish(es)
+gameplay.resume,RESUME,REANUDAR
+gameplay.menu,MENU,MENÚ
+gameplay.quit,QUIT,SALIR
+gameplay.settings,SETTINGS,CONFIGURACIÓN
+gameplay.paused,Game Paused,Juego en pausa
+gameplay.roundInfo,Round Info,Información de ronda
+gameplay.youWin,You Win!,¡Ganaste!
+gameplay.tryEndless,TRY ENDLESS!,¡MODO INFINITO!
+gameplay.gameOver,GAME OVER,FIN DEL JUEGO
+gameplay.again,Again,OTRA VEZ
+gameplay.score,Score:,Puntuación:
+gameplay.rank,Rank:,Rango:
+gameplay.level,Level:,Nivel:
+gameplay.timePlayed,Time Played:,Tiempo jugado:
+gameplay.reroll,REROLL,REBARAJAR
+gameplay.done,DONE,LISTO
+gameplay.confirm,CONFIRM,CONFIRMAR
+gameplay.cancel,CANCEL,CANCELAR
+gameplay.swapPrompt,Do you want to swap?,¿Quieres intercambiar?
+gameplay.close,Close,Cerrar
+gameplay.debugTitle,Debug,Depuración
+gameplay.debugBody,You've encountered a bug.,Has encontrado un error.

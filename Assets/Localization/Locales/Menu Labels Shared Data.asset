@@ -15,10 +15,6 @@ MonoBehaviour:
   m_TableCollectionName: Menu Labels
   m_TableCollectionNameGuidString: 1b13340a4d1910d42996bf9b6b9db652
   m_Entries:
-  - m_Id: 39696351232
-    m_Key: mainMenu.play
-    m_Metadata:
-      m_Items: []
   - m_Id: 72881684480
     m_Key: mainMenu.settings
     m_Metadata:
@@ -33,6 +29,154 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 62695853670400
     m_Key: mainMenu.team22
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43837843045343232
+    m_Key: mainMenu.play
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845501580206080
+    m_Key: mainMenu.missionSelect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845597143228416
+    m_Key: mainMenu.progression
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845660493996032
+    m_Key: mainMenu.credits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845739997028352
+    m_Key: mainMenu.close
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845786671243264
+    m_Key: mainMenu.chooseYourShip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845876030889984
+    m_Key: mainMenu.shipName
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845964908191744
+    m_Key: mainMenu.shipDescription
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43846144780918784
+    m_Key: mainMenu.winCondition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43846245653929984
+    m_Key: mainMenu.playerName
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43846314381795328
+    m_Key: mainMenu.creditsBody
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43852928014868480
+    m_Key: mainMenu.slotActive
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853217807720448
+    m_Key: mainMenu.allTimeScore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853295528173568
+    m_Key: mainMenu.totalWins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853544711774208
+    m_Key: mainMenu.quickRun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853614576295936
+    m_Key: mainMenu.settings.sound
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853658494853120
+    m_Key: mainMenu.settings.masterVolume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853733207990272
+    m_Key: mainMenu.settings.musicVolume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854024410128384
+    m_Key: mainMenu.settings.effectsVolume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854287372017664
+    m_Key: mainMenu.settings.display
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854679291977728
+    m_Key: mainMenu.settings.pixellation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854746421813248
+    m_Key: mainMenu.settings.ui
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854796967370752
+    m_Key: mainMenu.settings.gameplay
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854836687429632
+    m_Key: mainMenu.settings.controls
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854871839891456
+    m_Key: mainMenu.settings.leftFlipper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854930304294912
+    m_Key: mainMenu.settings.rightFlipper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854991276892160
+    m_Key: mainMenu.settings.launcher
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43855074768707584
+    m_Key: mainMenu.settings.enter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43855139486818304
+    m_Key: mainMenu.settings.pause
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43855195065540608
+    m_Key: mainMenu.settings.back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43865952318644224
+    m_Key: mainMenu.settings.displayMode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43866057230770176
+    m_Key: mainMenu.settings.resolution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43866163543793664
+    m_Key: mainMenu.highscore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43866250806288384
+    m_Key: mainMenu.rank
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43868576258449408
+    m_Key: mainMenu.delete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43967283746299904
+    m_Key: mainMenu.quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44296887782596608
+    m_Key: mainMenu.leaderboard
     m_Metadata:
       m_Items: []
   m_Metadata:

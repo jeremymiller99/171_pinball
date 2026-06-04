@@ -18,8 +18,9 @@ MonoBehaviour:
   m_Metadata:
     m_Items: []
   m_TableData:
-  - m_Id: 39696351232
-    m_Localized: Play
+  - m_Id: 43846314381795328
+    m_Localized: " Programming\r\n  Sound\r\n  2D Art\r\n  3D Art\r\n\r\n  Special
+      Thanks to...\r\n\r\n  Font\r\n  Component Outline"
     m_Metadata:
       m_Items: []
   - m_Id: 72881684480
@@ -36,6 +37,150 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 62695853670400
     m_Localized: Team 22
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43837843045343232
+    m_Localized: Play
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845501580206080
+    m_Localized: Mission Select
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845597143228416
+    m_Localized: Progression
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845660493996032
+    m_Localized: Credits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845739997028352
+    m_Localized: Close
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845786671243264
+    m_Localized: 'Choose Your Ship:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845876030889984
+    m_Localized: Ship Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43845964908191744
+    m_Localized: Ship Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43846144780918784
+    m_Localized: Win Condition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43846245653929984
+    m_Localized: Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43852928014868480
+    m_Localized: Active
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853217807720448
+    m_Localized: 'All-Time Score:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853295528173568
+    m_Localized: 'Total Wins:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43865952318644224
+    m_Localized: Display Mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43866057230770176
+    m_Localized: 'Resolution:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853544711774208
+    m_Localized: Quick run
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853614576295936
+    m_Localized: Sound
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853658494853120
+    m_Localized: Master Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43853733207990272
+    m_Localized: Music Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854024410128384
+    m_Localized: Effects Volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43866250806288384
+    m_Localized: 'Rank:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43866163543793664
+    m_Localized: 'Highscore:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854287372017664
+    m_Localized: Display
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43868576258449408
+    m_Localized: Delete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854679291977728
+    m_Localized: Pixellation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854746421813248
+    m_Localized: UI
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854796967370752
+    m_Localized: Gameplay
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854836687429632
+    m_Localized: Controls
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854871839891456
+    m_Localized: 'Left Flipper:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854930304294912
+    m_Localized: 'Right Flipper:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43854991276892160
+    m_Localized: 'Launcher:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43855074768707584
+    m_Localized: 'Enter:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43855139486818304
+    m_Localized: 'Pause:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43855195065540608
+    m_Localized: 'Back:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43967283746299904
+    m_Localized: Quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44296887782596608
+    m_Localized: Leaderboard
     m_Metadata:
       m_Items: []
   references:

@@ -10,6 +10,23 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.8.7 — Spanish localization pass on MainMenu (continued)
+_2026-06-01 · Contributor: Devin_
+- Cleaned up 4 typo keys in `Menu Labels` that had leading whitespace (`␣mainMenu.settings.displayMode`, `␣mainMenu.settings.resolution`, `␣mainMenu.highscore`, `␣mainMenu.rank`). Stripped the leading space in-place via direct YAML edit so the key IDs and existing translations were preserved. Also fixed two wrong English source values in the same pass: `displayMode` was set to `Display`, now `Display Mode`; `highscore` was set to `Highscore` (no colon), now `Highscore:` to match the ChallengeCard source string.
+- Wired up the remaining MainMenu scene buttons (Mission Select, Progression, Close, Choose Your Ship:, Ship Name, Ship Description, Win condition, Name) plus the Play/Quit buttons in `Main Menu.prefab`, the Settings Panel labels (Left Flipper:, Right Flipper:, and others), `ChallengeCard.prefab` (Rank:/Highscore:), and `Quick Run (1).prefab` (Quick run). Added one new key `mainMenu.quit` → Quit / Salir for the Quit button.
+- Renamed `mainMenu.start` back to `mainMenu.play` with English source `Play` — the Main Menu Play button was historically named that way and the rename produced a dead reference + warning. Switched the Spanish translation to `Jugar` so it fits the button width (was overflowing as `Comenzar`).
+- Updated `LOCALIZATION_HANDOFF.md` with the current key inventory, what's confirmed wired, the three outstanding issues (two unwired `LocalizeStringEvent` components in MainMenu.unity, an orphan reference to the deleted old `mainMenu.play` keyId, the collection rename still not committed to disk), and a `Script-level localization needed` section covering the Progression screen (`ProgressionScreenController.cs` sets all text in code), save slot labels (`Save N` is script-concatenated), and Settings keybind labels (Input System driven, recommend leaving as-is).
+- Menu-scene version text bumped to `v0.8.7`.
+
+## 0.8.6 — Spanish localization pass on MainMenu (work in progress)
+_2026-06-01 · Contributor: Devin_
+- Added ~35 string keys to the existing `Menu Labels` collection (Profile screen, Credits screen, ChallengeCard, Quick Run, and full Settings Panel labels) with English source values and Spanish translations. Existing 5 keys (`mainMenu.play`/`.settings`/`.collection`/`.profile`/`.team22`) were preserved and Spanish-translated; `mainMenu.play` was deleted in favour of `mainMenu.start`.
+- Wired `LocalizeStringEvent` components in `Slot.prefab` (Active / All-Time Score: / Total Wins:) and overrode the nested Button1 instance's String Reference to `mainMenu.delete`. All three save slots now switch correctly via the prefab.
+- Wired the Credits screen title (`mainMenu.credits`) and role-labels body (`mainMenu.creditsBody`) on MainMenu.unity; bumped the names column's RectTransform Pos X so the longer Spanish role labels don't overlap.
+- Reverted the unintended scene-level prefab overrides on the Profile instance in MainMenu.unity that were blocking Slot.prefab's wiring from propagating, and clearing the "No translation found" warning that came from an unwired LSE on the Credits title.
+- Work is partial — handoff details (key list, what's not yet wired, known typo keys to clean up, the pending `MainMenu` collection rename) are in `LOCALIZATION_HANDOFF.md`. Pick up from there next session.
+- Menu-scene version text bumped to `v0.8.6`.
+
 ## 0.8.5 — basic three-panel tutorial (first play, first level-up, first shop visit)
 _2026-05-14 · Contributor: JJ_
 - Added `Assets/Scripts/UI/BasicTutorialController.cs`: self-bootstrapping `DontDestroyOnLoad` singleton (RuntimeInitializeOnLoadMethod / BeforeSceneLoad) that owns its own ScreenSpaceOverlay canvas (sort order 9990) and builds three programmatic panels in code — no prefab wiring required. Subscribes to `GameRulesManager.RoundStarted` / `ShopAvailabilityChanged` / `ShopOpened` whenever GRM appears via `ServiceLocator` (rechecked on `SceneManager.sceneLoaded` and per-frame in Update so additive board scenes pick it up).

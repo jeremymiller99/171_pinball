@@ -6046,7 +6046,7 @@ PrefabInstance:
       objectReference: {fileID: 1007962164}
     - target: {fileID: 2636849971776977195, guid: fee66d24bcdd4314582cdf40dbe2c8e3, type: 3}
       propertyPath: teleportDelay
-      value: 1
+      value: 0.75
       objectReference: {fileID: 0}
     - target: {fileID: 2636849971776977195, guid: fee66d24bcdd4314582cdf40dbe2c8e3, type: 3}
       propertyPath: exitBoardLight
@@ -18773,7 +18773,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7724268363075715273, guid: e63e99e8f4dffeb44b47e111ac9a8e6b, type: 3}
       propertyPath: teleportDelay
-      value: 1
+      value: 0.75
       objectReference: {fileID: 0}
     - target: {fileID: 7724268363075715273, guid: e63e99e8f4dffeb44b47e111ac9a8e6b, type: 3}
       propertyPath: exitBoardLight

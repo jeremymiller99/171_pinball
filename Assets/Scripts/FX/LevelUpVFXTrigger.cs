@@ -1,5 +1,6 @@
 // Generated with Antigravity by jjmil on 2026-04-09.
 // Firework SFX hook added by Claude Code (Opus 4.7) for jjmil on 2026-04-21.
+// Level-up banner spawn added by Claude Code (Opus 4.8) for jjmil on 2026-06-04.
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,7 +8,9 @@ using UnityEngine;
 /// <summary>
 /// Listens for level-up events and spawns a random number (3-5) of
 /// CFXR firework prefab instances at random positions and random
-/// scale inside an attached collider volume.
+/// scale inside an attached collider volume. In addition, exactly one
+/// "Level Up" banner prefab (chosen at random from a list of variations)
+/// is spawned at the center of the same volume on every level up.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Collider))]
@@ -15,6 +18,22 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
 {
     [Header("Firework Prefabs")]
     [SerializeField] private List<GameObject> fireworkPrefabs = new();
+
+    [Header("Level-Up Banner")]
+    [Tooltip(
+        "\"Level Up\" banner variations. Exactly one (chosen at random) " +
+        "is spawned at the center of the spawn volume on every level up."
+    )]
+    [SerializeField] private List<GameObject> bannerPrefabs = new();
+
+    [Tooltip("Uniform scale applied to the spawned banner.")]
+    [SerializeField] private float bannerScale = 1f;
+
+    [Tooltip(
+        "Seconds before the spawned banner is destroyed. " +
+        "Set to 0 to disable auto-destroy."
+    )]
+    [SerializeField] private float bannerLifetime = 3f;
 
     [Header("Spawn Count")]
     [SerializeField] private int minSpawnCount = 3;
@@ -83,9 +102,14 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
     {
         if (!_armed) return;
 
+        if (_spawnVolume == null) return;
+
+        // Always pop one "Level Up" banner at the center of the volume,
+        // independent of the firework burst.
+        SpawnBanner();
+
         if (fireworkPrefabs == null
-            || fireworkPrefabs.Count == 0
-            || _spawnVolume == null)
+            || fireworkPrefabs.Count == 0)
         {
             return;
         }
@@ -96,6 +120,38 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
         );
 
         StartCoroutine(SpawnStaggered(count));
+    }
+
+    /// <summary>
+    /// Spawns exactly one banner prefab, chosen at random from the
+    /// available variations, at the center of the spawn volume.
+    /// </summary>
+    private void SpawnBanner()
+    {
+        if (bannerPrefabs == null || bannerPrefabs.Count == 0)
+        {
+            return;
+        }
+
+        GameObject prefab =
+            bannerPrefabs[Random.Range(0, bannerPrefabs.Count)];
+
+        if (prefab == null) return;
+
+        Vector3 center = _spawnVolume.bounds.center;
+
+        GameObject banner = Instantiate(
+            prefab,
+            center,
+            Quaternion.identity
+        );
+
+        banner.transform.localScale = Vector3.one * bannerScale;
+
+        if (bannerLifetime > 0f)
+        {
+            Destroy(banner, bannerLifetime);
+        }
     }
 
     private IEnumerator SpawnStaggered(int count)

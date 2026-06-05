@@ -4,33 +4,33 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Owns all round-goal calculation: exponential scaling, legacy list fallback,
-/// and modifier adjustments. Extracted from GameRulesManager for single responsibility.
+/// Owns all round-goal calculation: a hand-authored per-level goal table with an
+/// endless tail multiplier, plus modifier adjustments. Extracted from
+/// GameRulesManager for single responsibility.
 /// </summary>
 [DisallowMultipleComponent]
 public class GoalScaler : MonoBehaviour
 {
-    public enum GoalScalingMode { LegacyList = 0, Exponential = 1 }
-
-    [Header("Level Goal Scaling")]
-    [SerializeField] private GoalScalingMode goalScalingMode = GoalScalingMode.Exponential;
-    [Min(0f)] [SerializeField] private float baseGoal = 500f;
-    [Min(1f)] [SerializeField] private float goalGrowthPerLevel = 1.35f;
-    [Tooltip("0 means no rounding. Otherwise, rounds the computed exponential goal to nearest step.")]
+    [Header("Level Goal Scaling (steep early, eases late)")]
+    [Tooltip("Authored goal for each level. Index 0 = level 1. Past the end of the list, " +
+             "goals keep growing by tailGrowthPerLevel so endless rounds stay hard.")]
+    [SerializeField] private List<float> levelGoals =
+        new List<float> { 1000f, 2500f, 5500f, 11000f, 20000f, 33000f, 50000f, 70000f };
+    [Tooltip("Per-level multiplier applied beyond the last authored goal (endless tail).")]
+    [Min(1f)] [SerializeField] private float tailGrowthPerLevel = 1.4f;
+    [Tooltip("0 means no rounding. Otherwise, rounds the endless-tail goal to nearest step.")]
     [Min(0f)] [SerializeField] private float goalRoundingStep = 100f;
 
-    [Header("Legacy level goals (optional)")]
-    [SerializeField] private List<float> goalByRound =
-        new List<float> { 500f, 800f, 1200f, 1700f, 2300f, 3000f, 4000f };
+    private static readonly List<float> DefaultLevelGoals =
+        new List<float> { 1000f, 2500f, 5500f, 11000f, 20000f, 33000f, 50000f, 70000f };
 
     private void Awake()
     {
         ServiceLocator.Register<GoalScaler>(this);
 
-        if (goalByRound == null || goalByRound.Count == 0)
+        if (levelGoals == null || levelGoals.Count == 0)
         {
-            goalByRound =
-                new List<float> { 500f, 800f, 1200f, 1700f, 2300f, 3000f, 4000f };
+            levelGoals = new List<float>(DefaultLevelGoals);
         }
     }
 
@@ -46,9 +46,7 @@ public class GoalScaler : MonoBehaviour
     {
         if (roundIndex < 0) roundIndex = 0;
 
-        float goal = goalScalingMode == GoalScalingMode.Exponential
-            ? ComputeExponentialGoal(roundIndex)
-            : ComputeLegacyGoal(roundIndex);
+        float goal = ComputeGoal(roundIndex);
 
         if (activeModifier != null)
         {
@@ -65,10 +63,23 @@ public class GoalScaler : MonoBehaviour
         return goal;
     }
 
-    private float ComputeExponentialGoal(int index)
+    private float ComputeGoal(int index)
     {
-        float goal = Mathf.Max(0f, baseGoal)
-            * Mathf.Pow(Mathf.Max(1f, goalGrowthPerLevel), index);
+        List<float> goals = (levelGoals != null && levelGoals.Count > 0)
+            ? levelGoals
+            : DefaultLevelGoals;
+
+        // Authored portion: return the hand-tuned goal directly.
+        if (index < goals.Count)
+        {
+            return Mathf.Max(0f, goals[index]);
+        }
+
+        // Endless tail: keep compounding from the last authored goal so rounds
+        // past the table don't flatline.
+        float last = goals[goals.Count - 1];
+        int stepsPastTable = index - (goals.Count - 1);
+        float goal = last * Mathf.Pow(Mathf.Max(1f, tailGrowthPerLevel), stepsPastTable);
 
         if (goalRoundingStep > 0f && !Mathf.Approximately(goalRoundingStep, 1f))
         {
@@ -80,12 +91,5 @@ public class GoalScaler : MonoBehaviour
         }
 
         return Mathf.Max(0f, goal);
-    }
-
-    private float ComputeLegacyGoal(int index)
-    {
-        if (goalByRound == null || goalByRound.Count == 0) return 0f;
-        if (index >= goalByRound.Count) return goalByRound[goalByRound.Count - 1];
-        return goalByRound[index];
     }
 }

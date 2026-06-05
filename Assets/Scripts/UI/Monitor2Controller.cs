@@ -568,12 +568,23 @@ public sealed class Monitor2Controller : MonoBehaviour
         }
 
         var canvas = (CanvasId)canvasId;
-        _focused = canvas;
 
         SelectionList list = ListFor(canvas);
-        if (list != null && index >= 0 && index < list.rows.Count)
+        bool validRow = list != null && index >= 0 && index < list.rows.Count;
+
+        // Only chirp when the hovered target actually changes, so re-entering the
+        // already-highlighted row (or repeated pointer-enter events) doesn't spam it.
+        bool changed = canvas != _focused || (validRow && list.highlight != index);
+
+        _focused = canvas;
+        if (validRow)
         {
             list.highlight = index;
+        }
+
+        if (changed)
+        {
+            PlayHoverSound();
         }
 
         ApplyAllVisuals();
@@ -591,11 +602,13 @@ public sealed class Monitor2Controller : MonoBehaviour
         {
             _focused = CanvasId.Start;
             ApplyAllVisuals();
+            PlayClickSound();
             TryLaunch();
             return;
         }
 
         OnRowHovered(canvasId, index);
+        PlayClickSound();
         Commit(canvas, index);
     }
 
@@ -647,6 +660,7 @@ public sealed class Monitor2Controller : MonoBehaviour
         int count = 4; // Playfield, Mission, Ship, Start
         int next = (((int)_focused + direction) % count + count) % count;
         _focused = (CanvasId)next;
+        PlayHoverSound();
         ApplyAllVisuals();
     }
 
@@ -660,7 +674,12 @@ public sealed class Monitor2Controller : MonoBehaviour
 
         int count = list.rows.Count;
         int start = list.highlight < 0 ? 0 : list.highlight;
-        list.highlight = ((start + direction) % count + count) % count;
+        int next = ((start + direction) % count + count) % count;
+        if (next != list.highlight)
+        {
+            PlayHoverSound();
+        }
+        list.highlight = next;
         ApplyListVisuals(list);
     }
 
@@ -668,6 +687,7 @@ public sealed class Monitor2Controller : MonoBehaviour
     {
         if (_focused == CanvasId.Start)
         {
+            PlayClickSound();
             TryLaunch();
             return;
         }
@@ -675,8 +695,25 @@ public sealed class Monitor2Controller : MonoBehaviour
         SelectionList list = ListFor(_focused);
         if (list != null && list.highlight >= 0)
         {
+            PlayClickSound();
             Commit(_focused, list.highlight);
         }
+    }
+
+    // ---- UI sounds -----------------------------------------------------
+
+    // The monitor-2 rows are generated TMP_Text objects (not Unity Buttons), so the
+    // AudioManager's automatic button-audio wiring (OnSceneLoaded → Button[]) doesn't
+    // reach them. Play the shared UI hover/click sounds ourselves, mirroring
+    // MainMenuController on monitor 1.
+    private static void PlayHoverSound()
+    {
+        ServiceLocator.Get<AudioManager>()?.PlayButtonHover();
+    }
+
+    private static void PlayClickSound()
+    {
+        ServiceLocator.Get<AudioManager>()?.PlayButtonClick();
     }
 
     // ---- Input helpers (mirror MainMenuController) ---------------------

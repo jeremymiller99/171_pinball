@@ -6,8 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Core/MainMenu.unity
-    guid: 659c2fbf7028d1145a02c7036a0a288e
+    path: Assets/Scenes/Core/MainMenu 1.unity
+    guid: eee0fb8c5e802f84eb484f16a54d139c
   - enabled: 1
     path: Assets/Scenes/Core/GameplayCore.unity
     guid: b90619d192d7811478a2655f358ed811
@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BoardScenes/Board_NA.unity
     guid: 057f31e47852fa841b831a919d6ce35c
+  - enabled: 1
+    path: Assets/Scenes/Core/MainMenu.unity
+    guid: 659c2fbf7028d1145a02c7036a0a288e
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: cb46637bbf1f9044dbadfee88b4ba194, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

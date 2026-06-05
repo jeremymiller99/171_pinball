@@ -23,7 +23,7 @@ public sealed class RunFlowController : MonoBehaviour
 
     [Header("Scene names")]
     [SerializeField] private string gameplayCoreSceneName = "GameplayCore";
-    [SerializeField] private string mainMenuSceneName = "MainMenu";
+    [SerializeField] private string mainMenuSceneName = "MainMenu 1";
 
     [Header("Runtime (debug)")]
     [SerializeField] private bool hasStartedRun;

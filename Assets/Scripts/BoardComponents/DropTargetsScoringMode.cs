@@ -3,6 +3,8 @@
 // Frenzy-gate SFX hook added by Claude Code (Opus 4.7) for jjmil on 2026-04-21.
 // Updated by Claude (Opus 4.8), for jjmil, on 2026-06-04 (defer portal teardown while the entrance
 // portal is holding a ball in its teleport delay, so the held ball isn't stranded).
+// Updated by Claude (Opus 4.8), for jjmil, on 2026-06-05 (deactivate frenzy directly when the gate
+// closes, so a portal-started frenzy ends on target-return even while the countdown is paused).
 using System;
 using System.Collections;
 using TMPro;
@@ -176,14 +178,7 @@ public class DropTargetsScoringMode : MonoBehaviour
 
         if (_wasAllDown)
         {
-            _wasAllDown = false;
-            AnimateBumpers(false);
-            SetFrenzyPortalsActive(false);
-            ServiceLocator.Get<AudioManager>()?.PlayFrenzyGate(
-                bonusSpawnPosition != null
-                    ? bonusSpawnPosition.position
-                    : transform.position);
-            OnAnyTargetReturned?.Invoke();
+            CloseFrenzyGate();
         }
 
         _allDownBonusAwardedThisCycle = false;
@@ -220,20 +215,35 @@ public class DropTargetsScoringMode : MonoBehaviour
         {
             if (_wasAllDown)
             {
-                _wasAllDown = false;
-                AnimateBumpers(false);
-                SetFrenzyPortalsActive(false);
-                ServiceLocator.Get<AudioManager>()?.PlayFrenzyGate(
-                    bonusSpawnPosition != null
-                        ? bonusSpawnPosition.position
-                        : transform.position);
-                OnAnyTargetReturned?.Invoke();
+                CloseFrenzyGate();
             }
 
             _allDownBonusAwardedThisCycle = false;
         }
 
         RefreshDropTargetBulbVisuals();
+    }
+
+    // Closes the frenzy gate after all-down ends: retracts the bumpers, hides
+    // the portals (deferred if a ball is mid-teleport), ends the frenzy
+    // multiplier, and plays the gate SFX. DeactivateFrenzy is called directly
+    // (not via the FrenzyManager countdown) so a portal-started frenzy ends the
+    // instant a target returns up — even while the countdown is paused because a
+    // ball is held inside the portal's teleport delay.
+    private void CloseFrenzyGate()
+    {
+        _wasAllDown = false;
+        AnimateBumpers(false);
+        SetFrenzyPortalsActive(false);
+
+        EnsureRefs();
+        frenzyManager?.DeactivateFrenzy();
+
+        ServiceLocator.Get<AudioManager>()?.PlayFrenzyGate(
+            bonusSpawnPosition != null
+                ? bonusSpawnPosition.position
+                : transform.position);
+        OnAnyTargetReturned?.Invoke();
     }
 
     private void RefreshDropTargetBulbVisuals()

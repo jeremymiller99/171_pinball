@@ -1642,7 +1642,7 @@ MonoBehaviour:
   shopTransitionController: {fileID: 987650103}
   cameraIntroPan: {fileID: 987650003}
   gameplayCoreSceneName: GameplayCore
-  mainMenuSceneName: MainMenu
+  mainMenuSceneName: MainMenu 1
   hasStartedRun: 0
 --- !u!4 &430388228
 Transform:
@@ -4238,7 +4238,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a2e4b2e4e9d4e8aa6e2f3c41a1a7f7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PauseMenuController
-  mainMenuSceneName: MainMenu
+  mainMenuSceneName: MainMenu 1
   pauseMenuPanel: {fileID: 148225956}
   resumeButton: {fileID: 1226481753}
   quitButton: {fileID: 1790770508}

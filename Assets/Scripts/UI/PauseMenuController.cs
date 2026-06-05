@@ -19,7 +19,7 @@ public sealed class PauseMenuController : MonoBehaviour
     private const float MinFixedDeltaTime = 0.0001f;
 
     [Header("Scene")]
-    [SerializeField] private string mainMenuSceneName = "MainMenu";
+    [SerializeField] private string mainMenuSceneName = "MainMenu 1";
 
     [Header("UI (optional - auto-wired if left blank)")]
     [SerializeField] private GameObject pauseMenuPanel;

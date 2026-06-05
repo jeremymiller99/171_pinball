@@ -94,6 +94,19 @@ public sealed class MainMenuController : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        // Start the looping screen-hum ambience for the menu. Done in Start (not
+        // Awake/OnEnable) so the AudioManager has finished registering itself.
+        ServiceLocator.Get<AudioManager>()?.StartHummingSound();
+    }
+
+    private void OnDestroy()
+    {
+        // Stop the hum when leaving the menu scene.
+        ServiceLocator.Get<AudioManager>()?.StopHummingSound();
+    }
+
     private void Initialize()
     {
         if (_initialized)
@@ -189,6 +202,10 @@ public sealed class MainMenuController : MonoBehaviour
         }
 
         currentOption = option;
+
+        // Selection changed (hover or keyboard nav) — play the UI hover sound.
+        ServiceLocator.Get<AudioManager>()?.PlayButtonHover();
+
         ApplySelectionVisuals();
     }
 
@@ -243,6 +260,22 @@ public sealed class MainMenuController : MonoBehaviour
         }
 
         SetSelection((MenuOption)index);
+    }
+
+    // Fired on pointer-down for immediate click feedback. OnPointerClick only
+    // fires on release, which makes the sound trail the press; play it here so
+    // the click sound lands the instant the button is pressed.
+    internal void OnItemPressed(int index)
+    {
+        if (_location != MenuLocation.Main || index < 0 || index >= _texts.Length)
+        {
+            return;
+        }
+
+        // These menu items are TMP_Text objects (not Unity Buttons), so the
+        // AudioManager's automatic button-audio wiring doesn't reach them; play
+        // the UI click sound ourselves.
+        ServiceLocator.Get<AudioManager>()?.PlayButtonClick();
     }
 
     internal void OnItemClicked(int index)
@@ -468,7 +501,7 @@ public sealed class MainMenuController : MonoBehaviour
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class MainMenuItemPointerProxy : MonoBehaviour,
-    IPointerEnterHandler, IPointerClickHandler
+    IPointerEnterHandler, IPointerDownHandler, IPointerClickHandler
 {
     private MainMenuController _owner;
     private int _index;
@@ -484,6 +517,14 @@ public sealed class MainMenuItemPointerProxy : MonoBehaviour,
         if (_owner != null)
         {
             _owner.OnItemHovered(_index);
+        }
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (_owner != null)
+        {
+            _owner.OnItemPressed(_index);
         }
     }
 

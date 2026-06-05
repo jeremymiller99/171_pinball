@@ -91,6 +91,10 @@ public sealed class SpaceshipElevator : MonoBehaviour
     // Spin down, swap the model at the bottom, then spin back up.
     private IEnumerator SwapSequence(GameObject shipModelPrefab)
     {
+        AudioManager audio = ServiceLocator.Get<AudioManager>();
+
+        // Drop-target "down" as the platform sinks into the floor to swap the model.
+        audio?.PlayDropTargetDown(elevator.position);
         yield return Move(loweredLocalY);
 
         ClearShip();
@@ -101,6 +105,8 @@ public sealed class SpaceshipElevator : MonoBehaviour
             _currentShip.transform.localRotation = Quaternion.identity;
         }
 
+        // Drop-target "up" as it rises back into view carrying the chosen ship.
+        audio?.PlayDropTargetUp(elevator.position);
         yield return Move(raisedLocalY);
         _routine = null;
     }

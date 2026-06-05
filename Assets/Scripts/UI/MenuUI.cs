@@ -143,7 +143,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void LoadMenuScene()
     {
-        SceneFader.Instance.FadeAndLoadScene("MainMenu");
+        SceneFader.Instance.FadeAndLoadScene("MainMenu 1");
     }
 
     private void Start()

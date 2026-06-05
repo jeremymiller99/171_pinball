@@ -23,7 +23,7 @@ public class PlayTest
     [UnityTest, Performance, Version("4")]
     public IEnumerator MainSceneFrameTime_StartPosition()
     {
-        SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
+        SceneManager.LoadScene("MainMenu 1", LoadSceneMode.Single);
 
         // Measure initial time of first 25 frames after loading the scene
         using(Measure.Frames().Scope("FrameTime.FirstFramesAfterLoadingScene"))
@@ -39,7 +39,7 @@ public class PlayTest
             yield return new WaitForSeconds(10);
         }
 
-        SceneManager.UnloadSceneAsync("MainMenu");
+        SceneManager.UnloadSceneAsync("MainMenu 1");
     }
 
     [UnityTest, Performance, Version("4")]

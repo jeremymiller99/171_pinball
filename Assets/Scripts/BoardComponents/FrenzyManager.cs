@@ -82,6 +82,11 @@ public class FrenzyManager : MonoBehaviour
         if (!isFrenzyActive) return;
 
         isFrenzyActive = false;
+        // Reset the countdown so a later ActivateFrenzy starts from a clean
+        // slate. The timer-expiry path above already zeroes these, but external
+        // callers (e.g. the drop-target gate closing) don't go through it.
+        currentFrenzyTime = 0f;
+        frenzyLastsUntil = 0f;
         OnFrenzyDeactivated.Invoke();
         scoreManager.RemoveFrenzyMult();
     }

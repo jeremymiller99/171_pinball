@@ -72,7 +72,7 @@ public sealed class RoundFailedPanelController
 
     [Header("Scene")]
     [SerializeField] private string
-        mainMenuSceneName = "MainMenu";
+        mainMenuSceneName = "MainMenu 1";
 
     [Header("Defaults")]
     [SerializeField] private string defaultTitle =

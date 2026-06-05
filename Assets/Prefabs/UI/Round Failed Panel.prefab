@@ -1885,7 +1885,7 @@ MonoBehaviour:
   starsRoot: {fileID: 1864872789404725605}
   retryButton: {fileID: 6144758330202641251}
   quitButton: {fileID: 2256237503309462556}
-  mainMenuSceneName: MainMenu
+  mainMenuSceneName: MainMenu 1
   defaultTitle: GAME OVER
 --- !u!1 &6380767349670663338
 GameObject:

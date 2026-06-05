@@ -200,7 +200,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (coinController == null || !coinController.TrySpendCoins(_selectedOffer.Price))
         {
             Debug.Log("[UnifiedShopController] Not enough coins.");
-            SetPrompt($"Not enough coins for {_selectedOffer.DisplayName}.");
+            SetPrompt($"Not enough credits for {_selectedOffer.DisplayName}.");
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             if (confirmPanel != null) confirmPanel.Hide();
             RefreshUI();
@@ -248,7 +248,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (!_placement.ReplaceComponent(_targetComponent, def))
         {
             coinController?.AddCoinsUnscaled(price);
-            SetPrompt($"Could not place {def.GetSafeDisplayName()}. Coins refunded.");
+            SetPrompt($"Could not place {def.GetSafeDisplayName()}. Credits refunded.");
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             ExitPlacementMode();
             RefreshUI();
@@ -269,7 +269,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (_selectedOffer != null)
         {
             coinController?.AddCoinsUnscaled(_selectedOffer.Price);
-            SetPrompt("Purchase cancelled. Coins refunded.");
+            SetPrompt("Purchase cancelled. Credits refunded.");
         }
 
         ExitPlacementMode();
@@ -291,7 +291,7 @@ public sealed class UnifiedShopController : MonoBehaviour
     {
         if (coinController == null || coinController.Coins < rerollCost)
         {
-            SetPrompt($"Not enough coins to reroll (${rerollCost}).");
+            SetPrompt($"Not enough credits to reroll (${rerollCost}).");
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             RefreshUI();
             return;
@@ -674,7 +674,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (coinController == null || !coinController.TrySpendCoins(offer.Price))
         {
-            SetPrompt($"Not enough coins for {offer.DisplayName}.");
+            SetPrompt($"Not enough credits for {offer.DisplayName}.");
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             RefreshUI();
             return;
@@ -805,7 +805,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (coinController == null || !coinController.TrySpendCoins(offer.Price))
         {
-            SetPrompt($"Not enough coins for {offer.DisplayName}.");
+            SetPrompt($"Not enough credits for {offer.DisplayName}.");
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             if (confirmPanel != null) confirmPanel.Hide();
             RefreshUI();
@@ -862,7 +862,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (coinController == null || !coinController.TrySpendCoins(offer.Price))
         {
-            SetPrompt($"Not enough coins for {offer.DisplayName}.");
+            SetPrompt($"Not enough credits for {offer.DisplayName}.");
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             if (confirmPanel != null) confirmPanel.Hide();
             RefreshUI();

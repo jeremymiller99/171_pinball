@@ -25,13 +25,13 @@ public sealed class BasicTutorialController : MonoBehaviour
     private const string levelUpTitle = "YOU LEVELED UP!";
     private const string levelUpBody =
         "Reaching the goal unlocks the SHOP for one visit.\n\n"
-        + "The SHOP button below the board has lit up. Press it now to spend coins on new balls and "
+        + "The SHOP button below the board has lit up. Press it now to spend credits on new balls and "
         + "board upgrades before the next round.";
 
     private const string shopTitle = "WELCOME TO THE SHOP";
     private const string shopBody =
         "Drag offers from the shelf onto your hand or onto the board to buy them.\n\n"
-        + "Drag a hand ball onto a shop hub to sell it back for coins.\n\n"
+        + "Drag a hand ball onto a shop hub to sell it back for credits.\n\n"
         + "Hit DONE inside the shop when you're ready to play the next round.";
     private const string shopButton = "GOT IT";
 

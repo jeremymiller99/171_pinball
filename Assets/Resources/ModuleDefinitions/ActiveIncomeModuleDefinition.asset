@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ActiveIncomeModuleDefinition
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactDefinition
   displayName: Active Income Module
-  description: This module halves all coins gotten from level ups and doubles all
-    coins gotten from mint type pinballs and components.
+  description: This module halves all credits gotten from level ups and doubles all
+    credits gotten from mint type pinballs and components.
   icon: {fileID: 0}
   prefab: {fileID: 8234933386589820079, guid: 826e397f772d6c34bae491d0a22dfa55, type: 3}

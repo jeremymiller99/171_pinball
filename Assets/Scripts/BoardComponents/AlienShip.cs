@@ -205,7 +205,7 @@ public class AlienShip : MonoBehaviour
     void SetText()
     {
         text.text =
-            "I bet " + coinsToGive + " coins you can't hit " + 
+            "I bet " + coinsToGive + " credits you can't hit " +
             hitsLeft + " " + componentTagLookingFor + "s in " + 
             secondsLeft + " seconds!";
     }

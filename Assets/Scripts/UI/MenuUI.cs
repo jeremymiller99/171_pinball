@@ -1337,7 +1337,7 @@ public class MainMenuUI : MonoBehaviour
             case BoardDefinition.ClearConditionKind.LevelIndexAtLeast:
                 return $"Reach level {board.targetRoundIndex}";
             case BoardDefinition.ClearConditionKind.CoinsAtLeast:
-                return $"Collect {board.targetCoins} coins";
+                return $"Collect {board.targetCoins} credits";
             case BoardDefinition.ClearConditionKind.TotalScoreAtLeast:
                 return $"Reach {board.targetRoundTotal:N0} total score";
             case BoardDefinition.ClearConditionKind.None:

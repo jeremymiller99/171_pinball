@@ -79,7 +79,7 @@ public class RoundModifierDefinition : ScriptableObject
             if (!Mathf.Approximately(coinMultiplier, 1f))
             {
                 string sign = coinMultiplier > 1f ? "+" : "";
-                sb.AppendLine($"Coins: {sign}{Mathf.RoundToInt((coinMultiplier - 1f) * 100f)}%");
+                sb.AppendLine($"Credits: {sign}{Mathf.RoundToInt((coinMultiplier - 1f) * 100f)}%");
             }
 
             if (disableMultiplier)

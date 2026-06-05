@@ -740,7 +740,7 @@ public class RenderTextureRaycaster : MonoBehaviour
 
         if (!anyEgg) return null;
 
-        return $"Egg bonus when promoted: ×{point:0.##} points, ×{mult:0.##} mult, ×{coin} coins.";
+        return $"Egg bonus when promoted: ×{point:0.##} points, ×{mult:0.##} mult, ×{coin} credits.";
     }
 
     private static int GetHandSlotIndexForBall(GameObject ballObject)

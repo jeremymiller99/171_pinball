@@ -70,9 +70,12 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private EventReference rollingSoundEvent;
     [Tooltip("Looping burning sound.")]
     [SerializeField] private EventReference burningSoundEvent;
+    [Tooltip("Looping electric hum sound.")]
+    [SerializeField] private EventReference hummingSoundEvent;
 
     private EventInstance musicInstance;
     private EventInstance rollingSoundInstance;
+    private EventInstance hummingSoundInstance;
     private EventInstance alienShipRumbleInstance;
     private EventInstance burningSoundInstance;
     
@@ -450,6 +453,34 @@ public class AudioManager : MonoBehaviour
                 burningSoundInstance.release();
                 burningSoundInstance.clearHandle();
             }
+        }
+    }
+
+    // Continuous Humming Sound
+    public void StartHummingSound(EventReference musicEvent)
+    {
+        if (hummingSoundEvent.IsNull) return;
+
+        if (!hummingSoundInstance.isValid())
+        {
+            hummingSoundInstance = RuntimeManager.CreateInstance(hummingSoundEvent);
+        }
+        
+        // Only start if it isn't already playing
+        hummingSoundInstance.getPlaybackState(out PLAYBACK_STATE state);
+        if (state != PLAYBACK_STATE.PLAYING)
+        {
+            hummingSoundInstance.start();
+        }
+    }
+
+    public void StopHummingSound()
+    {
+        if (hummingSoundInstance.isValid())
+        {
+            hummingSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            hummingSoundInstance.release();
+            hummingSoundInstance.clearHandle();
         }
     }
 

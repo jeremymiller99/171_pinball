@@ -8,7 +8,6 @@ public class FrenzyModeDuplicator : Bumper
     [SerializeField] private GameRulesManager gameRulesManager;
     [SerializeField] private FrenzyManager frenzyManager;
     [SerializeField] private Transform frenzyTextTransform;
-    [SerializeField] private Vector2 frenzyTextOffset;
 
     override protected void Awake()
     {
@@ -35,7 +34,7 @@ public class FrenzyModeDuplicator : Bumper
             gameRulesManager?.ActiveBalls?.Add(newBall);
             isAsleep = true;
             StartCoroutine(StayAsleep());
-            frenzyManager.ActivateFrenzy(frenzyTextTransform.position, frenzyTextOffset);
+            frenzyManager.ActivateFrenzy(frenzyTextTransform.position);
         }
     }
 

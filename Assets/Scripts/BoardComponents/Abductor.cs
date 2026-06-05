@@ -19,6 +19,8 @@ public class Abductor : MonoBehaviour
     [SerializeField] private Vector3 startingPosition;
     [SerializeField] private FrenzyManager frenzyManager;
     [SerializeField] private bool activatedFrenzy;
+    [Tooltip("Point where the frenzy VFX spawns. Falls back to the abducted object's position.")]
+    [SerializeField] private Transform frenzyVFXPoint;
 
     [Header("Going To Abduction")]
     [SerializeField] private Transform abductionPosition;
@@ -117,7 +119,10 @@ public class Abductor : MonoBehaviour
             case AbductionState.Leaving:
                 if (!activatedFrenzy)
                 {
-                    frenzyManager.ActivateFrenzy(objectToAbduct.transform.position, Vector3.zero);
+                    Vector3 frenzyVFXPos = frenzyVFXPoint != null
+                        ? frenzyVFXPoint.position
+                        : objectToAbduct.transform.position;
+                    frenzyManager.ActivateFrenzy(frenzyVFXPos);
                     activatedFrenzy = true;
                 }
 

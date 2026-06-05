@@ -17,14 +17,12 @@ public class FrenzyPortal : MonoBehaviour
     [Header("Portal Rewards")]
     [Tooltip("Bonus multiplier added on portal entry.")]
     [SerializeField] private float bonusMult = 0.5f;
-    [Tooltip("Canvas offset for bonus popups.")]
-    [SerializeField]
-    private Vector2 popupOffset =
-        new Vector2(0f, -100f);
 
     [Header("References")]
     [SerializeField] private FrenzyManager frenzyManager;
     [SerializeField] private ScoreManager scoreManager;
+    [Tooltip("Point where the frenzy VFX spawns. Falls back to this object's position.")]
+    [SerializeField] private Transform frenzyVFXPoint;
 
     private void Awake()
     {
@@ -47,7 +45,10 @@ public class FrenzyPortal : MonoBehaviour
 
         if (frenzyManager != null)
         {
-            frenzyManager.ActivateFrenzy(transform.position, popupOffset);
+            Vector3 frenzyVFXPos = frenzyVFXPoint != null
+                ? frenzyVFXPoint.position
+                : transform.position;
+            frenzyManager.ActivateFrenzy(frenzyVFXPos);
         }
     }
 

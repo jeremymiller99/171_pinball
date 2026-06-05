@@ -669,7 +669,6 @@ MonoBehaviour:
     m_RotationOrder: 4
   bobSpeed: 2
   bobHeight: 0.2
-  merchantElementPool: 
   minOffers: 3
   maxOffers: 6
   visitorPriceSigma: 0.35
@@ -5308,14 +5307,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4a545707c84690409e8fc29f35a8648, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FrenzyManager
-  onFrenzyStartedText: FRENZY! x2 MULT!
   defaultTimeForFrenzy: 15
   currentFrenzyTime: 0
   frenzyLastsUntil: 0
   scoreManager: {fileID: 0}
-  floatingTextSpawner: {fileID: 0}
-  popupFontAsset: {fileID: 0}
-  popupScale: 0.9
+  frenzyStartParticlePrefab: {fileID: 2883797502249945402, guid: ce05f9bbc81a1d440a7dbb539710514d, type: 3}
+  particleZOffset: 5
+  particleMinScale: 3
+  particleMaxScale: 5
+  particleMaxTiltDegrees: 20
+  particleLifetime: 1.5
+  debugSpawnPoint: {fileID: 0}
   isFrenzyActive: 0
 --- !u!4 &1436735511
 Transform:

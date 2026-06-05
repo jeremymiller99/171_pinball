@@ -68,6 +68,10 @@ public class ScoreUIController : MonoBehaviour
     private int coinsUiDisplayed;
     private double _goalUiLast = -1d;
 
+    // True while the mult text is showing the frenzy-boosted value, so we
+    // know to force it back to the real value when frenzy ends.
+    private bool _frenzyDisplayActive;
+
     private readonly Queue<float> multQueue =
         new Queue<float>();
 
@@ -602,8 +606,13 @@ public class ScoreUIController : MonoBehaviour
 
             float strength = 0f;
             bool frenzyActive = false;
+            float realDisplayMult = 1f;
+            float effectiveDisplayMult = 1f;
             if (ServiceLocator.TryGet<ScoreManager>(out var sm))
             {
+                realDisplayMult = sm.DisplayMult;
+                effectiveDisplayMult = sm.DisplayEffectiveMult;
+
                 if (sm.IsFrenzyActive)
                 {
                     frenzyActive = true;
@@ -622,6 +631,20 @@ public class ScoreUIController : MonoBehaviour
             }
 
             text.color = frenzyActive ? new Color(0f, 0.85f, 1f, 1f) : Color.white;
+
+            // While frenzy is active, temporarily show the boosted effective
+            // multiplier; snap back to the real value the moment it ends.
+            if (frenzyActive)
+            {
+                _frenzyDisplayActive = true;
+                text.text = FormatMultiplier(effectiveDisplayMult);
+            }
+            else if (_frenzyDisplayActive)
+            {
+                _frenzyDisplayActive = false;
+                multUiDisplayed = realDisplayMult;
+                text.text = FormatMultiplier(realDisplayMult);
+            }
 
             if (strength <= 0f)
             {

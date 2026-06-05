@@ -3166,6 +3166,37 @@ MonoBehaviour:
   pathSmoothing: 12
   drawPathGizmos: 1
   gizmoColor: {r: 0.2, g: 0.9, b: 1, a: 1}
+--- !u!1 &196242189
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 196242190}
+  m_Layer: 6
+  m_Name: portal frenzy spawn point
+  m_TagString: Untagged
+  m_Icon: {fileID: 4422084297763085224, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &196242190
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 196242189}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.0221, y: -2.82, z: 0.4133}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 538407022}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &206167411
 GameObject:
   m_ObjectHideFlags: 0
@@ -12519,6 +12550,10 @@ MonoBehaviour:
   maxScale: 5
   maxLaunchDelay: 1
   fireworkLifetime: 5
+  frenzyPrefabs:
+  - {fileID: 2883797502249945402, guid: ce05f9bbc81a1d440a7dbb539710514d, type: 3}
+  frenzyScale: 25
+  frenzyLifetime: 0
 --- !u!65 &538407019
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -12608,7 +12643,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 8.33, z: -4.37}
   m_LocalScale: {x: 53.976673, y: 0.9383014, z: 33.282585}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 196242190}
+  - {fileID: 1039403425}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -12.656, y: 0, z: 0}
 --- !u!1 &542347248
@@ -19043,6 +19080,37 @@ RectTransform:
   m_AnchoredPosition: {x: -17.9, y: 7.8}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1039403424
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1039403425}
+  m_Layer: 6
+  m_Name: abduction frenzy spawn point
+  m_TagString: Untagged
+  m_Icon: {fileID: 4422084297763085224, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1039403425
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1039403424}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.1068, y: -2.82, z: 0.0206}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 538407022}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1047637331
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -29229,9 +29297,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FrenzyPortal
   bonusMult: 0.5
-  popupOffset: {x: 0, y: -100}
   frenzyManager: {fileID: 0}
   scoreManager: {fileID: 0}
+  frenzyVFXPoint: {fileID: 196242190}
 --- !u!1001 &2027645671
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -35047,6 +35115,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 410063030}
     m_Modifications:
+    - target: {fileID: 2289945914847381007, guid: a0552d35fcb08c348815a72581abc0bf, type: 3}
+      propertyPath: frenzyVFXPoint
+      value: 
+      objectReference: {fileID: 1039403425}
     - target: {fileID: 2289945914847381007, guid: a0552d35fcb08c348815a72581abc0bf, type: 3}
       propertyPath: objectToAbduct
       value: 

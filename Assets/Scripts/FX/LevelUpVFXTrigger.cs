@@ -56,6 +56,24 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
     )]
     [SerializeField] private float fireworkLifetime = 5f;
 
+    [Header("Frenzy VFX")]
+    [Tooltip(
+        "Frenzy VFX variations. Exactly one (chosen at random) is spawned " +
+        "by FrenzyManager at a referenced point when frenzy mode starts. " +
+        "Mirrors the level-up banner spawn; lives here so all board VFX " +
+        "is configured in one place."
+    )]
+    [SerializeField] private List<GameObject> frenzyPrefabs = new();
+
+    [Tooltip("Uniform scale applied to the spawned frenzy VFX.")]
+    [SerializeField] private float frenzyScale = 1f;
+
+    [Tooltip(
+        "Seconds before the spawned frenzy VFX is destroyed. " +
+        "Set to 0 to disable auto-destroy."
+    )]
+    [SerializeField] private float frenzyLifetime = 3f;
+
     private Collider _spawnVolume;
     private GameRulesManager _rules;
     private bool _armed;
@@ -63,6 +81,15 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
     private void Awake()
     {
         _spawnVolume = GetComponent<Collider>();
+        ServiceLocator.Register(this);
+    }
+
+    private void OnDestroy()
+    {
+        if (ServiceLocator.Get<LevelUpVFXTrigger>() == this)
+        {
+            ServiceLocator.Unregister<LevelUpVFXTrigger>();
+        }
     }
 
     private void OnEnable()
@@ -120,6 +147,65 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
         );
 
         StartCoroutine(SpawnStaggered(count));
+    }
+
+    /// <summary>
+    /// Spawns exactly one frenzy VFX prefab, chosen at random from the
+    /// available variations, at the given world position. Mirrors
+    /// <see cref="SpawnBanner"/> except the location is supplied by the
+    /// caller (e.g. the portal or abduction point) rather than the spawn
+    /// volume center. Called by <see cref="FrenzyManager"/> (which lives
+    /// in another scene) so all board VFX is owned by this one script.
+    /// Returns the spawned instance, or null if none was spawned.
+    /// </summary>
+    public GameObject SpawnFrenzyVFX(Vector3 position)
+    {
+        if (frenzyPrefabs == null || frenzyPrefabs.Count == 0)
+        {
+            return null;
+        }
+
+        GameObject prefab =
+            frenzyPrefabs[Random.Range(0, frenzyPrefabs.Count)];
+
+        if (prefab == null) return null;
+
+        GameObject fx = Instantiate(
+            prefab,
+            position,
+            Quaternion.identity
+        );
+
+        fx.transform.localScale = Vector3.one * frenzyScale;
+
+        if (frenzyLifetime > 0f)
+        {
+            Destroy(fx, frenzyLifetime);
+        }
+
+        return fx;
+    }
+
+    // Inspector debug button (component gear menu): spawns one frenzy
+    // VFX at the center of the spawn volume so you can confirm it appears
+    // without triggering frenzy. Best used in Play mode.
+    [ContextMenu("Debug/Spawn Frenzy VFX")]
+    private void DebugSpawnFrenzyVFX()
+    {
+        Collider vol = _spawnVolume != null
+            ? _spawnVolume
+            : GetComponent<Collider>();
+
+        Vector3 origin = vol != null ? vol.bounds.center : transform.position;
+        GameObject fx = SpawnFrenzyVFX(origin);
+
+        if (fx != null)
+        {
+            Debug.Log(
+                $"[LevelUpVFXTrigger] Spawned frenzy VFX '{fx.name}' at " +
+                $"{fx.transform.position} (scale {fx.transform.localScale.x:0.##}).",
+                fx);
+        }
     }
 
     /// <summary>

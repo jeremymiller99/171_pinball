@@ -39,6 +39,8 @@ public class ScoreManager : MonoBehaviour
 
     public double DisplayPoints => displayPoints;
     public float DisplayMult => displayMult;
+    /// <summary>Animated display mult including the frenzy bonus — what the HUD shows while frenzy is active.</summary>
+    public float DisplayEffectiveMult => displayMult + _frenzyMult;
     public double DisplayRoundTotal => roundTotal + displayPoints;
 
 

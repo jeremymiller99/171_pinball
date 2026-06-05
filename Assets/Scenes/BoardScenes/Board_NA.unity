@@ -4776,7 +4776,7 @@ GameObject:
   - component: {fileID: 339610654}
   - component: {fileID: 339610655}
   m_Layer: 0
-  m_Name: left bottom lights
+  m_Name: left flipper lights
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4811,21 +4811,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 339610653}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 098438b6b8eefbb4198caf7d61bf1f37, type: 3}
+  m_Script: {fileID: 11500000, guid: 952cc484ab1f2aa48b80e71be50baa2c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BoardLightWaveSequence
+  m_EditorClassIdentifier: Assembly-CSharp::FlipperOverheat
+  side: 0
   lights:
   - {fileID: 983282242}
   - {fileID: 174610951}
   - {fileID: 1339561063}
   - {fileID: 1593814332}
   - {fileID: 630368820}
-  litEveryNthLight: 2
-  secondsPerStep: 0.15
-  useUnscaledTime: 0
-  playOnAwake: 1
-  reverseOrder: 1
-  turnAllOffWhenStopped: 1
+  overheatFlashCycleSeconds: 0.25
+  overheatThreshold: 20
+  heatPerFlip: 2
+  coolingPerSecond: 4
+  overheatCooldownSeconds: 3
 --- !u!1 &344106807
 GameObject:
   m_ObjectHideFlags: 0
@@ -7040,7 +7040,7 @@ GameObject:
   - component: {fileID: 470303341}
   - component: {fileID: 470303342}
   m_Layer: 0
-  m_Name: right bottom lights
+  m_Name: right flipper lights
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7075,21 +7075,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 470303340}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 098438b6b8eefbb4198caf7d61bf1f37, type: 3}
+  m_Script: {fileID: 11500000, guid: 952cc484ab1f2aa48b80e71be50baa2c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BoardLightWaveSequence
+  m_EditorClassIdentifier: Assembly-CSharp::FlipperOverheat
+  side: 1
   lights:
-  - {fileID: 1391707955}
-  - {fileID: 960787109}
-  - {fileID: 1579860630}
-  - {fileID: 375003690}
   - {fileID: 422465110}
-  litEveryNthLight: 2
-  secondsPerStep: 0.15
-  useUnscaledTime: 0
-  playOnAwake: 1
-  reverseOrder: 0
-  turnAllOffWhenStopped: 1
+  - {fileID: 375003690}
+  - {fileID: 1579860630}
+  - {fileID: 960787109}
+  - {fileID: 1391707955}
+  overheatFlashCycleSeconds: 0.25
+  overheatThreshold: 20
+  heatPerFlip: 2
+  coolingPerSecond: 4
+  overheatCooldownSeconds: 3
 --- !u!1 &487153559
 GameObject:
   m_ObjectHideFlags: 0

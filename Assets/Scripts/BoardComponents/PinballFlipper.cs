@@ -90,17 +90,15 @@ public class PinballFlipper : MonoBehaviour
 
     private void Update()
     {
+        bool physicalLeft = flipperAction == FlipperInputAction.LeftFlipper;
+        if (CrossEyedBall.IsFlipInputSwappedForGameplay())
+        {
+            physicalLeft = !physicalLeft;
+        }
+
 #if ENABLE_INPUT_SYSTEM
         if (leftFlipAction != null && rightFlipAction != null)
         {
-            bool physicalLeft =
-                flipperAction == FlipperInputAction.LeftFlipper;
-
-            if (CrossEyedBall.IsFlipInputSwappedForGameplay())
-            {
-                physicalLeft = !physicalLeft;
-            }
-
             InputAction act = physicalLeft ? leftFlipAction : rightFlipAction;
             _pressed = act != null && act.IsPressed();
         }
@@ -115,6 +113,12 @@ public class PinballFlipper : MonoBehaviour
 #else
         _pressed = false;
 #endif
+
+        // Anti-spam: an overheated flipper goes dead until its cooldown finishes.
+        if (_pressed && FlipperOverheat.IsPhysicalSideOverheated(physicalLeft))
+        {
+            _pressed = false;
+        }
 
         if (_pressed && !_previousPressed)
         {

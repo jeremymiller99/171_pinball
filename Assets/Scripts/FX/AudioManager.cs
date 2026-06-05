@@ -367,6 +367,8 @@ public class AudioManager : MonoBehaviour
         PlayOneShotWithParameter(multAddEvent, "compTriggered", compTriggered);
     }
 
+    public void PlayCoinAdd() => PlayOneShot(coinAddEvent);
+
     public void PlayStaggeredCoinSounds(int amount)
     {
         if (amount > 0)

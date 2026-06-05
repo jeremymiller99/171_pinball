@@ -70,9 +70,15 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private EventReference rollingSoundEvent;
     [Tooltip("Looping burning sound.")]
     [SerializeField] private EventReference burningSoundEvent;
+    [Tooltip("Looping electric hum sound.")]
+    [SerializeField] private EventReference hummingSoundEvent;
+    [Tooltip("Looping emergency siren sound.")]
+    [SerializeField] private EventReference sirenSoundEvent;
 
     private EventInstance musicInstance;
     private EventInstance rollingSoundInstance;
+    private EventInstance hummingSoundInstance;
+    private EventInstance sirenSoundInstance;
     private EventInstance alienShipRumbleInstance;
     private EventInstance burningSoundInstance;
     
@@ -450,6 +456,62 @@ public class AudioManager : MonoBehaviour
                 burningSoundInstance.release();
                 burningSoundInstance.clearHandle();
             }
+        }
+    }
+
+    // Continuous Humming Sound
+    public void StartHummingSound()
+    {
+        if (hummingSoundEvent.IsNull) return;
+
+        if (!hummingSoundInstance.isValid())
+        {
+            hummingSoundInstance = RuntimeManager.CreateInstance(hummingSoundEvent);
+        }
+        
+        // Only start if it isn't already playing
+        hummingSoundInstance.getPlaybackState(out PLAYBACK_STATE state);
+        if (state != PLAYBACK_STATE.PLAYING)
+        {
+            hummingSoundInstance.start();
+        }
+    }
+
+    public void StopHummingSound()
+    {
+        if (hummingSoundInstance.isValid())
+        {
+            hummingSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            hummingSoundInstance.release();
+            hummingSoundInstance.clearHandle();
+        }
+    }
+
+    // Continuous Emergency Siren Sound
+    public void StartSirenSound()
+    {
+        if (sirenSoundEvent.IsNull) return;
+
+        if (!sirenSoundInstance.isValid())
+        {
+            sirenSoundInstance = RuntimeManager.CreateInstance(sirenSoundEvent);
+        }
+        
+        // Only start if it isn't already playing
+        sirenSoundInstance.getPlaybackState(out PLAYBACK_STATE state);
+        if (state != PLAYBACK_STATE.PLAYING)
+        {
+            sirenSoundInstance.start();
+        }
+    }
+
+    public void StopSirenSound()
+    {
+        if (sirenSoundInstance.isValid())
+        {
+            sirenSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            sirenSoundInstance.release();
+            sirenSoundInstance.clearHandle();
         }
     }
 

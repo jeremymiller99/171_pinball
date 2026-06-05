@@ -78,6 +78,11 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     private ShopShipController _spaceship;
 
+    // Board-side world-space Reroll/Done buttons (additive board scene).
+    // Resolved at shop-open time via ServiceLocator since they cannot be
+    // serialized across scenes.
+    private ShopRerollPanel _rerollPanel;
+
     private void Awake()
     {
         ServiceLocator.Register<UnifiedShopController>(this);
@@ -118,6 +123,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         WireContinueButton();
         WireRerollButton();
+        WireExternalRerollPanel();
         HookTransitionEvents();
 
         if (confirmPanel != null) confirmPanel.Hide();
@@ -154,6 +160,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         }
 
         UnhookTransitionEvents();
+        UnwireExternalRerollPanel();
 
         _shelf.Cleanup();
         _hand.Cleanup();
@@ -936,6 +943,39 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (rerollButton == null) return;
         rerollButton.onClick.RemoveListener(RerollOffers);
         rerollButton.onClick.AddListener(RerollOffers);
+    }
+
+    private void WireExternalRerollPanel()
+    {
+        _rerollPanel = ServiceLocator.Get<ShopRerollPanel>();
+        if (_rerollPanel == null) return;
+
+        if (_rerollPanel.RerollButton != null)
+        {
+            _rerollPanel.RerollButton.onClick.RemoveListener(RerollOffers);
+            _rerollPanel.RerollButton.onClick.AddListener(RerollOffers);
+        }
+
+        if (_rerollPanel.DoneButton != null)
+        {
+            _rerollPanel.DoneButton.onClick.RemoveListener(CloseAndContinue);
+            _rerollPanel.DoneButton.onClick.AddListener(CloseAndContinue);
+        }
+
+        _rerollPanel.Show();
+    }
+
+    private void UnwireExternalRerollPanel()
+    {
+        if (_rerollPanel == null) return;
+
+        if (_rerollPanel.RerollButton != null)
+            _rerollPanel.RerollButton.onClick.RemoveListener(RerollOffers);
+        if (_rerollPanel.DoneButton != null)
+            _rerollPanel.DoneButton.onClick.RemoveListener(CloseAndContinue);
+
+        _rerollPanel.Hide();
+        _rerollPanel = null;
     }
 
     private void HookTransitionEvents()

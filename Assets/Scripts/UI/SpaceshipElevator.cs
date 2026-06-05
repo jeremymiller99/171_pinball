@@ -48,6 +48,13 @@ public sealed class SpaceshipElevator : MonoBehaviour
     private GameObject _currentShip;
     private Coroutine _routine;
 
+    /// <summary>
+    /// True while a show/swap animation is in progress (the platform is dropping,
+    /// swapping the model, or rising back up). Callers can poll this to hold off
+    /// actions — e.g. Start — until the ship has fully settled at the top.
+    /// </summary>
+    public bool IsAnimating => _routine != null;
+
     private void Awake()
     {
         if (elevator == null)

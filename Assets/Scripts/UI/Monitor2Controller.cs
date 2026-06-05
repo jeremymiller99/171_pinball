@@ -503,12 +503,24 @@ public sealed class Monitor2Controller : MonoBehaviour
 
     private IEnumerator FlashStart()
     {
-        bool on = false;
-        var wait = new WaitForSecondsRealtime(Mathf.Max(0.05f, startFlashInterval));
         if (startText != null)
         {
             startText.text = _startBaseLabel;
         }
+
+        // Hold the disabled look until the elevator has finished raising the ship,
+        // so Start never flashes "ready" while a click would be ignored.
+        while (spaceshipElevator != null && spaceshipElevator.IsAnimating)
+        {
+            if (startText != null)
+            {
+                startText.color = startDisabledColor;
+            }
+            yield return null;
+        }
+
+        bool on = false;
+        var wait = new WaitForSecondsRealtime(Mathf.Max(0.05f, startFlashInterval));
         while (true)
         {
             on = !on;
@@ -533,6 +545,12 @@ public sealed class Monitor2Controller : MonoBehaviour
     private void TryLaunch()
     {
         if (!IsReadyToStart)
+        {
+            return;
+        }
+
+        // Don't launch until the elevator has finished raising the chosen ship.
+        if (spaceshipElevator != null && spaceshipElevator.IsAnimating)
         {
             return;
         }

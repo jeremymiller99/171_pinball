@@ -148,6 +148,16 @@ public sealed class MainMenuController : MonoBehaviour
 
     private void Update()
     {
+        // Dev/reset shortcut: R wipes the active profile (banked points, unlocks,
+        // stats, tutorial flags) back to a fresh profile and re-saves over the
+        // slot file. Honored anywhere in the main-menu scene, regardless of which
+        // camera point we're at or which option is selected.
+        if (WasResetPressed())
+        {
+            ResetActiveProfile();
+            return;
+        }
+
         // Away from the main camera point, the three buttons are inert; only
         // a back/cancel press (to return to Main) is honored here. While monitor 2
         // is active it owns Escape (and calls ReturnToMain itself), so don't also
@@ -439,7 +449,26 @@ public sealed class MainMenuController : MonoBehaviour
         Debug.Log("[MainMenu] Profile selected.");
     }
 
+    // Wipe the active profile slot back to a brand-new profile and persist it,
+    // effectively deleting the existing save and starting fresh.
+    private void ResetActiveProfile()
+    {
+        ProfileSlotId slot = ProfileService.GetActiveSlot();
+        ProfileService.ResetSlot(slot);
+        Debug.Log($"[MainMenu] Reset profile slot {slot} — save wiped, starting fresh.");
+    }
+
     // ---- Input helpers -------------------------------------------------
+
+    private static bool WasResetPressed()
+    {
+#if ENABLE_INPUT_SYSTEM
+        Keyboard kb = Keyboard.current;
+        return kb != null && kb.rKey.wasPressedThisFrame;
+#else
+        return Input.GetKeyDown(KeyCode.R);
+#endif
+    }
 
     private static bool WasCancelPressed()
     {

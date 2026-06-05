@@ -642,7 +642,7 @@ MonoBehaviour:
   - {fileID: 982989878}
   - {fileID: 1488434466}
   - {fileID: 682688007}
-  flyDuration: 3
+  flyDuration: 1.5
   flyEase:
     serializedVersion: 2
     m_Curve:
@@ -669,8 +669,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   bobSpeed: 2
   bobHeight: 0.2
-  minOffers: 3
-  maxOffers: 6
+  minOffers: 4
+  maxOffers: 5
   visitorPriceSigma: 0.35
   merchantNameLabel: {fileID: 0}
 --- !u!4 &252036642
@@ -5311,13 +5311,6 @@ MonoBehaviour:
   currentFrenzyTime: 0
   frenzyLastsUntil: 0
   scoreManager: {fileID: 0}
-  frenzyStartParticlePrefab: {fileID: 2883797502249945402, guid: ce05f9bbc81a1d440a7dbb539710514d, type: 3}
-  particleZOffset: 5
-  particleMinScale: 3
-  particleMaxScale: 5
-  particleMaxTiltDegrees: 20
-  particleLifetime: 1.5
-  debugSpawnPoint: {fileID: 0}
   isFrenzyActive: 0
 --- !u!4 &1436735511
 Transform:

@@ -5,6 +5,9 @@
 // on entrance / after exit teleport).
 // Updated with Cursor (Composer) by assistant, for jjmil, on 2026-04-01 (BoardLight flash N times
 // then off).
+// Updated by Claude (Opus 4.8), for jjmil, on 2026-06-04 (configurable delay: ball is held hidden
+// inside the portal before exiting).
+using System.Collections;
 using UnityEngine;
 public class Portal : MonoBehaviour
 {
@@ -19,14 +22,9 @@ public class Portal : MonoBehaviour
     [Tooltip("Maximum random angle (in degrees) to deviate from the exact forward direction. Use 0 for fully predictable exit.")]
     public float exitRandomAngle = 0f;
 
-    [Tooltip("If true, use fixed exit speed (entry speed ignored). Recommended for predictable behavior.")]
-    public bool overrideExitSpeed = true;
-
-    [Tooltip("Speed to use when overrideExitSpeed is true.")]
-    public float exitSpeed = 10f;
-
-    [Tooltip("Additional speed added when overrideExitSpeed is false (entry speed + this). Ignored when override is true.")]
-    [SerializeField] private float extraExitSpeed = 5f;
+    [Tooltip("Seconds the ball is held (hidden + frozen) inside the portal before it exits. Use 0 for instant teleport.")]
+    [Min(0f)]
+    public float teleportDelay = 2f;
 
     [Header("FX")]
     [SerializeField] private float shakeDuration = 0.22f;
@@ -80,6 +78,14 @@ public class Portal : MonoBehaviour
         if (Time.time - traveller.lastTeleportTime < traveller.teleportCooldown)
             return;
 
+        // Capture the entry speed now, before we freeze the ball, so it can exit with the same speed.
+        float entrySpeed = rb.linearVelocity.magnitude;
+
+        // Claim the teleport now so the ball can't re-trigger this (or the exit) portal while held.
+        traveller.lastTeleportTime = Time.time;
+
+        // Flash both lights immediately on entry: the entrance to confirm the ball went in, and the
+        // exit to warn the player a ball is about to come out (while it waits inside the portal).
         if (entranceBoardLight != null)
         {
             entranceBoardLight.FlashLitVersusOffThenOff(
@@ -87,21 +93,77 @@ public class Portal : MonoBehaviour
                 boardLightFlashFullCycleSeconds);
         }
 
+        if (exitBoardLight != null)
+        {
+            exitBoardLight.FlashLitVersusOffThenOff(
+                boardLightFlashCycles,
+                boardLightFlashFullCycleSeconds);
+        }
+
+        ServiceLocator.Get<AudioManager>()?.PlayPortal(transform.position);
+
+        if (teleportDelay > 0.001f)
+        {
+            StartCoroutine(TeleportAfterDelay(other, rb, traveller, entrySpeed));
+        }
+        else
+        {
+            CompleteTeleport(other, rb, traveller, entrySpeed);
+        }
+    }
+
+    private IEnumerator TeleportAfterDelay(Collider other, Rigidbody rb, PortalTraveller traveller, float entrySpeed)
+    {
+        // Hide and freeze the ball while it's "inside" the portal.
+        Renderer[] renderers = other.GetComponentsInChildren<Renderer>();
+        foreach (Renderer r in renderers)
+        {
+            r.enabled = false;
+        }
+
+        bool wasKinematic = rb.isKinematic;
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.isKinematic = true;
+
+        float elapsed = 0f;
+        while (elapsed < teleportDelay)
+        {
+            // Bail out if the ball was destroyed/disabled while waiting.
+            if (rb == null || other == null || !other.gameObject.activeInHierarchy)
+            {
+                yield break;
+            }
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        foreach (Renderer r in renderers)
+        {
+            if (r != null)
+            {
+                r.enabled = true;
+            }
+        }
+
+        rb.isKinematic = wasKinematic;
+        CompleteTeleport(other, rb, traveller, entrySpeed);
+    }
+
+    private void CompleteTeleport(Collider other, Rigidbody rb, PortalTraveller traveller, float entrySpeed)
+    {
         // --- POSITION: Fixed spawn at exit center (entry position ignored for predictability) ---
         float spawnDist = exitOffset > 0.001f ? exitOffset : 0.5f;
         Vector3 newWorldPos = portalExit.position + portalExit.forward * spawnDist;
-        if (other.transform.position != newWorldPos)
-        {
-            ServiceLocator.Get<AudioManager>()?.PlayPortal(transform.position);
-        }
         other.transform.position = newWorldPos;
 
         // --- ROTATION: Align with exit portal ---
         Quaternion portalDeltaRot = portalExit.rotation * Quaternion.Inverse(transform.rotation);
         other.transform.rotation = portalDeltaRot * other.transform.rotation;
 
-        // --- VELOCITY: Fixed direction and speed (entry direction and speed ignored) ---
-        float finalSpeed = overrideExitSpeed ? exitSpeed : Mathf.Max(0f, rb.linearVelocity.magnitude + extraExitSpeed);
+        // --- VELOCITY: Exit straight out of the exit portal, at the same speed the ball entered with
+        // (entry direction is ignored, only the speed magnitude is preserved). ---
+        float finalSpeed = entrySpeed;
 
         // Direction: straight out of exit portal, with optional random spread
         Vector3 exitDir = portalExit.forward;
@@ -117,6 +179,7 @@ public class Portal : MonoBehaviour
         // Zero angular velocity for predictable trajectory (no spin from entry)
         rb.angularVelocity = Vector3.zero;
 
+        // Refresh the cooldown stamp so the ball doesn't immediately re-enter the exit portal.
         traveller.lastTeleportTime = Time.time;
 
         IPortalTeleportListener listener = other.GetComponent<IPortalTeleportListener>();
@@ -130,22 +193,5 @@ public class Portal : MonoBehaviour
             ResolveCameraShake();
         }
         camShake?.Shake(shakeDuration, shakeMagnitude);
-
-        if (exitBoardLight != null)
-        {
-            exitBoardLight.FlashLitVersusOffThenOff(
-                boardLightFlashCycles,
-                boardLightFlashFullCycleSeconds);
-        }
-    }
-
-    public void MultiplyExitSpeed(float multiplier)
-    {
-        if (multiplier <= 0f)
-        {
-            return;
-        }
-
-        exitSpeed = Mathf.Max(0f, exitSpeed * multiplier);
     }
 }

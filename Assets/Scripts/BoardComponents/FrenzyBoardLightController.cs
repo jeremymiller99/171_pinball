@@ -49,6 +49,9 @@ public class FrenzyBoardLightController : MonoBehaviour
 
     private void HandleFrenzyActivated()
     {
+        // Devil round owns the lights (steady red) and must win over frenzy.
+        if (DevilRoundLights.Locked) return;
+
         RefreshCache();
 
         foreach (BoardLight light in _cachedLights)
@@ -61,6 +64,9 @@ public class FrenzyBoardLightController : MonoBehaviour
 
     private void HandleFrenzyDeactivated()
     {
+        // Devil round owns the lights; don't clear its red when frenzy ends.
+        if (DevilRoundLights.Locked) return;
+
         if (_cachedLights == null) return;
 
         foreach (BoardLight light in _cachedLights)

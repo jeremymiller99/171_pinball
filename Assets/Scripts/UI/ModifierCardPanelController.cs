@@ -69,6 +69,9 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
     [Header("Runtime (debug)")]
     [SerializeField] private bool isVisible;
 
+    /// <summary>True while the card is shown (used by the devil-round sequence to wait for dismissal).</summary>
+    public bool IsVisible => isVisible;
+
     private Transform _cardRoot;
     private GameObject _normalBgObject;
     private GameObject _devilBgObject;

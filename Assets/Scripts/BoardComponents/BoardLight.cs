@@ -71,6 +71,10 @@ public sealed class BoardLight : MonoBehaviour
     private Color _litAppearanceOverride;
     private int _litAlternativeIndex = -1;
 
+    private bool _externalControlLocked;
+    private bool _hasPendingExternalLit;
+    private bool _pendingExternalLit;
+
     private bool _flashing;
     private Coroutine _flashCoroutine;
 
@@ -84,6 +88,15 @@ public sealed class BoardLight : MonoBehaviour
     /// <summary>Runtime API for scripts (drop targets, portals, goals, etc.). Stops any flash.</summary>
     public void SetLit(bool lit)
     {
+        if (_externalControlLocked)
+        {
+            // An owner (e.g. the devil round) holds this light. Remember the
+            // desired state and apply it when the lock is released.
+            _hasPendingExternalLit = true;
+            _pendingExternalLit = lit;
+            return;
+        }
+
         StopFlashingInternal();
         _isLit = lit;
         if (!lit)
@@ -112,6 +125,41 @@ public sealed class BoardLight : MonoBehaviour
     public bool IsLit => _isLit;
 
     public bool IsFlashing => _flashing;
+
+    /// <summary>
+    /// Choose whether flash coroutines run on unscaled time. Enable so a flash
+    /// keeps animating while gameplay is paused (e.g. the devil-round card).
+    /// </summary>
+    public void SetFlashUsesUnscaledTime(bool value)
+    {
+        flashUsesUnscaledTime = value;
+    }
+
+    /// <summary>
+    /// Lock out gameplay-driven lit/flash changes (SetLit/SetOn/SetOff and flash starts) so an
+    /// owner like the devil round can hold a look without per-frame drivers (flipper overheat,
+    /// launcher meter, etc.) clobbering it. Calls made while locked are remembered and re-applied
+    /// when unlocked. The owner should set its visuals first, then lock.
+    /// </summary>
+    public void SetExternalControlLocked(bool locked)
+    {
+        if (_externalControlLocked == locked)
+        {
+            return;
+        }
+
+        _externalControlLocked = locked;
+
+        if (!locked && _hasPendingExternalLit)
+        {
+            bool lit = _pendingExternalLit;
+            _hasPendingExternalLit = false;
+            SetLit(lit);
+        }
+    }
+
+    /// <summary>True if gameplay requested a lit change while this light was externally locked.</summary>
+    public bool HasPendingExternalLit => _hasPendingExternalLit;
 
     /// <summary>Re-applies colors and light from current state (stops flash first).</summary>
     public void ReapplyVisuals()
@@ -182,6 +230,11 @@ public sealed class BoardLight : MonoBehaviour
     /// <summary>Alternate full off look vs steady lit look (override / alt / on). Requires IsLit.</summary>
     public void StartFlashLitVersusOff(float fullCycleSeconds)
     {
+        if (_externalControlLocked)
+        {
+            return;
+        }
+
         if (fullCycleSeconds <= 0f || !_isLit)
         {
             return;
@@ -198,6 +251,11 @@ public sealed class BoardLight : MonoBehaviour
     /// </summary>
     public void FlashLitVersusOffThenOff(int fullCycles, float fullCycleSeconds)
     {
+        if (_externalControlLocked)
+        {
+            return;
+        }
+
         if (fullCycles <= 0 || fullCycleSeconds <= 0f)
         {
             return;
@@ -212,6 +270,11 @@ public sealed class BoardLight : MonoBehaviour
     /// <summary>Alternate default on color vs one alternative (both phases keep the light on).</summary>
     public void StartFlashBetweenOnAndAlternative(int alternativeIndex, float fullCycleSeconds)
     {
+        if (_externalControlLocked)
+        {
+            return;
+        }
+
         if (fullCycleSeconds <= 0f || !_isLit || alternativeLitColors == null ||
             alternativeLitColors.Length == 0)
         {
@@ -233,6 +296,11 @@ public sealed class BoardLight : MonoBehaviour
     /// </summary>
     public void StartFlashCycleOnAndAlternatives(float secondsPerStep)
     {
+        if (_externalControlLocked)
+        {
+            return;
+        }
+
         if (secondsPerStep <= 0f || !_isLit || alternativeLitColors == null ||
             alternativeLitColors.Length == 0)
         {
@@ -247,6 +315,11 @@ public sealed class BoardLight : MonoBehaviour
     /// <summary>Alternate two arbitrary lit colors (light stays on both phases).</summary>
     public void StartFlashBetweenTwoColors(Color a, Color b, float fullCycleSeconds)
     {
+        if (_externalControlLocked)
+        {
+            return;
+        }
+
         if (fullCycleSeconds <= 0f || !_isLit)
         {
             return;
@@ -259,6 +332,11 @@ public sealed class BoardLight : MonoBehaviour
 
     public void StopFlashing()
     {
+        if (_externalControlLocked)
+        {
+            return;
+        }
+
         StopFlashingInternal();
         ApplyNow(false);
     }

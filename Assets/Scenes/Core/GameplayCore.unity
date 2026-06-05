@@ -1695,7 +1695,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 249.70001, y: -481.7}
+  m_AnchoredPosition: {x: 249.70007, y: -481.7}
   m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &517557439
@@ -3621,16 +3621,9 @@ PrefabInstance:
       propertyPath: m_Name
       value: Module Card
       objectReference: {fileID: 0}
-    - target: {fileID: 5582415216415619809, guid: c5143ba00939fb342903599d873335d4, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6263185977177527904, guid: c5143ba00939fb342903599d873335d4, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -10
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 4166953466546825605, guid: c5143ba00939fb342903599d873335d4, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c5143ba00939fb342903599d873335d4, type: 3}

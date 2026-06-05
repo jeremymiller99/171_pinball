@@ -106,6 +106,331 @@ MonoBehaviour:
     m_Localized: You've encountered a bug.
     m_Metadata:
       m_Items: []
+  - m_Id: 687095113834496
+    m_Localized: Save {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583232
+    m_Localized: Save
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583233
+    m_Localized: Progression
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583234
+    m_Localized: 'Total Score Earned: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583235
+    m_Localized: 'Next: {0} in {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583236
+    m_Localized: All rewards unlocked!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583237
+    m_Localized: LOCKED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583238
+    m_Localized: Shop Hub
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583239
+    m_Localized: Sell your pinballs here
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526853177344
+    m_Localized: TIME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731776
+    m_Localized: HITS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731777
+    m_Localized: RUN COMPLETE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731778
+    m_Localized: RUN ENDED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731779
+    m_Localized: 'Score: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731780
+    m_Localized: 'Enter your name:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731781
+    m_Localized: Name...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926080
+    m_Localized: SUBMIT SCORE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926081
+    m_Localized: LEADERBOARD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926082
+    m_Localized: 'YOUR RANK: #{0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926083
+    m_Localized: TOP {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926084
+    m_Localized: BACK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926085
+    m_Localized: CONTINUE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926086
+    m_Localized: Lv {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679747252224
+    m_Localized: Return
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679785000960
+    m_Localized: CONTROLS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679785000961
+    m_Localized: START
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195264
+    m_Localized: 'Flippers:  Left Arrow / Right Arrow,  A / D,  or Left / Right Mouse
+      Button.
+
+
+      Click START to begin.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195265
+    m_Localized: YOU LEVELED UP!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195266
+    m_Localized: 'Reaching the goal unlocks the SHOP for one visit.
+
+
+      The SHOP
+      button below the board has lit up. Press it now to spend coins on new balls
+      and board upgrades before the next round.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195267
+    m_Localized: WELCOME TO THE SHOP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195268
+    m_Localized: GOT IT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195269
+    m_Localized: 'Drag offers from the shelf onto your hand or onto the board to
+      buy them.
+
+
+      Drag a hand ball onto a shop hub to sell it back for coins.
+
+
+      Hit
+      DONE inside the shop when you''re ready to play the next round.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195270
+    m_Localized: Drag {0} onto a hand slot to buy it.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195271
+    m_Localized: Not enough coins for {0}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195272
+    m_Localized: '{0} can only replace a {1}.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195273
+    m_Localized: Could not place {0}. Coins refunded.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195274
+    m_Localized: Placed {0}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195275
+    m_Localized: Purchase cancelled. Coins refunded.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195276
+    m_Localized: Not enough coins to reroll (${0}).
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195277
+    m_Localized: Rerolling...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195278
+    m_Localized: The merchant is still arriving...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195279
+    m_Localized: Drop onto a bumper, target, or flipper on the board.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195280
+    m_Localized: Drop onto a {0} on the board.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195281
+    m_Localized: Drop onto a hand slot to buy the ball.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195282
+    m_Localized: Could not sell ball.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195283
+    m_Localized: Sold {0} for ${1}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195284
+    m_Localized: Could not move that ball.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195285
+    m_Localized: Ball moved.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195286
+    m_Localized: Click another slot to move the ball there, or the same ball to cancel.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195287
+    m_Localized: Click a {0} on the board to replace with {1}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195288
+    m_Localized: No {0} balls available -- purchase refunded.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195289
+    m_Localized: Loadout full -- could not add ball.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195290
+    m_Localized: 'Mystery revealed: {0}!'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195291
+    m_Localized: Added {0} to loadout.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195292
+    m_Localized: Replaced with {0}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195293
+    m_Localized: No loadout available.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195294
+    m_Localized: Can't sell your last ball.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195295
+    m_Localized: Invalid slot.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195296
+    m_Localized: Could not remove ball.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195297
+    m_Localized: bumper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195298
+    m_Localized: target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195299
+    m_Localized: drop target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195300
+    m_Localized: spinner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195301
+    m_Localized: portal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195302
+    m_Localized: rollover
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195303
+    m_Localized: launcher
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195304
+    m_Localized: flipper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195305
+    m_Localized: kicker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195306
+    m_Localized: other
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195307
+    m_Localized: Common
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195308
+    m_Localized: Uncommon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195309
+    m_Localized: Rare
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195310
+    m_Localized: Epic
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195311
+    m_Localized: Legendary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195312
+    m_Localized: 'Sell Price: ${0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195313
+    m_Localized: You reached Level {0} and scored {1} points!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195314
+    m_Localized: Level {0}
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

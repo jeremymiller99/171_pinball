@@ -1,24 +1,24 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Modules/Module Definition", fileName = "ModuleDefinition_")]
-public sealed class ModuleDefinition : ScriptableObject
+[CreateAssetMenu(menuName = "Artifacts/Artifact Definition", fileName = "ArtifactDefinition_")]
+public sealed class ArtifactDefinition : ScriptableObject
 {
     [Header("Presentation")]
-    [SerializeField] private string displayName = "Module";
+    [SerializeField] private string displayName = "Artifact";
     [TextArea]
     [SerializeField] private string description = "";
     [SerializeField] private Sprite icon;
 
     [Header("Gameplay")]
-    [Tooltip("Prefab that will be spawned/used for this module.")]
+    [Tooltip("Prefab that will be spawned/used for this artifact.")]
     [SerializeField] private GameObject prefab;
 
-    public string DisplayName => displayName;
-    public string Description => description;
+    public string DisplayName => LocalizedContent.Get("artifact", name, "name", displayName);
+    public string Description => LocalizedContent.Get("artifact", name, "desc", description);
     public Sprite Icon => icon;
     public GameObject Prefab => prefab;
 
-    public static ModuleDefinition CreateRuntime(
+    public static ArtifactDefinition CreateRuntime(
         string runtimeId,
         string runtimeDisplayName,
         string runtimeDescription,
@@ -28,10 +28,10 @@ public sealed class ModuleDefinition : ScriptableObject
         GameObject runtimePrefab,
         int runtimePrice)
     {
-        var def = CreateInstance<ModuleDefinition>();
+        var def = CreateInstance<ArtifactDefinition>();
         def.displayName =
             string.IsNullOrWhiteSpace(runtimeDisplayName)
-                ? "Module"
+                ? "Ball"
                 : runtimeDisplayName;
         def.description = runtimeDescription ?? "";
         def.icon = runtimeIcon;
@@ -46,14 +46,15 @@ public sealed class ModuleDefinition : ScriptableObject
 
     public string GetSafeDisplayName()
     {
-        return string.IsNullOrWhiteSpace(displayName) ? "Module" : displayName;
+        var localized = DisplayName;
+        return string.IsNullOrWhiteSpace(localized) ? "Artifact" : localized;
     }
 
     private void OnValidate()
     {
         if (string.IsNullOrWhiteSpace(displayName))
         {
-            displayName = "Module";
+            displayName = "Ball";
         }
     }
 }

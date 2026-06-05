@@ -16,24 +16,33 @@ public sealed class BasicTutorialController : MonoBehaviour
     // hits the shop button).
     // ====================================================================
 
-    private const string firstPlayTitle = "CONTROLS";
-    private const string firstPlayBody =
-        "Flippers:  Left Arrow / Right Arrow,  A / D,  or Left / Right Mouse Button.\n\n"
-        + "Click START to begin.";
-    private const string firstPlayButton = "START";
+    // Localized lazily via the Gameplay table; the literal below each is the English fallback.
+    private static string firstPlayTitle =>
+        LocalizedUI.Get("tutorial.firstPlay.title", "CONTROLS");
+    private static string firstPlayBody =>
+        LocalizedUI.Get("tutorial.firstPlay.body",
+            "Flippers:  Left Arrow / Right Arrow,  A / D,  or Left / Right Mouse Button.\n\n"
+            + "Click START to begin.");
+    private static string firstPlayButton =>
+        LocalizedUI.Get("tutorial.firstPlay.button", "START");
 
-    private const string levelUpTitle = "YOU LEVELED UP!";
-    private const string levelUpBody =
-        "Reaching the goal unlocks the SHOP for one visit.\n\n"
-        + "The SHOP button below the board has lit up. Press it now to spend credits on new balls and "
-        + "board upgrades before the next round.";
+    private static string levelUpTitle =>
+        LocalizedUI.Get("tutorial.levelUp.title", "YOU LEVELED UP!");
+    private static string levelUpBody =>
+        LocalizedUI.Get("tutorial.levelUp.body",
+            "Reaching the goal unlocks the SHOP for one visit.\n\n"
+            + "The SHOP button below the board has lit up. Press it now to spend coins on new balls and "
+            + "board upgrades before the next round.");
 
-    private const string shopTitle = "WELCOME TO THE SHOP";
-    private const string shopBody =
-        "Drag offers from the shelf onto your hand or onto the board to buy them.\n\n"
-        + "Drag a hand ball onto a shop hub to sell it back for credits.\n\n"
-        + "Hit DONE inside the shop when you're ready to play the next round.";
-    private const string shopButton = "GOT IT";
+    private static string shopTitle =>
+        LocalizedUI.Get("tutorial.shop.title", "WELCOME TO THE SHOP");
+    private static string shopBody =>
+        LocalizedUI.Get("tutorial.shop.body",
+            "Drag offers from the shelf onto your hand or onto the board to buy them.\n\n"
+            + "Drag a hand ball onto a shop hub to sell it back for coins.\n\n"
+            + "Hit DONE inside the shop when you're ready to play the next round.");
+    private static string shopButton =>
+        LocalizedUI.Get("tutorial.shop.button", "GOT IT");
 
     // ====================================================================
     // LAYOUT / VISUAL CONSTANTS

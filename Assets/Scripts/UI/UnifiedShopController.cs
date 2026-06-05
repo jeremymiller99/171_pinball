@@ -181,7 +181,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         // Ball offers can only be acquired via drag-and-drop onto a hand slot.
         if (offer.Type == ShopOffer.OfferType.Ball)
         {
-            SetPrompt($"Drag {offer.DisplayName} onto a hand slot to buy it.");
+            SetPrompt(LocalizedUI.Format("gameplay.shop.dragToBuy", "Drag {0} onto a hand slot to buy it.", offer.DisplayName));
             return;
         }
 
@@ -192,6 +192,13 @@ public sealed class UnifiedShopController : MonoBehaviour
         ShowPurchaseConfirmation(offer);
     }
 
+    // Localized lowercase words for enums embedded in shop prompts (fallback = English enum name).
+    private static string TypeWord(BoardComponentType type) =>
+        LocalizedUI.Get($"gameplay.componentType.{type}", type.ToString().ToLower());
+
+    private static string RarityWord(BallRarity rarity) =>
+        LocalizedUI.Get($"gameplay.rarity.{rarity}", rarity.ToString());
+
     public void ConfirmPurchase()
     {
         Debug.Log($"[UnifiedShopController] ConfirmPurchase clicked. selectedOffer={_selectedOffer?.DisplayName}");
@@ -200,7 +207,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (coinController == null || !coinController.TrySpendCoins(_selectedOffer.Price))
         {
             Debug.Log("[UnifiedShopController] Not enough coins.");
-            SetPrompt($"Not enough credits for {_selectedOffer.DisplayName}.");
+            SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughCoinsFor", "Not enough coins for {0}.", _selectedOffer.DisplayName));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             if (confirmPanel != null) confirmPanel.Hide();
             RefreshUI();
@@ -222,7 +229,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (!ShopComponentPlacementController.IsValidPlacementTarget(_selectedOffer, component))
         {
-            SetPrompt($"{_selectedOffer.DisplayName} can only replace a {_selectedOffer.ComponentDef.ComponentType}.");
+            SetPrompt(LocalizedUI.Format("gameplay.shop.canOnlyReplace", "{0} can only replace a {1}.", _selectedOffer.DisplayName, TypeWord(_selectedOffer.ComponentDef.ComponentType)));
             return;
         }
 
@@ -248,7 +255,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (!_placement.ReplaceComponent(_targetComponent, def))
         {
             coinController?.AddCoinsUnscaled(price);
-            SetPrompt($"Could not place {def.GetSafeDisplayName()}. Credits refunded.");
+            SetPrompt(LocalizedUI.Format("gameplay.shop.couldNotPlace", "Could not place {0}. Coins refunded.", def.GetSafeDisplayName()));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             ExitPlacementMode();
             RefreshUI();
@@ -260,7 +267,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         _shelf.ConsumeOffer(_selectedOfferIndex);
         ExitPlacementMode();
 
-        SetPrompt($"Placed {def.GetSafeDisplayName()}.");
+        SetPrompt(LocalizedUI.Format("gameplay.shop.placed", "Placed {0}.", def.GetSafeDisplayName()));
         RefreshUI();
     }
 
@@ -269,7 +276,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (_selectedOffer != null)
         {
             coinController?.AddCoinsUnscaled(_selectedOffer.Price);
-            SetPrompt("Purchase cancelled. Credits refunded.");
+            SetPrompt(LocalizedUI.Get("gameplay.shop.purchaseCancelled", "Purchase cancelled. Coins refunded."));
         }
 
         ExitPlacementMode();
@@ -291,7 +298,7 @@ public sealed class UnifiedShopController : MonoBehaviour
     {
         if (coinController == null || coinController.Coins < rerollCost)
         {
-            SetPrompt($"Not enough credits to reroll (${rerollCost}).");
+            SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughReroll", "Not enough coins to reroll (${0}).", rerollCost));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             RefreshUI();
             return;
@@ -299,7 +306,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (!coinController.TrySpendCoins(rerollCost)) return;
 
-        SetPrompt("Rerolling...");
+        SetPrompt(LocalizedUI.Get("gameplay.shop.rerolling", "Rerolling..."));
         ServiceLocator.Get<AudioManager>()?.PlayReroll();
         RefreshUI();
 
@@ -366,7 +373,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (_spaceship != null && !_spaceship.IsParked)
         {
-            SetPrompt("The merchant is still arriving...");
+            SetPrompt(LocalizedUI.Get("gameplay.shop.merchantArriving", "The merchant is still arriving..."));
             return;
         }
 
@@ -378,13 +385,13 @@ public sealed class UnifiedShopController : MonoBehaviour
             BoardComponent bc = hitObject != null ? hitObject.GetComponentInParent<BoardComponent>() : null;
             if (bc == null)
             {
-                SetPrompt("Drop onto a bumper, target, or flipper on the board.");
+                SetPrompt(LocalizedUI.Get("gameplay.shop.dropOnComponent", "Drop onto a bumper, target, or flipper on the board."));
                 return;
             }
 
             if (!ShopComponentPlacementController.IsValidPlacementTarget(offer, bc))
             {
-                SetPrompt($"Drop {offer.ComponentDef.ComponentType.ToString().ToLower()}s onto {offer.ComponentDef.ComponentType.ToString().ToLower()}s.");
+                SetPrompt(LocalizedUI.Format("gameplay.shop.dropOnMatchingType", "Drop onto a {0} on the board.", TypeWord(offer.ComponentDef.ComponentType)));
                 return;
             }
 
@@ -398,7 +405,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         int dropSlot = ResolveDropSlotIndex(hitObject, worldRay);
         if (dropSlot < 0)
         {
-            SetPrompt("Drop onto a hand slot to buy the ball.");
+            SetPrompt(LocalizedUI.Get("gameplay.shop.dropToBuyBall", "Drop onto a hand slot to buy the ball."));
             return;
         }
 
@@ -441,7 +448,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         // about to be rerolled — reject drags until it parks.
         if (_spaceship != null && !_spaceship.IsParked)
         {
-            SetPrompt("The merchant is still arriving...");
+            SetPrompt(LocalizedUI.Get("gameplay.shop.merchantArriving", "The merchant is still arriving..."));
             return;
         }
 
@@ -553,7 +560,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (!hub.TrySellBall(slot, out BallDefinition sold, out int refund, out string failReason))
         {
-            SetPrompt(string.IsNullOrEmpty(failReason) ? "Could not sell ball." : failReason);
+            SetPrompt(string.IsNullOrEmpty(failReason) ? LocalizedUI.Get("gameplay.shop.couldNotSell", "Could not sell ball.") : failReason);
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             return;
         }
@@ -570,7 +577,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         }
 
         ServiceLocator.Get<AudioManager>()?.PlayPurchase();
-        SetPrompt($"Sold {sold.GetSafeDisplayName()} for ${refund}.");
+        SetPrompt(LocalizedUI.Format("gameplay.shop.sold", "Sold {0} for ${1}.", sold.GetSafeDisplayName(), refund));
         RefreshUI();
     }
 
@@ -585,14 +592,14 @@ public sealed class UnifiedShopController : MonoBehaviour
         bool moved = lc.MoveBallInLoadout(fromSlot, toSlot);
         if (!moved)
         {
-            SetPrompt("Could not move that ball.");
+            SetPrompt(LocalizedUI.Get("gameplay.shop.couldNotMove", "Could not move that ball."));
             return;
         }
 
         if (ballSpawner != null) ballSpawner.MoveHandBallAnimated(fromSlot, toSlot);
         
         ServiceLocator.Get<AudioManager>()?.PlaySwapSlot();
-        SetPrompt("Ball moved.");
+        SetPrompt(LocalizedUI.Get("gameplay.shop.ballMoved", "Ball moved."));
     }
 
     #endregion
@@ -607,7 +614,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (selected < 0)
         {
             _hand.SetSwapSelectedSlot(slotIndex);
-            SetPrompt("Click another slot to move the ball there, or the same ball to cancel.");
+            SetPrompt(LocalizedUI.Get("gameplay.shop.moveHint", "Click another slot to move the ball there, or the same ball to cancel."));
             return;
         }
 
@@ -628,21 +635,21 @@ public sealed class UnifiedShopController : MonoBehaviour
         bool moved = lc.MoveBallInLoadout(slotFrom, slotTo);
         if (!moved)
         {
-            SetPrompt("Could not move that ball.");
+            SetPrompt(LocalizedUI.Get("gameplay.shop.couldNotMove", "Could not move that ball."));
             return;
         }
 
         if (ballSpawner != null) ballSpawner.MoveHandBallAnimated(slotFrom, slotTo);
 
         ServiceLocator.Get<AudioManager>()?.PlaySwapSlot();
-        SetPrompt("Ball moved.");
+        SetPrompt(LocalizedUI.Get("gameplay.shop.ballMoved", "Ball moved."));
     }
 
     private void EnterComponentPlacementMode()
     {
         CurrentState = ShopState.PlacingComponent;
         _placement.SetSelectionStateForPlacement(_selectedOffer.ComponentDef.ComponentType);
-        SetPrompt($"Click a {_selectedOffer.ComponentDef.ComponentType} on the board to replace with {_selectedOffer.DisplayName}.");
+        SetPrompt(LocalizedUI.Format("gameplay.shop.clickToReplace", "Click a {0} on the board to replace with {1}.", TypeWord(_selectedOffer.ComponentDef.ComponentType), _selectedOffer.DisplayName));
         RefreshUI();
     }
 
@@ -674,7 +681,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (coinController == null || !coinController.TrySpendCoins(offer.Price))
         {
-            SetPrompt($"Not enough credits for {offer.DisplayName}.");
+            SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughCoinsFor", "Not enough coins for {0}.", offer.DisplayName));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             RefreshUI();
             return;
@@ -691,7 +698,7 @@ public sealed class UnifiedShopController : MonoBehaviour
             if (ballToGrant == null)
             {
                 coinController?.AddCoinsUnscaled(offer.Price);
-                SetPrompt($"No {mystery.TargetRarity} balls available -- purchase refunded.");
+                SetPrompt(LocalizedUI.Format("gameplay.shop.noRarityBalls", "No {0} balls available -- purchase refunded.", RarityWord(mystery.TargetRarity)));
                 ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
                 RefreshUI();
                 return;
@@ -703,7 +710,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (!loadoutCtrl.InsertBallIntoLoadout(insertSlot, ballToGrant))
         {
             coinController?.AddCoinsUnscaled(offer.Price);
-            SetPrompt("Loadout full -- could not add ball.");
+            SetPrompt(LocalizedUI.Get("gameplay.shop.loadoutFull", "Loadout full -- could not add ball."));
             RefreshUI();
             return;
         }
@@ -719,11 +726,11 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (wasMystery)
         {
-            SetPrompt($"Mystery revealed: {ballToGrant.GetSafeDisplayName()}!");
+            SetPrompt(LocalizedUI.Format("gameplay.shop.mysteryRevealed", "Mystery revealed: {0}!", ballToGrant.GetSafeDisplayName()));
         }
         else
         {
-            SetPrompt($"Added {offer.DisplayName} to loadout.");
+            SetPrompt(LocalizedUI.Format("gameplay.shop.addedToLoadout", "Added {0} to loadout.", offer.DisplayName));
         }
 
         RefreshUI();
@@ -805,7 +812,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (coinController == null || !coinController.TrySpendCoins(offer.Price))
         {
-            SetPrompt($"Not enough credits for {offer.DisplayName}.");
+            SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughCoinsFor", "Not enough coins for {0}.", offer.DisplayName));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             if (confirmPanel != null) confirmPanel.Hide();
             RefreshUI();
@@ -862,7 +869,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (coinController == null || !coinController.TrySpendCoins(offer.Price))
         {
-            SetPrompt($"Not enough credits for {offer.DisplayName}.");
+            SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughCoinsFor", "Not enough coins for {0}.", offer.DisplayName));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             if (confirmPanel != null) confirmPanel.Hide();
             RefreshUI();
@@ -890,7 +897,7 @@ public sealed class UnifiedShopController : MonoBehaviour
             ballSpawner.ReplaceBallAnimated(slotIndex, newDef.Prefab);
         }
 
-        SetPrompt($"Replaced with {newDef.GetSafeDisplayName()}.");
+        SetPrompt(LocalizedUI.Format("gameplay.shop.replacedWith", "Replaced with {0}.", newDef.GetSafeDisplayName()));
         RefreshUI();
     }
 

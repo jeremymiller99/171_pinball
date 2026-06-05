@@ -172,15 +172,17 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         vlg.padding = new RectOffset(24, 24, 24, 24);
 
         BuildLabel(_entryPanel.transform,
-            _wasWin ? "RUN COMPLETE" : "RUN ENDED",
+            _wasWin
+                ? LocalizedUI.Get("gameplay.leaderboard.runComplete", "RUN COMPLETE")
+                : LocalizedUI.Get("gameplay.leaderboard.runEnded", "RUN ENDED"),
             titleFontSize, FontStyles.Bold, TextAlignmentOptions.Center);
 
         BuildLabel(_entryPanel.transform,
-            "Score: " + FormatScore(_score),
+            LocalizedUI.Format("gameplay.leaderboard.score", "Score: {0}", FormatScore(_score)),
             scoreFontSize, FontStyles.Bold, TextAlignmentOptions.Center);
 
         BuildLabel(_entryPanel.transform,
-            "Enter your name:",
+            LocalizedUI.Get("gameplay.leaderboard.enterName", "Enter your name:"),
             labelFontSize, FontStyles.Normal, TextAlignmentOptions.Center);
 
         BuildNameInput(_entryPanel.transform);
@@ -226,7 +228,7 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         phRt.offsetMax = Vector2.zero;
 
         var phTmp = placeholder.GetComponent<TextMeshProUGUI>();
-        phTmp.text = "Name...";
+        phTmp.text = LocalizedUI.Get("gameplay.leaderboard.namePlaceholder", "Name...");
         phTmp.fontSize = 28f;
         phTmp.color = new Color(0.7f, 0.7f, 0.7f, 0.6f);
         phTmp.alignment = TextAlignmentOptions.Left;
@@ -265,7 +267,7 @@ public sealed class LeaderboardPanelController : MonoBehaviour
 
     private void BuildSubmitButton(Transform parent)
     {
-        var go = BuildButton(parent, "SubmitButton", "SUBMIT SCORE", OnSubmit);
+        var go = BuildButton(parent, "SubmitButton", LocalizedUI.Get("gameplay.leaderboard.submit", "SUBMIT SCORE"), OnSubmit);
 
         if (_nameInput != null)
         {
@@ -342,19 +344,19 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         string headerText;
         if (_isReadOnly)
         {
-            headerText = "LEADERBOARD";
+            headerText = LocalizedUI.Get("gameplay.leaderboard.title", "LEADERBOARD");
         }
         else
         {
             headerText = _submittedRank > 0
-                ? "YOUR RANK: #" + _submittedRank
-                : "LEADERBOARD";
+                ? LocalizedUI.Format("gameplay.leaderboard.yourRank", "YOUR RANK: #{0}", _submittedRank)
+                : LocalizedUI.Get("gameplay.leaderboard.title", "LEADERBOARD");
         }
 
         BuildLabel(_listPanel.transform, headerText,
             titleFontSize, FontStyles.Bold, TextAlignmentOptions.Center);
 
-        BuildLabel(_listPanel.transform, "TOP " + maxRowsShown,
+        BuildLabel(_listPanel.transform, LocalizedUI.Format("gameplay.leaderboard.top", "TOP {0}", maxRowsShown),
             labelFontSize, FontStyles.Bold, TextAlignmentOptions.Center);
 
         var top = LocalLeaderboard.GetTopEntries(maxRowsShown);
@@ -370,7 +372,9 @@ public sealed class LeaderboardPanelController : MonoBehaviour
                 FontStyles.Italic, TextAlignmentOptions.Center);
         }
 
-        string buttonLabel = _isReadOnly ? "BACK" : "CONTINUE";
+        string buttonLabel = _isReadOnly
+            ? LocalizedUI.Get("gameplay.leaderboard.back", "BACK")
+            : LocalizedUI.Get("gameplay.leaderboard.continue", "CONTINUE");
         BuildButton(_listPanel.transform, "ContinueButton", buttonLabel, OnContinue);
     }
 
@@ -406,7 +410,7 @@ public sealed class LeaderboardPanelController : MonoBehaviour
             TextAlignmentOptions.Left, highlight);
         BuildRowCell(row.transform, FormatScore(entry.score), 200f,
             TextAlignmentOptions.Right, highlight);
-        BuildRowCell(row.transform, "Lv " + entry.levelReached, 80f,
+        BuildRowCell(row.transform, LocalizedUI.Format("gameplay.leaderboard.levelShort", "Lv {0}", entry.levelReached), 80f,
             TextAlignmentOptions.Right, highlight);
     }
 

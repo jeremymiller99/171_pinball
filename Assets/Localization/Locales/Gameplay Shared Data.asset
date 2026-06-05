@@ -103,6 +103,314 @@ MonoBehaviour:
     m_Key: gameplay.debugBody
     m_Metadata:
       m_Items: []
+  - m_Id: 687095113834496
+    m_Key: mainMenu.saveSlot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583232
+    m_Key: mainMenu.save
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679747252224
+    m_Key: mainMenu.return
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583233
+    m_Key: mainMenu.progressionTitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583234
+    m_Key: mainMenu.progression.totalScore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583235
+    m_Key: mainMenu.progression.nextUnlock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583236
+    m_Key: mainMenu.progression.allUnlocked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583237
+    m_Key: mainMenu.progression.locked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583238
+    m_Key: gameplay.shopHub.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583239
+    m_Key: gameplay.shopHub.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526853177344
+    m_Key: gameplay.gameOver.time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731776
+    m_Key: gameplay.gameOver.hits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731777
+    m_Key: gameplay.leaderboard.runComplete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731778
+    m_Key: gameplay.leaderboard.runEnded
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731779
+    m_Key: gameplay.leaderboard.score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731780
+    m_Key: gameplay.leaderboard.enterName
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731781
+    m_Key: gameplay.leaderboard.namePlaceholder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926080
+    m_Key: gameplay.leaderboard.submit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926081
+    m_Key: gameplay.leaderboard.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926082
+    m_Key: gameplay.leaderboard.yourRank
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926083
+    m_Key: gameplay.leaderboard.top
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926084
+    m_Key: gameplay.leaderboard.back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926085
+    m_Key: gameplay.leaderboard.continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926086
+    m_Key: gameplay.leaderboard.levelShort
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679785000960
+    m_Key: tutorial.firstPlay.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679785000961
+    m_Key: tutorial.firstPlay.button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195264
+    m_Key: tutorial.firstPlay.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195265
+    m_Key: tutorial.levelUp.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195266
+    m_Key: tutorial.levelUp.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195267
+    m_Key: tutorial.shop.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195268
+    m_Key: tutorial.shop.button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195269
+    m_Key: tutorial.shop.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195270
+    m_Key: gameplay.shop.dragToBuy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195271
+    m_Key: gameplay.shop.notEnoughCoinsFor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195272
+    m_Key: gameplay.shop.canOnlyReplace
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195273
+    m_Key: gameplay.shop.couldNotPlace
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195274
+    m_Key: gameplay.shop.placed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195275
+    m_Key: gameplay.shop.purchaseCancelled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195276
+    m_Key: gameplay.shop.notEnoughReroll
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195277
+    m_Key: gameplay.shop.rerolling
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195278
+    m_Key: gameplay.shop.merchantArriving
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195279
+    m_Key: gameplay.shop.dropOnComponent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195280
+    m_Key: gameplay.shop.dropOnMatchingType
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195281
+    m_Key: gameplay.shop.dropToBuyBall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195282
+    m_Key: gameplay.shop.couldNotSell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195283
+    m_Key: gameplay.shop.sold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195284
+    m_Key: gameplay.shop.couldNotMove
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195285
+    m_Key: gameplay.shop.ballMoved
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195286
+    m_Key: gameplay.shop.moveHint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195287
+    m_Key: gameplay.shop.clickToReplace
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195288
+    m_Key: gameplay.shop.noRarityBalls
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195289
+    m_Key: gameplay.shop.loadoutFull
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195290
+    m_Key: gameplay.shop.mysteryRevealed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195291
+    m_Key: gameplay.shop.addedToLoadout
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195292
+    m_Key: gameplay.shop.replacedWith
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195293
+    m_Key: gameplay.shop.noLoadout
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195294
+    m_Key: gameplay.shop.cantSellLast
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195295
+    m_Key: gameplay.shop.invalidSlot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195296
+    m_Key: gameplay.shop.couldNotRemove
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195297
+    m_Key: gameplay.componentType.Bumper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195298
+    m_Key: gameplay.componentType.Target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195299
+    m_Key: gameplay.componentType.DropTarget
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195300
+    m_Key: gameplay.componentType.Spinner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195301
+    m_Key: gameplay.componentType.Portal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195302
+    m_Key: gameplay.componentType.Rollover
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195303
+    m_Key: gameplay.componentType.Launcher
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195304
+    m_Key: gameplay.componentType.Flipper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195305
+    m_Key: gameplay.componentType.Kicker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195306
+    m_Key: gameplay.componentType.Other
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195307
+    m_Key: gameplay.rarity.Common
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195308
+    m_Key: gameplay.rarity.Uncommon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195309
+    m_Key: gameplay.rarity.Rare
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195310
+    m_Key: gameplay.rarity.Epic
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195311
+    m_Key: gameplay.rarity.Legendary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195312
+    m_Key: gameplay.sellPrice
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195313
+    m_Key: gameplay.runSummary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195314
+    m_Key: gameplay.levelNum
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

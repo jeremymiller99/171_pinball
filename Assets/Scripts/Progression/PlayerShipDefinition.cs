@@ -2,6 +2,7 @@
 // elementType, shopPriceMultiplier for shop/catalog parity with balls/components.
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Defines a playable ship that a player can select before starting a challenge run.
@@ -11,10 +12,14 @@ using UnityEngine;
 public class PlayerShipDefinition : ScriptableObject
 {
     [Header("Display")]
-    public string displayName = "New Ship";
-    
+    [SerializeField, FormerlySerializedAs("displayName")] private string displayNameSource = "New Ship";
+
     [TextArea(2, 4)]
-    public string description = "A reliable generic spacecraft.";
+    [SerializeField, FormerlySerializedAs("description")] private string descriptionSource = "A reliable generic spacecraft.";
+
+    // Localized accessors; source text above is the English fallback.
+    public string displayName => LocalizedContent.Get("ship", name, "name", displayNameSource);
+    public string description => LocalizedContent.Get("ship", name, "desc", descriptionSource);
 
     [Tooltip("Optional 3D model prefab to show in the UI or board.")]
     public GameObject shipModelPrefab;

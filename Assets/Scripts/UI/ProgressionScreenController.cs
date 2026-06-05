@@ -621,7 +621,7 @@ public sealed class ProgressionScreenController
 
         var llText =
             lockLabel.GetComponent<TextMeshProUGUI>();
-        llText.text = "LOCKED";
+        llText.text = LocalizedUI.Get("mainMenu.progression.locked", "LOCKED");
         llText.fontSize = 22f;
         llText.alignment =
             TextAlignmentOptions.Center;
@@ -1018,8 +1018,10 @@ public sealed class ProgressionScreenController
 
         if (xpTotalText != null)
         {
-            xpTotalText.text =
-                $"Total Score Earned: {FormatXp(xp)}";
+            xpTotalText.text = LocalizedUI.Format(
+                "mainMenu.progression.totalScore",
+                "Total Score Earned: {0}",
+                FormatXp(xp));
         }
 
         if (nextUnlockText != null)
@@ -1038,14 +1040,16 @@ public sealed class ProgressionScreenController
                 string rewardName =
                     GetTierRewardName(next);
 
-                nextUnlockText.text =
-                    $"Next: {rewardName}"
-                    + $" in {FormatXp(remaining)}";
+                nextUnlockText.text = LocalizedUI.Format(
+                    "mainMenu.progression.nextUnlock",
+                    "Next: {0} in {1}",
+                    rewardName, FormatXp(remaining));
             }
             else
             {
-                nextUnlockText.text =
-                    "All rewards unlocked!";
+                nextUnlockText.text = LocalizedUI.Get(
+                    "mainMenu.progression.allUnlocked",
+                    "All rewards unlocked!");
             }
         }
     }

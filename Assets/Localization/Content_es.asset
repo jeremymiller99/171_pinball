@@ -1,0 +1,599 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Content_es
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: es
+  m_SharedData: {fileID: 11400000, guid: b969762ce2c366b458bd451fb8cf69fe, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 36673937408
+    m_Localized: Bola 8
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36715880448
+    m_Localized: "x3 puntos cada 8\xBA golpe de componente."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36715880449
+    m_Localized: Amplificar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074752
+    m_Localized: "Un solo uso. Al primer golpe de componente, se destruye y amplifica
+      permanentemente la bola en cola detr\xE1s de ella (25% de probabilidad por
+      golpe de dar +0.1 mult)."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074753
+    m_Localized: Azul Dos
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074754
+    m_Localized: "Punt\xFAa 2x puntos."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074755
+    m_Localized: Bola de Inconveniente Menor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074756
+    m_Localized: "Punt\xFAa 1.5x pero cada 10\xBA golpe la puntuaci\xF3n se invierte
+      y resta."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074757
+    m_Localized: Confeti
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074758
+    m_Localized: "Cada 4 golpes de componente, genera 3 minibolas coloridas que estallan
+      tras 3 golpes. Hasta 4 r\xE1fagas por bola."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074759
+    m_Localized: Bizca
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074760
+    m_Localized: Invierte los controles de las paletas. Duplica el mult ganado por
+      golpes al tablero.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074761
+    m_Localized: Huevo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074762
+    m_Localized: "Se rompe en la primera colisi\xF3n. Duplica los efectos de la bola
+      que se lanza despu\xE9s."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074763
+    m_Localized: Ojo en el Premio
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074764
+    m_Localized: "Genera 10 bolas blancas y 1 bola roja. Las bolas blancas punt\xFAan
+      x0.25 pero la roja punt\xFAa x3."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074765
+    m_Localized: Engranaje
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074766
+    m_Localized: "El mult ganado por las dianas del tablero se multiplica por cu\xE1ntas
+      bolas Engranaje hay en tu inventario. Clase amplificadora."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074767
+    m_Localized: Bola de Golf
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074768
+    m_Localized: "El primer golpe te da 500 puntos y x2 mult. Cada vez que golpeas
+      un componente del tablero despu\xE9s, pierdes 10 puntos y .1 mult."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074769
+    m_Localized: Inversor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074770
+    m_Localized: Gana +$1 por cada 12 componentes golpeados.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074771
+    m_Localized: "Comod\xEDn"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074772
+    m_Localized: "Punt\xFAa 1.25x."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074773
+    m_Localized: Leprechaun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074774
+    m_Localized: Gana +$1 por cada 5 componentes golpeados.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074775
+    m_Localized: 7 de la Suerte
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074776
+    m_Localized: "x2 puntos cada 7\xBA golpe de componente."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074777
+    m_Localized: "Mu\xF1eca Matrioska"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074778
+    m_Localized: "Cada 10 golpes de componente, se divide en dos copias m\xE1s peque\xF1as.
+      Cada copia puede dividirse una vez m\xE1s \u2014 hasta cuatro bolas diminutas.
+      Clase divisora."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074779
+    m_Localized: "Bola Com\xFAn Misteriosa"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074780
+    m_Localized: "Revela una bola Com\xFAn aleatoria al a\xF1adirse a tu inventario."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074781
+    m_Localized: "Bola Poco Com\xFAn Misteriosa"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074782
+    m_Localized: "Revela una bola Poco Com\xFAn aleatoria al a\xF1adirse a tu inventario."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074783
+    m_Localized: Hucha
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074784
+    m_Localized: "Se rompe en el primer golpe que punt\xFAa y paga su valor de venta
+      en monedas. Gana +$3 de valor de venta cada ronda mientras est\xE9 en tu inventario."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074785
+    m_Localized: Pinball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074786
+    m_Localized: "Pinball est\xE1ndar, nada especial aqu\xED."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074787
+    m_Localized: Pitball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074788
+    m_Localized: "Gana +0.1 mult cada 5 segundos mientras est\xE1 en juego."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074789
+    m_Localized: "Bola de R\xE1quet"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074790
+    m_Localized: "A\xF1ade mult cada vez que golpeas la bola con una paleta."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074791
+    m_Localized: Rojo Dos
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074792
+    m_Localized: "Punt\xFAa 2x multiplicador."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074793
+    m_Localized: "Dispersi\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074794
+    m_Localized: "Se divide en dos bolas al 5\xBA golpe de componente. Dos es mejor
+      que una, \xBFverdad?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074795
+    m_Localized: Bola de Nieve
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074796
+    m_Localized: "Cada golpe al tablero de tipo puntos punt\xFAa con tu multiplicador
+      de puntos actual, y luego aumenta ese multiplicador en 1. Clase atacante."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074797
+    m_Localized: Suspense
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074798
+    m_Localized: "La mejora de puntuaci\xF3n aumenta exponencialmente cuanto m\xE1s
+      tiempo no uses las paletas del pinball. La mejora se reinicia al usar la paleta."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074799
+    m_Localized: Tenzo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074800
+    m_Localized: "Cada 10 golpes de componente, da +100 pts +0.2 mult. los dem\xE1s
+      golpes no punt\xFAan."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074801
+    m_Localized: Bola de Pared
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074802
+    m_Localized: "Punt\xFAa +1 punto por cada golpe a la pared."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074803
+    m_Localized: "M\xF3dulo de Ingresos Activos"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074804
+    m_Localized: "Este m\xF3dulo reduce a la mitad todas las monedas obtenidas al
+      subir de nivel y duplica todas las monedas obtenidas de pinballs y componentes
+      de tipo mint."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074805
+    m_Localized: "M\xF3dulo de Divisi\xF3n Extra"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074806
+    m_Localized: "Este m\xF3dulo hace que las bolas de tipo divisor generen un pinball
+      extra."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074807
+    m_Localized: "M\xF3dulo Multiplicador"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074808
+    m_Localized: "Este m\xF3dulo reduce a la mitad todos los puntos recibidos y duplica
+      todo el mult recibido."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074809
+    m_Localized: Bumper Bomba
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074810
+    m_Localized: "Cada 15 veces que golpean este bumper, explota y punt\xFAa los
+      puntos de todos los componentes que lo rodean, \xA1incluido \xE9l mismo!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074811
+    m_Localized: Diana Bomba
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074812
+    m_Localized: "Cada 15 veces que golpean esta diana, explota y punt\xFAa los puntos
+      de todos los componentes que la rodean, \xA1incluida ella misma!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074813
+    m_Localized: Bumper Casino
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269056
+    m_Localized: "Cada 3 veces que golpean este bumper, a\xF1ade entre 1 y 20 puntos
+      extra a la puntuaci\xF3n."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269057
+    m_Localized: Diana Casino
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269058
+    m_Localized: "Cada 3 veces que golpean esta diana, a\xF1ade entre 0.1 y 0.5 de
+      mult extra a la puntuaci\xF3n."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269059
+    m_Localized: "Bumper Est\xE1ndar"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269060
+    m_Localized: "Punt\xFAa 5 puntos al ser golpeado."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269061
+    m_Localized: Paleta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269062
+    m_Localized: Impulsa la bola hacia arriba del tablero.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269063
+    m_Localized: Lanzador
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269064
+    m_Localized: "Punt\xFAa 5 puntos al ser golpeado."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269065
+    m_Localized: "Diana Est\xE1ndar"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269066
+    m_Localized: "Diana est\xE1ndar, punt\xFAa 0.1 mult."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269067
+    m_Localized: Diana Abatible
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269068
+    m_Localized: "Al golpearla, punt\xFAa 0.2x mult y se abate durante 15 segundos."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269069
+    m_Localized: Bumper Duplicador
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269070
+    m_Localized: "Cada 10 veces que golpean este bumper, crea un duplicado de la
+      bola que lo golpe\xF3, que solo puede golpear un componente 10 veces antes
+      de destruirse."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269071
+    m_Localized: Diana Duplicadora
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269072
+    m_Localized: "Cada 10 veces que golpean esta diana, crea un duplicado de la bola
+      que la golpe\xF3, que solo puede golpear un componente 10 veces antes de destruirse."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269073
+    m_Localized: Bumper de Fuego
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269074
+    m_Localized: "Si golpean este bumper 3 veces en 10 segundos, se 'incendia', triplicando
+      todos los puntos. \xA1Sigue golpe\xE1ndolo para mantener el fuego!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269075
+    m_Localized: Diana de Fuego
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269076
+    m_Localized: "Si golpean esta diana 3 veces en 10 segundos, se 'incendia', triplicando
+      todos los puntos. \xA1Sigue golpe\xE1ndola para mantener el fuego!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269077
+    m_Localized: "Duplicador de Modo Frenes\xED"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269078
+    m_Localized: "Al entrar la bola, inicia el modo frenes\xED y duplica la bola
+      que entr\xF3."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269079
+    m_Localized: Bumper Congelado
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269080
+    m_Localized: "Comienza congelado e incapaz de puntuar. Tras ser golpeado 15 veces,
+      se descongela permanentemente y punt\xFAa el doble."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269081
+    m_Localized: Diana Congelada
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269082
+    m_Localized: "Comienza congelada e incapaz de puntuar. Tras ser golpeada 15 veces,
+      se descongela permanentemente y punt\xFAa el doble."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269083
+    m_Localized: Rollover
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269084
+    m_Localized: "Punt\xFAa 2 puntos cuando la bola pasa sobre \xE9l."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269085
+    m_Localized: Paleta de Puntos
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269086
+    m_Localized: "Punt\xFAa 1 punto cuando la bola pasa sobre ella."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269087
+    m_Localized: Entrada de Portal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269088
+    m_Localized: "Punt\xFAa 25 puntos. Lanza la bola a trav\xE9s de la salida del
+      portal."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269089
+    m_Localized: Salida de Portal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269090
+    m_Localized: "La bola se lanza desde aqu\xED cuando se env\xEDa a trav\xE9s de
+      la Entrada de Portal."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269091
+    m_Localized: Paleta de Variedad
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269092
+    m_Localized: "Da 5 puntos cada vez que la golpea una bola distinta a la anterior,
+      aumentando en 5 cada vez que esto ocurre en sucesi\xF3n."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269093
+    m_Localized: OG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269094
+    m_Localized: Completa el tablero OG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269095
+    m_Localized: Alcanza el Nivel 7
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269096
+    m_Localized: Vuelo de Prueba
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269097
+    m_Localized: Ideal para principiantes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269098
+    m_Localized: 3 Estrellas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269099
+    m_Localized: Spinners
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269100
+    m_Localized: Completa el tablero Spinners
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269101
+    m_Localized: Supera 10 rondas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269102
+    m_Localized: Multiplicador Maldito
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269103
+    m_Localized: Las ganancias de multiplicador se reducen un 50% esta ronda.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269104
+    m_Localized: Apuestas Altas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269105
+    m_Localized: El requisito del objetivo aumenta un 50%.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269106
+    m_Localized: Pobreza
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269107
+    m_Localized: "No se pueden ganar cr\xE9ditos esta ronda."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269108
+    m_Localized: "D\xEDa de Mala Suerte"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269109
+    m_Localized: Se aplican dos modificadores del diablo aleatorios esta ronda.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269110
+    m_Localized: Debilitado
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269111
+    m_Localized: Los puntos ganados se reducen un 50%.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269112
+    m_Localized: Loric F1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269113
+    m_Localized: "Una nave espacial gen\xE9rica y fiable."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269114
+    m_Localized: Silverwolf
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269115
+    m_Localized: "1.5x cr\xE9ditos ganados pero tambi\xE9n 1.5x la puntuaci\xF3n
+      necesaria para subir de nivel cada ronda. Comienza cada partida con 1 Inversor."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269116
+    m_Localized: OG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269117
+    m_Localized: "\xA1ARTE NUEVO!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269118
+    m_Localized: Spinners
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282582888448
+    m_Localized: Atacante
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442880
+    m_Localized: Amplificador
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442881
+    m_Localized: "Acu\xF1ador"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442882
+    m_Localized: Divisor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442883
+    m_Localized: "Anomal\xEDa"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442884
+    m_Localized: Catalizador
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442885
+    m_Localized: Artefacto
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

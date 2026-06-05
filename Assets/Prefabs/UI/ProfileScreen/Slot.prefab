@@ -729,7 +729,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProfileSlotEntryUI
   slotId: 0
-  slotLabelText: {fileID: 0}
+  slotLabelText: {fileID: 216004051587578068}
   pointsText: {fileID: 3542231601089776823}
   winsText: {fileID: 6713039164005117339}
   displayNameText: {fileID: 0}

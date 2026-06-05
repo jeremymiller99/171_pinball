@@ -29,8 +29,8 @@ public class BallDefinition : ScriptableObject
     [SerializeField] private int price = 10;
 
     public string Id => id;
-    public string DisplayName => displayName;
-    public string Description => description;
+    public string DisplayName => LocalizedContent.Get("ball", name, "name", displayName);
+    public string Description => LocalizedContent.Get("ball", name, "desc", description);
     public BallRarity Rarity => rarity;
     public ElementType ElementType => elementType;
     public Sprite Icon => icon;
@@ -69,7 +69,8 @@ public class BallDefinition : ScriptableObject
 
     public string GetSafeDisplayName()
     {
-        return string.IsNullOrWhiteSpace(displayName) ? "Ball" : displayName;
+        var localized = DisplayName;
+        return string.IsNullOrWhiteSpace(localized) ? "Ball" : localized;
     }
 
     private void OnValidate()

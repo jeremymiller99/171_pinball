@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Data for a board that can be loaded additively as a scene.
@@ -16,7 +17,10 @@ public sealed class BoardDefinition : ScriptableObject
     }
 
     [Header("Identity")]
-    public string displayName = "Board";
+    [SerializeField, FormerlySerializedAs("displayName")] private string displayNameSource = "Board";
+
+    // Localized accessor; source text above is the English fallback. Board name only.
+    public string displayName => LocalizedContent.Get("board", name, "name", displayNameSource);
 
     [Tooltip("Scene name to load additively (must be in Build Settings). Example: Board_Alpha")]
     public string boardSceneName = "Board_Alpha";

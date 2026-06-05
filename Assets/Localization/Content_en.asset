@@ -1,0 +1,590 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Content_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: b969762ce2c366b458bd451fb8cf69fe, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 36673937408
+    m_Localized: 8 Ball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36715880448
+    m_Localized: x3 score every 8th component hit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36715880449
+    m_Localized: Amp Up
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074752
+    m_Localized: One use. On first component hit, destroys itself and permanently
+      amps up the ball queued behind it (25% chance per hit to give +0.1 mult).
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074753
+    m_Localized: Blue Two
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074754
+    m_Localized: Scores 2x points.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074755
+    m_Localized: Ball of Minor Inconvenience
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074756
+    m_Localized: Scores 1.5x but every 10th hit the score is inverted and subtracts.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074757
+    m_Localized: Confetti
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074758
+    m_Localized: Every 4 component hits, spawns 3 colorful mini-balls that pop after
+      3 hits. Up to 4 bursts per ball.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074759
+    m_Localized: Cross-Eyed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074760
+    m_Localized: Swaps flipper inputs. Doubles mult gained from board hits.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074761
+    m_Localized: Egg
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074762
+    m_Localized: Breaks on first collision. Doubles the effects of the ball that
+      shoots after it.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074763
+    m_Localized: Eye on the Prize
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074764
+    m_Localized: Spawn 10 white balls and 1 red ball. The white balls score x0.25
+      but the red one scores x3.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074765
+    m_Localized: Gear
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074766
+    m_Localized: Mult gained from board targets is multiplied by how many Gear balls
+      are in your loadout. Amplifier class.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074767
+    m_Localized: Golf Ball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074768
+    m_Localized: Ball first hit gives you 500 points and x2 mult. Everytime you hit
+      a board component after that, you lose 10 points and .1 mult.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074769
+    m_Localized: Investor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074770
+    m_Localized: Earn +$1 for every 12 components hit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074771
+    m_Localized: Joker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074772
+    m_Localized: Scores 1.25x.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074773
+    m_Localized: Leprechaun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074774
+    m_Localized: Earn +$1 for every 5 components hit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074775
+    m_Localized: Lucky 7
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074776
+    m_Localized: x2 score every 7th component hit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074777
+    m_Localized: Matryoshka Doll
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074778
+    m_Localized: "Every 10 component hits, splits into two smaller copies. Each copy
+      can split once more \u2014 up to four tiny balls. Splitter class."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074779
+    m_Localized: Mystery Common Ball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074780
+    m_Localized: Reveals a random Common ball when added to your loadout.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074781
+    m_Localized: Mystery Uncommon Ball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074782
+    m_Localized: Reveals a random Uncommon ball when added to your loadout.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074783
+    m_Localized: Piggy Bank
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074784
+    m_Localized: Breaks on first scoring hit and pays shop sell value in coins. Gains
+      +$3 sell value each round while in your loadout.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074785
+    m_Localized: Pinball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074786
+    m_Localized: Standard pinball, nothing special here.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074787
+    m_Localized: Pitball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074788
+    m_Localized: Gains +0.1 mult every 5 seconds while in play.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074789
+    m_Localized: Racket Ball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074790
+    m_Localized: Adds mult everytime you hit the ball with a flipper.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074791
+    m_Localized: Red Two
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074792
+    m_Localized: Scores 2x multiplier.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074793
+    m_Localized: Scatter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074794
+    m_Localized: Splits into two balls on 5th component hit. Two is better than one
+      right?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074795
+    m_Localized: Snowball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074796
+    m_Localized: Each points-type board hit scores with your current point multiplier,
+      then increases that multiplier by 1. Striker class.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074797
+    m_Localized: Suspense
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074798
+    m_Localized: Scoring buff increases exponentially the longer you don't use the
+      pinball flippers. Buff resets when the flipper is used.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074799
+    m_Localized: Tenzo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074800
+    m_Localized: Every 10 component hits, give +100 pts +0.2 mult. all other hits
+      don't score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074801
+    m_Localized: Wall Ball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074802
+    m_Localized: Scores +1 point for every wall hit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074803
+    m_Localized: Active Income Module
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074804
+    m_Localized: This module halves all coins gotten from level ups and doubles all
+      coins gotten from mint type pinballs and components.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074805
+    m_Localized: Extra Split Module
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074806
+    m_Localized: This module makes splitter type balls spawn one extra pinball.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074807
+    m_Localized: Multiplier Module
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074808
+    m_Localized: This module halves all points recieved and doubles all mult recieved.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074809
+    m_Localized: Bomb Bumper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074810
+    m_Localized: Every 15 times this bumper gets hit, it explodes and scores points
+      from all the components surrounding it, including itself!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074811
+    m_Localized: Bomb Target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074812
+    m_Localized: Every 15 times this target gets hit, it explodes and scores points
+      from all the components surrounding it, including itself!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074813
+    m_Localized: Casino Bumper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269056
+    m_Localized: Every 3 times this bumper is hit, adds an extra 1 - 20 points to
+      score.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269057
+    m_Localized: Casino Target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269058
+    m_Localized: Every 3 times this target is hit, adds an extra 0.1 - 0.5 mult to
+      score.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269059
+    m_Localized: Default Bumper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269060
+    m_Localized: Scores 5 points when hit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269061
+    m_Localized: Flipper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269062
+    m_Localized: Flips the ball up the board
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269063
+    m_Localized: Kicker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269064
+    m_Localized: Scores 5 points when hit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269065
+    m_Localized: Default Target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269066
+    m_Localized: Default target, scores 0.1 mult.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269067
+    m_Localized: Drop Target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269068
+    m_Localized: When hit, score 0.2x mult and drop for 15 seconds.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269069
+    m_Localized: Duplicating Bumper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269070
+    m_Localized: Every 10 times this bumper is hit, create a duplicate of the ball
+      that hit it that can only hit a component 10 times before being destroyed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269071
+    m_Localized: Duplicating Target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269072
+    m_Localized: Every 10 times this target is hit, create a duplicate of the ball
+      that hit it that can only hit a component 10 times before being destroyed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269073
+    m_Localized: Fire Bumper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269074
+    m_Localized: If this bumper gets hit 3 times within 10 seconds, it gets set 'on
+      fire', where all points are tripled. Keep hitting it in order to keep the fire
+      going!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269075
+    m_Localized: Fire Target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269076
+    m_Localized: If this target gets hit 3 times within 10 seconds, it gets set 'on
+      fire', where all points are tripled. Keep hitting it in order to keep the fire
+      going!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269077
+    m_Localized: Frenzy Mode Duplicator
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269078
+    m_Localized: Upon ball entry, start frenzy mode and duplicate the ball that entered.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269079
+    m_Localized: Frozen Bumper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269080
+    m_Localized: Starts off frozen and unable to score. After being hit 15 times,
+      will permanently unfreeze and score double points.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269081
+    m_Localized: Frozen Target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269082
+    m_Localized: Starts off frozen and unable to score. After being hit 15 times,
+      will permanently unfreeze and score double points.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269083
+    m_Localized: Rollover
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269084
+    m_Localized: Scores 2 points when ball rolls over it.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269085
+    m_Localized: Point Flipper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269086
+    m_Localized: Scores 1 points when ball rolls over it.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269087
+    m_Localized: Portal Entrance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269088
+    m_Localized: Scores 25 points. Launches the ball through the portal exit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269089
+    m_Localized: Portal Exit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269090
+    m_Localized: Ball launches from here when sent through the Portal Entrance.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269091
+    m_Localized: Variety Flipper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269092
+    m_Localized: Gives 5 points every time a ball hits it that is different from
+      the last ,increasing by 5 every time this happens in succession.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269093
+    m_Localized: OG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269094
+    m_Localized: Complete the OG Board
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269095
+    m_Localized: Reach Level 7
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269096
+    m_Localized: Test Flight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269097
+    m_Localized: Great for beginners
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269098
+    m_Localized: 3 Stars
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269099
+    m_Localized: Spinners
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269100
+    m_Localized: Complete the Spinners Board
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269101
+    m_Localized: Beat 10 rounds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269102
+    m_Localized: Cursed Multiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269103
+    m_Localized: Multiplier gains are reduced by 50% this round.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269104
+    m_Localized: Higher Stakes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269105
+    m_Localized: Goal requirement increased by 50%.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269106
+    m_Localized: Poverty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269107
+    m_Localized: No credits can be earned this round
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269108
+    m_Localized: Unlucky Day
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269109
+    m_Localized: Two random devil modifiers apply this round.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269110
+    m_Localized: Weakened
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269111
+    m_Localized: Points earned reduced by 50%.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269112
+    m_Localized: Loric F1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269113
+    m_Localized: A reliable generic spacecraft.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269114
+    m_Localized: Silverwolf
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269115
+    m_Localized: 1.5x credits earned but also the amount of score needed to level
+      up every round. Starts each run with 1 Investor.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269116
+    m_Localized: OG
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269117
+    m_Localized: NEW ART YEA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269118
+    m_Localized: Spinners
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282582888448
+    m_Localized: Striker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442880
+    m_Localized: Amplifier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442881
+    m_Localized: Mint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442882
+    m_Localized: Splitter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442883
+    m_Localized: Anomaly
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442884
+    m_Localized: Catalyst
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442885
+    m_Localized: Artifact
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

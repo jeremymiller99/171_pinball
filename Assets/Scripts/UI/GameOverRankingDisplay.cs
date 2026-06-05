@@ -179,11 +179,13 @@ public sealed class GameOverRankingDisplay
         BuildScoreLabel(panel.transform);
         BuildStatRow(
             panel.transform,
-            "TimeRow", "TIME",
+            "TimeRow",
+            LocalizedUI.Get("gameplay.gameOver.time", "TIME"),
             out timeText);
         BuildStatRow(
             panel.transform,
-            "HitsRow", "HITS",
+            "HitsRow",
+            LocalizedUI.Get("gameplay.gameOver.hits", "HITS"),
             out hitsText);
 
         _rankingPanel = panel;

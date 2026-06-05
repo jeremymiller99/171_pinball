@@ -32,7 +32,7 @@ public static class ElementTypeColors
     public static string GetDisplayName(
         ElementType type)
     {
-        return type switch
+        string fallback = type switch
         {
             ElementType.Striker => "Striker",
             ElementType.Amplifier => "Amplifier",
@@ -43,5 +43,7 @@ public static class ElementTypeColors
             ElementType.Artifact => "Artifact",
             _ => "N/A"
         };
+        // Localized via Content table key element.&lt;EnumName&gt;.name; English fallback above.
+        return LocalizedContent.Get("element", type.ToString(), "name", fallback);
     }
 }

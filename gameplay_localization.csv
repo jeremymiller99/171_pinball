@@ -21,3 +21,96 @@ gameplay.swapPrompt,Do you want to swap?,¿Quieres intercambiar?
 gameplay.close,Close,Cerrar
 gameplay.debugTitle,Debug,Depuración
 gameplay.debugBody,You've encountered a bug.,Has encontrado un error.
+mainMenu.saveSlot,Save {0},Partida {0}
+mainMenu.save,Save,Partida
+mainMenu.return,Return,Volver
+mainMenu.progressionTitle,Progression,Progresión
+mainMenu.progression.totalScore,Total Score Earned: {0},Puntuación total ganada: {0}
+mainMenu.progression.nextUnlock,Next: {0} in {1},Siguiente: {0} en {1}
+mainMenu.progression.allUnlocked,All rewards unlocked!,¡Todas las recompensas desbloqueadas!
+mainMenu.progression.locked,LOCKED,BLOQUEADO
+gameplay.shopHub.name,Shop Hub,Punto de venta
+gameplay.shopHub.desc,Sell your pinballs here,Vende tus pinballs aquí
+gameplay.gameOver.time,TIME,TIEMPO
+gameplay.gameOver.hits,HITS,GOLPES
+gameplay.leaderboard.runComplete,RUN COMPLETE,PARTIDA COMPLETADA
+gameplay.leaderboard.runEnded,RUN ENDED,PARTIDA TERMINADA
+gameplay.leaderboard.score,Score: {0},Puntuación: {0}
+gameplay.leaderboard.enterName,Enter your name:,Introduce tu nombre:
+gameplay.leaderboard.namePlaceholder,Name...,Nombre...
+gameplay.leaderboard.submit,SUBMIT SCORE,ENVIAR PUNTUACIÓN
+gameplay.leaderboard.title,LEADERBOARD,CLASIFICACIÓN
+gameplay.leaderboard.yourRank,YOUR RANK: #{0},TU PUESTO: #{0}
+gameplay.leaderboard.top,TOP {0},TOP {0}
+gameplay.leaderboard.back,BACK,VOLVER
+gameplay.leaderboard.continue,CONTINUE,CONTINUAR
+gameplay.leaderboard.levelShort,Lv {0},Nv {0}
+tutorial.firstPlay.title,CONTROLS,CONTROLES
+tutorial.firstPlay.button,START,EMPEZAR
+tutorial.firstPlay.body,"Flippers:  Left Arrow / Right Arrow,  A / D,  or Left / Right Mouse Button.
+
+Click START to begin.","Paletas:  Flecha izquierda / Flecha derecha,  A / D,  o botón izquierdo / derecho del ratón.
+
+Haz clic en EMPEZAR para comenzar."
+tutorial.levelUp.title,YOU LEVELED UP!,¡SUBISTE DE NIVEL!
+tutorial.levelUp.body,"Reaching the goal unlocks the SHOP for one visit.
+
+The SHOP button below the board has lit up. Press it now to spend coins on new balls and board upgrades before the next round.","Alcanzar el objetivo desbloquea la TIENDA para una visita.
+
+El botón de la TIENDA bajo el tablero se ha iluminado. Púlsalo ahora para gastar monedas en nuevas bolas y mejoras del tablero antes de la siguiente ronda."
+tutorial.shop.title,WELCOME TO THE SHOP,BIENVENIDO A LA TIENDA
+tutorial.shop.button,GOT IT,ENTENDIDO
+tutorial.shop.body,"Drag offers from the shelf onto your hand or onto the board to buy them.
+
+Drag a hand ball onto a shop hub to sell it back for coins.
+
+Hit DONE inside the shop when you're ready to play the next round.","Arrastra las ofertas del estante a tu mano o al tablero para comprarlas.
+
+Arrastra una bola de la mano a un punto de venta para venderla por monedas.
+
+Pulsa LISTO dentro de la tienda cuando estés listo para jugar la siguiente ronda."
+gameplay.shop.dragToBuy,Drag {0} onto a hand slot to buy it.,Arrastra {0} a una ranura de la mano para comprarlo.
+gameplay.shop.notEnoughCoinsFor,Not enough coins for {0}.,No tienes suficientes monedas para {0}.
+gameplay.shop.canOnlyReplace,{0} can only replace a {1}.,{0} solo puede reemplazar a un {1}.
+gameplay.shop.couldNotPlace,Could not place {0}. Coins refunded.,No se pudo colocar {0}. Monedas reembolsadas.
+gameplay.shop.placed,Placed {0}.,{0} colocado.
+gameplay.shop.purchaseCancelled,Purchase cancelled. Coins refunded.,Compra cancelada. Monedas reembolsadas.
+gameplay.shop.notEnoughReroll,Not enough coins to reroll (${0}).,No tienes suficientes monedas para rebarajar (${0}).
+gameplay.shop.rerolling,Rerolling...,Rebarajando...
+gameplay.shop.merchantArriving,The merchant is still arriving...,El mercader aún está llegando...
+gameplay.shop.dropOnComponent,"Drop onto a bumper, target, or flipper on the board.","Suéltalo sobre un bumper, diana o paleta del tablero."
+gameplay.shop.dropOnMatchingType,Drop onto a {0} on the board.,Suéltalo sobre un {0} del tablero.
+gameplay.shop.dropToBuyBall,Drop onto a hand slot to buy the ball.,Suéltalo sobre una ranura de la mano para comprar la bola.
+gameplay.shop.couldNotSell,Could not sell ball.,No se pudo vender la bola.
+gameplay.shop.sold,Sold {0} for ${1}.,{0} vendido por ${1}.
+gameplay.shop.couldNotMove,Could not move that ball.,No se pudo mover esa bola.
+gameplay.shop.ballMoved,Ball moved.,Bola movida.
+gameplay.shop.moveHint,"Click another slot to move the ball there, or the same ball to cancel.","Haz clic en otra ranura para mover la bola allí, o en la misma bola para cancelar."
+gameplay.shop.clickToReplace,Click a {0} on the board to replace with {1}.,Haz clic en un {0} del tablero para reemplazarlo por {1}.
+gameplay.shop.noRarityBalls,No {0} balls available -- purchase refunded.,No hay bolas {0} disponibles -- compra reembolsada.
+gameplay.shop.loadoutFull,Loadout full -- could not add ball.,Inventario lleno -- no se pudo añadir la bola.
+gameplay.shop.mysteryRevealed,Mystery revealed: {0}!,Misterio revelado: ¡{0}!
+gameplay.shop.addedToLoadout,Added {0} to loadout.,{0} añadido al inventario.
+gameplay.shop.replacedWith,Replaced with {0}.,Reemplazado por {0}.
+gameplay.shop.noLoadout,No loadout available.,No hay inventario disponible.
+gameplay.shop.cantSellLast,Can't sell your last ball.,No puedes vender tu última bola.
+gameplay.shop.invalidSlot,Invalid slot.,Ranura no válida.
+gameplay.shop.couldNotRemove,Could not remove ball.,No se pudo quitar la bola.
+gameplay.componentType.Bumper,bumper,bumper
+gameplay.componentType.Target,target,diana
+gameplay.componentType.DropTarget,drop target,diana abatible
+gameplay.componentType.Spinner,spinner,spinner
+gameplay.componentType.Portal,portal,portal
+gameplay.componentType.Rollover,rollover,rollover
+gameplay.componentType.Launcher,launcher,lanzador
+gameplay.componentType.Flipper,flipper,paleta
+gameplay.componentType.Kicker,kicker,kicker
+gameplay.componentType.Other,other,otro
+gameplay.rarity.Common,Common,Común
+gameplay.rarity.Uncommon,Uncommon,Poco común
+gameplay.rarity.Rare,Rare,Raro
+gameplay.rarity.Epic,Epic,Épico
+gameplay.rarity.Legendary,Legendary,Legendario
+gameplay.sellPrice,Sell Price: ${0},Precio de venta: ${0}
+gameplay.runSummary,You reached Level {0} and scored {1} points!,¡Alcanzaste el Nivel {0} y anotaste {1} puntos!
+gameplay.levelNum,Level {0},Nivel {0}

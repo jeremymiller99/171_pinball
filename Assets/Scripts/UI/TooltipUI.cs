@@ -313,7 +313,7 @@ public sealed class TooltipUI : MonoBehaviour
         }
         else if (mode == PriceMode.Sell && sellPriceText != null)
         {
-            sellPriceText.text = $"Sell Price: ${price}";
+            sellPriceText.text = LocalizedUI.Format("gameplay.sellPrice", "Sell Price: ${0}", price);
         }
     }
 

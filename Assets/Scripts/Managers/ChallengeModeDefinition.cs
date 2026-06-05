@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Defines a selectable "Challenge Mode" from the main menu.
@@ -9,17 +10,23 @@ using UnityEngine;
 public sealed class ChallengeModeDefinition : ScriptableObject
 {
     [Header("UI")]
-    public string displayName = "Challenge";
+    [SerializeField, FormerlySerializedAs("displayName")] private string displayNameSource = "Challenge";
 
     [Tooltip("Icon shown on the run select card.")]
     public Sprite icon;
 
     [TextArea(2, 6)]
-    public string description;
+    [SerializeField, FormerlySerializedAs("description")] private string descriptionSource;
 
     [TextArea(1, 4)]
     [Tooltip("Human-readable summary of how to win this challenge mode.")]
-    public string winConditionDescription;
+    [SerializeField, FormerlySerializedAs("winConditionDescription")] private string winConditionDescriptionSource;
+
+    // Localized accessors (English source text above is the fallback). Resolved from the
+    // "Content" string table by key challenge.&lt;assetName&gt;.{name|desc|win}.
+    public string displayName => LocalizedContent.Get("challenge", name, "name", displayNameSource);
+    public string description => LocalizedContent.Get("challenge", name, "desc", descriptionSource);
+    public string winConditionDescription => LocalizedContent.Get("challenge", name, "win", winConditionDescriptionSource);
 
     [Header("Boards")]
     [Tooltip("Boards to play for this challenge mode (in order).")]

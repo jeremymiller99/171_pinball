@@ -186,7 +186,7 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
 
         if (levelNumText != null)
         {
-            levelNumText.text = $"Level {Mathf.Max(0, levelIndex) + 1}";
+            levelNumText.text = LocalizedUI.Format("gameplay.levelNum", "Level {0}", Mathf.Max(0, levelIndex) + 1);
         }
 
         if (modNameText != null)

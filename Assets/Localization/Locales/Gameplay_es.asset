@@ -106,6 +106,321 @@ MonoBehaviour:
     m_Localized: Has encontrado un error.
     m_Metadata:
       m_Items: []
+  - m_Id: 687095113834496
+    m_Localized: Partida {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583232
+    m_Localized: Partida
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583233
+    m_Localized: "Progresi\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583234
+    m_Localized: "Puntuaci\xF3n total ganada: {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583235
+    m_Localized: 'Siguiente: {0} en {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583236
+    m_Localized: "\xA1Todas las recompensas desbloqueadas!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583237
+    m_Localized: BLOQUEADO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583238
+    m_Localized: Punto de venta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687095151583239
+    m_Localized: "Vende tus pinballs aqu\xED"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526853177344
+    m_Localized: TIEMPO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731776
+    m_Localized: GOLPES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731777
+    m_Localized: PARTIDA COMPLETADA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731778
+    m_Localized: PARTIDA TERMINADA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731779
+    m_Localized: "Puntuaci\xF3n: {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731780
+    m_Localized: 'Introduce tu nombre:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526886731781
+    m_Localized: Nombre...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926080
+    m_Localized: "ENVIAR PUNTUACI\xD3N"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926081
+    m_Localized: "CLASIFICACI\xD3N"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926082
+    m_Localized: 'TU PUESTO: #{0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926083
+    m_Localized: TOP {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926084
+    m_Localized: VOLVER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926085
+    m_Localized: CONTINUAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 710526890926086
+    m_Localized: Nv {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679747252224
+    m_Localized: Volver
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679785000960
+    m_Localized: CONTROLES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679785000961
+    m_Localized: EMPEZAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195264
+    m_Localized: "Paletas:  Flecha izquierda / Flecha derecha,  A / D,  o bot\xF3n
+      izquierdo / derecho del rat\xF3n.\n\nHaz clic en EMPEZAR para comenzar."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195265
+    m_Localized: "\xA1SUBISTE DE NIVEL!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195266
+    m_Localized: "Alcanzar el objetivo desbloquea la TIENDA para una visita.\n\nEl
+      bot\xF3n de la TIENDA bajo el tablero se ha iluminado. P\xFAlsalo ahora para
+      gastar monedas en nuevas bolas y mejoras del tablero antes de la siguiente
+      ronda."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195267
+    m_Localized: BIENVENIDO A LA TIENDA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195268
+    m_Localized: ENTENDIDO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195269
+    m_Localized: "Arrastra las ofertas del estante a tu mano o al tablero para comprarlas.\n\nArrastra
+      una bola de la mano a un punto de venta para venderla por monedas.\n\nPulsa
+      LISTO dentro de la tienda cuando est\xE9s listo para jugar la siguiente ronda."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195270
+    m_Localized: Arrastra {0} a una ranura de la mano para comprarlo.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195271
+    m_Localized: No tienes suficientes monedas para {0}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195272
+    m_Localized: '{0} solo puede reemplazar a un {1}.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195273
+    m_Localized: No se pudo colocar {0}. Monedas reembolsadas.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195274
+    m_Localized: '{0} colocado.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195275
+    m_Localized: Compra cancelada. Monedas reembolsadas.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195276
+    m_Localized: No tienes suficientes monedas para rebarajar (${0}).
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195277
+    m_Localized: Rebarajando...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195278
+    m_Localized: "El mercader a\xFAn est\xE1 llegando..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195279
+    m_Localized: "Su\xE9ltalo sobre un bumper, diana o paleta del tablero."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195280
+    m_Localized: "Su\xE9ltalo sobre un {0} del tablero."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195281
+    m_Localized: "Su\xE9ltalo sobre una ranura de la mano para comprar la bola."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195282
+    m_Localized: No se pudo vender la bola.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195283
+    m_Localized: '{0} vendido por ${1}.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195284
+    m_Localized: No se pudo mover esa bola.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195285
+    m_Localized: Bola movida.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195286
+    m_Localized: "Haz clic en otra ranura para mover la bola all\xED, o en la misma
+      bola para cancelar."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195287
+    m_Localized: Haz clic en un {0} del tablero para reemplazarlo por {1}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195288
+    m_Localized: No hay bolas {0} disponibles -- compra reembolsada.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195289
+    m_Localized: "Inventario lleno -- no se pudo a\xF1adir la bola."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195290
+    m_Localized: "Misterio revelado: \xA1{0}!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195291
+    m_Localized: "{0} a\xF1adido al inventario."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195292
+    m_Localized: Reemplazado por {0}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195293
+    m_Localized: No hay inventario disponible.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195294
+    m_Localized: "No puedes vender tu \xFAltima bola."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195295
+    m_Localized: "Ranura no v\xE1lida."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195296
+    m_Localized: No se pudo quitar la bola.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195297
+    m_Localized: bumper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195298
+    m_Localized: diana
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195299
+    m_Localized: diana abatible
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195300
+    m_Localized: spinner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195301
+    m_Localized: portal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195302
+    m_Localized: rollover
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195303
+    m_Localized: lanzador
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195304
+    m_Localized: paleta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195305
+    m_Localized: kicker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195306
+    m_Localized: otro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195307
+    m_Localized: "Com\xFAn"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195308
+    m_Localized: "Poco com\xFAn"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195309
+    m_Localized: Raro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195310
+    m_Localized: "\xC9pico"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195311
+    m_Localized: Legendario
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195312
+    m_Localized: 'Precio de venta: ${0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195313
+    m_Localized: "\xA1Alcanzaste el Nivel {0} y anotaste {1} puntos!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195314
+    m_Localized: Nivel {0}
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

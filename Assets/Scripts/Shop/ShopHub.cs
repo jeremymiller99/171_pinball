@@ -27,8 +27,8 @@ public sealed class ShopHub : MonoBehaviour
 
     private Outline _outline;
 
-    public string DisplayName => displayName;
-    public string Description => description;
+    public string DisplayName => LocalizedUI.Get("gameplay.shopHub.name", displayName);
+    public string Description => LocalizedUI.Get("gameplay.shopHub.desc", description);
 
     private void Awake()
     {
@@ -88,25 +88,25 @@ public sealed class ShopHub : MonoBehaviour
         var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
         if (loadoutCtrl == null)
         {
-            failReason = "No loadout available.";
+            failReason = LocalizedUI.Get("gameplay.shop.noLoadout", "No loadout available.");
             return false;
         }
 
         if (preventSellingLastBall && loadoutCtrl.BallLoadoutCount <= 1)
         {
-            failReason = "Can't sell your last ball.";
+            failReason = LocalizedUI.Get("gameplay.shop.cantSellLast", "Can't sell your last ball.");
             return false;
         }
 
         if (slotIndex < 0 || slotIndex >= loadoutCtrl.BallLoadoutCount)
         {
-            failReason = "Invalid slot.";
+            failReason = LocalizedUI.Get("gameplay.shop.invalidSlot", "Invalid slot.");
             return false;
         }
 
         if (!loadoutCtrl.TryRemoveBallFromLoadoutAt(slotIndex, out BallDefinition removed) || removed == null)
         {
-            failReason = "Could not remove ball.";
+            failReason = LocalizedUI.Get("gameplay.shop.couldNotRemove", "Could not remove ball.");
             return false;
         }
 

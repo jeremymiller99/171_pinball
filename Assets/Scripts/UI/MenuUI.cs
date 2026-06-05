@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -150,12 +152,35 @@ public class MainMenuUI : MonoBehaviour
 
         ProfileService.ProfileChanged += OnProfileChanged;
         ProfileService.ActiveSlotChanged += OnActiveSlotChanged;
+
+        // Keep the (code-driven) Settings button label in sync with the selected language.
+        // Apply after localization finishes initializing (selected locale isn't reliable
+        // before then), and again whenever the locale changes at runtime.
+        if (LocalizationSettings.HasSettings)
+        {
+            LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+
+            var init = LocalizationSettings.InitializationOperation;
+            if (init.IsDone)
+            {
+                ApplySettingsLabel();
+            }
+            else
+            {
+                init.Completed += _ => ApplySettingsLabel();
+            }
+        }
     }
 
     private void OnDestroy()
     {
         ProfileService.ProfileChanged -= OnProfileChanged;
         ProfileService.ActiveSlotChanged -= OnActiveSlotChanged;
+
+        if (LocalizationSettings.HasSettings)
+        {
+            LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+        }
     }
 
     private void OnProfileChanged(ProfileSlotId slot)
@@ -266,6 +291,20 @@ public class MainMenuUI : MonoBehaviour
         }
     }
 
+    // Cached label of the main-menu "Settings Button" (its text override is missing in the
+    // prefab). Refreshed on locale change so it tracks the selected language live.
+    private TMP_Text _settingsLabel;
+
+    private void ApplySettingsLabel()
+    {
+        if (_settingsLabel != null)
+        {
+            _settingsLabel.text = LocalizedUI.Get("gameplay.settings", "Settings");
+        }
+    }
+
+    private void OnLocaleChanged(Locale locale) => ApplySettingsLabel();
+
     private void AutoWireMainMenuButtons()
     {
         if (mainMenuPanel == null)
@@ -285,6 +324,17 @@ public class MainMenuUI : MonoBehaviour
         {
             settingsButton.onClick.RemoveListener(OpenSettingsPanel);
             settingsButton.onClick.AddListener(OpenSettingsPanel);
+        }
+
+        // The "Settings Button" instance is missing its label override, so it shows the
+        // Button1 prefab default ("Delete"). Drive the correct, localized label in code
+        // (its onClick is wired in the prefab). Cached so ApplySettingsLabel() can refresh
+        // it whenever the locale changes — see Start()/OnLocaleChanged.
+        var settingsBtn = FindButtonUnder(mainMenuPanel, "Settings Button");
+        if (settingsBtn != null)
+        {
+            _settingsLabel = settingsBtn.GetComponentInChildren<TMP_Text>(true);
+            ApplySettingsLabel();
         }
 
         if (profileButton != null)
@@ -414,7 +464,7 @@ public class MainMenuUI : MonoBehaviour
             returnToMainMenuButton.onClick.AddListener(OpenMainMenuPanel);
 
             var text = returnToMainMenuButton.GetComponentInChildren<TMP_Text>(true);
-            if (text != null) text.text = "Return";
+            if (text != null) text.text = LocalizedUI.Get("mainMenu.return", "Return");
         }
     }
 

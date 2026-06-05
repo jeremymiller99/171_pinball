@@ -61,7 +61,7 @@ public sealed class WinScreenController : MonoBehaviour
 
         if (promptText != null)
         {
-            promptText.text = $"You reached Level {levelReached} and scored {totalPoints} points!";
+            promptText.text = LocalizedUI.Format("gameplay.runSummary", "You reached Level {0} and scored {1} points!", levelReached, totalPoints);
         }
 
         gameObject.SetActive(true);

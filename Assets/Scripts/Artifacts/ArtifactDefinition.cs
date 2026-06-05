@@ -13,8 +13,8 @@ public sealed class ArtifactDefinition : ScriptableObject
     [Tooltip("Prefab that will be spawned/used for this artifact.")]
     [SerializeField] private GameObject prefab;
 
-    public string DisplayName => displayName;
-    public string Description => description;
+    public string DisplayName => LocalizedContent.Get("artifact", name, "name", displayName);
+    public string Description => LocalizedContent.Get("artifact", name, "desc", description);
     public Sprite Icon => icon;
     public GameObject Prefab => prefab;
 
@@ -46,7 +46,8 @@ public sealed class ArtifactDefinition : ScriptableObject
 
     public string GetSafeDisplayName()
     {
-        return string.IsNullOrWhiteSpace(displayName) ? "Artifact" : displayName;
+        var localized = DisplayName;
+        return string.IsNullOrWhiteSpace(localized) ? "Artifact" : localized;
     }
 
     private void OnValidate()

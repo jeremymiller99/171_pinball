@@ -137,13 +137,13 @@ public sealed class ProfileSlotEntryUI : MonoBehaviour
         switch (slot)
         {
             case ProfileSlotId.Slot1:
-                return "Save 1";
+                return LocalizedUI.Format("mainMenu.saveSlot", "Save {0}", 1);
             case ProfileSlotId.Slot2:
-                return "Save 2";
+                return LocalizedUI.Format("mainMenu.saveSlot", "Save {0}", 2);
             case ProfileSlotId.Slot3:
-                return "Save 3";
+                return LocalizedUI.Format("mainMenu.saveSlot", "Save {0}", 3);
             default:
-                return "Save";
+                return LocalizedUI.Get("mainMenu.save", "Save");
         }
     }
 

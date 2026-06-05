@@ -1,0 +1,568 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Content Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Content
+  m_TableCollectionNameGuidString: b969762ce2c366b458bd451fb8cf69fe
+  m_Entries:
+  - m_Id: 36673937408
+    m_Key: ball.8_Ball.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36715880448
+    m_Key: ball.8_Ball.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36715880449
+    m_Key: ball.AmpUp.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074752
+    m_Key: ball.AmpUp.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074753
+    m_Key: ball.Blue_Two.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074754
+    m_Key: ball.Blue_Two.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074755
+    m_Key: ball.BOMI.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074756
+    m_Key: ball.BOMI.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074757
+    m_Key: ball.ConfettiBall.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074758
+    m_Key: ball.ConfettiBall.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074759
+    m_Key: ball.CrossEyed.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074760
+    m_Key: ball.CrossEyed.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074761
+    m_Key: ball.Egg.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074762
+    m_Key: ball.Egg.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074763
+    m_Key: ball.Eye_on_The_Prize.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074764
+    m_Key: ball.Eye_on_The_Prize.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074765
+    m_Key: ball.Gear.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074766
+    m_Key: ball.Gear.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074767
+    m_Key: ball.Golf_Ball.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074768
+    m_Key: ball.Golf_Ball.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074769
+    m_Key: ball.Investor_Ball.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074770
+    m_Key: ball.Investor_Ball.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074771
+    m_Key: ball.Joker_Ball.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074772
+    m_Key: ball.Joker_Ball.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074773
+    m_Key: ball.Leprechaun.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074774
+    m_Key: ball.Leprechaun.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074775
+    m_Key: ball.Lucky_7.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074776
+    m_Key: ball.Lucky_7.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074777
+    m_Key: ball.MatryoshkaDoll.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074778
+    m_Key: ball.MatryoshkaDoll.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074779
+    m_Key: ball.MysteryCommon.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074780
+    m_Key: ball.MysteryCommon.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074781
+    m_Key: ball.MysteryUncommon.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074782
+    m_Key: ball.MysteryUncommon.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074783
+    m_Key: ball.PiggyBank.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074784
+    m_Key: ball.PiggyBank.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074785
+    m_Key: ball.Pinball.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074786
+    m_Key: ball.Pinball.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074787
+    m_Key: ball.Pitball.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074788
+    m_Key: ball.Pitball.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074789
+    m_Key: ball.Racket_Ball.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074790
+    m_Key: ball.Racket_Ball.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074791
+    m_Key: ball.Red_Two.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074792
+    m_Key: ball.Red_Two.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074793
+    m_Key: ball.Scatter.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074794
+    m_Key: ball.Scatter.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074795
+    m_Key: ball.Snowball.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074796
+    m_Key: ball.Snowball.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074797
+    m_Key: ball.Suspense.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074798
+    m_Key: ball.Suspense.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074799
+    m_Key: ball.Tenzo.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074800
+    m_Key: ball.Tenzo.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074801
+    m_Key: ball.Wall_Ball.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074802
+    m_Key: ball.Wall_Ball.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074803
+    m_Key: artifact.ActiveIncomeArtifactDefinition.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074804
+    m_Key: artifact.ActiveIncomeArtifactDefinition.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074805
+    m_Key: artifact.ExtraSplitArtifactDefinition.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074806
+    m_Key: artifact.ExtraSplitArtifactDefinition.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074807
+    m_Key: artifact.MultplierArtifactDefinition.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074808
+    m_Key: artifact.MultplierArtifactDefinition.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074809
+    m_Key: component.BombBumper.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074810
+    m_Key: component.BombBumper.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074811
+    m_Key: component.BombTarget.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074812
+    m_Key: component.BombTarget.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36720074813
+    m_Key: component.CasinoBumper.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269056
+    m_Key: component.CasinoBumper.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269057
+    m_Key: component.CasinoTarget.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269058
+    m_Key: component.CasinoTarget.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269059
+    m_Key: component.DefaultBumper.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269060
+    m_Key: component.DefaultBumper.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269061
+    m_Key: component.DefaultFlipper.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269062
+    m_Key: component.DefaultFlipper.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269063
+    m_Key: component.DefaultKicker.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269064
+    m_Key: component.DefaultKicker.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269065
+    m_Key: component.DefaultTarget.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269066
+    m_Key: component.DefaultTarget.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269067
+    m_Key: component.DropTarget.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269068
+    m_Key: component.DropTarget.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269069
+    m_Key: component.DuplicatingBumper.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269070
+    m_Key: component.DuplicatingBumper.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269071
+    m_Key: component.DuplicatingTarget.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269072
+    m_Key: component.DuplicatingTarget.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269073
+    m_Key: component.FireBumper.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269074
+    m_Key: component.FireBumper.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269075
+    m_Key: component.FireTarget.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269076
+    m_Key: component.FireTarget.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269077
+    m_Key: component.FrenzyModeDuplicator.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269078
+    m_Key: component.FrenzyModeDuplicator.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269079
+    m_Key: component.FrozenBumper.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269080
+    m_Key: component.FrozenBumper.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269081
+    m_Key: component.FrozenTarget.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269082
+    m_Key: component.FrozenTarget.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269083
+    m_Key: component.Rollover.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269084
+    m_Key: component.Rollover.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269085
+    m_Key: component.Point Flipper.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269086
+    m_Key: component.Point Flipper.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269087
+    m_Key: component.Portal Entrance.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269088
+    m_Key: component.Portal Entrance.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269089
+    m_Key: component.Portal Exit.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269090
+    m_Key: component.Portal Exit.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269091
+    m_Key: component.Variety Flipper.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269092
+    m_Key: component.Variety Flipper.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269093
+    m_Key: challenge.Challenge_Alpha.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269094
+    m_Key: challenge.Challenge_Alpha.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269095
+    m_Key: challenge.Challenge_Alpha.win
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269096
+    m_Key: challenge.Challenge_NA.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269097
+    m_Key: challenge.Challenge_NA.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269098
+    m_Key: challenge.Challenge_NA.win
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269099
+    m_Key: challenge.Challenge_Spinners.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269100
+    m_Key: challenge.Challenge_Spinners.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269101
+    m_Key: challenge.Challenge_Spinners.win
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269102
+    m_Key: modifier.Cursed_Multiplier.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269103
+    m_Key: modifier.Cursed_Multiplier.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269104
+    m_Key: modifier.Higher_Stakes.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269105
+    m_Key: modifier.Higher_Stakes.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269106
+    m_Key: modifier.Poverty.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269107
+    m_Key: modifier.Poverty.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269108
+    m_Key: modifier.Unlucky_Day.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269109
+    m_Key: modifier.Unlucky_Day.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269110
+    m_Key: modifier.Weakened.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269111
+    m_Key: modifier.Weakened.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269112
+    m_Key: ship.LoricF1.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269113
+    m_Key: ship.LoricF1.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269114
+    m_Key: ship.Silverwolf.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269115
+    m_Key: ship.Silverwolf.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269116
+    m_Key: board.Board_Alpha.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269117
+    m_Key: board.Board_NA.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36724269118
+    m_Key: board.Board_Spinners.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282582888448
+    m_Key: element.Striker.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442880
+    m_Key: element.Amplifier.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442881
+    m_Key: element.Mint.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442882
+    m_Key: element.Splitter.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442883
+    m_Key: element.Anomaly.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442884
+    m_Key: element.Catalyst.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3282616442885
+    m_Key: element.Artifact.name
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 1498693835730714624
+  references:
+    version: 2
+    RefIds:
+    - rid: 1498693835730714624
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1780618355561

@@ -15,11 +15,15 @@ public class RoundModifierDefinition : ScriptableObject
 
     [Header("Display")]
     [Tooltip("Name shown on the round card.")]
-    public string displayName = "New Modifier";
+    [SerializeField, FormerlySerializedAs("displayName")] private string displayNameSource = "New Modifier";
 
     [Tooltip("Description of what this modifier does.")]
     [TextArea(2, 4)]
-    public string description = "";
+    [SerializeField, FormerlySerializedAs("description")] private string descriptionSource = "";
+
+    // Localized accessors; source text above is the English fallback.
+    public string displayName => LocalizedContent.Get("modifier", name, "name", displayNameSource);
+    public string description => LocalizedContent.Get("modifier", name, "desc", descriptionSource);
 
     [Tooltip("Icon displayed on the round card.")]
     public Sprite icon;

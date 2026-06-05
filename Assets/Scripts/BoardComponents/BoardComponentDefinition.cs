@@ -31,8 +31,8 @@ public sealed class BoardComponentDefinition : ScriptableObject
     [SerializeField] private int price = 10;
 
     public string Id => id;
-    public string DisplayName => displayName;
-    public string Description => description;
+    public string DisplayName => LocalizedContent.Get("component", name, "name", displayName);
+    public string Description => LocalizedContent.Get("component", name, "desc", description);
     public BoardComponentType ComponentType => componentType;
     public ElementType ElementType => elementType;
     public Sprite Icon => icon;
@@ -72,7 +72,8 @@ public sealed class BoardComponentDefinition : ScriptableObject
 
     public string GetSafeDisplayName()
     {
-        return string.IsNullOrWhiteSpace(displayName) ? "Component" : displayName;
+        var localized = DisplayName;
+        return string.IsNullOrWhiteSpace(localized) ? "Component" : localized;
     }
 
     private void OnValidate()

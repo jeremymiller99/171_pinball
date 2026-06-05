@@ -9,13 +9,6 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using NUnit.Framework;
-using System.Collections.Generic;
-using UnityEditor.Localization.Plugins.XLIFF.V12;
-using System;
-
-
-
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -38,7 +31,7 @@ public sealed class TooltipUI : MonoBehaviour
 
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private TMP_Text typeText;
-    public TMP_Text descText;
+    [SerializeField] private TMP_Text descText;
 
     [Header("Price panels")]
     [Tooltip("Child panel shown when the tooltip describes a buyable item. "
@@ -57,7 +50,6 @@ public sealed class TooltipUI : MonoBehaviour
 
     [SerializeField] private bool controllerInUse = false;
     [SerializeField] private Vector2 cachedVector;
-    [SerializeField] private List<int> keywordIndexes;
 
     private RectTransform _rect;
     private Canvas _rootCanvas;
@@ -95,79 +87,6 @@ public sealed class TooltipUI : MonoBehaviour
         {
             _rect.anchoredPosition = cachedVector;
         }
-
-    }
-
-    private void CheckForKeywords()
-    {
-        string newText = "";
-        bool inKeyword = false;
-
-        //Make the keywords blue and underlined
-        for (int i = 0; i < descText.text.Length; i++)
-        {
-            char c = descText.text[i];
-            if (c == '|')
-            {
-                if (!inKeyword)
-                {
-                    //newText += "<color=#8CFAFF><u>";
-                    newText += c;
-                }
-                else
-                {
-                    newText += c;
-                    //newText += "</u></color>";
-                }
-
-                inKeyword = !inKeyword;
-            } else
-            {
-                newText += c;
-            }
-
-        }
-
-        descText.text = newText;
-
-        //Add the indexes of the keywords to a list so we can check if the mouse is hovering over them in CheckForClickedKeyword()
-        for (int j = 0;  j < descText.text.Length; j++)
-        {
-            char c = descText.text[j];
-            if (c == '|')
-            {
-                keywordIndexes.Add(j);
-            }
-
-        }
-
-    }
-
-    // WIP
-    public bool CheckForClickedKeyword()
-    {
-        int a = TMP_TextUtilities.FindIntersectingCharacter(descText, Mouse.current.position.ReadValue(), Camera.main, true);
-        if (a == -1)
-        {
-            return false;
-        }
-
-        char[] newDesc = descText.text.ToCharArray();
-        for (int i = 0; i < keywordIndexes.Count; i += 2)
-        {
-            if (keywordIndexes[i] <= a && a <= keywordIndexes[i + 1] && Mouse.current.leftButton.isPressed)
-            {
-                string keyword = "";
-                for (int j = keywordIndexes[i]; j < keywordIndexes[i + 1]; j++)
-                {
-                    keyword += newDesc[j];
-                }
-                TooltipManager.ShowKeywordDef(keyword, _rect.anchoredPosition);
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public void Show(
@@ -175,7 +94,6 @@ public sealed class TooltipUI : MonoBehaviour
         string description,
         ElementType elementType = ElementType.None)
     {
-        keywordIndexes.Clear();
         ApplyContent(title, description, elementType);
         SetPricePanels(PriceMode.None, 0);
 
@@ -186,7 +104,6 @@ public sealed class TooltipUI : MonoBehaviour
             _rect);
         PositionAtMouse();
         controllerInUse = false;
-        CheckForKeywords();
     }
 
     public void ShowBuy(
@@ -211,7 +128,6 @@ public sealed class TooltipUI : MonoBehaviour
 
     public void ShowAtPosition(string title, string description, Vector2 position, ElementType elementType = ElementType.None)
     {
-        keywordIndexes.Clear();
         ApplyContent(title, description, elementType);
         SetPricePanels(PriceMode.None, 0);
 
@@ -256,7 +172,6 @@ public sealed class TooltipUI : MonoBehaviour
         _rect.anchoredPosition = localPos;
         cachedVector = localPos;
         controllerInUse = true;
-        CheckForKeywords();
     }
 
     public void ShowBuyAtPosition(
@@ -481,7 +396,7 @@ public sealed class TooltipUI : MonoBehaviour
         _rect.anchoredPosition = localPos;
     }
 
-    public static Vector2 GetMouseScreenPos()
+    private static Vector2 GetMouseScreenPos()
     {
 #if ENABLE_INPUT_SYSTEM
         var mouse = Mouse.current;

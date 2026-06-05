@@ -340,45 +340,4 @@ public sealed class TooltipManager : MonoBehaviour
 
         return tooltipUI;
     }
-
-    public static bool MouseClickedKeyword()
-    {
-        var mgr = ServiceLocator.Get<TooltipManager>();
-        if (mgr == null || mgr._instance == null)
-        {
-            return false;
-        }
-        return mgr._instance.CheckForClickedKeyword();
-    }
-
-    public static void ShowKeywordDef(string keyword, Vector2 position)
-    {
-        keyword = keyword.ToLower();
-        switch (keyword) {
-            case "flammable":
-                ShowAtPosition("Flammable", 
-                    "When |ignited|, a flammable object will be |on fire| for 5 seconds.", 
-                    position, ElementType.None);
-                break;
-            case "ignited":
-                ShowAtPosition("Ignited", 
-                    "If a |flammable| object is ignited, that object becomes |on fire|.",
-                    position, ElementType.None);
-                break;
-            case "on fire":
-                ShowAtPosition("On Fire", 
-                    "When a ball or component is on fire, it activates as if collided with every 0.5 seconds." +
-                    "Additionally, if any |flammable| object comes into contact with it, that object is |ignited|." +
-                    "Objects that are on fire can be |fueled| to extend the duration of the effect.", 
-                    position, ElementType.None);
-                break;
-            case "fueled":
-                ShowAtPosition("Fueled", 
-                    "When an object is fueled, it gains one |flammable|." +
-                    "Additionally, objects that are |on fire| can be |fueled| to extend the duration of the effect.", 
-                    position, ElementType.None);
-                break;
-        }
-    }
-
 }

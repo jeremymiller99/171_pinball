@@ -2620,6 +2620,20 @@ MonoBehaviour:
       Data3: 305406608
       Data4: -699711991
     Path: event:/ingame/special/spec_burning_loop
+  hummingSoundEvent:
+    Guid:
+      Data1: -520411196
+      Data2: 1153966693
+      Data3: -1783620213
+      Data4: -1256172435
+    Path: event:/environment/env_screen_hum_loop
+  sirenSoundEvent:
+    Guid:
+      Data1: 1933643124
+      Data2: 1157992811
+      Data3: 681546910
+      Data4: 229115585
+    Path: event:/value/value_emergency_start_loop
 --- !u!4 &266196554
 Transform:
   m_ObjectHideFlags: 0

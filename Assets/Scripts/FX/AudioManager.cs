@@ -72,10 +72,13 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private EventReference burningSoundEvent;
     [Tooltip("Looping electric hum sound.")]
     [SerializeField] private EventReference hummingSoundEvent;
+    [Tooltip("Looping emergency siren sound.")]
+    [SerializeField] private EventReference sirenSoundEvent;
 
     private EventInstance musicInstance;
     private EventInstance rollingSoundInstance;
     private EventInstance hummingSoundInstance;
+    private EventInstance sirenSoundInstance;
     private EventInstance alienShipRumbleInstance;
     private EventInstance burningSoundInstance;
     
@@ -481,6 +484,34 @@ public class AudioManager : MonoBehaviour
             hummingSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
             hummingSoundInstance.release();
             hummingSoundInstance.clearHandle();
+        }
+    }
+
+    // Continuous Emergency Siren Sound
+    public void StartSirenSound(EventReference musicEvent)
+    {
+        if (sirenSoundEvent.IsNull) return;
+
+        if (!sirenSoundInstance.isValid())
+        {
+            sirenSoundInstance = RuntimeManager.CreateInstance(sirenSoundEvent);
+        }
+        
+        // Only start if it isn't already playing
+        sirenSoundInstance.getPlaybackState(out PLAYBACK_STATE state);
+        if (state != PLAYBACK_STATE.PLAYING)
+        {
+            sirenSoundInstance.start();
+        }
+    }
+
+    public void StopSirenSound()
+    {
+        if (sirenSoundInstance.isValid())
+        {
+            sirenSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            sirenSoundInstance.release();
+            sirenSoundInstance.clearHandle();
         }
     }
 

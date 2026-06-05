@@ -12,142 +12,135 @@ using UnityEngine.UI;
 /// If no prefab is assigned the tooltip is built at runtime
 /// matching the original progression-screen style.
 /// </summary>
-public sealed class TooltipManager : MonoBehaviour
+public sealed class TooltipHeaderManager : MonoBehaviour
 {
     [Tooltip(
-        "Optional tooltip prefab with a TooltipUI component. "
+        "Optional tooltip prefab with a TooltipHeaderUI component. "
         + "If left null, one is created at runtime.")]
-    [SerializeField] private TooltipUI tooltipPrefab;
+    [SerializeField] private TooltipHeaderUI tooltipPrefab;
 
-    private TooltipUI _instance;
+    private TooltipHeaderUI _instance;
     private Canvas _overlayCanvas;
 
     private const int tooltipSortOrder = 9999;
     private const float panelWidth = 220f;
     private const float nameFontSize = 18f;
-    private const float descFontSize = 14f;
 
     private void Awake()
     {
-        var existing = ServiceLocator.Get<TooltipManager>();
+        var existing = ServiceLocator.Get<TooltipHeaderManager>();
         if (existing != null && existing != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        ServiceLocator.Register<TooltipManager>(this);
+        ServiceLocator.Register<TooltipHeaderManager>(this);
         DontDestroyOnLoad(gameObject);
         EnsureTooltip();
     }
 
     private void OnDestroy()
     {
-        if (ServiceLocator.Get<TooltipManager>() == this)
+        if (ServiceLocator.Get<TooltipHeaderManager>() == this)
         {
-            ServiceLocator.Unregister<TooltipManager>();
+            ServiceLocator.Unregister<TooltipHeaderManager>();
         }
     }
 
     public static void Show(
         string title,
-        string description,
         ElementType elementType = ElementType.None)
     {
-        var mgr = ServiceLocator.Get<TooltipManager>();
+        var mgr = ServiceLocator.Get<TooltipHeaderManager>();
         if (mgr == null || mgr._instance == null)
         {
             return;
         }
 
         mgr._instance.Show(
-            title, description, elementType);
+            title, elementType);
     }
 
     public static void ShowAtPosition(
-        string title,
-        string description, Vector2 position,
+        string title, Vector2 position,
         ElementType elementType = ElementType.None)
     {
-        var mgr = ServiceLocator.Get<TooltipManager>();
+        var mgr = ServiceLocator.Get<TooltipHeaderManager>();
         if (mgr == null || mgr._instance == null)
         {
             return;
         }
 
         mgr._instance.ShowAtPosition(
-            title, description, position, elementType);
+            title, position, elementType);
     }
 
     public static void ShowBuy(
         string title,
-        string description,
         ElementType elementType,
         int price)
     {
-        var mgr = ServiceLocator.Get<TooltipManager>();
+        var mgr = ServiceLocator.Get<TooltipHeaderManager>();
         if (mgr == null || mgr._instance == null)
         {
             return;
         }
 
         mgr._instance.ShowBuy(
-            title, description, elementType, price);
+            title, elementType, price);
     }
 
     public static void ShowSell(
         string title,
-        string description,
         ElementType elementType,
         int price)
     {
-        var mgr = ServiceLocator.Get<TooltipManager>();
+        var mgr = ServiceLocator.Get<TooltipHeaderManager>();
         if (mgr == null || mgr._instance == null)
         {
             return;
         }
 
         mgr._instance.ShowSell(
-            title, description, elementType, price);
+            title, elementType, price);
     }
 
     public static void ShowBuyAtPosition(
         string title,
-        string description,
         Vector2 position,
         ElementType elementType,
         int price)
     {
-        var mgr = ServiceLocator.Get<TooltipManager>();
+        var mgr = ServiceLocator.Get<TooltipHeaderManager>();
         if (mgr == null || mgr._instance == null)
         {
             return;
         }
 
         mgr._instance.ShowBuyAtPosition(
-            title, description, position, elementType, price);
+            title, position, elementType, price);
     }
 
     public static void ShowSellAtPosition(
         string title,
-        string description,
         Vector2 position,
         ElementType elementType,
         int price)
     {
-        var mgr = ServiceLocator.Get<TooltipManager>();
+        var mgr = ServiceLocator.Get<TooltipHeaderManager>();
         if (mgr == null || mgr._instance == null)
         {
             return;
         }
 
         mgr._instance.ShowSellAtPosition(
-            title, description, position, elementType, price);
+            title, position, elementType, price);
     }
 
     public static void Hide()
     {
-        var mgr = ServiceLocator.Get<TooltipManager>();
+        var mgr = ServiceLocator.Get<TooltipHeaderManager>();
         if (mgr == null || mgr._instance == null)
         {
             return;
@@ -160,7 +153,7 @@ public sealed class TooltipManager : MonoBehaviour
     {
         get
         {
-            var mgr = ServiceLocator.Get<TooltipManager>();
+            var mgr = ServiceLocator.Get<TooltipHeaderManager>();
             if (mgr == null
                 || mgr._instance == null)
             {
@@ -176,7 +169,7 @@ public sealed class TooltipManager : MonoBehaviour
     {
         screenCenter = default;
 
-        var mgr = ServiceLocator.Get<TooltipManager>();
+        var mgr = ServiceLocator.Get<TooltipHeaderManager>();
         if (mgr == null || mgr._instance == null)
         {
             return false;
@@ -242,7 +235,7 @@ public sealed class TooltipManager : MonoBehaviour
 
     private const float typeFontSize = 14f;
 
-    private TooltipUI BuildRuntimeTooltip()
+    private TooltipHeaderUI BuildRuntimeTooltip()
     {
         var panelGo = new GameObject(
             "Tooltip",
@@ -251,7 +244,7 @@ public sealed class TooltipManager : MonoBehaviour
             typeof(VerticalLayoutGroup),
             typeof(ContentSizeFitter),
             typeof(CanvasGroup),
-            typeof(TooltipUI));
+            typeof(TooltipHeaderUI));
 
         panelGo.transform.SetParent(
             _overlayCanvas.transform, false);
@@ -316,69 +309,14 @@ public sealed class TooltipManager : MonoBehaviour
         typeText.textWrappingMode =
             TextWrappingModes.Normal;
 
-        var descGo = new GameObject(
-            "TooltipDesc",
-            typeof(RectTransform),
-            typeof(TextMeshProUGUI));
-        descGo.transform.SetParent(
-            panelGo.transform, false);
-
-        var descText =
-            descGo.GetComponent<TextMeshProUGUI>();
-        descText.fontSize = descFontSize;
-        descText.color =
-            new Color(0.78f, 0.78f, 0.78f, 1f);
-        descText.textWrappingMode =
-            TextWrappingModes.Normal;
-
-        var tooltipUI =
-            panelGo.GetComponent<TooltipUI>();
-        tooltipUI.AssignReferences(
-            nameText, typeText, descText);
+        var tooltipHeaderUI =
+            panelGo.GetComponent<TooltipHeaderUI>();
+        tooltipHeaderUI.AssignReferences(
+            nameText, typeText);
 
         panelGo.SetActive(false);
 
-        return tooltipUI;
-    }
-
-    public static bool MouseClickedKeyword()
-    {
-        var mgr = ServiceLocator.Get<TooltipManager>();
-        if (mgr == null || mgr._instance == null)
-        {
-            return false;
-        }
-        return mgr._instance.CheckForClickedKeyword();
-    }
-
-    public static void ShowKeywordDef(string keyword, Vector2 position)
-    {
-        keyword = keyword.ToLower();
-        switch (keyword) {
-            case "flammable":
-                ShowAtPosition("Flammable", 
-                    "When |ignited|, a flammable object will be |on fire| for 5 seconds.", 
-                    position, ElementType.None);
-                break;
-            case "ignited":
-                ShowAtPosition("Ignited", 
-                    "If a |flammable| object is ignited, that object becomes |on fire|.",
-                    position, ElementType.None);
-                break;
-            case "on fire":
-                ShowAtPosition("On Fire", 
-                    "When a ball or component is on fire, it activates as if collided with every 0.5 seconds." +
-                    "Additionally, if any |flammable| object comes into contact with it, that object is |ignited|." +
-                    "Objects that are on fire can be |fueled| to extend the duration of the effect.", 
-                    position, ElementType.None);
-                break;
-            case "fueled":
-                ShowAtPosition("Fueled", 
-                    "When an object is fueled, it gains one |flammable|." +
-                    "Additionally, objects that are |on fire| can be |fueled| to extend the duration of the effect.", 
-                    position, ElementType.None);
-                break;
-        }
+        return tooltipHeaderUI;
     }
 
 }

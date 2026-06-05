@@ -43,18 +43,6 @@ public sealed class ShopOffer3DEntry : MonoBehaviour
         SetupOutline();
     }
 
-    /// <summary>
-    /// Called by <see cref="RenderTextureRaycaster"/> (or any click handler)
-    /// when the player clicks on this offer.
-    /// </summary>
-    public void OnClick()
-    {
-        if (_shop != null)
-        {
-            _shop.OnOfferClicked(_offerIndex);
-        }
-    }
-
     public void SetDragVisual(bool dragging)
     {
         _isDragVisual = dragging;

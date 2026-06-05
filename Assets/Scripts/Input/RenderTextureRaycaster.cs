@@ -32,6 +32,7 @@ public class RenderTextureRaycaster : MonoBehaviour
 
     [Header("Hover Tooltip")]
     [SerializeField] private bool enableHoverTooltip = true;
+    [SerializeField] private GameObject currentTooltipObject;
 
     [Header("Shop offer drag")]
     [SerializeField] private float offerDragThresholdPixels = 12f;
@@ -83,8 +84,8 @@ public class RenderTextureRaycaster : MonoBehaviour
         HandleHandBallDragProgress(mouseScreenPos);
         HandleOfferDragEnd(mouseScreenPos);
         HandleHandBallDragEnd(mouseScreenPos);
-        HandleHover(mouseScreenPos);
         HandleClick(mouseScreenPos);
+        HandleHover(mouseScreenPos);
     }
 
     private void OnDisable()
@@ -96,65 +97,64 @@ public class RenderTextureRaycaster : MonoBehaviour
 
     private void HandleClick(Vector2 mouseScreenPos)
     {
-        if (WasClickedThisFrame())
-        {
-            Vector2 viewportPoint = ScreenToViewport(mouseScreenPos);
-            Ray ray = targetCamera.ViewportPointToRay(viewportPoint);
-
-            if (Physics.Raycast(
-                    ray,
-                    out RaycastHit hit,
-                    maxRayDistance,
-                    clickableLayers))
-            {
-                GameObject offerHitGo = hit.collider.gameObject;
-                ShopOffer3DEntry offerEntry =
-                    offerHitGo.GetComponentInParent<ShopOffer3DEntry>();
-
-                if (offerEntry != null)
-                {
-                    if (!CanAffordOffer(offerEntry.Offer))
-                    {
-                        ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
-                        return;
-                    }
-
-                    _offerDragEntry = offerEntry;
-                    _offerDragStartScreenPos = mouseScreenPos;
-                    offerEntry.SetDragVisual(true);
-                    return;
-                }
-            }
-
-            EnsureShopController();
-            if (_cachedShopController != null
-                && _cachedShopController.CurrentState
-                    == UnifiedShopController.ShopState.Browsing)
-            {
-                if (TryGetSlotIndexFromRay(ray, out int clickedSlot))
-                {
-                    if (_cachedSpawner == null) _cachedSpawner = ServiceLocator.Get<BallSpawner>();
-                    GameObject handBall = _cachedSpawner != null
-                        ? _cachedSpawner.GetHandBallAtSlot(clickedSlot)
-                        : null;
-
-                    if (handBall != null)
-                    {
-                        _handBallDragObject = handBall;
-                        _handBallDragSlot = clickedSlot;
-                        _handBallDragStartScreenPos = mouseScreenPos;
-                        _handBallDragOriginalPos = handBall.transform.position;
-                        _handBallDragThresholdExceeded = false;
-                        return;
-                    }
-                }
-            }
-        }
-
         if (!WasClickedThisFrame())
         {
             return;
         }
+       
+        if (TooltipManager.MouseClickedKeyword())
+        {
+            return;
+        }
+
+        Vector2 viewportPoint = ScreenToViewport(mouseScreenPos);
+        Ray ray = targetCamera.ViewportPointToRay(viewportPoint);
+
+        if (Physics.Raycast(
+                ray,
+                out RaycastHit hit,
+                maxRayDistance,
+                clickableLayers))
+        {
+            GameObject offerHitGo = hit.collider.gameObject;
+            ShopOffer3DEntry offerEntry =
+               offerHitGo.GetComponentInParent<ShopOffer3DEntry>();
+            if (offerEntry != null)
+            {
+                if (!CanAffordOffer(offerEntry.Offer))
+                {
+                    ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
+                }
+
+                _offerDragEntry = offerEntry;
+                _offerDragStartScreenPos = mouseScreenPos;
+                offerEntry.SetDragVisual(true);
+            }
+        }
+
+        EnsureShopController();
+        if (_cachedShopController != null
+            && _cachedShopController.CurrentState
+                == UnifiedShopController.ShopState.Browsing)
+        {
+            if (TryGetSlotIndexFromRay(ray, out int clickedSlot))
+            {
+                if (_cachedSpawner == null) _cachedSpawner = ServiceLocator.Get<BallSpawner>();
+                GameObject handBall = _cachedSpawner != null
+                    ? _cachedSpawner.GetHandBallAtSlot(clickedSlot)
+                    : null;
+
+                if (handBall != null)
+                {
+                    _handBallDragObject = handBall;
+                    _handBallDragSlot = clickedSlot;
+                    _handBallDragStartScreenPos = mouseScreenPos;
+                    _handBallDragOriginalPos = handBall.transform.position;
+                    _handBallDragThresholdExceeded = false;
+                }
+            }
+        }
+    
 
         Vector2 viewportDown = ScreenToViewport(mouseScreenPos);
         Ray rayDown = targetCamera.ViewportPointToRay(viewportDown);
@@ -165,7 +165,8 @@ public class RenderTextureRaycaster : MonoBehaviour
                 maxRayDistance,
                 clickableLayers))
         {
-            return;
+            currentTooltipObject = null;
+            ClearHover();
         }
 
         GameObject hitObject = hitDown.collider.gameObject;
@@ -174,43 +175,86 @@ public class RenderTextureRaycaster : MonoBehaviour
         if (shopButton != null)
         {
             shopButton.OnClick();
-            return;
         }
 
-        EnsureShopController();
-
-        if (_cachedShopController != null
-            && _cachedShopController.CurrentState
-                == UnifiedShopController.ShopState.PlacingComponent)
+        if (TryResolveTooltipFromObject(hitObject,
+                                out string title,
+                                out string desc,
+                                out ElementType elementType,
+                                out TooltipUI.PriceMode priceMode,
+                                out int price))
         {
-            BoardComponent boardComp =
-                hitObject.GetComponentInParent<BoardComponent>();
-
-            if (boardComp != null)
-            {
-                _cachedShopController
-                    .OnBoardComponentClicked(boardComp);
-                return;
-            }
+            HandleControllerHighlight(hitObject);
         }
-
-        if (_cachedShopController != null
-            && _cachedShopController.CurrentState
-                == UnifiedShopController.ShopState.Browsing)
+        else
         {
-            if (TryRouteHandBallClick(hitObject))
-            {
-                return;
-            }
+            GameObject handBall =
+                FindClosestHandBallOnRay(rayDown);
 
-            GameObject handBall = FindClosestHandBallOnRay(rayDown);
-            if (handBall != null && TryRouteHandBallClick(handBall))
+            if (handBall != null)
             {
-                return;
+                HandleControllerHighlight(handBall);
+            }
+            else
+            {
+                currentTooltipObject = null;
+                ClearHover();
             }
         }
 
         onObjectClicked?.Invoke(hitObject);
+    }
+
+    private void HandleHover(Vector2 mouseScreenPos)
+    {
+        Vector2 viewportDown = ScreenToViewport(mouseScreenPos);
+        Ray rayDown = targetCamera.ViewportPointToRay(viewportDown);
+
+        if (!Physics.Raycast(
+                rayDown,
+                out RaycastHit hitDown,
+                maxRayDistance,
+                clickableLayers) || _handBallDragObject != null || _offerDragEntry != null)
+        {
+            ClearHeaderHover();
+            return;
+        }
+
+        GameObject hitObject = hitDown.collider.gameObject;
+
+        if (hitObject == null
+            || (hitObject.GetComponentInParent<BallHandSlot>() == null
+                && hitObject.GetComponentInParent<BallHandSlotMarker>() == null))
+        {
+            GameObject handBall = FindClosestHandBallOnRay(rayDown);
+            if (handBall != null)
+            {
+                hitObject = handBall;
+            }
+        }
+
+        if (TryResolveHeaderTooltipFromObject(hitObject,
+                                out string title,
+                                out ElementType elementType,
+                                out TooltipUI.PriceMode priceMode,
+                                out int price))
+        {
+            HandleHoverHighlight(hitObject);
+        }
+        else
+        {
+            GameObject handBall =
+                FindClosestHandBallOnRay(rayDown);
+
+            if (handBall != null)
+            {
+                HandleHoverHighlight(handBall);
+            }
+            else
+            {
+                ClearHeaderHover();
+            }
+        }
     }
 
     /// <summary>
@@ -288,6 +332,7 @@ public class RenderTextureRaycaster : MonoBehaviour
 
         _cachedShopController.OnOfferDragHover(
             _offerDragEntry.Offer, hitObject, ray);
+        ClearHover();
     }
 
     private void EnsureShopController()
@@ -308,120 +353,6 @@ public class RenderTextureRaycaster : MonoBehaviour
         if (coinController == null) return true;
 
         return coinController.Coins >= offer.Price;
-    }
-
-    /// <summary>
-    /// Checks if the hit object belongs to a hand ball with a
-    /// <see cref="BallHandSlotMarker"/> and routes the click to
-    /// <see cref="UnifiedShopController"/>.
-    /// Returns true if handled.
-    /// </summary>
-    private bool TryRouteHandBallClick(GameObject hitObject)
-    {
-        if (_cachedShopController == null)
-        {
-            return false;
-        }
-
-        BallHandSlot slot = hitObject.GetComponentInParent<BallHandSlot>();
-        if (slot != null && slot.SlotIndex >= 0)
-        {
-            _cachedShopController.OnBallSlotClicked(slot.SlotIndex);
-            return true;
-        }
-
-        BallHandSlotMarker marker = hitObject.GetComponentInParent<BallHandSlotMarker>();
-        if (marker != null && marker.SlotIndex >= 0)
-        {
-            _cachedShopController.OnBallSlotClicked(marker.SlotIndex);
-            return true;
-        }
-
-        return false;
-    }
-
-    private void HandleHover(Vector2 mouseScreenPos)
-    {
-        if (!enableHoverTooltip)
-        {
-            ClearHover();
-            return;
-        }
-
-        if (_offerDragEntry != null || _handBallDragObject != null)
-        {
-            ClearHover();
-            return;
-        }
-
-        Vector2 viewportPoint =
-            ScreenToViewport(mouseScreenPos);
-
-        if (viewportPoint.x < 0f || viewportPoint.x > 1f
-            || viewportPoint.y < 0f || viewportPoint.y > 1f)
-        {
-            ClearHover();
-            return;
-        }
-
-        Ray ray =
-            targetCamera.ViewportPointToRay(viewportPoint);
-
-        GameObject hitObject = null;
-
-        if (Physics.Raycast(
-                ray,
-                out RaycastHit hit,
-                maxRayDistance,
-                clickableLayers))
-        {
-            hitObject = hit.collider.gameObject;
-        }
-
-        string title = null;
-        string desc = null;
-        ElementType elementType = ElementType.None;
-        TooltipUI.PriceMode priceMode = TooltipUI.PriceMode.None;
-        int price = 0;
-
-        if (hitObject != null)
-        {
-            TryResolveTooltipFromObject(
-                hitObject, out title, out desc,
-                out elementType, out priceMode, out price);
-        }
-
-        if (title == null)
-        {
-            GameObject handBall =
-                FindClosestHandBallOnRay(ray);
-
-            if (handBall != null)
-            {
-                hitObject = handBall;
-                TryResolveTooltipFromObject(
-                    handBall, out title, out desc,
-                    out elementType, out priceMode, out price);
-            }
-        }
-
-        if (title == null)
-        {
-            ClearHover();
-            RouteToPlacementHover(null, ray);
-            return;
-        }
-
-        if (hitObject != _lastHoveredObject)
-        {
-            ClearHighlight();
-            _lastHoveredObject = hitObject;
-            ApplyHighlight(hitObject);
-            ShowTooltip(title, desc, elementType, priceMode, price);
-            _tooltipShownByHover = true;
-        }
-
-        RouteToPlacementHover(hitObject, ray);
     }
 
     private static void ShowTooltip(
@@ -467,9 +398,30 @@ public class RenderTextureRaycaster : MonoBehaviour
         }
     }
 
-    public void HandleControllerHighlight(GameObject selectedOffer)
+    private static void ShowHeaderTooltip(
+        string title,
+        ElementType elementType,
+        TooltipUI.PriceMode priceMode,
+        int price)
     {
-        Vector2 posOnScreen = targetCamera.WorldToViewportPoint(selectedOffer.transform.position);
+        switch (priceMode)
+        {
+            case TooltipUI.PriceMode.Buy:
+                TooltipHeaderManager.ShowBuy(title, elementType, price);
+                break;
+            case TooltipUI.PriceMode.Sell:
+                TooltipHeaderManager.ShowSell(title, elementType, price);
+                break;
+            default:
+                TooltipHeaderManager.Show(title, elementType);
+                break;
+        }
+    }
+
+    public void HandleControllerHighlight(GameObject selectedObject)
+    {
+        currentTooltipObject = selectedObject;
+        Vector2 posOnScreen = targetCamera.WorldToViewportPoint(selectedObject.transform.position);
         posOnScreen.x *= Screen.width;
         posOnScreen.y *= Screen.height;
         string title = null;
@@ -478,22 +430,52 @@ public class RenderTextureRaycaster : MonoBehaviour
         TooltipUI.PriceMode priceMode = TooltipUI.PriceMode.None;
         int price = 0;
 
-        if (selectedOffer != null)
+        if (selectedObject != null)
         {
             TryResolveTooltipFromObject(
-                selectedOffer, out title, out desc,
+                selectedObject, out title, out desc,
                 out elementType, out priceMode, out price);
         }
 
-        if (selectedOffer != _lastHoveredObject)
+        if (selectedObject != _lastHoveredObject)
         {
             ClearHighlight();
-            _lastHoveredObject = selectedOffer;
-            ApplyHighlight(selectedOffer);
+            _lastHoveredObject = selectedObject;
+            ApplyHighlight(selectedObject);
             ShowTooltipAtPosition(
                 title, desc, posOnScreen, elementType, priceMode, price);
             _tooltipShownByHover = true;
         }
+    }
+
+    public void HandleHoverHighlight(GameObject selectedObject)
+    {
+        if (currentTooltipObject == selectedObject)
+        {
+            ApplyHighlight(selectedObject);
+            return;
+        }
+
+        string title = null;
+        ElementType elementType = ElementType.None;
+        TooltipUI.PriceMode priceMode = TooltipUI.PriceMode.None;
+        int price = 0;
+
+        if (selectedObject != null)
+        {
+            TryResolveHeaderTooltipFromObject(
+                selectedObject, out title,
+                out elementType, out priceMode, out price);
+        } else
+        {
+            return;
+        }
+
+        ClearHighlight();
+        ApplyHighlight(selectedObject);
+        ShowHeaderTooltip(
+            title, elementType, priceMode, price);
+        _tooltipShownByHover = true;
     }
 
     /// <summary>
@@ -511,7 +493,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         }
     }
 
-    public static void TryResolveTooltipFromObject(
+    public static bool TryResolveTooltipFromObject(
         GameObject obj,
         out string title,
         out string desc,
@@ -532,7 +514,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             title = shipVis.ShipDef.displayName;
             desc = shipVis.ShipDef.description;
             elementType = shipVis.ShipDef.ElementType;
-            return;
+            return true;
         }
 
         ShopHub hub = obj.GetComponentInParent<ShopHub>();
@@ -548,7 +530,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             {
                 title = hub.DisplayName;
                 desc = hub.Description;
-                return;
+                return true;
             }
         }
 
@@ -564,7 +546,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             }
             elementType = shopShip.CurrentCatalogElement;
             desc = ShopMerchantTooltipHover.BuildDescription(shopShip, elementType);
-            return;
+            return true;
         }
 
         ShopOffer3DEntry offerEntry =
@@ -583,7 +565,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             elementType = offer.ElementType;
             priceMode = TooltipUI.PriceMode.Buy;
             price = Mathf.Max(0, offer.Price);
-            return;
+            return true;
         }
 
         BallDefinitionLink ballLink =
@@ -603,7 +585,7 @@ public class RenderTextureRaycaster : MonoBehaviour
                 priceMode = TooltipUI.PriceMode.Sell;
                 price = ComputeBallSellPrice(ballDef);
             }
-            return;
+            return true;
         }
 
         BoardComponentDefinitionLink compLink =
@@ -616,6 +598,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             title = compDef.GetSafeDisplayName();
             desc = compDef.Description;
             elementType = compDef.ElementType;
+            return true;
         }
 
         ArtifactDefinitionLink artifactLink =
@@ -628,7 +611,129 @@ public class RenderTextureRaycaster : MonoBehaviour
             title = artifactDef.GetSafeDisplayName();
             desc = artifactDef.Description;
             elementType = ElementType.Artifact;
+            return true;
         }
+
+        return false;
+    }
+
+    public bool TryResolveHeaderTooltipFromObject(
+        GameObject obj,
+        out string title,
+        out ElementType elementType,
+        out TooltipUI.PriceMode priceMode,
+        out int price)
+    {
+        title = null;
+        elementType = ElementType.None;
+        priceMode = TooltipUI.PriceMode.None;
+        price = 0;
+
+        if (obj == currentTooltipObject)
+        {
+            return false;
+        }
+
+        PlayerShipVisual shipVis =
+            obj.GetComponentInParent<PlayerShipVisual>();
+        if (shipVis != null && shipVis.ShipDef != null)
+        {
+            title = shipVis.ShipDef.displayName;
+            elementType = shipVis.ShipDef.ElementType;
+            return true;
+        }
+
+        ShopHub hub = obj.GetComponentInParent<ShopHub>();
+        if (!hub)
+        {
+            hub = obj.GetComponent<ShopHub>();
+        }
+        if (hub != null)
+        {
+            UnifiedShopController shopCtrl =
+                ServiceLocator.Get<UnifiedShopController>();
+            if (shopCtrl != null && shopCtrl.IsShopActive)
+            {
+                title = hub.DisplayName;
+                return true;
+            }
+        }
+
+        ShopShipController shopShip =
+            obj.GetComponentInParent<ShopShipController>();
+
+        if (shopShip != null)
+        {
+            title = shopShip.CurrentMerchantDisplayName;
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                title = "Visiting merchant";
+            }
+            elementType = shopShip.CurrentCatalogElement;
+            return true;
+        }
+
+        ShopOffer3DEntry offerEntry =
+            obj.GetComponentInParent<ShopOffer3DEntry>();
+        if (!offerEntry)
+        {
+            offerEntry = obj.GetComponent<ShopOffer3DEntry>();
+        }
+
+        if (offerEntry != null
+            && offerEntry.Offer != null)
+        {
+            ShopOffer offer = offerEntry.Offer;
+            title = offer.DisplayName;
+            elementType = offer.ElementType;
+            priceMode = TooltipUI.PriceMode.Buy;
+            price = Mathf.Max(0, offer.Price);
+            return true;
+        }
+
+        BallDefinitionLink ballLink =
+            obj.GetComponentInParent<BallDefinitionLink>();
+
+        if (ballLink != null
+            && ballLink.TryGetDefinition(
+                out BallDefinition ballDef))
+        {
+            title = ballDef.GetSafeDisplayName();
+            elementType = ballDef.ElementType;
+
+            if (ServiceLocator.Get<GameRulesManager>().IsShopOpen && ballLink.GetComponent<ShopOffer3DEntry>() == null)
+            {
+                priceMode = TooltipUI.PriceMode.Sell;
+                price = ComputeBallSellPrice(ballDef);
+            }
+            return true;
+        }
+
+        BoardComponentDefinitionLink compLink =
+            obj.GetComponentInParent<BoardComponentDefinitionLink>();
+
+        if (compLink != null
+            && compLink.TryGetDefinition(
+                out BoardComponentDefinition compDef))
+        {
+            title = compDef.GetSafeDisplayName();
+            elementType = compDef.ElementType;
+            return true;
+        }
+
+        ArtifactDefinitionLink artifactLink =
+            obj.GetComponentInParent<ArtifactDefinitionLink>();
+
+        if (artifactLink != null
+            && artifactLink.TryGetDefinition(
+                out ArtifactDefinition artifactDef))
+        {
+            title = artifactDef.GetSafeDisplayName();
+            elementType = ElementType.Artifact;
+            return true;
+        }
+
+        return false;
     }
 
     private static bool IsHandBallInShop(GameObject ballObject)
@@ -967,6 +1072,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         }
 
         _cachedShopController.OnHandBallDragHover(hoveredSlot);
+        ClearHover();
     }
 
     private void HandleHandBallDragEnd(Vector2 mouseScreenPos)
@@ -1029,10 +1135,6 @@ public class RenderTextureRaycaster : MonoBehaviour
             return;
         }
 
-        if (_cachedShopController != null)
-        {
-            _cachedShopController.OnBallSlotClicked(draggedSlot);
-        }
     }
 
     private void BeginHandBallMeshDrag(Vector2 startScreenPos)
@@ -1227,6 +1329,12 @@ public class RenderTextureRaycaster : MonoBehaviour
         _lastHoveredObject = null;
     }
 
+    public void ClearHeaderHover()
+    {
+        ClearHighlight();
+        TooltipHeaderManager.Hide();
+    }
+
     private void ApplyHighlight(GameObject obj)
     {
         if (obj == null)
@@ -1282,7 +1390,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             _highlightedHub = null;
         }
 
-        if (_highlightedComponent != null)
+        if (_highlightedComponent != null && _highlightedComponent.GetComponent<ShopOffer3DEntry>() == null)
         {
             _highlightedComponent.UnhighlightHover();
             _highlightedComponent = null;

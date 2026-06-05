@@ -12,8 +12,6 @@ using UnityEngine.UI;
 using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEditor.Localization.Plugins.XLIFF.V12;
-using System;
-
 
 
 
@@ -27,7 +25,7 @@ using UnityEngine.InputSystem;
 /// clamping so the tooltip stays fully on-screen.
 /// </summary>
 [RequireComponent(typeof(CanvasGroup))]
-public sealed class TooltipUI : MonoBehaviour
+public sealed class TooltipHeaderUI : MonoBehaviour
 {
     public enum PriceMode
     {
@@ -38,26 +36,20 @@ public sealed class TooltipUI : MonoBehaviour
 
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private TMP_Text typeText;
-    public TMP_Text descText;
 
     [Header("Price panels")]
     [Tooltip("Child panel shown when the tooltip describes a buyable item. "
         + "Toggled on by ShowBuy, off by Show/ShowSell.")]
-    [SerializeField] private GameObject shopPanel;
+    [SerializeField] private GameObject descPanel;
 
     [Tooltip("Text inside the shop panel that renders the item cost.")]
-    [SerializeField] private TMP_Text costText;
-
-    [Tooltip("Child panel shown when the tooltip describes a sellable item. "
-        + "Toggled on by ShowSell, off by Show/ShowBuy.")]
-    [SerializeField] private GameObject sellPanel;
-
-    [Tooltip("Text inside the sell panel that renders the item sell price.")]
-    [SerializeField] private TMP_Text sellPriceText;
+    [SerializeField] private TMP_Text descText;
 
     [SerializeField] private bool controllerInUse = false;
     [SerializeField] private Vector2 cachedVector;
-    [SerializeField] private List<int> keywordIndexes;
+    [SerializeField] private string defaultText = "Click to Inspect";
+    [SerializeField] private string defaultBuyText = "Click to Inspect. Drag to Buy for: ";
+    [SerializeField] private string defaultSellText = "Click to Inspect. Drag to Sell for: ";
 
     private RectTransform _rect;
     private Canvas _rootCanvas;
@@ -70,10 +62,10 @@ public sealed class TooltipUI : MonoBehaviour
 
     private void Awake()
     {
-        // The prefab accidentally carries a TooltipUI on each child price
+        // The prefab accidentally carries a TooltipHeaderUI on each child price
         // panel. Disable nested instances so they don't self-hide in Awake
         // or fight the root for mouse-positioning in LateUpdate.
-        if (HasAncestorTooltipUI())
+        if (HasAncestorTooltipHeaderUI())
         {
             enabled = false;
             return;
@@ -95,89 +87,14 @@ public sealed class TooltipUI : MonoBehaviour
         {
             _rect.anchoredPosition = cachedVector;
         }
-
-    }
-
-    private void CheckForKeywords()
-    {
-        string newText = "";
-        bool inKeyword = false;
-
-        //Make the keywords blue and underlined
-        for (int i = 0; i < descText.text.Length; i++)
-        {
-            char c = descText.text[i];
-            if (c == '|')
-            {
-                if (!inKeyword)
-                {
-                    //newText += "<color=#8CFAFF><u>";
-                    newText += c;
-                }
-                else
-                {
-                    newText += c;
-                    //newText += "</u></color>";
-                }
-
-                inKeyword = !inKeyword;
-            } else
-            {
-                newText += c;
-            }
-
-        }
-
-        descText.text = newText;
-
-        //Add the indexes of the keywords to a list so we can check if the mouse is hovering over them in CheckForClickedKeyword()
-        for (int j = 0;  j < descText.text.Length; j++)
-        {
-            char c = descText.text[j];
-            if (c == '|')
-            {
-                keywordIndexes.Add(j);
-            }
-
-        }
-
-    }
-
-    // WIP
-    public bool CheckForClickedKeyword()
-    {
-        int a = TMP_TextUtilities.FindIntersectingCharacter(descText, Mouse.current.position.ReadValue(), Camera.main, true);
-        if (a == -1)
-        {
-            return false;
-        }
-
-        char[] newDesc = descText.text.ToCharArray();
-        for (int i = 0; i < keywordIndexes.Count; i += 2)
-        {
-            if (keywordIndexes[i] <= a && a <= keywordIndexes[i + 1] && Mouse.current.leftButton.isPressed)
-            {
-                string keyword = "";
-                for (int j = keywordIndexes[i]; j < keywordIndexes[i + 1]; j++)
-                {
-                    keyword += newDesc[j];
-                }
-                TooltipManager.ShowKeywordDef(keyword, _rect.anchoredPosition);
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public void Show(
         string title,
-        string description,
         ElementType elementType = ElementType.None)
     {
-        keywordIndexes.Clear();
-        ApplyContent(title, description, elementType);
-        SetPricePanels(PriceMode.None, 0);
+        ApplyContent(title, elementType);
+        SetDescPanel(PriceMode.None, 0);
 
         gameObject.SetActive(true);
         _rect.SetAsLastSibling();
@@ -186,34 +103,30 @@ public sealed class TooltipUI : MonoBehaviour
             _rect);
         PositionAtMouse();
         controllerInUse = false;
-        CheckForKeywords();
     }
 
     public void ShowBuy(
         string title,
-        string description,
         ElementType elementType,
         int price)
     {
-        Show(title, description, elementType);
-        SetPricePanels(PriceMode.Buy, price);
+        Show(title, elementType);
+        SetDescPanel(PriceMode.Buy, price);
     }
 
     public void ShowSell(
         string title,
-        string description,
         ElementType elementType,
         int price)
     {
-        Show(title, description, elementType);
-        SetPricePanels(PriceMode.Sell, price);
+        Show(title, elementType);
+        SetDescPanel(PriceMode.Sell, price);
     }
 
-    public void ShowAtPosition(string title, string description, Vector2 position, ElementType elementType = ElementType.None)
+    public void ShowAtPosition(string title, Vector2 position, ElementType elementType = ElementType.None)
     {
-        keywordIndexes.Clear();
-        ApplyContent(title, description, elementType);
-        SetPricePanels(PriceMode.None, 0);
+        ApplyContent(title, elementType);
+        SetDescPanel(PriceMode.None, 0);
 
         gameObject.SetActive(true);
         _rect.SetAsLastSibling();
@@ -256,29 +169,26 @@ public sealed class TooltipUI : MonoBehaviour
         _rect.anchoredPosition = localPos;
         cachedVector = localPos;
         controllerInUse = true;
-        CheckForKeywords();
     }
 
     public void ShowBuyAtPosition(
         string title,
-        string description,
         Vector2 position,
         ElementType elementType,
         int price)
     {
-        ShowAtPosition(title, description, position, elementType);
-        SetPricePanels(PriceMode.Buy, price);
+        ShowAtPosition(title, position, elementType);
+        SetDescPanel(PriceMode.Buy, price);
     }
 
     public void ShowSellAtPosition(
         string title,
-        string description,
         Vector2 position,
         ElementType elementType,
         int price)
     {
-        ShowAtPosition(title, description, position, elementType);
-        SetPricePanels(PriceMode.Sell, price);
+        ShowAtPosition(title, position, elementType);
+        SetDescPanel(PriceMode.Sell, price);
     }
 
 
@@ -337,20 +247,17 @@ public sealed class TooltipUI : MonoBehaviour
 
     public void AssignReferences(
         TMP_Text name,
-        TMP_Text type,
-        TMP_Text desc)
+        TMP_Text type)
     {
         nameText = name;
         typeText = type;
-        descText = desc;
     }
 
     private void ApplyContent(
         string title,
-        string description,
         ElementType elementType)
     {
-        if (nameText == null || descText == null)
+        if (nameText == null)
         {
             return;
         }
@@ -365,49 +272,32 @@ public sealed class TooltipUI : MonoBehaviour
             typeText.text = typeName;
             typeText.color = typeColor;
         }
-
-        descText.text =
-            string.IsNullOrWhiteSpace(description)
-                ? "No description."
-                : description;
     }
 
-    private void SetPricePanels(PriceMode mode, int price)
+    private void SetDescPanel(PriceMode mode, int price)
     {
-        if (shopPanel != null)
-        {
-            bool buyActive = mode == PriceMode.Buy;
-            if (shopPanel.activeSelf != buyActive)
-            {
-                shopPanel.SetActive(buyActive);
-            }
-        }
+        descPanel.SetActive(true);
 
-        if (sellPanel != null)
+        if (mode == PriceMode.Buy && descText != null)
         {
-            bool sellActive = mode == PriceMode.Sell;
-            if (sellPanel.activeSelf != sellActive)
-            {
-                sellPanel.SetActive(sellActive);
-            }
+            descText.text = defaultBuyText + $"${price}";
         }
-
-        if (mode == PriceMode.Buy && costText != null)
+        else if (mode == PriceMode.Sell && descText != null)
         {
-            costText.text = $"${price}";
+            descText.text = defaultSellText + $"${price}";
         }
-        else if (mode == PriceMode.Sell && sellPriceText != null)
+        else if (descText != null)
         {
-            sellPriceText.text = $"Sell Price: ${price}";
+            descText.text = defaultText;
         }
     }
 
-    private bool HasAncestorTooltipUI()
+    private bool HasAncestorTooltipHeaderUI()
     {
         Transform parent = transform.parent;
         while (parent != null)
         {
-            if (parent.GetComponent<TooltipUI>() != null)
+            if (parent.GetComponent<TooltipHeaderUI>() != null)
             {
                 return true;
             }
@@ -481,7 +371,7 @@ public sealed class TooltipUI : MonoBehaviour
         _rect.anchoredPosition = localPos;
     }
 
-    public static Vector2 GetMouseScreenPos()
+    private static Vector2 GetMouseScreenPos()
     {
 #if ENABLE_INPUT_SYSTEM
         var mouse = Mouse.current;

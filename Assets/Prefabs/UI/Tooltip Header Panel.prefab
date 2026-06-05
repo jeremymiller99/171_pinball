@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8453506463897612228}
   - component: {fileID: 7950457569677071305}
   m_Layer: 5
-  m_Name: Shop panel
+  m_Name: Desc panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -237,7 +237,7 @@ GameObject:
   - component: {fileID: 5425765028488275267}
   - component: {fileID: 7295151124345588030}
   m_Layer: 5
-  m_Name: Cost text
+  m_Name: Desc text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -603,10 +603,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TooltipHeaderUI
   nameText: {fileID: 8910117653483055863}
   typeText: {fileID: 6498016372908269708}
-  shopPanel: {fileID: 4157025883028214817}
-  costText: {fileID: 7295151124345588030}
-  sellPanel: {fileID: 0}
-  sellPriceText: {fileID: 0}
+  descPanel: {fileID: 4157025883028214817}
+  descText: {fileID: 7295151124345588030}
   controllerInUse: 0
   cachedVector: {x: 0, y: 0}
   defaultText: Click to Inspect.

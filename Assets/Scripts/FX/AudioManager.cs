@@ -460,7 +460,7 @@ public class AudioManager : MonoBehaviour
     }
 
     // Continuous Humming Sound
-    public void StartHummingSound(EventReference musicEvent)
+    public void StartHummingSound()
     {
         if (hummingSoundEvent.IsNull) return;
 
@@ -488,7 +488,7 @@ public class AudioManager : MonoBehaviour
     }
 
     // Continuous Emergency Siren Sound
-    public void StartSirenSound(EventReference musicEvent)
+    public void StartSirenSound()
     {
         if (sirenSoundEvent.IsNull) return;
 

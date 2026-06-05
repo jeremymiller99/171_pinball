@@ -1139,9 +1139,18 @@ public class RenderTextureRaycaster : MonoBehaviour
 
         _offerDragOriginalPos = _offerDragEntry.transform.position;
 
+        // Pin the drag plane to the shared anchor (above the board) when one
+        // exists in the scene, otherwise fall back to the item's own shelf
+        // depth. Resolved at runtime so the anchor can live in another scene
+        // (e.g. the shop scene) than this camera.
+        var planeAnchor = ServiceLocator.Get<OfferDragPlaneAnchor>();
+        Vector3 planePoint = planeAnchor != null
+            ? planeAnchor.transform.position
+            : _offerDragOriginalPos;
+
         _offerDragPlane = new Plane(
             -targetCamera.transform.forward,
-            _offerDragOriginalPos);
+            planePoint);
 
         Vector2 startViewport = ScreenToViewport(startScreenPos);
         Ray startRay = targetCamera.ViewportPointToRay(startViewport);
@@ -1149,7 +1158,11 @@ public class RenderTextureRaycaster : MonoBehaviour
         if (_offerDragPlane.Raycast(startRay, out float startEnter))
         {
             Vector3 grabPoint = startRay.GetPoint(startEnter);
-            _offerDragWorldOffset = _offerDragOriginalPos - grabPoint;
+            // Keep the relative "grab" feel, but measured on the drag plane so
+            // the item's depth stays locked to the plane.
+            Vector3 itemOnPlane =
+                _offerDragPlane.ClosestPointOnPlane(_offerDragOriginalPos);
+            _offerDragWorldOffset = itemOnPlane - grabPoint;
         }
         else
         {

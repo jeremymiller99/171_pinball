@@ -12,6 +12,12 @@ public class FrenzyManager : MonoBehaviour
     public event Action OnFrenzyDeactivated;
     public bool isFrenzyActive;
 
+    // Reference-counted timer pause. While > 0, the frenzy countdown is frozen
+    // (e.g. a ball is held inside the portal during its teleport delay) so the
+    // mode can't expire and yank the exit portal out from under that ball.
+    private int _timerPauseCount = 0;
+    public bool IsTimerPaused => _timerPauseCount > 0;
+
     private void Awake()
     {
         ServiceLocator.Register(this);
@@ -39,9 +45,27 @@ public class FrenzyManager : MonoBehaviour
         ServiceLocator.Get<AudioManager>()?.PlayFrenzyActivated();
     }
 
+    // Freeze/unfreeze the frenzy countdown. Calls must be balanced; use the
+    // matching ResumeTimer for every PauseTimer.
+    public void PauseTimer()
+    {
+        _timerPauseCount++;
+    }
+
+    public void ResumeTimer()
+    {
+        if (_timerPauseCount > 0)
+        {
+            _timerPauseCount--;
+        }
+    }
+
     private void Update()
     {
         if (!isFrenzyActive) return;
+
+        // Hold the countdown while paused (ball in a portal delay, etc.).
+        if (_timerPauseCount > 0) return;
 
         currentFrenzyTime += Time.deltaTime;
 

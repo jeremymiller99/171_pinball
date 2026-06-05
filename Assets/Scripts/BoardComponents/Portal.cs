@@ -7,6 +7,8 @@
 // then off).
 // Updated by Claude (Opus 4.8), for jjmil, on 2026-06-04 (configurable delay: ball is held hidden
 // inside the portal before exiting).
+// Updated by Claude (Opus 4.8), for jjmil, on 2026-06-04 (pause the frenzy timer for the duration
+// of the teleport delay so frenzy can't expire and remove the exit portal while a ball is held).
 using System.Collections;
 using UnityEngine;
 public class Portal : MonoBehaviour
@@ -46,9 +48,76 @@ public class Portal : MonoBehaviour
     [Min(0.01f)]
     [SerializeField] private float boardLightFlashFullCycleSeconds = 0.24f;
 
+    // While the ball is held inside the portal during teleportDelay, we freeze
+    // the frenzy timer so frenzy can't expire and deactivate the exit portal
+    // mid-delay (which would strand the held ball). Reference-counted in case
+    // several balls are held at once.
+    private FrenzyManager _frenzyManager;
+    private int _frenzyPausesHeld = 0;
+
+    // Number of balls currently held inside this portal's teleport delay.
+    // Owners that might remove this portal (e.g. the frenzy drop-target mode)
+    // check this and defer teardown until the held ball has exited.
+    private int _activeHoldCount = 0;
+    public bool IsHoldingBall => _activeHoldCount > 0;
+
     private void Awake()
     {
         ResolveCameraShake();
+    }
+
+    private void OnDisable()
+    {
+        // Disabling this object kills any running TeleportAfterDelay coroutine
+        // before its finally block runs, so release any state we still hold.
+        ReleaseAllFrenzyPauses();
+        _activeHoldCount = 0;
+    }
+
+    private void BeginHold()
+    {
+        _activeHoldCount++;
+        PauseFrenzyTimer();
+    }
+
+    private void EndHold()
+    {
+        if (_activeHoldCount > 0)
+        {
+            _activeHoldCount--;
+        }
+        ResumeFrenzyTimer();
+    }
+
+    private void PauseFrenzyTimer()
+    {
+        if (_frenzyManager == null)
+        {
+            _frenzyManager = ServiceLocator.Get<FrenzyManager>();
+        }
+
+        if (_frenzyManager != null)
+        {
+            _frenzyManager.PauseTimer();
+            _frenzyPausesHeld++;
+        }
+    }
+
+    private void ResumeFrenzyTimer()
+    {
+        if (_frenzyManager != null && _frenzyPausesHeld > 0)
+        {
+            _frenzyManager.ResumeTimer();
+            _frenzyPausesHeld--;
+        }
+    }
+
+    private void ReleaseAllFrenzyPauses()
+    {
+        while (_frenzyPausesHeld > 0)
+        {
+            ResumeFrenzyTimer();
+        }
     }
 
     private void ResolveCameraShake()
@@ -126,28 +195,39 @@ public class Portal : MonoBehaviour
         rb.angularVelocity = Vector3.zero;
         rb.isKinematic = true;
 
-        float elapsed = 0f;
-        while (elapsed < teleportDelay)
+        // Mark the hold (so owners defer removing this portal) and freeze frenzy
+        // for the whole hold so the exit portal can't disappear while this ball
+        // is waiting inside. Released in finally on every path.
+        BeginHold();
+        try
         {
-            // Bail out if the ball was destroyed/disabled while waiting.
-            if (rb == null || other == null || !other.gameObject.activeInHierarchy)
+            float elapsed = 0f;
+            while (elapsed < teleportDelay)
             {
-                yield break;
+                // Bail out if the ball was destroyed/disabled while waiting.
+                if (rb == null || other == null || !other.gameObject.activeInHierarchy)
+                {
+                    yield break;
+                }
+                elapsed += Time.deltaTime;
+                yield return null;
             }
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
 
-        foreach (Renderer r in renderers)
+            foreach (Renderer r in renderers)
+            {
+                if (r != null)
+                {
+                    r.enabled = true;
+                }
+            }
+
+            rb.isKinematic = wasKinematic;
+            CompleteTeleport(other, rb, traveller, entrySpeed);
+        }
+        finally
         {
-            if (r != null)
-            {
-                r.enabled = true;
-            }
+            EndHold();
         }
-
-        rb.isKinematic = wasKinematic;
-        CompleteTeleport(other, rb, traveller, entrySpeed);
     }
 
     private void CompleteTeleport(Collider other, Rigidbody rb, PortalTraveller traveller, float entrySpeed)

@@ -1,6 +1,8 @@
 // Generated with Antigravity by jjmil on 2026-04-09.
 // Drop‑target frenzy: bumper split‑open, portal reveal, multiplier doubling.
 // Frenzy-gate SFX hook added by Claude Code (Opus 4.7) for jjmil on 2026-04-21.
+// Updated by Claude (Opus 4.8), for jjmil, on 2026-06-04 (defer portal teardown while the entrance
+// portal is holding a ball in its teleport delay, so the held ball isn't stranded).
 using System;
 using System.Collections;
 using TMPro;
@@ -78,6 +80,11 @@ public class DropTargetsScoringMode : MonoBehaviour
     private bool _wasAllDown;
     private Coroutine _deferredCheckRoutine;
 
+    // Cached Portal on the entrance so we can tell when a ball is mid-teleport
+    // (held inside the delay) and defer tearing the portals down until it exits.
+    private Portal _frenzyEntrancePortalComponent;
+    private Coroutine _pendingPortalDeactivateRoutine;
+
     // Bumper animation state
     private Vector3[] _leftClosedPos;
     private Vector3[] _rightClosedPos;
@@ -87,6 +94,13 @@ public class DropTargetsScoringMode : MonoBehaviour
     {
         EnsureRefs();
         CacheBumperClosedPositions();
+
+        if (frenzyPortalEntrance != null)
+        {
+            _frenzyEntrancePortalComponent =
+                frenzyPortalEntrance.GetComponent<Portal>();
+        }
+
         SetFrenzyPortalsActive(false);
     }
 
@@ -120,6 +134,12 @@ public class DropTargetsScoringMode : MonoBehaviour
         {
             StopCoroutine(_bumperAnimRoutine);
             _bumperAnimRoutine = null;
+        }
+
+        if (_pendingPortalDeactivateRoutine != null)
+        {
+            StopCoroutine(_pendingPortalDeactivateRoutine);
+            _pendingPortalDeactivateRoutine = null;
         }
 
         if (dropTargets != null)
@@ -385,6 +405,57 @@ public class DropTargetsScoringMode : MonoBehaviour
     // ── Portal visibility ─────────────────────────────────────
 
     private void SetFrenzyPortalsActive(bool active)
+    {
+        if (active)
+        {
+            // Re-opening: cancel any deferred teardown that hadn't fired yet.
+            if (_pendingPortalDeactivateRoutine != null)
+            {
+                StopCoroutine(_pendingPortalDeactivateRoutine);
+                _pendingPortalDeactivateRoutine = null;
+            }
+
+            ApplyFrenzyPortalsActive(true);
+            return;
+        }
+
+        // Deactivating: if a ball is currently held inside the entrance portal's
+        // teleport delay, removing the portals now would strand it (the delay
+        // coroutine dies with the entrance and the exit it needs disappears).
+        // Defer teardown until the ball has exited.
+        if (_frenzyEntrancePortalComponent != null
+            && _frenzyEntrancePortalComponent.IsHoldingBall)
+        {
+            if (_pendingPortalDeactivateRoutine == null)
+            {
+                _pendingPortalDeactivateRoutine =
+                    StartCoroutine(DeactivatePortalsAfterHold());
+            }
+            return;
+        }
+
+        ApplyFrenzyPortalsActive(false);
+    }
+
+    private IEnumerator DeactivatePortalsAfterHold()
+    {
+        while (_frenzyEntrancePortalComponent != null
+               && _frenzyEntrancePortalComponent.IsHoldingBall)
+        {
+            yield return null;
+        }
+
+        _pendingPortalDeactivateRoutine = null;
+
+        // Only tear down if frenzy is still meant to be closed — the targets may
+        // have gone back down while we waited, re-opening the portals.
+        if (!_wasAllDown)
+        {
+            ApplyFrenzyPortalsActive(false);
+        }
+    }
+
+    private void ApplyFrenzyPortalsActive(bool active)
     {
         if (frenzyPortalEntrance != null)
             frenzyPortalEntrance.SetActive(active);

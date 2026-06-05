@@ -49,7 +49,11 @@ tutorial.firstPlay.title,CONTROLS,CONTROLES
 tutorial.firstPlay.button,START,EMPEZAR
 tutorial.firstPlay.body,"Flippers:  Left Arrow / Right Arrow,  A / D,  or Left / Right Mouse Button.
 
+Launcher:  Down Arrow / Middle Mouse Button
+
 Click START to begin.","Paletas:  Flecha izquierda / Flecha derecha,  A / D,  o botón izquierdo / derecho del ratón.
+
+Lanzador:  Flecha abajo / Botón central del ratón
 
 Haz clic en EMPEZAR para comenzar."
 tutorial.levelUp.title,YOU LEVELED UP!,¡SUBISTE DE NIVEL!
@@ -62,13 +66,9 @@ tutorial.shop.title,WELCOME TO THE SHOP,BIENVENIDO A LA TIENDA
 tutorial.shop.button,GOT IT,ENTENDIDO
 tutorial.shop.body,"Drag offers from the shelf onto your hand or onto the board to buy them.
 
-Drag a hand ball onto a shop hub to sell it back for coins.
+Drag a hand ball onto a shop hub to sell it back for coins.","Arrastra las ofertas del estante a tu mano o al tablero para comprarlas.
 
-Hit DONE inside the shop when you're ready to play the next round.","Arrastra las ofertas del estante a tu mano o al tablero para comprarlas.
-
-Arrastra una bola de la mano a un punto de venta para venderla por monedas.
-
-Pulsa LISTO dentro de la tienda cuando estés listo para jugar la siguiente ronda."
+Arrastra una bola de la mano a un punto de venta para venderla por monedas."
 gameplay.shop.dragToBuy,Drag {0} onto a hand slot to buy it.,Arrastra {0} a una ranura de la mano para comprarlo.
 gameplay.shop.notEnoughCoinsFor,Not enough coins for {0}.,No tienes suficientes monedas para {0}.
 gameplay.shop.canOnlyReplace,{0} can only replace a {1}.,{0} solo puede reemplazar a un {1}.

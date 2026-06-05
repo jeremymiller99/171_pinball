@@ -212,7 +212,7 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 719679789195264
     m_Localized: "Paletas:  Flecha izquierda / Flecha derecha,  A / D,  o bot\xF3n
-      izquierdo / derecho del rat\xF3n.\n\nHaz clic en EMPEZAR para comenzar."
+      izquierdo / derecho del rat\xF3n.\n\nLanzador:  Flecha abajo / Bot\xF3n central del rat\xF3n\n\nHaz clic en EMPEZAR para comenzar."
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195265
@@ -236,8 +236,7 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 719679789195269
     m_Localized: "Arrastra las ofertas del estante a tu mano o al tablero para comprarlas.\n\nArrastra
-      una bola de la mano a un punto de venta para venderla por monedas.\n\nPulsa
-      LISTO dentro de la tienda cuando est\xE9s listo para jugar la siguiente ronda."
+      una bola de la mano a un punto de venta para venderla por monedas."
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195270

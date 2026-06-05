@@ -215,6 +215,9 @@ MonoBehaviour:
       Button.
 
 
+      Launcher:  Down Arrow / Middle Mouse Button
+
+
       Click START to begin.'
     m_Metadata:
       m_Items: []
@@ -244,11 +247,7 @@ MonoBehaviour:
       buy them.
 
 
-      Drag a hand ball onto a shop hub to sell it back for coins.
-
-
-      Hit
-      DONE inside the shop when you''re ready to play the next round.'
+      Drag a hand ball onto a shop hub to sell it back for coins.'
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195270

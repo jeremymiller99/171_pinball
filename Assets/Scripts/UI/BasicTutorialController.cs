@@ -22,6 +22,7 @@ public sealed class BasicTutorialController : MonoBehaviour
     private static string firstPlayBody =>
         LocalizedUI.Get("tutorial.firstPlay.body",
             "Flippers:  Left Arrow / Right Arrow,  A / D,  or Left / Right Mouse Button.\n\n"
+            + "Launcher:  Down Arrow / Middle Mouse Button\n\n"
             + "Click START to begin.");
     private static string firstPlayButton =>
         LocalizedUI.Get("tutorial.firstPlay.button", "START");
@@ -39,8 +40,7 @@ public sealed class BasicTutorialController : MonoBehaviour
     private static string shopBody =>
         LocalizedUI.Get("tutorial.shop.body",
             "Drag offers from the shelf onto your hand or onto the board to buy them.\n\n"
-            + "Drag a hand ball onto a shop hub to sell it back for coins.\n\n"
-            + "Hit DONE inside the shop when you're ready to play the next round.");
+            + "Drag a hand ball onto a shop hub to sell it back for coins.");
     private static string shopButton =>
         LocalizedUI.Get("tutorial.shop.button", "GOT IT");
 
@@ -52,6 +52,20 @@ public sealed class BasicTutorialController : MonoBehaviour
     private const string firstPlayPanelName = "FirstPlayTutorialPanel";
     private const string levelUpPanelName = "LevelUpTutorialPanel";
     private const string shopPanelName = "ShopTutorialPanel";
+
+    // ====================================================================
+    // HAND-MADE PANEL PREFABS
+    // Author your own panels in the editor, attach a TutorialPanelView to
+    // each root, then drop them in a Resources folder under these paths:
+    //   Assets/Resources/Tutorial/FirstPlayPanel.prefab
+    //   Assets/Resources/Tutorial/LevelUpPanel.prefab
+    //   Assets/Resources/Tutorial/ShopPanel.prefab
+    // If a prefab is missing, the controller falls back to the built-in
+    // programmatic panel so nothing breaks while you migrate.
+    // ====================================================================
+    private const string firstPlayPanelResource = "Tutorial/FirstPlayPanel";
+    private const string levelUpPanelResource = "Tutorial/LevelUpPanel";
+    private const string shopPanelResource = "Tutorial/ShopPanel";
 
     private const int sortingOrder = 9990;
     private const float referenceWidth = 1920f;
@@ -79,6 +93,10 @@ public sealed class BasicTutorialController : MonoBehaviour
     private static BasicTutorialController _instance;
     private static TMP_FontAsset _cachedFont;
     private static bool _fontLookupAttempted;
+
+    // Caches loaded prefabs (and null results) so we only hit Resources once per path.
+    private static readonly Dictionary<string, GameObject> _prefabCache =
+        new Dictionary<string, GameObject>();
 
     private GameRulesManager _cachedRules;
 
@@ -199,8 +217,10 @@ public sealed class BasicTutorialController : MonoBehaviour
         PauseAndLockInput();
 
         Canvas canvas = EnsureOverlayCanvas();
-        _firstPlayPanel = BuildPanel(canvas.transform, firstPlayPanelName,
-            firstPlayTitle, firstPlayBody, firstPlayButton, OnFirstPlayClosed);
+        _firstPlayPanel = InstantiatePanelPrefab(canvas, firstPlayPanelResource,
+                firstPlayPanelName, firstPlayTitle, firstPlayBody, firstPlayButton, OnFirstPlayClosed)
+            ?? BuildPanel(canvas.transform, firstPlayPanelName,
+                firstPlayTitle, firstPlayBody, firstPlayButton, OnFirstPlayClosed);
     }
 
     private void OnFirstPlayClosed()
@@ -221,11 +241,13 @@ public sealed class BasicTutorialController : MonoBehaviour
         PauseAndLockInput();
 
         Canvas canvas = EnsureOverlayCanvas();
-        _levelUpPanel = BuildPanel(canvas.transform, levelUpPanelName,
-            levelUpTitle, levelUpBody, null, null,
-            bodyAlign: TextAlignmentOptions.Center,
-            bodyFontSizeOverride: levelUpBodyFontSize,
-            childAlignment: TextAnchor.MiddleCenter);
+        _levelUpPanel = InstantiatePanelPrefab(canvas, levelUpPanelResource,
+                levelUpPanelName, levelUpTitle, levelUpBody, null, null)
+            ?? BuildPanel(canvas.transform, levelUpPanelName,
+                levelUpTitle, levelUpBody, null, null,
+                bodyAlign: TextAlignmentOptions.Center,
+                bodyFontSizeOverride: levelUpBodyFontSize,
+                childAlignment: TextAnchor.MiddleCenter);
     }
 
     private void DestroyLevelUpPanel()
@@ -240,8 +262,10 @@ public sealed class BasicTutorialController : MonoBehaviour
     private void ShowShopPanel()
     {
         Canvas canvas = EnsureOverlayCanvas();
-        _shopPanel = BuildPanel(canvas.transform, shopPanelName,
-            shopTitle, shopBody, shopButton, OnShopPanelClosed);
+        _shopPanel = InstantiatePanelPrefab(canvas, shopPanelResource,
+                shopPanelName, shopTitle, shopBody, shopButton, OnShopPanelClosed)
+            ?? BuildPanel(canvas.transform, shopPanelName,
+                shopTitle, shopBody, shopButton, OnShopPanelClosed);
     }
 
     private void OnShopPanelClosed()
@@ -253,6 +277,46 @@ public sealed class BasicTutorialController : MonoBehaviour
             Destroy(_shopPanel);
             _shopPanel = null;
         }
+    }
+
+    /// <summary>
+    /// Instantiates a hand-made panel prefab from Resources and binds its text +
+    /// button. Returns null if the prefab is missing or lacks a
+    /// <see cref="TutorialPanelView"/>, so callers can fall back to BuildPanel.
+    /// </summary>
+    private GameObject InstantiatePanelPrefab(Canvas canvas, string resourcePath,
+        string objectName, string title, string body, string buttonLabel, Action onClose)
+    {
+        GameObject prefab = LoadPanelPrefab(resourcePath);
+        if (prefab == null) return null;
+
+        GameObject instance = Instantiate(prefab, canvas.transform, false);
+        instance.name = objectName;
+
+        var view = instance.GetComponent<TutorialPanelView>();
+        if (view == null)
+        {
+            Debug.LogWarning($"[BasicTutorial] Prefab '{resourcePath}' has no "
+                + $"{nameof(TutorialPanelView)} on its root; using the built-in panel instead.");
+            Destroy(instance);
+            return null;
+        }
+
+        view.Bind(title, body, buttonLabel, onClose);
+        return instance;
+    }
+
+    private static GameObject LoadPanelPrefab(string resourcePath)
+    {
+        if (string.IsNullOrEmpty(resourcePath)) return null;
+
+        if (_prefabCache.TryGetValue(resourcePath, out GameObject cached))
+            return cached;
+
+        // Caches null too, so a missing prefab isn't re-loaded every time the panel shows.
+        GameObject prefab = Resources.Load<GameObject>(resourcePath);
+        _prefabCache[resourcePath] = prefab;
+        return prefab;
     }
 
     private static Canvas EnsureOverlayCanvas()

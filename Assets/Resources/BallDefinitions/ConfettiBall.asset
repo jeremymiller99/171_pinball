@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Confetti
   displayName: Confetti
-  description: Every 4 component hits, spawns 3 colorful mini-balls that pop after 3 hits.
-    Up to 4 bursts per ball.
+  description: Every 4 component hits, spawns 3 colorful mini-balls that pop after
+    3 hits. Up to 4 bursts per ball.
   rarity: 1
   elementType: 4
   icon: {fileID: 21300000, guid: e33ce551098a8524f8527918a2b8520b, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 774265b200d64f29b97224ed5f901ebb, type: 3}
-  price: 25
+  price: 15

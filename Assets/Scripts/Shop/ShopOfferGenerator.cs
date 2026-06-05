@@ -7,7 +7,8 @@ using UnityEngine;
 
 /// <summary>
 /// Merges ball and board-component catalogs into a single pool, then randomly
-/// selects offers per shop visit (optionally filtered by element type).
+/// selects offers per shop visit, weighted by item rarity (rarer items show
+/// up less often). Every shop visit can offer any item type.
 /// </summary>
 public sealed class ShopOfferGenerator
 {
@@ -23,12 +24,12 @@ public sealed class ShopOfferGenerator
     }
 
     /// <summary>
-    /// Builds a fresh list of random offers. <paramref name="catalogElement"/>
-    /// None = mixed pool; otherwise only matching <see cref="ElementType"/>.
-    /// Falls back to mixed if the specialist pool is empty.
+    /// Builds a fresh list of random offers drawn from the full unlocked
+    /// catalog. Items are weighted by rarity, so rarer items appear less often.
+    /// Balls use their <see cref="BallRarity"/>; components (which have no
+    /// rarity) are treated as <see cref="BallRarity.Common"/>.
     /// </summary>
     public List<ShopOffer> GenerateOffers(
-        ElementType catalogElement,
         int minOfferCount,
         int maxOfferCount,
         float combinedPriceMultiplier)
@@ -38,31 +39,11 @@ public sealed class ShopOfferGenerator
         lo = Mathf.Max(1, lo);
         hi = Mathf.Max(lo, hi);
 
-        List<ShopOffer> mixedPool = BuildUnlockedPool(combinedPriceMultiplier);
+        List<ShopOffer> pool = BuildUnlockedPool(combinedPriceMultiplier);
 
-        if (mixedPool.Count == 0)
+        if (pool.Count == 0)
         {
             return new List<ShopOffer>();
-        }
-
-        List<ShopOffer> pool = mixedPool;
-
-        if (catalogElement != ElementType.None)
-        {
-            List<ShopOffer> specialist = FilterPoolByElement(
-                mixedPool, catalogElement);
-
-            if (specialist.Count == 0)
-            {
-                Debug.LogWarning(
-                    "[ShopOfferGenerator] No unlocked items for element " +
-                    catalogElement + "; using mixed catalog.");
-                pool = mixedPool;
-            }
-            else
-            {
-                pool = specialist;
-            }
         }
 
         int target = Mathf.Clamp(
@@ -70,32 +51,97 @@ public sealed class ShopOfferGenerator
             1,
             pool.Count);
 
-        for (int i = 0; i < target; i++)
-        {
-            int j = Random.Range(i, pool.Count);
-            (pool[i], pool[j]) = (pool[j], pool[i]);
-        }
-
-        return pool.GetRange(0, target);
+        return WeightedSampleWithoutReplacement(pool, target);
     }
 
-    private static List<ShopOffer> FilterPoolByElement(
-        List<ShopOffer> source,
-        ElementType element)
+    /// <summary>
+    /// Picks <paramref name="count"/> distinct offers from
+    /// <paramref name="pool"/>, each remaining item's chance proportional to its
+    /// rarity weight. Mutates <paramref name="pool"/> (entries are removed as
+    /// they are chosen).
+    /// </summary>
+    private static List<ShopOffer> WeightedSampleWithoutReplacement(
+        List<ShopOffer> pool,
+        int count)
     {
-        var filtered = new List<ShopOffer>();
+        var chosen = new List<ShopOffer>(count);
+        var weights = new List<float>(pool.Count);
 
-        for (int i = 0; i < source.Count; i++)
+        for (int i = 0; i < pool.Count; i++)
         {
-            ShopOffer o = source[i];
-
-            if (o != null && o.ElementType == element)
-            {
-                filtered.Add(o);
-            }
+            weights.Add(GetRarityWeight(pool[i]));
         }
 
-        return filtered;
+        for (int n = 0; n < count && pool.Count > 0; n++)
+        {
+            float total = 0f;
+            for (int i = 0; i < weights.Count; i++)
+            {
+                total += weights[i];
+            }
+
+            if (total <= 0f)
+            {
+                break;
+            }
+
+            float r = Random.value * total;
+            int pick = weights.Count - 1;
+            float acc = 0f;
+
+            for (int i = 0; i < weights.Count; i++)
+            {
+                acc += weights[i];
+                if (r <= acc)
+                {
+                    pick = i;
+                    break;
+                }
+            }
+
+            chosen.Add(pool[pick]);
+            pool.RemoveAt(pick);
+            weights.RemoveAt(pick);
+        }
+
+        return chosen;
+    }
+
+    /// <summary>
+    /// Relative shop frequency weight for an offer based on its rarity. Balls
+    /// and board components share the same <see cref="BallRarity"/> categories
+    /// and weights.
+    /// </summary>
+    private static float GetRarityWeight(ShopOffer offer)
+    {
+        if (offer == null)
+        {
+            return 0f;
+        }
+
+        if (offer.Type == ShopOffer.OfferType.Ball)
+        {
+            return offer.BallDef != null
+                ? RarityWeight(offer.BallDef.Rarity)
+                : RarityWeight(BallRarity.Common);
+        }
+
+        return offer.ComponentDef != null
+            ? RarityWeight(offer.ComponentDef.Rarity)
+            : RarityWeight(BallRarity.Common);
+    }
+
+    private static float RarityWeight(BallRarity rarity)
+    {
+        switch (rarity)
+        {
+            case BallRarity.Common: return 100f;
+            case BallRarity.Uncommon: return 60f;
+            case BallRarity.Rare: return 30f;
+            case BallRarity.Epic: return 12f;
+            case BallRarity.Legendary: return 4f;
+            default: return 1f;
+        }
     }
 
     private List<ShopOffer> BuildUnlockedPool(float combinedPriceMultiplier)

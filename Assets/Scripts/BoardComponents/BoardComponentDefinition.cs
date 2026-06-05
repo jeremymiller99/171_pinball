@@ -20,6 +20,7 @@ public sealed class BoardComponentDefinition : ScriptableObject
     [TextArea]
     [SerializeField] private string description = "";
     [SerializeField] private BoardComponentType componentType = BoardComponentType.Bumper;
+    [SerializeField] private BallRarity rarity = BallRarity.Common;
     [SerializeField] private ElementType elementType = ElementType.None;
     [SerializeField] private Sprite icon;
 
@@ -34,6 +35,7 @@ public sealed class BoardComponentDefinition : ScriptableObject
     public string DisplayName => displayName;
     public string Description => description;
     public BoardComponentType ComponentType => componentType;
+    public BallRarity Rarity => rarity;
     public ElementType ElementType => elementType;
     public Sprite Icon => icon;
     public GameObject Prefab => prefab;
@@ -44,6 +46,7 @@ public sealed class BoardComponentDefinition : ScriptableObject
         string runtimeDisplayName,
         string runtimeDescription,
         BoardComponentType runtimeType,
+        BallRarity runtimeRarity,
         ElementType runtimeElementType,
         Sprite runtimeIcon,
         GameObject runtimePrefab,
@@ -58,6 +61,7 @@ public sealed class BoardComponentDefinition : ScriptableObject
                 : runtimeDisplayName;
         def.description = runtimeDescription ?? "";
         def.componentType = runtimeType;
+        def.rarity = runtimeRarity;
         def.elementType = runtimeElementType;
         def.icon = runtimeIcon;
         def.prefab = runtimePrefab;

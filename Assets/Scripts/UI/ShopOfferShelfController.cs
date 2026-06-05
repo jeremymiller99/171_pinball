@@ -132,25 +132,11 @@ public sealed class ShopOfferShelfController : MonoBehaviour
         ShopShipController ship =
             Object.FindFirstObjectByType<ShopShipController>();
 
-        float playerMult = 1f;
-
-        if (GameSession.Instance != null
-            && GameSession.Instance.ActiveShip != null)
-        {
-            playerMult = Mathf.Max(
-                0f,
-                GameSession.Instance.ActiveShip.ShopPriceMultiplier);
-        }
-
-        float visitorMult = ship != null
-            ? Mathf.Max(0f, ship.CurrentVisitorPriceMultiplier)
-            : 1f;
-
-        float combined = playerMult * visitorMult;
-
-        ElementType catalogElement = ship != null
-            ? ship.CurrentCatalogElement
-            : ElementType.None;
+        // Shop price multipliers are standardized to 1x for now. The player-ship
+        // (PlayerShipDefinition.ShopPriceMultiplier) and visitor-merchant
+        // (ShopShipController) multiplier features remain in place but are
+        // intentionally bypassed here.
+        float combined = 1f;
 
         int minO = ship != null ? ship.MinOffers : 3;
         int maxO = ship != null ? ship.MaxOffers : 6;
@@ -158,7 +144,6 @@ public sealed class ShopOfferShelfController : MonoBehaviour
         _currentOffers.Clear();
         _currentOffers.AddRange(
             _generator.GenerateOffers(
-                catalogElement,
                 minO,
                 maxO,
                 combined));

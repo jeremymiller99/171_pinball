@@ -33,11 +33,6 @@ public class ShopShipController : MonoBehaviour
     [SerializeField] private float bobHeight = 0.2f;
 
     [Header("Merchant visit (rolled each FlyIn)")]
-    [Tooltip("Random element each visit; None = mixed catalog. If empty, all " +
-        "element types including None are eligible.")]
-    [SerializeField]
-    private ElementType[] merchantElementPool;
-
     [Tooltip("Minimum number of shelf offers for this shop ship.")]
     [SerializeField]
     [Min(1)]
@@ -187,9 +182,16 @@ public class ShopShipController : MonoBehaviour
     private void RollMerchantVisit()
     {
         _currentMerchantDisplayName = AlienMerchantNameGenerator.Generate();
-        _currentCatalogElement = PickRandomCatalogElement();
-        _currentVisitorPriceMultiplier =
-            ShopPricingMath.SampleVisitorPriceMultiplier(visitorPriceSigma);
+
+        // Merchants no longer specialize by element; every ship shows the full
+        // catalog. Kept as None so existing tooltips read as a mixed catalog.
+        _currentCatalogElement = ElementType.None;
+
+        // Shop multipliers are standardized to 1x for now. The visitor-price
+        // feature (ShopPricingMath.SampleVisitorPriceMultiplier / sigma below)
+        // is retained but its result is intentionally not applied.
+        ShopPricingMath.SampleVisitorPriceMultiplier(visitorPriceSigma);
+        _currentVisitorPriceMultiplier = 1f;
 
         if (merchantNameLabel != null)
         {
@@ -218,22 +220,6 @@ public class ShopShipController : MonoBehaviour
         }
 
         hover.Bind(this);
-    }
-
-    private ElementType PickRandomCatalogElement()
-    {
-        if (merchantElementPool != null && merchantElementPool.Length > 0)
-        {
-            int i = Random.Range(0, merchantElementPool.Length);
-
-            return merchantElementPool[i];
-        }
-
-        ElementType[] all = (ElementType[])System.Enum.GetValues(
-            typeof(ElementType));
-        int j = Random.Range(0, all.Length);
-
-        return all[j];
     }
 
     private void UpdateRotationCorrection()

@@ -964,7 +964,6 @@ public class RenderTextureRaycaster : MonoBehaviour
 
         if (delta.sqrMagnitude < threshold * threshold)
         {
-            entry.OnClick();
             return;
         }
 

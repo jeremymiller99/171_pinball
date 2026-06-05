@@ -4,9 +4,9 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Modules/Module Pool", fileName = "New Module Pool")]
 public class ModulePool : ScriptableObject
 {
-    public List<ModuleDefinition> modules = new List<ModuleDefinition>();
+    public List<ArtifactDefinition> modules = new List<ArtifactDefinition>();
     
-    public List<ModuleDefinition> GetThreeRandomModules(System.Random rng = null)
+    public List<ArtifactDefinition> GetThreeRandomModules(System.Random rng = null)
     {
         if (modules == null || modules.Count < 3)
         {
@@ -19,7 +19,7 @@ public class ModulePool : ScriptableObject
         }
 
         // Filter out nulls
-        var validModules = new List<ModuleDefinition>();
+        var validModules = new List<ArtifactDefinition>();
         foreach (var module in modules)
         {
             if (module != null)
@@ -33,7 +33,7 @@ public class ModulePool : ScriptableObject
             return null;
         }
 
-        List<ModuleDefinition> selectedModules = new List<ModuleDefinition>();
+        List<ArtifactDefinition> selectedModules = new List<ArtifactDefinition>();
 
         for (int i = 0; i < 3; i++)
         {

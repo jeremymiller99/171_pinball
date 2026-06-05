@@ -230,8 +230,6 @@ public sealed class FlipperOverheat : MonoBehaviour
         if (litCount != _lastLitCount)
         {
             ApplyHeatLights(litCount);
-            // Coin tick whenever a gauge bulb turns on or off.
-            ServiceLocator.Get<AudioManager>()?.PlayCoinAdd();
         }
     }
 

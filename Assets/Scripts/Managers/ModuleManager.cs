@@ -41,7 +41,7 @@ public class ModuleManager : MonoBehaviour
             text.gameObject.SetActive(false);
         }
 
-        List<ModuleDefinition> modules = modulePool.GetThreeRandomModules();
+        List<ArtifactDefinition> modules = modulePool.GetThreeRandomModules();
         for (int i = 0; i < modules.Count; i++)
         {
             moduleCards[i].SetActive(true);

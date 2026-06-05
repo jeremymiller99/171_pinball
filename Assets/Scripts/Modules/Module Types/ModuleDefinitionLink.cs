@@ -3,11 +3,11 @@ using UnityEngine;
 
 public sealed class ModuleDefinitionLink : MonoBehaviour
 {
-    [SerializeField] private ModuleDefinition definition;
+    [SerializeField] private ArtifactDefinition definition;
 
-    public ModuleDefinition Definition => definition;
+    public ArtifactDefinition Definition => definition;
 
-    public bool TryGetDefinition(out ModuleDefinition outDefinition)
+    public bool TryGetDefinition(out ArtifactDefinition outDefinition)
     {
         outDefinition = definition;
         return outDefinition != null;

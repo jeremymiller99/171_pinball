@@ -623,7 +623,7 @@ public class RenderTextureRaycaster : MonoBehaviour
 
         if (moduleLink != null
             && moduleLink.TryGetDefinition(
-                out ModuleDefinition moduleDef))
+                out ArtifactDefinition moduleDef))
         {
             title = moduleDef.GetSafeDisplayName();
             desc = moduleDef.Description;

@@ -38,7 +38,7 @@ public class ModuleCard : MonoBehaviour, IPointerExitHandler, IPointerEnterHandl
         cardBaseRot = cardRect.localRotation;
         cardBaseScale = cardRect.localScale;
     }
-    public void Populate(ModuleDefinition moduleDefinition)
+    public void Populate(ArtifactDefinition moduleDefinition)
     {
         nameText.text = moduleDefinition.DisplayName;
         descriptionText.text = moduleDefinition.Description;

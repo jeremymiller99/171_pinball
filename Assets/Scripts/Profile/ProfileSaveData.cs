@@ -31,6 +31,9 @@ public sealed class ProfileSaveData
     public List<string> unlockedComponentIds =
         new List<string>();
 
+    public List<string> unlockedShipIds =
+        new List<string>();
+
     public List<ChallengeBestEntry> challengeBests =
         new List<ChallengeBestEntry>();
 }

@@ -11,6 +11,10 @@ using UnityEngine.Serialization;
 [CreateAssetMenu(menuName = "Pinball/Player Ship Definition", fileName = "New Player Ship")]
 public class PlayerShipDefinition : ScriptableObject
 {
+    [Header("Identity")]
+    [Tooltip("Stable unique id for this ship (used for progression unlocks and persistence). Falls back to the asset name if left empty.")]
+    [SerializeField] private string id = "";
+
     [Header("Display")]
     [SerializeField, FormerlySerializedAs("displayName")] private string displayNameSource = "New Ship";
 
@@ -23,6 +27,9 @@ public class PlayerShipDefinition : ScriptableObject
 
     [Tooltip("Optional 3D model prefab to show in the UI or board.")]
     public GameObject shipModelPrefab;
+
+    [Tooltip("Icon shown in shop and progression lists.")]
+    [SerializeField] private Sprite icon;
 
     [Tooltip("Thematic element type (same enum as pinballs and board components).")]
     [SerializeField]
@@ -60,4 +67,26 @@ public class PlayerShipDefinition : ScriptableObject
     public ElementType ElementType => elementType;
 
     public float ShopPriceMultiplier => shopPriceMultiplier;
+
+    /// <summary>Stable id used for progression unlocks; falls back to the asset name.</summary>
+    public string Id => string.IsNullOrEmpty(id) ? name : id;
+
+    /// <summary>Icon shown in shop and progression lists (may be null).</summary>
+    public Sprite Icon => icon;
+
+    /// <summary>
+    /// Mirrors <see cref="BallDefinition.IsValid"/> /
+    /// <see cref="BoardComponentDefinition.IsValid"/> so progression code can
+    /// treat ships, balls, and components uniformly.
+    /// </summary>
+    public bool IsValid()
+    {
+        return !string.IsNullOrWhiteSpace(displayName);
+    }
+
+    public string GetSafeDisplayName()
+    {
+        string localized = displayName;
+        return string.IsNullOrWhiteSpace(localized) ? "Ship" : localized;
+    }
 }

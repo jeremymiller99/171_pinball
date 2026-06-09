@@ -93,6 +93,7 @@ public sealed class ProgressionScreenController
         public Image timelineBarFill;
         public BallDefinition ball;
         public BoardComponentDefinition component;
+        public PlayerShipDefinition ship;
         public bool isStarter;
         public double nodeThreshold;
         public double nodePrevThreshold;
@@ -340,6 +341,33 @@ public sealed class ProgressionScreenController
             totalNodes++;
         }
 
+        var starterShips = config.StarterShips;
+
+        for (int i = 0; i < starterShips.Count; i++)
+        {
+            if (starterShips[i] == null)
+            {
+                continue;
+            }
+
+            if (totalNodes > 0)
+            {
+                _connectors.Add(BuildConnector());
+            }
+
+            var node = BuildNode(
+                starterShips[i].GetSafeDisplayName(),
+                starterShips[i].Icon,
+                0d,
+                isStarter: true);
+
+            node.ship = starterShips[i];
+            node.isStarter = true;
+            _nodeRefs.Add(node);
+            AttachTooltipEvents(node);
+            totalNodes++;
+        }
+
         var tiers = config.Tiers;
         double prevThreshold = 0d;
 
@@ -386,6 +414,24 @@ public sealed class ProgressionScreenController
                     isStarter: false);
 
                 node.component = comp;
+                node.isStarter = false;
+                node.nodeThreshold = threshold;
+                node.nodePrevThreshold = prevThreshold;
+                _nodeRefs.Add(node);
+                AttachTooltipEvents(node);
+                totalNodes++;
+            }
+            else if (tiers[i].HasValidShipReward)
+            {
+                var ship = tiers[i].RewardShip;
+
+                var node = BuildNode(
+                    ship.GetSafeDisplayName(),
+                    ship.Icon,
+                    threshold,
+                    isStarter: false);
+
+                node.ship = ship;
                 node.isStarter = false;
                 node.nodeThreshold = threshold;
                 node.nodePrevThreshold = prevThreshold;
@@ -1069,6 +1115,12 @@ public sealed class ProgressionScreenController
                 .GetSafeDisplayName();
         }
 
+        if (tier.HasValidShipReward)
+        {
+            return tier.RewardShip
+                .GetSafeDisplayName();
+        }
+
         return "Unknown";
     }
 
@@ -1265,6 +1317,12 @@ public sealed class ProgressionScreenController
             desc = node.component.Description;
             elementType =
                 node.component.ElementType;
+        }
+        else if (node.ship != null)
+        {
+            title = node.ship.GetSafeDisplayName();
+            desc = node.ship.description;
+            elementType = node.ship.ElementType;
         }
 
         if (title == null)

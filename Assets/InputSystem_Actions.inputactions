@@ -537,6 +537,17 @@
                 },
                 {
                     "name": "",
+                    "id": "9c243a57-4e73-410f-aa04-c58a054b7186",
+                    "path": "<Mouse>/scroll",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UIMovement",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "ca031f28-b330-47a5-93c3-8832946d782d",
                     "path": "<Keyboard>/backspace",
                     "interactions": "",

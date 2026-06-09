@@ -25,6 +25,13 @@ public sealed class ProgressionTier
     [SerializeField]
     private BoardComponentDefinition rewardComponent;
 
+    [Tooltip(
+        "Ship unlocked when the player reaches this "
+        + "tier. Set this or the ball / component reward, "
+        + "not more than one.")]
+    [SerializeField]
+    private PlayerShipDefinition rewardShip;
+
     public double XpThreshold => xpThreshold;
 
     public BallDefinition RewardBall => rewardBall;
@@ -32,14 +39,20 @@ public sealed class ProgressionTier
     public BoardComponentDefinition RewardComponent =>
         rewardComponent;
 
+    public PlayerShipDefinition RewardShip => rewardShip;
+
     public string RewardBallId =>
         rewardBall != null ? rewardBall.Id : "";
 
     public string RewardComponentId =>
         rewardComponent != null ? rewardComponent.Id : "";
 
+    public string RewardShipId =>
+        rewardShip != null ? rewardShip.Id : "";
+
     public bool HasValidReward =>
-        HasValidBallReward || HasValidComponentReward;
+        HasValidBallReward || HasValidComponentReward
+        || HasValidShipReward;
 
     public bool HasValidBallReward =>
         rewardBall != null && rewardBall.IsValid();
@@ -47,4 +60,7 @@ public sealed class ProgressionTier
     public bool HasValidComponentReward =>
         rewardComponent != null
         && rewardComponent.IsValid();
+
+    public bool HasValidShipReward =>
+        rewardShip != null && rewardShip.IsValid();
 }

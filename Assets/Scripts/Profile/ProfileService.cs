@@ -9,7 +9,7 @@ using UnityEngine;
 public sealed class ProfileService : MonoBehaviour
 {
     private const int slotCount = 3;
-    private const int currentVersion = 5;
+    private const int currentVersion = 6;
 
     private const string activeSlotKey = "ActiveProfileSlot_v1";
     private const string directoryName = "profiles";
@@ -325,6 +325,47 @@ public sealed class ProfileService : MonoBehaviour
         return new List<string>(p.unlockedComponentIds);
     }
 
+    public static bool AddUnlockedShip(string shipId)
+    {
+        if (Instance == null) return false;
+        if (string.IsNullOrEmpty(shipId)) return false;
+
+        ProfileSaveData p =
+            Instance.GetOrCreateActiveProfile();
+
+        if (p == null) return false;
+
+        if (p.unlockedShipIds == null)
+        {
+            p.unlockedShipIds = new List<string>();
+        }
+
+        if (p.unlockedShipIds.Contains(shipId))
+        {
+            return false;
+        }
+
+        p.unlockedShipIds.Add(shipId);
+        Instance.SaveSlot(Instance.activeSlot);
+        ProfileChanged?.Invoke(Instance.activeSlot);
+        return true;
+    }
+
+    public static List<string> GetUnlockedShipIds()
+    {
+        if (Instance == null) return new List<string>();
+
+        ProfileSaveData p =
+            Instance.GetOrCreateActiveProfile();
+
+        if (p == null || p.unlockedShipIds == null)
+        {
+            return new List<string>();
+        }
+
+        return new List<string>(p.unlockedShipIds);
+    }
+
     public static long GetChallengeBestScore(
         string challengeName)
     {
@@ -613,6 +654,14 @@ public sealed class ProfileService : MonoBehaviour
             {
                 data.challengeBests =
                     new List<ChallengeBestEntry>();
+            }
+        }
+
+        if (data.version < 6)
+        {
+            if (data.unlockedShipIds == null)
+            {
+                data.unlockedShipIds = new List<string>();
             }
         }
 

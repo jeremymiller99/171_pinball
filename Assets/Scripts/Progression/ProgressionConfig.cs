@@ -23,6 +23,13 @@ public sealed class ProgressionConfig : ScriptableObject
     private List<BoardComponentDefinition> starterComponents =
         new List<BoardComponentDefinition>();
 
+    [Header("Starter Ships")]
+    [Tooltip(
+        "Ships available from the very start of a new "
+        + "profile.")]
+    [SerializeField] private List<PlayerShipDefinition> starterShips =
+        new List<PlayerShipDefinition>();
+
     [Header("Progression Tiers")]
     [Tooltip(
         "Ordered list of tiers. Each tier grants a new "
@@ -36,6 +43,9 @@ public sealed class ProgressionConfig : ScriptableObject
 
     public IReadOnlyList<BoardComponentDefinition>
         StarterComponents => starterComponents;
+
+    public IReadOnlyList<PlayerShipDefinition>
+        StarterShips => starterShips;
 
     public IReadOnlyList<ProgressionTier> Tiers => tiers;
 
@@ -69,6 +79,25 @@ public sealed class ProgressionConfig : ScriptableObject
         {
             if (starterComponents[i] != null
                 && starterComponents[i].Id == componentId)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public bool IsStarterShip(string shipId)
+    {
+        if (string.IsNullOrEmpty(shipId))
+        {
+            return false;
+        }
+
+        for (int i = 0; i < starterShips.Count; i++)
+        {
+            if (starterShips[i] != null
+                && starterShips[i].Id == shipId)
             {
                 return true;
             }
@@ -117,6 +146,25 @@ public sealed class ProgressionConfig : ScriptableObject
         return null;
     }
 
+    public ProgressionTier GetTierForShipId(string shipId)
+    {
+        if (string.IsNullOrEmpty(shipId))
+        {
+            return null;
+        }
+
+        for (int i = 0; i < tiers.Count; i++)
+        {
+            if (tiers[i] != null
+                && tiers[i].RewardShipId == shipId)
+            {
+                return tiers[i];
+            }
+        }
+
+        return null;
+    }
+
     public HashSet<string> GetAllRewardBallIds()
     {
         var ids = new HashSet<string>();
@@ -141,6 +189,23 @@ public sealed class ProgressionConfig : ScriptableObject
         for (int i = 0; i < tiers.Count; i++)
         {
             string id = tiers[i]?.RewardComponentId;
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                ids.Add(id);
+            }
+        }
+
+        return ids;
+    }
+
+    public HashSet<string> GetAllRewardShipIds()
+    {
+        var ids = new HashSet<string>();
+
+        for (int i = 0; i < tiers.Count; i++)
+        {
+            string id = tiers[i]?.RewardShipId;
 
             if (!string.IsNullOrEmpty(id))
             {

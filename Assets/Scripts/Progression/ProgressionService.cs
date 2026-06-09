@@ -18,6 +18,9 @@ public sealed class ProgressionService : MonoBehaviour
     public static event Action<BoardComponentDefinition>
         ComponentUnlocked;
 
+    public static event Action<PlayerShipDefinition>
+        ShipUnlocked;
+
     [Header("Debug")]
     public bool everythingUnlocked = false;
 
@@ -146,6 +149,23 @@ public sealed class ProgressionService : MonoBehaviour
                     }
                 }
             }
+            else if (tier.HasValidShipReward)
+            {
+                string shipId = tier.RewardShipId;
+
+                if (!string.IsNullOrEmpty(shipId))
+                {
+                    bool added =
+                        ProfileService.AddUnlockedShip(
+                            shipId);
+
+                    if (added)
+                    {
+                        ShipUnlocked?.Invoke(
+                            tier.RewardShip);
+                    }
+                }
+            }
         }
     }
 
@@ -187,6 +207,58 @@ public sealed class ProgressionService : MonoBehaviour
             ProfileService.GetUnlockedComponentIds();
 
         return unlocked.Contains(componentId);
+    }
+
+    public bool IsShipUnlocked(string shipId)
+    {
+        if (everythingUnlocked) return true;
+        if (string.IsNullOrEmpty(shipId))
+        {
+            return false;
+        }
+
+        if (config != null
+            && config.IsStarterShip(shipId))
+        {
+            return true;
+        }
+
+        List<string> unlocked =
+            ProfileService.GetUnlockedShipIds();
+
+        return unlocked.Contains(shipId);
+    }
+
+    public List<PlayerShipDefinition>
+        GetUnlockedShipDefinitions(
+            IList<PlayerShipDefinition> fullCatalog)
+    {
+        if (fullCatalog == null
+            || fullCatalog.Count == 0)
+        {
+            return new List<PlayerShipDefinition>();
+        }
+
+        var result =
+            new List<PlayerShipDefinition>(
+                fullCatalog.Count);
+
+        for (int i = 0; i < fullCatalog.Count; i++)
+        {
+            PlayerShipDefinition def = fullCatalog[i];
+
+            if (def == null)
+            {
+                continue;
+            }
+
+            if (IsShipUnlocked(def.Id))
+            {
+                result.Add(def);
+            }
+        }
+
+        return result;
     }
 
     public List<BallDefinition> GetUnlockedBallDefinitions(

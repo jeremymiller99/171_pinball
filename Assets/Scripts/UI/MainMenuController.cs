@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using TMPro;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 
 /// <summary>
-/// Drives the new text-based main menu (Play / Settings / Profile).
+/// Drives the new text-based main menu (Play / Settings / Progression).
 /// The selected option is rendered as "> Label <" in green; the others
 /// use their default label/color. Selection changes on hover or arrow
 /// keys; clicking (or Enter/Submit) confirms the current selection.
@@ -20,7 +21,7 @@ public sealed class MainMenuController : MonoBehaviour
     {
         Play = 0,
         Settings = 1,
-        Profile = 2
+        Progression = 2
     }
 
     // Which camera point we're currently at. The three main-menu buttons are
@@ -28,9 +29,10 @@ public sealed class MainMenuController : MonoBehaviour
     // own canvas/controls.
     private enum MenuLocation
     {
-        Main = 0,     // Camera point 1 — monitor 1 canvas (these buttons).
-        Play = 1,     // Camera point 2 — monitor 2 canvas (not yet made).
-        Settings = 2  // Camera point 3 — settings canvas / panel.
+        Main = 0,        // Camera point 1 — monitor 1 canvas (these buttons).
+        Play = 1,        // Camera point 2 — monitor 2 canvas.
+        Progression = 2, // Camera point 3 — progression canvas / panel.
+        Settings = 3     // Camera point 4 — settings canvas / panel.
     }
 
     [Header("Menu options (assign the TMP_Text objects)")]
@@ -40,8 +42,9 @@ public sealed class MainMenuController : MonoBehaviour
     [Tooltip("The 'Settings' text object.")]
     [SerializeField] private TMP_Text settingsText;
 
-    [Tooltip("The 'Profile' text object.")]
-    [SerializeField] private TMP_Text profileText;
+    [Tooltip("The 'Progression' text object.")]
+    [FormerlySerializedAs("profileText")]
+    [SerializeField] private TMP_Text progressionText;
 
     [Header("Selection styling")]
     [Tooltip("Color applied to the currently selected option.")]
@@ -63,9 +66,14 @@ public sealed class MainMenuController : MonoBehaviour
     [SerializeField] private Monitor2Controller monitor2Controller;
 
     [Header("Settings")]
-    [Tooltip("Settings panel to show while the camera is at the third point. " +
+    [Tooltip("Settings panel to show while the camera is at the fourth point. " +
              "Drag the panel instance from the scene here.")]
     [SerializeField] private GameObject settingsPanel;
+
+    [Header("Progression")]
+    [Tooltip("Progression panel to show while the camera is at the third point. " +
+             "Drag the panel instance from the scene here.")]
+    [SerializeField] private GameObject progressionPanel;
 
     [Header("Runtime (debug)")]
     [SerializeField] private MenuOption currentOption = MenuOption.Play;
@@ -114,7 +122,7 @@ public sealed class MainMenuController : MonoBehaviour
             return;
         }
 
-        _texts = new[] { playText, settingsText, profileText };
+        _texts = new[] { playText, settingsText, progressionText };
         _baseLabels = new string[_texts.Length];
         _baseColors = new Color[_texts.Length];
 
@@ -254,8 +262,8 @@ public sealed class MainMenuController : MonoBehaviour
             case MenuOption.Settings:
                 GoToSettings();
                 break;
-            case MenuOption.Profile:
-                GoToProfile();
+            case MenuOption.Progression:
+                GoToProgression();
                 break;
         }
     }
@@ -352,7 +360,7 @@ public sealed class MainMenuController : MonoBehaviour
         _location = MenuLocation.Settings;
         SetMainInteractable(false);
 
-        // Keep the panel hidden until the camera arrives at point 3.
+        // Keep the panel hidden until the camera arrives at point 4.
         if (settingsPanel != null)
         {
             settingsPanel.SetActive(false);
@@ -360,10 +368,10 @@ public sealed class MainMenuController : MonoBehaviour
 
         if (cameraLerp != null)
         {
-            cameraLerp.GoToThird();
+            cameraLerp.GoToFourth();
             if (settingsPanel != null)
             {
-                StartCoroutine(ShowPanelWhenCameraArrives());
+                StartCoroutine(ShowPanelWhenCameraArrives(settingsPanel, MenuLocation.Settings));
             }
         }
         else
@@ -372,6 +380,38 @@ public sealed class MainMenuController : MonoBehaviour
             if (settingsPanel != null)
             {
                 settingsPanel.SetActive(true);
+            }
+        }
+    }
+
+    private void GoToProgression()
+    {
+        Debug.Log("[MainMenu] Progression selected.");
+
+        // Leave Main: lock the buttons; the progression canvas owns input there.
+        _location = MenuLocation.Progression;
+        SetMainInteractable(false);
+
+        // Keep the panel hidden until the camera arrives at point 3.
+        if (progressionPanel != null)
+        {
+            progressionPanel.SetActive(false);
+        }
+
+        if (cameraLerp != null)
+        {
+            cameraLerp.GoToThird();
+            if (progressionPanel != null)
+            {
+                StartCoroutine(ShowPanelWhenCameraArrives(progressionPanel, MenuLocation.Progression));
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"{nameof(MainMenuController)}: no {nameof(CameraLerpBetweenPoints)} assigned; cannot move camera.", this);
+            if (progressionPanel != null)
+            {
+                progressionPanel.SetActive(true);
             }
         }
     }
@@ -394,11 +434,15 @@ public sealed class MainMenuController : MonoBehaviour
             monitor2Controller.Deactivate();
         }
 
-        // Hide the settings panel immediately so it isn't visible during the
-        // move back to point 1.
+        // Hide the settings / progression panels immediately so neither is
+        // visible during the move back to point 1.
         if (settingsPanel != null)
         {
             settingsPanel.SetActive(false);
+        }
+        if (progressionPanel != null)
+        {
+            progressionPanel.SetActive(false);
         }
 
         if (cameraLerp != null)
@@ -429,7 +473,7 @@ public sealed class MainMenuController : MonoBehaviour
         }
     }
 
-    private System.Collections.IEnumerator ShowPanelWhenCameraArrives()
+    private System.Collections.IEnumerator ShowPanelWhenCameraArrives(GameObject panel, MenuLocation forLocation)
     {
         // Let the transition kick off, then wait for it to finish.
         yield return null;
@@ -438,15 +482,12 @@ public sealed class MainMenuController : MonoBehaviour
             yield return null;
         }
 
-        if (settingsPanel != null)
+        // The user may have backed out (or switched options) during the move;
+        // only reveal the panel if we're still headed for the same location.
+        if (panel != null && _location == forLocation)
         {
-            settingsPanel.SetActive(true);
+            panel.SetActive(true);
         }
-    }
-
-    private void GoToProfile()
-    {
-        Debug.Log("[MainMenu] Profile selected.");
     }
 
     // Wipe the active profile slot back to a brand-new profile and persist it,

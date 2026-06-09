@@ -2,13 +2,13 @@ using UnityEngine;
 
 /// <summary>
 /// Lerps this object (e.g. the main menu camera) between several transforms:
-/// a default point, a second point, and a third point. The object snaps to
-/// the default position/rotation when the scene starts.
+/// a default point, a second point, a third point, and a fourth point. The
+/// object snaps to the default position/rotation when the scene starts.
 ///
 /// Assign the empty GameObjects in the inspector. Call GoToSecond() /
-/// GoToThird() / GoToDefault() (or a Toggle* method) to move — e.g. from a
-/// UI button. Movement always starts from wherever the object currently is,
-/// so you can jump between any of the points at any time.
+/// GoToThird() / GoToFourth() / GoToDefault() (or a Toggle* method) to move —
+/// e.g. from a UI button. Movement always starts from wherever the object
+/// currently is, so you can jump between any of the points at any time.
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class CameraLerpBetweenPoints : MonoBehaviour
@@ -20,8 +20,11 @@ public sealed class CameraLerpBetweenPoints : MonoBehaviour
     [Tooltip("The second position to move to (e.g. Play).")]
     public Transform secondPoint;
 
-    [Tooltip("The third position to move to (e.g. Settings).")]
+    [Tooltip("The third position to move to (e.g. Progression).")]
     public Transform thirdPoint;
+
+    [Tooltip("The fourth position to move to (e.g. Settings).")]
+    public Transform fourthPoint;
 
     [Header("Movement")]
     [Tooltip("Seconds to travel between points.")]
@@ -105,9 +108,15 @@ public sealed class CameraLerpBetweenPoints : MonoBehaviour
     /// <summary>Move toward the third point.</summary>
     public void GoToThird() => GoToPoint(thirdPoint);
 
+    /// <summary>Move toward the fourth point.</summary>
+    public void GoToFourth() => GoToPoint(fourthPoint);
+
     /// <summary>Toggle between the default and second points.</summary>
     public void ToggleTarget() => GoToPoint(_current == secondPoint ? defaultPoint : secondPoint);
 
-    /// <summary>Toggle between the default and third points (e.g. Settings).</summary>
+    /// <summary>Toggle between the default and third points (e.g. Progression).</summary>
     public void ToggleThird() => GoToPoint(_current == thirdPoint ? defaultPoint : thirdPoint);
+
+    /// <summary>Toggle between the default and fourth points (e.g. Settings).</summary>
+    public void ToggleFourth() => GoToPoint(_current == fourthPoint ? defaultPoint : fourthPoint);
 }

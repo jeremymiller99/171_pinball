@@ -75,6 +75,11 @@ public sealed class MainMenuController : MonoBehaviour
              "Drag the panel instance from the scene here.")]
     [SerializeField] private GameObject progressionPanel;
 
+    [Header("Quit")]
+    [Tooltip("Optional 'Quit' text object on the monitor-1 canvas. Clicking it exits " +
+             "the game. Auto-found by the GameObject name \"Quit\" if left blank.")]
+    [SerializeField] private TMP_Text quitText;
+
     [Header("Runtime (debug)")]
     [SerializeField] private MenuOption currentOption = MenuOption.Play;
 
@@ -150,8 +155,50 @@ public sealed class MainMenuController : MonoBehaviour
             proxy.Bind(this, i);
         }
 
+        WireQuitItem();
+
         _initialized = true;
         ApplySelectionVisuals();
+    }
+
+    // The Quit text isn't one of the navigable options (it's not in _texts), so it
+    // gets its own pointer proxy and click handling. Assigned in the inspector or,
+    // failing that, located by the GameObject name "Quit" in the scene.
+    private void WireQuitItem()
+    {
+        if (quitText == null)
+        {
+            quitText = FindQuitText();
+        }
+
+        if (quitText == null)
+        {
+            return;
+        }
+
+        // Match the other items: clickable only while at the main camera point.
+        quitText.raycastTarget = _location == MenuLocation.Main;
+
+        MainMenuQuitPointerProxy proxy = quitText.GetComponent<MainMenuQuitPointerProxy>();
+        if (proxy == null)
+        {
+            proxy = quitText.gameObject.AddComponent<MainMenuQuitPointerProxy>();
+        }
+        proxy.Bind(this);
+    }
+
+    private static TMP_Text FindQuitText()
+    {
+        TMP_Text[] all = Object.FindObjectsByType<TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < all.Length; i++)
+        {
+            TMP_Text text = all[i];
+            if (text != null && text.gameObject.name == "Quit")
+            {
+                return text;
+            }
+        }
+        return null;
     }
 
     private void Update()
@@ -163,6 +210,14 @@ public sealed class MainMenuController : MonoBehaviour
         if (WasResetPressed())
         {
             ResetActiveProfile();
+            return;
+        }
+
+        // Dev shortcut: the tilde/backquote key jumps back to the legacy
+        // (original) main-menu scene. Honored anywhere in this scene.
+        if (WasReturnToLegacyMenuPressed())
+        {
+            ReturnToLegacyMenu();
             return;
         }
 
@@ -307,7 +362,38 @@ public sealed class MainMenuController : MonoBehaviour
         ConfirmSelection();
     }
 
+    // Pointer-down on Quit: play the click sound immediately (see OnItemPressed).
+    internal void OnQuitPressed()
+    {
+        if (_location != MenuLocation.Main)
+        {
+            return;
+        }
+
+        ServiceLocator.Get<AudioManager>()?.PlayButtonClick();
+    }
+
+    internal void OnQuitClicked()
+    {
+        if (_location != MenuLocation.Main)
+        {
+            return;
+        }
+
+        QuitGame();
+    }
+
     // ---- Option actions (stubbed for now) ------------------------------
+
+    private void QuitGame()
+    {
+        Debug.Log("[MainMenu] Quit selected — exiting game.");
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
 
     private void GoToPlay()
     {
@@ -471,6 +557,11 @@ public sealed class MainMenuController : MonoBehaviour
                 text.raycastTarget = interactable;
             }
         }
+
+        if (quitText != null)
+        {
+            quitText.raycastTarget = interactable;
+        }
     }
 
     private System.Collections.IEnumerator ShowPanelWhenCameraArrives(GameObject panel, MenuLocation forLocation)
@@ -499,7 +590,25 @@ public sealed class MainMenuController : MonoBehaviour
         Debug.Log($"[MainMenu] Reset profile slot {slot} — save wiped, starting fresh.");
     }
 
+    // Load the legacy main-menu scene (the original "MainMenu" scene), fading
+    // out first to match the rest of the scene transitions.
+    private void ReturnToLegacyMenu()
+    {
+        Debug.Log("[MainMenu] Returning to legacy main menu.");
+        SceneFader.Instance.FadeAndLoadScene("MainMenu");
+    }
+
     // ---- Input helpers -------------------------------------------------
+
+    private static bool WasReturnToLegacyMenuPressed()
+    {
+#if ENABLE_INPUT_SYSTEM
+        Keyboard kb = Keyboard.current;
+        return kb != null && kb.backquoteKey.wasPressedThisFrame;
+#else
+        return Input.GetKeyDown(KeyCode.BackQuote);
+#endif
+    }
 
     private static bool WasResetPressed()
     {
@@ -603,6 +712,39 @@ public sealed class MainMenuItemPointerProxy : MonoBehaviour,
         if (_owner != null)
         {
             _owner.OnItemClicked(_index);
+        }
+    }
+}
+
+/// <summary>
+/// Pointer helper for the menu's "Quit" text. Unlike the navigable options it
+/// has no selection index — a click just exits the game via the owning
+/// <see cref="MainMenuController"/>. Added automatically at runtime.
+/// </summary>
+[DisallowMultipleComponent]
+public sealed class MainMenuQuitPointerProxy : MonoBehaviour,
+    IPointerDownHandler, IPointerClickHandler
+{
+    private MainMenuController _owner;
+
+    internal void Bind(MainMenuController owner)
+    {
+        _owner = owner;
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (_owner != null)
+        {
+            _owner.OnQuitPressed();
+        }
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (_owner != null)
+        {
+            _owner.OnQuitClicked();
         }
     }
 }

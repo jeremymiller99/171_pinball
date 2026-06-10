@@ -21,7 +21,8 @@ public readonly struct PixelationPreset
 public sealed class PixelationSettingsManager : MonoBehaviour
 {
     private const string keyLevel = "PixelationLevel";
-    private const int defaultLevelIndex = 3;
+    // Index into `presets` below — 1 == "Smooth".
+    private const int defaultLevelIndex = 1;
 
     private static readonly PixelationPreset[] presets = new PixelationPreset[]
     {

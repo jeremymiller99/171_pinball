@@ -1,14 +1,14 @@
 ========================================
  UNREFERENCED ASSET DETECTOR — REPORT
- Generated: 2026-06-03 18:44:52
+ Generated: 2026-06-09 20:47:47
 ========================================
 
-Total candidates scanned: 969
+Total candidates scanned: 998
 Unreferenced assets found: 349
-Resources/ assets (skipped): 68
-Addressable entries (skipped): 5
+Resources/ assets (skipped): 71
+Addressable entries (skipped): 11
 
---- Models (40) ---
+--- Models (37) ---
   Assets/ArtAssets/Meshes/Bumpers/KickerEquilateral.fbx
   Assets/ArtAssets/Meshes/Bumpers/RolloverCircles.fbx
   Assets/ArtAssets/Meshes/Bumpers/RolloverRectangles.fbx
@@ -31,10 +31,7 @@ Addressable entries (skipped): 5
   Assets/ArtAssets/Meshes/MainMenuModels/ConsoleModuleCore.fbx
   Assets/ArtAssets/Meshes/MainMenuModels/ConsoleModuleSide.fbx
   Assets/ArtAssets/Meshes/MainMenuModels/ElevatorDoor.fbx
-  Assets/ArtAssets/Meshes/ModulesModels/ModuleBug.fbx
-  Assets/ArtAssets/Meshes/ModulesModels/ModuleChip.fbx
-  Assets/ArtAssets/Meshes/ModulesModels/ModuleDish.fbx
-  Assets/ArtAssets/Meshes/ModulesModels/ModuleSolarPanels.fbx
+  Assets/ArtAssets/Meshes/ModulesModels/ModuleGyroscope.fbx
   Assets/ArtAssets/Meshes/ModulesModels/ModuleStardrive.fbx
   Assets/ArtAssets/Meshes/Playfield_Board (2).fbx
   Assets/ArtAssets/Meshes/Playfield_ScoreMeter.fbx
@@ -54,7 +51,6 @@ Addressable entries (skipped): 5
   Assets/ArtAssets/Materials/Amber_Glow.mat
   Assets/ArtAssets/Materials/Blue 3.mat
   Assets/ArtAssets/Materials/Bronze.mat
-  Assets/ArtAssets/Materials/Bronze_PV.mat
   Assets/ArtAssets/Materials/DarkGray.mat
   Assets/ArtAssets/Materials/Gray.mat
   Assets/ArtAssets/Materials/LightGray.mat
@@ -192,6 +188,7 @@ Addressable entries (skipped): 5
   Assets/Shaders/M_NoiseBG 5.mat
   Assets/Shaders/M_NoiseBG 6.mat
   Assets/Shaders/M_Space_CosmicDust.mat
+  Assets/Shaders/M_Space_VortexNebula 1.mat
 
 --- ScriptableObjects (6) ---
   Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr card diamond mesh.asset
@@ -201,7 +198,7 @@ Addressable entries (skipped): 5
   Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Graphics/cfxr stretch sipkes x2 mesh.asset
   Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Meshes/cfxr ring mesh half.asset
 
---- Textures/Sprites (153) ---
+--- Textures/Sprites (154) ---
   Assets/ArtAssets/Sprites/BayerMatrixImages/bayer16.png
   Assets/ArtAssets/Sprites/BayerMatrixImages/bayer16tile16.png
   Assets/ArtAssets/Sprites/BayerMatrixImages/bayer16tile2.png
@@ -222,9 +219,8 @@ Addressable entries (skipped): 5
   Assets/ArtAssets/Sprites/BayerMatrixImages/bayer8tile2.png
   Assets/ArtAssets/Sprites/BayerMatrixImages/bayer8tile8.png
   Assets/ArtAssets/Sprites/Ellipse 106.png
-  Assets/ArtAssets/Sprites/Frame 8.png
-  Assets/ArtAssets/Sprites/Pinballistic-standalonewindows64-2026-03-23-03-52-52 Screenshot 2026.03.24 - 15.37.24.63.png
-  Assets/ArtAssets/Sprites/Temp_Logo.png
+  Assets/ArtAssets/Sprites/Logo/Frame 8.png
+  Assets/ArtAssets/Sprites/Logo/Temp_Logo.png
   Assets/ArtAssets/Sprites/UI/Group 109.png
   Assets/ArtAssets/Sprites/UI/Group 110.png
   Assets/ArtAssets/Sprites/UI/Group 111.png
@@ -239,6 +235,8 @@ Addressable entries (skipped): 5
   Assets/ArtAssets/Sprites/UI/Pinball Shop/ribbon.png
   Assets/ArtAssets/Sprites/UI/Pinball Shop/Vector 6.png
   Assets/ArtAssets/Sprites/UI/Pinballs/egg.png
+  Assets/ArtAssets/Sprites/UI/Round Info/Angel Card.png
+  Assets/ArtAssets/Sprites/UI/Round Info/Devil Card.png
   Assets/ArtAssets/Sprites/UI/Round Info/Ellipse 64.png
   Assets/ArtAssets/Sprites/UI/Round Info/Group 65.png
   Assets/ArtAssets/Sprites/UI/Round Info/Group 66.png
@@ -359,9 +357,11 @@ Addressable entries (skipped): 5
 --- Shaders (1) ---
   Assets/Shaders/RetroEffect 1.shadergraph
 
---- Fonts (6) ---
+--- Fonts (8) ---
   Assets/ArtAssets/Fonts/Bacteria 12.ttf
+  Assets/ArtAssets/Fonts/Bacteria12_Pinballistic.ttf
   Assets/ArtAssets/Fonts/balatro.otf
+  Assets/ArtAssets/Fonts/Caveat-Regular.ttf
   Assets/ArtAssets/Fonts/Desert 6.ttf
   Assets/ArtAssets/Fonts/Early GameBoy.ttf
   Assets/ArtAssets/Fonts/Jersey10-Regular.ttf
@@ -371,7 +371,7 @@ Addressable entries (skipped): 5
   Assets/ArtAssets/Sprites/RenderTextures/RT_pixel.renderTexture
   Assets/JMO Assets/Cartoon FX Remaster/CFXR Assets/Shaders/CFXR Particle Distortion.cfxrshader
 
---- Resources/ (potentially referenced at runtime) (68 assets skipped) ---
+--- Resources/ (potentially referenced at runtime) (71 assets skipped) ---
 
---- Addressable Entries (potentially referenced) (5 assets skipped) ---
+--- Addressable Entries (potentially referenced) (11 assets skipped) ---
 

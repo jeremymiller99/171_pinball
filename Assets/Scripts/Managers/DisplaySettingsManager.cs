@@ -99,6 +99,8 @@ public sealed class DisplaySettingsManager : MonoBehaviour
         int savedHeight = PlayerPrefs.GetInt(keyHeight, 0);
         int savedMode = PlayerPrefs.GetInt(keyFullscreen, -1);
 
+        bool firstLaunch = savedWidth <= 0 || savedHeight <= 0;
+
         if (savedMode >= 0)
         {
             currentFullscreenMode = (FullScreenMode)savedMode;
@@ -109,6 +111,16 @@ public sealed class DisplaySettingsManager : MonoBehaviour
         }
 
         currentResolutionIndex = FindResolutionIndex(savedWidth, savedHeight);
+        if (currentResolutionIndex < 0)
+        {
+            // First launch (or saved resolution no longer available): match the
+            // monitor's native resolution so the game fits the screen.
+            currentResolutionIndex = FindResolutionIndex(
+                Display.main.systemWidth,
+                Display.main.systemHeight
+            );
+        }
+
         if (currentResolutionIndex < 0)
         {
             currentResolutionIndex = FindResolutionIndex(
@@ -122,9 +134,13 @@ public sealed class DisplaySettingsManager : MonoBehaviour
             currentResolutionIndex = 0;
         }
 
-        if (savedWidth > 0 && savedHeight > 0)
+        ApplyCurrentSettings();
+
+        if (firstLaunch)
         {
-            ApplyCurrentSettings();
+            // Persist the auto-detected native resolution so it is restored on
+            // subsequent launches instead of being re-detected each time.
+            Save();
         }
     }
 

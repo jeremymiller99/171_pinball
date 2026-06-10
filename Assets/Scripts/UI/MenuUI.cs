@@ -201,6 +201,14 @@ public class MainMenuUI : MonoBehaviour
 
     private void Update()
     {
+        // Dev shortcut: the tilde/backquote key jumps to the new (3D) main-menu
+        // scene. Mirrors the same key in MainMenuController, which jumps back here.
+        if (WasReturnToNewMenuPressed())
+        {
+            LoadMenuScene();
+            return;
+        }
+
         if (WasBackPressedThisFrame())
         {
             if (modeInfoPanel != null
@@ -235,6 +243,16 @@ public class MainMenuUI : MonoBehaviour
         return false;
 #else
         return Input.GetKeyDown(KeyCode.Escape);
+#endif
+    }
+
+    private static bool WasReturnToNewMenuPressed()
+    {
+#if ENABLE_INPUT_SYSTEM
+        Keyboard kb = Keyboard.current;
+        return kb != null && kb.backquoteKey.wasPressedThisFrame;
+#else
+        return Input.GetKeyDown(KeyCode.BackQuote);
 #endif
     }
 

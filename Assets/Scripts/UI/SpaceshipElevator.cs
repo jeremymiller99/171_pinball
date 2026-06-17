@@ -26,6 +26,10 @@ public sealed class SpaceshipElevator : MonoBehaviour
     [Tooltip("Child point where the selected ship model is placed.")]
     [SerializeField] private Transform shipPoint;
 
+    [Tooltip("Size multiplier applied to the docked ship model on top of its prefab " +
+             "scale. 2 = twice the model's normal size.")]
+    [SerializeField] private float shipScaleMultiplier = 2f;
+
     [Header("Travel")]
     [Tooltip("Local Y position when fully lowered (hidden in the floor).")]
     [SerializeField] private float loweredLocalY = 0f;
@@ -46,7 +50,13 @@ public sealed class SpaceshipElevator : MonoBehaviour
     [SerializeField] private bool startRaised = true;
 
     private GameObject _currentShip;
+    private TrailRenderer[] _currentTrails;
     private Coroutine _routine;
+
+    // The elevator's resting local rotation, captured at Awake. Every Move ends by
+    // snapping back to this so an interrupted spin (e.g. spam-clicking ship selection)
+    // can't leave the platform — and the ship riding it — facing the wrong way.
+    private Quaternion _homeRotation;
 
     /// <summary>
     /// True while a show/swap animation is in progress (the platform is dropping,
@@ -62,6 +72,7 @@ public sealed class SpaceshipElevator : MonoBehaviour
             elevator = transform;
         }
 
+        _homeRotation = elevator.localRotation;
         SetLocalY(startRaised ? raisedLocalY : loweredLocalY);
     }
 
@@ -93,6 +104,7 @@ public sealed class SpaceshipElevator : MonoBehaviour
         }
         ClearShip();
         SetLocalY(raisedLocalY);
+        elevator.localRotation = _homeRotation;
     }
 
     // Spin down, swap the model at the bottom, then spin back up.
@@ -110,6 +122,14 @@ public sealed class SpaceshipElevator : MonoBehaviour
             _currentShip = Instantiate(shipModelPrefab, shipPoint);
             _currentShip.transform.localPosition = Vector3.zero;
             _currentShip.transform.localRotation = Quaternion.identity;
+            _currentShip.transform.localScale *= shipScaleMultiplier;
+
+            // Some ship models (e.g. Loric) carry engine TrailRenderers. Those draw in
+            // world space, so while the platform rises and spins they streak across the
+            // scene and clip through the hangar walls. Silence them on the docked model;
+            // ReleaseShip re-enables them so the trails still fire during the launch fly-out.
+            _currentTrails = _currentShip.GetComponentsInChildren<TrailRenderer>(includeInactive: true);
+            SetTrailsEmitting(false);
         }
 
         // Drop-target "up" as it rises back into view carrying the chosen ship.
@@ -128,8 +148,13 @@ public sealed class SpaceshipElevator : MonoBehaviour
         _currentShip = null;
         if (ship != null)
         {
+            // Hand the ship to the launch sequence with its engine trails live again,
+            // cleared so they start fresh from the launch point rather than streaking
+            // from where it sat docked.
+            SetTrailsEmitting(true);
             ship.transform.SetParent(null, worldPositionStays: true);
         }
+        _currentTrails = null;
         return ship;
     }
 
@@ -139,6 +164,28 @@ public sealed class SpaceshipElevator : MonoBehaviour
         {
             Destroy(_currentShip);
             _currentShip = null;
+        }
+        _currentTrails = null;
+    }
+
+    // Toggles emission on the docked ship's TrailRenderers (and clears any trail already
+    // drawn) so the engine trails don't streak across the hangar while it spins.
+    private void SetTrailsEmitting(bool emitting)
+    {
+        if (_currentTrails == null)
+        {
+            return;
+        }
+
+        foreach (TrailRenderer trail in _currentTrails)
+        {
+            if (trail == null)
+            {
+                continue;
+            }
+
+            trail.Clear();
+            trail.emitting = emitting;
         }
     }
 
@@ -170,6 +217,12 @@ public sealed class SpaceshipElevator : MonoBehaviour
         }
 
         SetLocalY(targetY);
+
+        // Settle on a deterministic orientation. The incremental spin above accumulates
+        // from wherever the platform happened to be when this Move started, so if a prior
+        // spin was interrupted mid-flight the angle would otherwise drift; snapping to the
+        // home rotation here guarantees the ship always finishes facing the right way.
+        elevator.localRotation = _homeRotation;
     }
 
     private void SetLocalY(float y)

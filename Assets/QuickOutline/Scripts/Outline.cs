@@ -132,6 +132,13 @@ public class Outline : MonoBehaviour {
 
       renderer.materials = materials.ToArray();
     }
+
+    // Push the configured color/width/queue onto the freshly attached materials right
+    // now, before the first frame renders. Otherwise the fill material renders one frame
+    // with its asset defaults (white, wide) — a visible flash on a freshly spawned object
+    // — before Update() gets a chance to apply the real properties.
+    UpdateMaterialProperties();
+    needsUpdate = false;
   }
 
   void OnValidate() {

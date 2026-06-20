@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Snowball
   displayName: Snowball
-  description: Each points-type board hit scores with your current point multiplier,
-    then increases that multiplier by 1. Striker class.
+  description: 'Active: On collision, scores 1 point. Then, this value increases
+    by 50% rounded up.'
   rarity: 2
   elementType: 1
+  secondaryElementType: 0
   icon: {fileID: 21300000, guid: af63de4465c43cf499133b557e6ee7cb, type: 3}
   prefab: {fileID: 5723297401256486482, guid: e1f2a3b4c5d6748596a7b8c9d0e1f2a3, type: 3}
   price: 30

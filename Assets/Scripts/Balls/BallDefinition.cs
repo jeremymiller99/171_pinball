@@ -20,6 +20,7 @@ public class BallDefinition : ScriptableObject
     [SerializeField] private string description = "";
     [SerializeField] private BallRarity rarity = BallRarity.Common;
     [SerializeField] private ElementType elementType = ElementType.None;
+    [SerializeField] private ElementType secondaryElementType = ElementType.None;
     [SerializeField] private Sprite icon;
 
     [Header("Gameplay")]
@@ -33,6 +34,7 @@ public class BallDefinition : ScriptableObject
     public string Description => LocalizedContent.Get("ball", name, "desc", description);
     public BallRarity Rarity => rarity;
     public ElementType ElementType => elementType;
+    public ElementType SecondaryElementType => secondaryElementType;
     public Sprite Icon => icon;
     public GameObject Prefab => prefab;
     public int Price => price;
@@ -81,6 +83,50 @@ public class BallDefinition : ScriptableObject
         }
 
         price = Mathf.Max(0, price);
+    }
+
+    public void UpdateDesc(string newName, string newDescription, string newRarity, string newType, string newSecondaryType = "")
+    {
+        displayName = newName;
+        description = newDescription;
+        rarity = GetBallRarity(newRarity);
+        elementType = GetElementType(newType);
+        secondaryElementType = GetElementType(newSecondaryType);
+    }
+
+    public static ElementType GetElementType(
+        string type)
+    {
+
+        ElementType fallback = type.ToLower() switch
+        {
+            "striker" => ElementType.Striker,
+            "amplifier" => ElementType.Amplifier,
+            "mint" => ElementType.Mint,
+            "splitter" => ElementType.Splitter,
+            "anomaly" => ElementType.Anomaly,
+            "catalyst" => ElementType.Catalyst,
+            "module" => ElementType.Module,
+            _ => ElementType.None
+        };
+
+        return fallback;
+    }
+
+    public static BallRarity GetBallRarity(
+        string type)
+    {
+
+        BallRarity fallback = type.ToLower() switch
+        {
+            "uncommon" => BallRarity.Uncommon,
+            "rare" => BallRarity.Rare,
+            "epic" => BallRarity.Epic,
+            "legendary" => BallRarity.Legendary,
+            _ => BallRarity.Common
+        };
+
+        return fallback;
     }
 }
 

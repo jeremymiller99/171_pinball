@@ -10,13 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33bdd2ce9371b3542bd29e4b7ab752b8, type: 3}
-  m_Name: Joker_Ball
+  m_Name: Ball of Minor Inconvenience
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
-  id: Joker Ball
-  displayName: Joker
-  description: Scores 1.25x.
+  id: BOMI
+  displayName: Ball of Minor Inconvenience
+  description: 'Active: Collisions with this ball score 150%, but every 5 seconds
+    this ball does nothing for 7.5 seconds.'
   rarity: 0
-  elementType: 2
-  icon: {fileID: 21300000, guid: e681d574556e4974e9a4c5a6ac0c74ab, type: 3}
-  prefab: {fileID: 5723297401256486482, guid: cb247674c4b9b4824ab7dcc3e19723c5, type: 3}
+  elementType: 1
+  secondaryElementType: 0
+  icon: {fileID: 21300000, guid: db30ea4e434c20e48b5f9d86404bbc42, type: 3}
+  prefab: {fileID: 5723297401256486482, guid: 3f9260e952e4f5348941deee3ce22e2d, type: 3}
   price: 10

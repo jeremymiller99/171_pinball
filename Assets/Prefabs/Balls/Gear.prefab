@@ -291,6 +291,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GearBall
+  componentHits: 0
+  ballPointMultiplier: 0.75
+  ballMultMultiplier: 1
+  ballCoinMultiplier: 1
+  lastObjectHit: {fileID: 0}
+  isAmpedUp: 0
   hitCountFontAsset: {fileID: 0}
   hitCountPopupScale: 0.7
   hitCountPopupOffset: {x: 0, y: 40}

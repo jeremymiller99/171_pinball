@@ -14,12 +14,12 @@ public class Ball : MonoBehaviour
     public const float ampedUpMultReward = 0.1f;
 
     protected ScoreManager scoreManager;
-    protected int componentHits;
-    protected float ballPointMultiplier = 1f;
-    protected float ballMultMultiplier = 1f;
-    protected int ballCoinMultiplier = 1;
-    protected GameObject lastObjectHit;
-    protected bool isAmpedUp;
+    [SerializeField] protected int componentHits;
+    [SerializeField] protected float ballPointMultiplier = 1f;
+    [SerializeField] protected float ballMultMultiplier = 1f;
+    [SerializeField] protected int ballCoinMultiplier = 1;
+    [SerializeField] protected GameObject lastObjectHit;
+    [SerializeField] protected bool isAmpedUp;
 
     public int ComponentHits => componentHits;
     public GameObject LastObjectHit => lastObjectHit;

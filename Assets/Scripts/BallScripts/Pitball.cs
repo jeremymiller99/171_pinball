@@ -9,14 +9,14 @@ using UnityEngine;
 public class Pitball : Ball
 {
     [Header("Passive mult")]
-    [Tooltip("Seconds between each passive mult award.")]
+    [Tooltip("Distance travelled between each mult award.")]
     [Min(0.01f)]
-    [SerializeField] private float secondsPerMultAward = 5f;
+    [SerializeField] private float distancePerMultAward = 5f;
+    [SerializeField] private float distTravelled = 0f;
+    [SerializeField] private Vector3 prevPos = Vector3.zero;
     [Tooltip("Additive mult granted each tick (before ScoreManager mult modifiers).")]
-    [SerializeField] private float multAwardPerTick = 0.1f;
+    [SerializeField] private float multToAdd = 0.1f;
     [SerializeField] private BallSpawner ballSpawner;
-
-    private float _secondsAccumulated;
 
 
     private void Awake()
@@ -34,12 +34,19 @@ public class Pitball : Ball
             return;
         }
 
-        _secondsAccumulated += Time.deltaTime;
-
-        while (_secondsAccumulated >= secondsPerMultAward)
+        if (prevPos == Vector3.zero)
         {
-            _secondsAccumulated -= secondsPerMultAward;
-            AwardPassiveMult();
+            prevPos = transform.position;
+            return;
+        }
+
+        distTravelled += Vector3.Distance(transform.position, prevPos);
+        prevPos = transform.position;
+
+        while (distTravelled >= distancePerMultAward)
+        {
+            distTravelled = 0;
+            base.AddScore(multToAdd, TypeOfScore.mult, transform);
         }
     }
 
@@ -70,11 +77,5 @@ public class Pitball : Ball
         }
 
         return false;
-    }
-
-    private void AwardPassiveMult()
-    {
-        float scaled = multAwardPerTick * ballMultMultiplier;
-        base.AddScore(scaled, TypeOfScore.mult, transform);
     }
 }

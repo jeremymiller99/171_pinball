@@ -10,14 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33bdd2ce9371b3542bd29e4b7ab752b8, type: 3}
-  m_Name: Eye_on_The_Prize
+  m_Name: Eye on The Prize
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Eye on The Prize
   displayName: Eye on the Prize
-  description: Spawn 10 white balls and 1 red ball. The white balls score x0.25 but
-    the red one scores x3.
+  description: 'Active: Scores 300%. On first collision, create 10 Pinballs that
+    score 10%.'
   rarity: 2
   elementType: 4
+  secondaryElementType: 0
   icon: {fileID: 21300000, guid: c249f17688530c4479e19dc7b62e0d1f, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 1c5c28d68e2bc445baaf3f95ce58cbf4, type: 3}
   price: 30

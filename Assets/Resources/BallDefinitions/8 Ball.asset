@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33bdd2ce9371b3542bd29e4b7ab752b8, type: 3}
-  m_Name: Wall_Ball
+  m_Name: 8 Ball
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
-  id: Wall Ball
-  displayName: Wall Ball
-  description: Scores +1 point for every wall hit.
+  id: 8 Ball
+  displayName: 8 Ball
+  description: 'Active: Every 8th hit scores 0.3 multiplier.'
   rarity: 0
-  elementType: 1
-  icon: {fileID: 21300000, guid: 318188bbbad1e324ead8a145c1492a69, type: 3}
-  prefab: {fileID: 5723297401256486482, guid: 358cb191f3549ea42ba8ddac974ec3bc, type: 3}
+  elementType: 2
+  secondaryElementType: 0
+  icon: {fileID: 21300000, guid: d5e66645dc9c97c47beb572138f5f7fd, type: 3}
+  prefab: {fileID: 5723297401256486482, guid: 20e6ec85c48b743e885ff9aef85e5148, type: 3}
   price: 10

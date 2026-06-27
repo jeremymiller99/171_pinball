@@ -321,12 +321,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7f9e2c41d8b4a5e9c0d1e2f3a4b5c6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Pitball
+  componentHits: 0
+  ballPointMultiplier: 1
+  ballMultMultiplier: 1
+  ballCoinMultiplier: 1
+  lastObjectHit: {fileID: 0}
+  isAmpedUp: 0
   hitCountFontAsset: {fileID: 0}
   hitCountPopupScale: 0.7
   hitCountPopupOffset: {x: 0, y: 40}
   hitCountPopupColor: {r: 1, g: 1, b: 1, a: 1}
-  secondsPerMultAward: 5
-  multAwardPerTick: 0.1
+  distancePerMultAward: 100
+  distTravelled: 0
+  prevPos: {x: 0, y: 0, z: 0}
+  multToAdd: 0.1
   ballSpawner: {fileID: 0}
 --- !u!114 &-875513478834887353
 MonoBehaviour:

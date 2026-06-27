@@ -46,4 +46,6 @@ public static class ElementTypeColors
         // Localized via Content table key element.&lt;EnumName&gt;.name; English fallback above.
         return LocalizedContent.Get("element", type.ToString(), "name", fallback);
     }
+
+    
 }

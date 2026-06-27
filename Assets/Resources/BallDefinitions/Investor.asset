@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33bdd2ce9371b3542bd29e4b7ab752b8, type: 3}
-  m_Name: Blue_Two
+  m_Name: Investor
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
-  id: Blue Two
-  displayName: Blue Two
-  description: Scores 2x points.
+  id: Investor
+  displayName: Investor
+  description: 'Active: Gives $1 every 12th collision.'
   rarity: 0
-  elementType: 1
-  icon: {fileID: 21300000, guid: d6446dfab816d2645bd7c36766fd66eb, type: 3}
-  prefab: {fileID: 5723297401256486482, guid: 0b2f4077d0fca1b438e6fa6723996428, type: 3}
+  elementType: 3
+  secondaryElementType: 0
+  icon: {fileID: 21300000, guid: 828c9cb998db5bf49b707e5e221c1c7e, type: 3}
+  prefab: {fileID: 5723297401256486482, guid: 0d3f94c4fb34247859c42dc9db025181, type: 3}
   price: 10

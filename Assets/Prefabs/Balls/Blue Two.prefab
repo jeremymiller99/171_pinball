@@ -106,9 +106,9 @@ GameObject:
   - component: {fileID: 4070781534835327072}
   - component: {fileID: 2097964190323927660}
   - component: {fileID: 8123456789012345675}
-  - component: {fileID: 863290315928686837}
   - component: {fileID: 613631738412849076}
   - component: {fileID: 3554568374141961324}
+  - component: {fileID: -6136594844248749816}
   m_Layer: 0
   m_Name: Blue Two
   m_TagString: Ball
@@ -399,22 +399,6 @@ MonoBehaviour:
   speedForMaxAssistMps: 0.5
   speedForMinAssistMps: 20
   boardRoot: {fileID: 0}
---- !u!114 &863290315928686837
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5723297401256486482}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c3279caae1b40b4d8534d67b707bd90, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  hitCountFontAsset: {fileID: 0}
-  hitCountPopupScale: 0.7
-  hitCountPopupOffset: {x: 0, y: 40}
-  hitCountPopupColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &613631738412849076
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -451,3 +435,28 @@ MonoBehaviour:
   speedMultiplier: 0.25
   particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
   poolSize: 15
+  _rb: {fileID: 0}
+--- !u!114 &-6136594844248749816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723297401256486482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 594b5579b3f741240bea219cf44b7ed6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlueTwo
+  componentHits: 0
+  ballPointMultiplier: 1
+  ballMultMultiplier: 1
+  ballCoinMultiplier: 1
+  lastObjectHit: {fileID: 0}
+  isAmpedUp: 0
+  hitCountFontAsset: {fileID: 0}
+  hitCountPopupScale: 0.7
+  hitCountPopupOffset: {x: 0, y: 40}
+  hitCountPopupColor: {r: 1, g: 1, b: 1, a: 1}
+  hitInterval: 2
+  multiplierOnInterval: 2

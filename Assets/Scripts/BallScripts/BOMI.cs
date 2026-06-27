@@ -3,19 +3,37 @@ using UnityEngine;
 
 public class BOMI : Ball
 {
-    [SerializeField] private int componentHitsToInvert = 10;
+    [SerializeField] private float timeNotScoring = 7.5f;
+    [SerializeField] private float timeScoring = 5f;
+    [SerializeField] private float currentTimer = 0f;
+    [SerializeField] private bool isScoring = true;
 
-    protected override int HitIntervalForPopup => componentHitsToInvert;
+    void Update()
+    {
+        currentTimer += Time.deltaTime;
+        if (isScoring)
+        {
+            if (currentTimer >= timeScoring)
+            {
+                isScoring = false;
+                currentTimer = 0f;
+            }
+
+        }
+        else
+        {
+            if (currentTimer >= timeNotScoring)
+            {
+                isScoring = true;
+                currentTimer = 0f;
+            }
+        }
+    }
 
     override protected void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)
     {
-        if (componentHits % componentHitsToInvert == 0)
-        {
-            componentHits = 0;
-            base.AddScore(-amount, typeOfScore, pos);
-        } else {   
-            base.AddScore(amount, typeOfScore, pos);
-        }
-        
+        if (!isScoring) return;
+
+        base.AddScore(amount, typeOfScore, pos);
     }
 }

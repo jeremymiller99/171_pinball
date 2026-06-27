@@ -92,9 +92,10 @@ public sealed class TooltipUI : MonoBehaviour
     public void Show(
         string title,
         string description,
-        ElementType elementType = ElementType.None)
+        ElementType elementType = ElementType.None,
+        ElementType secondaryElementType = ElementType.None)
     {
-        ApplyContent(title, description, elementType);
+        ApplyContent(title, description, elementType, secondaryElementType);
         SetPricePanels(PriceMode.None, 0);
 
         gameObject.SetActive(true);
@@ -110,9 +111,10 @@ public sealed class TooltipUI : MonoBehaviour
         string title,
         string description,
         ElementType elementType,
+        ElementType secondaryElementType,
         int price)
     {
-        Show(title, description, elementType);
+        Show(title, description, elementType, secondaryElementType);
         SetPricePanels(PriceMode.Buy, price);
     }
 
@@ -120,15 +122,20 @@ public sealed class TooltipUI : MonoBehaviour
         string title,
         string description,
         ElementType elementType,
+        ElementType secondaryElementType,
         int price)
     {
-        Show(title, description, elementType);
+        Show(title, description, elementType, secondaryElementType);
         SetPricePanels(PriceMode.Sell, price);
     }
 
-    public void ShowAtPosition(string title, string description, Vector2 position, ElementType elementType = ElementType.None)
+    public void ShowAtPosition(string title,
+                               string description,
+                               Vector2 position,
+                               ElementType elementType = ElementType.None,
+                               ElementType secondaryElementType = ElementType.None)
     {
-        ApplyContent(title, description, elementType);
+        ApplyContent(title, description, elementType, secondaryElementType);
         SetPricePanels(PriceMode.None, 0);
 
         gameObject.SetActive(true);
@@ -179,9 +186,10 @@ public sealed class TooltipUI : MonoBehaviour
         string description,
         Vector2 position,
         ElementType elementType,
+        ElementType secondaryElementType,
         int price)
     {
-        ShowAtPosition(title, description, position, elementType);
+        ShowAtPosition(title, description, position, elementType, secondaryElementType);
         SetPricePanels(PriceMode.Buy, price);
     }
 
@@ -190,9 +198,10 @@ public sealed class TooltipUI : MonoBehaviour
         string description,
         Vector2 position,
         ElementType elementType,
+        ElementType secondaryElementType,
         int price)
     {
-        ShowAtPosition(title, description, position, elementType);
+        ShowAtPosition(title, description, position, elementType, secondaryElementType);
         SetPricePanels(PriceMode.Sell, price);
     }
 
@@ -263,7 +272,8 @@ public sealed class TooltipUI : MonoBehaviour
     private void ApplyContent(
         string title,
         string description,
-        ElementType elementType)
+        ElementType elementType,
+        ElementType secondaryElementType)
     {
         if (nameText == null || descText == null)
         {
@@ -277,8 +287,14 @@ public sealed class TooltipUI : MonoBehaviour
             string typeName = ElementTypeColors.GetDisplayName(elementType);
             Color typeColor =
                 ElementTypeColors.GetColor(elementType);
-            typeText.text = typeName;
-            typeText.color = typeColor;
+            typeText.text = $"<color=#{ColorUtility.ToHtmlStringRGB(typeColor)}><u>" + typeName + "</u></color>";
+            if (secondaryElementType != ElementType.None)
+            {
+                string secondaryTypeName = ElementTypeColors.GetDisplayName(secondaryElementType);
+                Color secondaryTypeColor =
+                    ElementTypeColors.GetColor(secondaryElementType);
+                typeText.text += $" <color=#{ColorUtility.ToHtmlStringRGB(secondaryTypeColor)}><u>" + secondaryTypeName + "</u></color>";
+            }
         }
 
         descText.text =

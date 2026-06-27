@@ -12,13 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63909320c46a7384d8a9756959f0347c, type: 3}
   m_Name: LoricF1
   m_EditorClassIdentifier: Assembly-CSharp::PlayerShipDefinition
-  displayName: Loric F1
-  description: A reliable generic spacecraft.
+  id: 
+  displayNameSource: Loric F1
+  descriptionSource: A reliable generic spacecraft.
   shipModelPrefab: {fileID: 260427457679054806, guid: ee4b8cfe6d97c84488eab7090f816656, type: 3}
+  icon: {fileID: 0}
   elementType: 1
   shopPriceMultiplier: 1
   startingMaxBalls: 5
-  startingHand: []
+  startingHand:
+  - {fileID: 11400000, guid: ce44953e6cc764326b992043cf27aba5, type: 2}
+  - {fileID: 11400000, guid: 13004bdbfd3f0e14ab44eb3333f8ddd5, type: 2}
+  - {fileID: 11400000, guid: 81c71a33b8bf04cf1b30eea0435ec7f8, type: 2}
+  - {fileID: 11400000, guid: f2a3b4c5d6e7859608b9c0d1e2f3a4b5, type: 2}
+  - {fileID: 11400000, guid: bc5c7467f0bb6f64f988fb888cbecd97, type: 2}
   scoreMultiplier: 1
   coinMultiplier: 1
   multMultiplier: 1

@@ -10,7 +10,9 @@ public sealed class SnowballBall : Ball
     public const string DefinitionId = "Snowball";
 
     [Tooltip("Added to PointMultiplier after each scoring points-type board hit.")]
-    [SerializeField] private float pointMultiplierGrowthPerPointsHit = 1f;
+    [SerializeField] private float pointMultiplierGrowthPerPointsHit = .5f;
+    [Tooltip("Base amount of points awarded")]
+    [SerializeField] private float basePointsAwarded = 1f;
 
     private void OnValidate()
     {
@@ -19,18 +21,14 @@ public sealed class SnowballBall : Ball
 
     protected override void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)
     {
-        base.AddScore(amount, typeOfScore, pos);
-
-        if (typeOfScore != TypeOfScore.points)
+        if (typeOfScore == TypeOfScore.points)
         {
-            return;
+            base.AddScore(basePointsAwarded, typeOfScore, pos);
+            PointMultiplier += pointMultiplierGrowthPerPointsHit;
         }
-
-        if (Mathf.Approximately(amount, 0f))
+        else
         {
-            return;
+            base.AddScore(amount, typeOfScore, pos);
         }
-
-        PointMultiplier += pointMultiplierGrowthPerPointsHit;
     }
 }

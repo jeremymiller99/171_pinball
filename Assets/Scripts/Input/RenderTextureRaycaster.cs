@@ -381,6 +381,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         string title = null;
         string desc = null;
         ElementType elementType = ElementType.None;
+        ElementType secondaryElementType = ElementType.None;
         TooltipUI.PriceMode priceMode = TooltipUI.PriceMode.None;
         int price = 0;
 
@@ -388,7 +389,8 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             TryResolveTooltipFromObject(
                 hitObject, out title, out desc,
-                out elementType, out priceMode, out price);
+                out elementType, out secondaryElementType, 
+                out priceMode, out price);
         }
 
         if (title == null)
@@ -401,7 +403,8 @@ public class RenderTextureRaycaster : MonoBehaviour
                 hitObject = handBall;
                 TryResolveTooltipFromObject(
                     handBall, out title, out desc,
-                    out elementType, out priceMode, out price);
+                    out elementType, out secondaryElementType,
+                    out priceMode, out price);
             }
         }
 
@@ -417,7 +420,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             ClearHighlight();
             _lastHoveredObject = hitObject;
             ApplyHighlight(hitObject);
-            ShowTooltip(title, desc, elementType, priceMode, price);
+            ShowTooltip(title, desc, elementType, secondaryElementType, priceMode, price);
             _tooltipShownByHover = true;
         }
 
@@ -428,19 +431,20 @@ public class RenderTextureRaycaster : MonoBehaviour
         string title,
         string desc,
         ElementType elementType,
+        ElementType secondaryElementType,
         TooltipUI.PriceMode priceMode,
         int price)
     {
         switch (priceMode)
         {
             case TooltipUI.PriceMode.Buy:
-                TooltipManager.ShowBuy(title, desc, elementType, price);
+                TooltipManager.ShowBuy(title, desc, elementType, secondaryElementType, price);
                 break;
             case TooltipUI.PriceMode.Sell:
-                TooltipManager.ShowSell(title, desc, elementType, price);
+                TooltipManager.ShowSell(title, desc, elementType, secondaryElementType, price);
                 break;
             default:
-                TooltipManager.Show(title, desc, elementType);
+                TooltipManager.Show(title, desc, elementType, secondaryElementType);
                 break;
         }
     }
@@ -450,19 +454,20 @@ public class RenderTextureRaycaster : MonoBehaviour
         string desc,
         Vector2 position,
         ElementType elementType,
+        ElementType secondaryElementType,
         TooltipUI.PriceMode priceMode,
         int price)
     {
         switch (priceMode)
         {
             case TooltipUI.PriceMode.Buy:
-                TooltipManager.ShowBuyAtPosition(title, desc, position, elementType, price);
+                TooltipManager.ShowBuyAtPosition(title, desc, position, elementType, secondaryElementType, price);
                 break;
             case TooltipUI.PriceMode.Sell:
-                TooltipManager.ShowSellAtPosition(title, desc, position, elementType, price);
+                TooltipManager.ShowSellAtPosition(title, desc, position, elementType, secondaryElementType, price);
                 break;
             default:
-                TooltipManager.ShowAtPosition(title, desc, position, elementType);
+                TooltipManager.ShowAtPosition(title, desc, position, elementType, secondaryElementType);
                 break;
         }
     }
@@ -475,6 +480,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         string title = null;
         string desc = null;
         ElementType elementType = ElementType.None;
+        ElementType secondaryElementType = ElementType.None;
         TooltipUI.PriceMode priceMode = TooltipUI.PriceMode.None;
         int price = 0;
 
@@ -482,7 +488,8 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             TryResolveTooltipFromObject(
                 selectedOffer, out title, out desc,
-                out elementType, out priceMode, out price);
+                out elementType, out secondaryElementType,
+                out priceMode, out price);
         }
 
         if (selectedOffer != _lastHoveredObject)
@@ -491,7 +498,9 @@ public class RenderTextureRaycaster : MonoBehaviour
             _lastHoveredObject = selectedOffer;
             ApplyHighlight(selectedOffer);
             ShowTooltipAtPosition(
-                title, desc, posOnScreen, elementType, priceMode, price);
+                title, desc, posOnScreen,
+                elementType, secondaryElementType, 
+                priceMode, price);
             _tooltipShownByHover = true;
         }
     }
@@ -516,12 +525,14 @@ public class RenderTextureRaycaster : MonoBehaviour
         out string title,
         out string desc,
         out ElementType elementType,
+        out ElementType secondaryElementType,
         out TooltipUI.PriceMode priceMode,
         out int price)
     {
         title = null;
         desc = null;
         elementType = ElementType.None;
+        secondaryElementType = ElementType.None;
         priceMode = TooltipUI.PriceMode.None;
         price = 0;
 
@@ -597,6 +608,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             desc = BuildBallTooltipDescription(
                 ballLink.gameObject, ballDef);
             elementType = ballDef.ElementType;
+            secondaryElementType = ballDef.SecondaryElementType;
 
             if (IsHandBallInShop(ballLink.gameObject))
             {

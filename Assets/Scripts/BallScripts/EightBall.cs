@@ -4,7 +4,7 @@ using UnityEngine;
 public class EightBall : Ball
 {
     [SerializeField] private int hitInterval = 8;
-    [SerializeField] private float pointsMultiplierOnInterval = 3f;
+    [SerializeField] private float multiplierOnInterval = .3f;
 
     protected override int HitIntervalForPopup => hitInterval;
 
@@ -12,9 +12,12 @@ public class EightBall : Ball
     {
         if (typeOfScore == TypeOfScore.points && componentHits > 0 && componentHits % hitInterval == 0)
         {
-            amount *= pointsMultiplierOnInterval;
+            base.AddScore(multiplierOnInterval, TypeOfScore.mult, pos);
             componentHits = 0;
+        } else
+        {
+            base.AddScore(amount, typeOfScore, pos);
         }
-        base.AddScore(amount, typeOfScore, pos);
+        
     }
 }

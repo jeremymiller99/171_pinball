@@ -2498,6 +2498,7 @@ GameObject:
   m_Component:
   - component: {fileID: 233671282}
   - component: {fileID: 233671281}
+  - component: {fileID: 233671283}
   m_Layer: 0
   m_Name: Tooltip Manager
   m_TagString: Untagged
@@ -2527,12 +2528,25 @@ Transform:
   m_GameObject: {fileID: 233671280}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10.19992, y: -0.92242, z: -0}
+  m_LocalPosition: {x: 0, y: 0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &233671283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 233671280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0596fc9c96877b0439c28e39395c9899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TooltipHeaderManager
+  tooltipPrefab: {fileID: 1103043553356194765, guid: cc8f70278c018964b87b2f6e3313f982, type: 3}
 --- !u!1 &238041674
 GameObject:
   m_ObjectHideFlags: 0
@@ -2934,6 +2948,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpaceshipElevator
   elevator: {fileID: 253805246}
   shipPoint: {fileID: 1788222850}
+  shipScaleMultiplier: 2
   loweredLocalY: -25
   raisedLocalY: -5
   travelDuration: 1.5
@@ -15564,20 +15579,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1418252270
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418252266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d3e9c1a4b8f44d2a6e5c0b9f1a82d63, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  format: 'Build #{0}'
-  editorLabel: 'Build #dev'
 --- !u!224 &1418252267
 RectTransform:
   m_ObjectHideFlags: 0
@@ -15696,6 +15697,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1418252266}
   m_CullTransparentMesh: 1
+--- !u!114 &1418252270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418252266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d3e9c1a4b8f44d2a6e5c0b9f1a82d63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  format: Build #{0}
+  editorLabel: Build #dev
 --- !u!1 &1419464788
 GameObject:
   m_ObjectHideFlags: 0

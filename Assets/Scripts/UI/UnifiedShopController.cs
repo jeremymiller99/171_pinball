@@ -174,31 +174,6 @@ public sealed class UnifiedShopController : MonoBehaviour
         _shelf.RebuildOffers();
     }
 
-    #region Click API
-
-    public void OnOfferClicked(int offerIndex)
-    {
-        if (CurrentState != ShopState.Browsing) return;
-
-        ShopOffer offer = _shelf.GetOffer(offerIndex);
-        if (offer == null || !offer.IsValid) return;
-
-        _hand.ClearSwapSelection();
-
-        // Ball offers can only be acquired via drag-and-drop onto a hand slot.
-        if (offer.Type == ShopOffer.OfferType.Ball)
-        {
-            SetPrompt(LocalizedUI.Format("gameplay.shop.dragToBuy", "Drag {0} onto a hand slot to buy it.", offer.DisplayName));
-            return;
-        }
-
-        _selectedOffer = offer;
-        _selectedOfferIndex = offerIndex;
-        OfferSelected?.Invoke(offer);
-
-        ShowPurchaseConfirmation(offer);
-    }
-
     // Localized lowercase words for enums embedded in shop prompts (fallback = English enum name).
     private static string TypeWord(BoardComponentType type) =>
         LocalizedUI.Get($"gameplay.componentType.{type}", type.ToString().ToLower());
@@ -206,52 +181,7 @@ public sealed class UnifiedShopController : MonoBehaviour
     private static string RarityWord(BallRarity rarity) =>
         LocalizedUI.Get($"gameplay.rarity.{rarity}", rarity.ToString());
 
-    public void ConfirmPurchase()
-    {
-        Debug.Log($"[UnifiedShopController] ConfirmPurchase clicked. selectedOffer={_selectedOffer?.DisplayName}");
-        if (_selectedOffer == null) return;
-
-        if (coinController == null || !coinController.TrySpendCoins(_selectedOffer.Price))
-        {
-            Debug.Log("[UnifiedShopController] Not enough coins.");
-            SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughCoinsFor", "Not enough coins for {0}.", _selectedOffer.DisplayName));
-            ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
-            if (confirmPanel != null) confirmPanel.Hide();
-            RefreshUI();
-            return;
-        }
-
-        Debug.Log("[UnifiedShopController] Coins spent. Progressing to placement.");
-        ServiceLocator.Get<AudioManager>()?.PlayPurchase();
-
-        if (confirmPanel != null) confirmPanel.Hide();
-
-        EnterComponentPlacementMode();
-    }
-
-    public void OnBoardComponentClicked(BoardComponent component)
-    {
-        if (CurrentState != ShopState.PlacingComponent || _selectedOffer == null) return;
-        if (component == null) return;
-
-        if (!ShopComponentPlacementController.IsValidPlacementTarget(_selectedOffer, component))
-        {
-            SetPrompt(LocalizedUI.Format("gameplay.shop.canOnlyReplace", "{0} can only replace a {1}.", _selectedOffer.DisplayName, TypeWord(_selectedOffer.ComponentDef.ComponentType)));
-            return;
-        }
-
-        _targetComponent = component;
-        ShowComponentReplaceConfirmation(component);
-    }
-
-    public void OnBallSlotClicked(int slotIndex)
-    {
-        if (CurrentState == ShopState.Browsing)
-        {
-            HandleBallSwapClick(slotIndex);
-        }
-    }
-
+    #region Click API
     public void ConfirmComponentPlacement()
     {
         if (_selectedOffer == null || _targetComponent == null) return;
@@ -276,29 +206,6 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         SetPrompt(LocalizedUI.Format("gameplay.shop.placed", "Placed {0}.", def.GetSafeDisplayName()));
         RefreshUI();
-    }
-
-    public void CancelPlacement()
-    {
-        if (_selectedOffer != null)
-        {
-            coinController?.AddCoinsUnscaled(_selectedOffer.Price);
-            SetPrompt(LocalizedUI.Get("gameplay.shop.purchaseCancelled", "Purchase cancelled. Coins refunded."));
-        }
-
-        ExitPlacementMode();
-        RefreshUI();
-    }
-
-    public void CancelConfirmation()
-    {
-        if (confirmPanel != null) confirmPanel.Hide();
-
-        if (CurrentState == ShopState.Browsing)
-        {
-            _selectedOffer = null;
-            _selectedOfferIndex = -1;
-        }
     }
 
     public void RerollOffers()
@@ -539,6 +446,7 @@ public sealed class UnifiedShopController : MonoBehaviour
     public void OnHandBallDragStarted(int dragSlot)
     {
         if (CurrentState != ShopState.Browsing) return;
+        ResolveReferences();
         _hand.ClearSwapSelection();
         _isDragPreviewActive = true;
         _hand.HighlightDropSources(dragSlot);
@@ -756,39 +664,6 @@ public sealed class UnifiedShopController : MonoBehaviour
         return Vector2.zero;
     }
 
-    private void ShowPurchaseConfirmation(ShopOffer offer)
-    {
-        if (confirmPanel == null)
-        {
-            ConfirmPurchase();
-            return;
-        }
-
-        confirmPanel.Show(
-            $"Buy {offer.DisplayName} for ${offer.Price}?",
-            offer.DisplayName, offer.Description, offer.Icon,
-            ConfirmPurchase, CancelConfirmation, GetConfirmAnchorScreenPoint());
-    }
-
-    private void ShowComponentReplaceConfirmation(BoardComponent target)
-    {
-        if (confirmPanel == null)
-        {
-            ConfirmComponentPlacement();
-            return;
-        }
-
-        var link = target.GetComponent<BoardComponentDefinitionLink>();
-        string targetName = "this component";
-        if (link != null && link.TryGetDefinition(out var def)) targetName = def.GetSafeDisplayName();
-
-        confirmPanel.Show(
-            $"Replace {targetName} with {_selectedOffer.DisplayName}?",
-            _selectedOffer.DisplayName, _selectedOffer.Description, _selectedOffer.Icon,
-            ConfirmComponentPlacement, () => { if (confirmPanel != null) confirmPanel.Hide(); },
-            GetConfirmAnchorScreenPoint());
-    }
-
     private void ShowDragDropBoardPurchaseConfirm(int offerIndex, BoardComponent target)
     {
         ShopOffer offer = _shelf.GetOffer(offerIndex);
@@ -920,6 +795,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     private void ResolveReferences()
     {
+        if (_hand == null) _hand = GetComponent<ShopHandInteractionController>();
         if (rulesManager == null) rulesManager = ServiceLocator.Get<GameRulesManager>();
         if (coinController == null) coinController = ServiceLocator.Get<CoinController>();
         if (runFlowController == null) runFlowController = ServiceLocator.Get<RunFlowController>();
@@ -1037,6 +913,14 @@ public sealed class UnifiedShopController : MonoBehaviour
                         return;
                     }
                     currentOfferObject = _shelf.OfferEntries[currentOfferIndex].gameObject;
+                }
+
+            }
+            else if (moveVector.x < -movementThreshold)
+            {
+                if (keepMoving)
+                {
+                    SelectBalls();
                 }
 
             }
@@ -1300,6 +1184,16 @@ public sealed class UnifiedShopController : MonoBehaviour
     private void Update()
     {
         if (SelectingButtons) return;
+
+        if (Mouse.current.IsPressed())
+        {
+            SelectingButtons = true;
+            uiScript.SelectButton();
+            TooltipManager.Hide();
+            selectedBallIndex = -1;
+            _hand.ClearSwapSelection();
+            return;
+        }
 
         if (CurrentState == ShopState.Browsing && currentOfferObject)
         {

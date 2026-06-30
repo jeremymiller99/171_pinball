@@ -11,7 +11,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using NUnit.Framework;
 using System.Collections.Generic;
-using UnityEditor.Localization.Plugins.XLIFF.V12;
 
 
 

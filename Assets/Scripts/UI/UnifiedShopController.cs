@@ -13,6 +13,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(ShopOfferShelfController))]
 [RequireComponent(typeof(ShopHandInteractionController))]
 [RequireComponent(typeof(ShopComponentPlacementController))]
+[RequireComponent(typeof(ShopSectionPlacementController))]
 public sealed class UnifiedShopController : MonoBehaviour
 {
     public enum ShopState
@@ -66,13 +67,16 @@ public sealed class UnifiedShopController : MonoBehaviour
     private ShopOfferShelfController _shelf;
     private ShopHandInteractionController _hand;
     private ShopComponentPlacementController _placement;
+    private ShopSectionPlacementController _sectionPlacement;
 
     private ShopOffer _selectedOffer;
     private int _selectedOfferIndex = -1;
     private bool _closeRequested;
 
     private BoardComponent _targetComponent;
+    private BoardSection _targetSection;
     private int _targetComponentIndex;
+    private int _targetSectionIndex;
     private bool _dragBallHasRoom;
     private bool _isDragPreviewActive;
 
@@ -90,6 +94,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         _shelf = GetComponent<ShopOfferShelfController>();
         _hand = GetComponent<ShopHandInteractionController>();
         _placement = GetComponent<ShopComponentPlacementController>();
+        _sectionPlacement = GetComponent<ShopSectionPlacementController>();
 
         ResolveReferences();
     }
@@ -120,6 +125,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         _shelf.Initialize();
         _hand.Initialize();
         _placement.Initialize();
+        _sectionPlacement.Initialize();
 
         WireContinueButton();
         WireRerollButton();
@@ -165,6 +171,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         _shelf.Cleanup();
         _hand.Cleanup();
         _placement.Cleanup();
+        _sectionPlacement.Cleanup();
 
         _dragBallHasRoom = false;
     }
@@ -203,6 +210,9 @@ public sealed class UnifiedShopController : MonoBehaviour
     private static string TypeWord(BoardComponentType type) =>
         LocalizedUI.Get($"gameplay.componentType.{type}", type.ToString().ToLower());
 
+    private static string CategoryWord(BoardSectionCategory category) =>
+        LocalizedUI.Get($"gameplay.sectionCategory.{category}", category.ToString());
+
     private static string RarityWord(BallRarity rarity) =>
         LocalizedUI.Get($"gameplay.rarity.{rarity}", rarity.ToString());
 
@@ -234,6 +244,15 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (CurrentState != ShopState.PlacingComponent || _selectedOffer == null) return;
         if (component == null) return;
 
+        // When installing a group, a click on one of a populated section's
+        // child components should target the owning section, not the component.
+        if (_selectedOffer.Type == ShopOffer.OfferType.ComponentGroup)
+        {
+            BoardSection section = component.GetComponentInParent<BoardSection>();
+            if (section != null) OnBoardSectionClicked(section);
+            return;
+        }
+
         if (!ShopComponentPlacementController.IsValidPlacementTarget(_selectedOffer, component))
         {
             SetPrompt(LocalizedUI.Format("gameplay.shop.canOnlyReplace", "{0} can only replace a {1}.", _selectedOffer.DisplayName, TypeWord(_selectedOffer.ComponentDef.ComponentType)));
@@ -242,6 +261,21 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         _targetComponent = component;
         ShowComponentReplaceConfirmation(component);
+    }
+
+    public void OnBoardSectionClicked(BoardSection section)
+    {
+        if (CurrentState != ShopState.PlacingComponent || _selectedOffer == null) return;
+        if (section == null) return;
+
+        if (!ShopSectionPlacementController.IsValidSectionTarget(_selectedOffer, section))
+        {
+            SetPrompt(LocalizedUI.Format("gameplay.shop.canOnlyInstallInto", "{0} can only be installed in a {1} section.", _selectedOffer.DisplayName, CategoryWord(_selectedOffer.GroupDef.Category)));
+            return;
+        }
+
+        _targetSection = section;
+        ShowSectionInstallConfirmation(section);
     }
 
     public void OnBallSlotClicked(int slotIndex)
@@ -254,12 +288,46 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     public void ConfirmComponentPlacement()
     {
-        if (_selectedOffer == null || _targetComponent == null) return;
+        if (_selectedOffer == null) return;
+
+        if (_selectedOffer.Type == ShopOffer.OfferType.ComponentGroup)
+        {
+            ConfirmGroupInstall();
+            return;
+        }
+
+        if (_targetComponent == null) return;
 
         BoardComponentDefinition def = _selectedOffer.ComponentDef;
         int price = _selectedOffer.Price;
 
         if (!_placement.ReplaceComponent(_targetComponent, def))
+        {
+            coinController?.AddCoinsUnscaled(price);
+            SetPrompt(LocalizedUI.Format("gameplay.shop.couldNotPlace", "Could not place {0}. Coins refunded.", def.GetSafeDisplayName()));
+            ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
+            ExitPlacementMode();
+            RefreshUI();
+            return;
+        }
+
+        PinballAnalytics.LogShopItemPurchased(_selectedOffer);
+
+        _shelf.ConsumeOffer(_selectedOfferIndex);
+        ExitPlacementMode();
+
+        SetPrompt(LocalizedUI.Format("gameplay.shop.placed", "Placed {0}.", def.GetSafeDisplayName()));
+        RefreshUI();
+    }
+
+    private void ConfirmGroupInstall()
+    {
+        if (_selectedOffer == null || _targetSection == null) return;
+
+        ComponentGroupDefinition def = _selectedOffer.GroupDef;
+        int price = _selectedOffer.Price;
+
+        if (!_sectionPlacement.InstallGroup(_targetSection, def))
         {
             coinController?.AddCoinsUnscaled(price);
             SetPrompt(LocalizedUI.Format("gameplay.shop.couldNotPlace", "Could not place {0}. Coins refunded.", def.GetSafeDisplayName()));
@@ -406,6 +474,25 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
+        if (offer.Type == ShopOffer.OfferType.ComponentGroup)
+        {
+            BoardSection section = hitObject != null ? hitObject.GetComponentInParent<BoardSection>() : null;
+            if (section == null)
+            {
+                SetPrompt(LocalizedUI.Get("gameplay.shop.dropOnSection", "Drop onto a matching section on the board."));
+                return;
+            }
+
+            if (!ShopSectionPlacementController.IsValidSectionTarget(offer, section))
+            {
+                SetPrompt(LocalizedUI.Format("gameplay.shop.dropOnMatchingSection", "Drop onto a {0} section on the board.", CategoryWord(offer.GroupDef.Category)));
+                return;
+            }
+
+            ShowDragDropSectionPurchaseConfirm(offerIndex, section);
+            return;
+        }
+
         var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
         if (loadoutCtrl == null) return;
 
@@ -466,6 +553,10 @@ public sealed class UnifiedShopController : MonoBehaviour
         {
             _placement.SetSelectionStateForPlacement(offer.ComponentDef.ComponentType);
         }
+        else if (offer.Type == ShopOffer.OfferType.ComponentGroup)
+        {
+            _sectionPlacement.SetSelectionStateForPlacement(offer.GroupDef.Category);
+        }
         else
         {
             var lc = ServiceLocator.Get<BallLoadoutController>();
@@ -494,6 +585,11 @@ public sealed class UnifiedShopController : MonoBehaviour
             BoardComponent bc = hitObject != null ? hitObject.GetComponentInParent<BoardComponent>() : null;
             _placement.UpdateDragHover(offer, bc);
         }
+        else if (offer.Type == ShopOffer.OfferType.ComponentGroup)
+        {
+            BoardSection section = hitObject != null ? hitObject.GetComponentInParent<BoardSection>() : null;
+            _sectionPlacement.UpdateDragHover(offer, section);
+        }
         else
         {
             int slot = ResolveDropSlotIndex(hitObject, worldRay);
@@ -521,19 +617,26 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         _isDragPreviewActive = false;
         _placement.EndDragHover();
+        _sectionPlacement.EndDragHover();
         _hand.EndDragHover();
-        
+
         if (ballSpawner != null) ballSpawner.ClearInsertGapPreview();
         _dragBallHasRoom = false;
     }
 
     public void OnPlacementHover(GameObject hitObject, Ray worldRay)
     {
-        if (CurrentState == ShopState.PlacingComponent)
+        if (CurrentState != ShopState.PlacingComponent) return;
+
+        if (_selectedOffer != null && _selectedOffer.Type == ShopOffer.OfferType.ComponentGroup)
         {
-            BoardComponent bc = hitObject != null ? hitObject.GetComponentInParent<BoardComponent>() : null;
-            _placement.UpdatePlacementHover(_selectedOffer, bc);
+            BoardSection section = hitObject != null ? hitObject.GetComponentInParent<BoardSection>() : null;
+            _sectionPlacement.UpdatePlacementHover(_selectedOffer, section);
+            return;
         }
+
+        BoardComponent bc = hitObject != null ? hitObject.GetComponentInParent<BoardComponent>() : null;
+        _placement.UpdatePlacementHover(_selectedOffer, bc);
     }
 
     public void OnHandBallDragStarted(int dragSlot)
@@ -655,6 +758,15 @@ public sealed class UnifiedShopController : MonoBehaviour
     private void EnterComponentPlacementMode()
     {
         CurrentState = ShopState.PlacingComponent;
+
+        if (_selectedOffer.Type == ShopOffer.OfferType.ComponentGroup)
+        {
+            _sectionPlacement.SetSelectionStateForPlacement(_selectedOffer.GroupDef.Category);
+            SetPrompt(LocalizedUI.Format("gameplay.shop.clickSectionToInstall", "Click a {0} section to install {1}.", CategoryWord(_selectedOffer.GroupDef.Category), _selectedOffer.DisplayName));
+            RefreshUI();
+            return;
+        }
+
         _placement.SetSelectionStateForPlacement(_selectedOffer.ComponentDef.ComponentType);
         SetPrompt(LocalizedUI.Format("gameplay.shop.clickToReplace", "Click a {0} on the board to replace with {1}.", TypeWord(_selectedOffer.ComponentDef.ComponentType), _selectedOffer.DisplayName));
         RefreshUI();
@@ -663,6 +775,7 @@ public sealed class UnifiedShopController : MonoBehaviour
     private void ExitPlacementMode()
     {
         _placement.DeselectAll();
+        _sectionPlacement.DeselectAll();
         _hand.UnhighlightAllHandBalls();
         _hand.ClearSwapSelection();
         _hand.ClearPlacementHover();
@@ -673,6 +786,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         _selectedOffer = null;
         _selectedOfferIndex = -1;
         _targetComponent = null;
+        _targetSection = null;
 
         if (confirmPanel != null) confirmPanel.Hide();
 
@@ -789,6 +903,29 @@ public sealed class UnifiedShopController : MonoBehaviour
             GetConfirmAnchorScreenPoint());
     }
 
+    private void ShowSectionInstallConfirmation(BoardSection target)
+    {
+        if (confirmPanel == null)
+        {
+            ConfirmComponentPlacement();
+            return;
+        }
+
+        string existing = target.CurrentDefinition != null
+            ? target.CurrentDefinition.GetSafeDisplayName()
+            : null;
+
+        string msg = existing != null
+            ? $"Replace {existing} with {_selectedOffer.DisplayName} here?"
+            : $"Install {_selectedOffer.DisplayName} here?";
+
+        confirmPanel.Show(
+            msg,
+            _selectedOffer.DisplayName, _selectedOffer.Description, _selectedOffer.Icon,
+            ConfirmComponentPlacement, () => { if (confirmPanel != null) confirmPanel.Hide(); },
+            GetConfirmAnchorScreenPoint());
+    }
+
     private void ShowDragDropBoardPurchaseConfirm(int offerIndex, BoardComponent target)
     {
         ShopOffer offer = _shelf.GetOffer(offerIndex);
@@ -832,6 +969,56 @@ public sealed class UnifiedShopController : MonoBehaviour
         _selectedOffer = offer;
         _selectedOfferIndex = offerIndex;
         _targetComponent = target;
+        ConfirmComponentPlacement();
+    }
+
+    private void ShowDragDropSectionPurchaseConfirm(int offerIndex, BoardSection target)
+    {
+        ShopOffer offer = _shelf.GetOffer(offerIndex);
+        if (offer == null || !offer.IsValid || target == null) return;
+
+        if (confirmPanel == null)
+        {
+            ConfirmDragDropSectionPurchase(offerIndex, target);
+            return;
+        }
+
+        string existing = target.CurrentDefinition != null
+            ? target.CurrentDefinition.GetSafeDisplayName()
+            : null;
+
+        string msg = existing != null
+            ? $"Buy {offer.DisplayName} for ${offer.Price} and replace {existing}?"
+            : $"Buy {offer.DisplayName} for ${offer.Price} and install here?";
+
+        confirmPanel.Show(
+            msg,
+            offer.DisplayName, offer.Description, offer.Icon,
+            () => ConfirmDragDropSectionPurchase(offerIndex, target),
+            () => { if (confirmPanel != null) confirmPanel.Hide(); },
+            GetConfirmAnchorScreenPoint());
+    }
+
+    private void ConfirmDragDropSectionPurchase(int offerIndex, BoardSection target)
+    {
+        ShopOffer offer = _shelf.GetOffer(offerIndex);
+        if (target == null || offer == null || !offer.IsValid) return;
+
+        if (coinController == null || !coinController.TrySpendCoins(offer.Price))
+        {
+            SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughCoinsFor", "Not enough coins for {0}.", offer.DisplayName));
+            ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
+            if (confirmPanel != null) confirmPanel.Hide();
+            RefreshUI();
+            return;
+        }
+
+        ServiceLocator.Get<AudioManager>()?.PlayPurchase();
+        if (confirmPanel != null) confirmPanel.Hide();
+
+        _selectedOffer = offer;
+        _selectedOfferIndex = offerIndex;
+        _targetSection = target;
         ConfirmComponentPlacement();
     }
 
@@ -1052,9 +1239,17 @@ public sealed class UnifiedShopController : MonoBehaviour
                 if (keepMoving)
                 {
                     keepMoving = false;
-                    _targetComponentIndex--;
                     ShopOffer offer = currentOfferObject.GetComponent<ShopOffer3DEntry>().Offer;
-                    SetTargetComponent(offer.ComponentDef.ComponentType);
+                    if (offer.Type == ShopOffer.OfferType.ComponentGroup)
+                    {
+                        _targetSectionIndex--;
+                        SetTargetSection(offer.GroupDef.Category);
+                    }
+                    else
+                    {
+                        _targetComponentIndex--;
+                        SetTargetComponent(offer.ComponentDef.ComponentType);
+                    }
                 }
             }
             else if (moveVector.x > movementThreshold)
@@ -1062,9 +1257,17 @@ public sealed class UnifiedShopController : MonoBehaviour
                 if (keepMoving)
                 {
                     keepMoving = false;
-                    _targetComponentIndex++;
                     ShopOffer offer = currentOfferObject.GetComponent<ShopOffer3DEntry>().Offer;
-                    SetTargetComponent(offer.ComponentDef.ComponentType);
+                    if (offer.Type == ShopOffer.OfferType.ComponentGroup)
+                    {
+                        _targetSectionIndex++;
+                        SetTargetSection(offer.GroupDef.Category);
+                    }
+                    else
+                    {
+                        _targetComponentIndex++;
+                        SetTargetComponent(offer.ComponentDef.ComponentType);
+                    }
                 }
             }
             else
@@ -1162,15 +1365,31 @@ public sealed class UnifiedShopController : MonoBehaviour
             {
                 CurrentState = ShopState.PlacingComponent;
                 ShopOffer offer = currentOfferObject.GetComponent<ShopOffer3DEntry>().Offer;
-                _placement.SetSelectionStateForPlacement(offer.ComponentDef.ComponentType);
-                _targetComponentIndex = 0;
-                SetTargetComponent(offer.ComponentDef.ComponentType);
+                if (offer.Type == ShopOffer.OfferType.ComponentGroup)
+                {
+                    _sectionPlacement.SetSelectionStateForPlacement(offer.GroupDef.Category);
+                    _targetSectionIndex = 0;
+                    SetTargetSection(offer.GroupDef.Category);
+                }
+                else
+                {
+                    _placement.SetSelectionStateForPlacement(offer.ComponentDef.ComponentType);
+                    _targetComponentIndex = 0;
+                    SetTargetComponent(offer.ComponentDef.ComponentType);
+                }
             }
         }
         else if (CurrentState == ShopState.PlacingComponent)
         {
             ShopOffer3DEntry offer = currentOfferObject.GetComponent<ShopOffer3DEntry>();
-            ConfirmDragDropBoardPurchase(offer.OfferIndex, _targetComponent);
+            if (offer.Offer.Type == ShopOffer.OfferType.ComponentGroup)
+            {
+                ConfirmDragDropSectionPurchase(offer.OfferIndex, _targetSection);
+            }
+            else
+            {
+                ConfirmDragDropBoardPurchase(offer.OfferIndex, _targetComponent);
+            }
             CheckForEmptyShop();
         } else if (CurrentState == ShopState.PlacingBall)
         {
@@ -1242,6 +1461,29 @@ public sealed class UnifiedShopController : MonoBehaviour
         }
     }
 
+    private readonly List<BoardSection> _matchingSectionsBuffer = new List<BoardSection>();
+
+    private void SetTargetSection(BoardSectionCategory category)
+    {
+        _matchingSectionsBuffer.Clear();
+        foreach (BoardSection s in _sectionPlacement.Sections)
+            if (s != null && s.Category == category) _matchingSectionsBuffer.Add(s);
+
+        if (_matchingSectionsBuffer.Count == 0)
+        {
+            _targetSection = null;
+            return;
+        }
+
+        int index = _targetSectionIndex % _matchingSectionsBuffer.Count;
+        if (index < 0)
+        {
+            index = _matchingSectionsBuffer.Count - 1;
+            _targetSectionIndex = index;
+        }
+        _targetSection = _matchingSectionsBuffer[index];
+    }
+
     public void OnBack()
     {
         if (CurrentState == ShopState.SelectingBall && selectedBallIndex != -1)
@@ -1253,6 +1495,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         CurrentState = ShopState.Browsing;
         _placement.Cleanup();
+        _sectionPlacement.Cleanup();
     }
 
     public void SelectShop()
@@ -1307,7 +1550,12 @@ public sealed class UnifiedShopController : MonoBehaviour
         }
         else if (CurrentState == ShopState.PlacingComponent)
         {
-            renderTextureRaycaster.HandleControllerHighlight(_targetComponent.gameObject);
+            GameObject placementTarget =
+                _targetSection != null ? _targetSection.gameObject
+                : _targetComponent != null ? _targetComponent.gameObject
+                : null;
+            if (placementTarget != null)
+                renderTextureRaycaster.HandleControllerHighlight(placementTarget);
         } else if (CurrentState == ShopState.PlacingBall || CurrentState == ShopState.SelectingBall)
         {
             GameObject ball = ballSpawner.GetHandBallAtSlot(currentBallIndex);

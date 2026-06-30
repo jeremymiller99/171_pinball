@@ -20,6 +20,16 @@ public sealed class ShopOfferShelfController : MonoBehaviour
     [SerializeField] private List<BoardComponentDefinition>
         allComponentDefinitions =
             new List<BoardComponentDefinition>();
+    [Tooltip("Buyable component groups. Only groups whose category matches a " +
+        "BoardSection present on the loaded board are offered.")]
+    [SerializeField] private List<ComponentGroupDefinition>
+        allGroupDefinitions =
+            new List<ComponentGroupDefinition>();
+
+    [Tooltip("When the loaded board contains BoardSections (a modular/prototype " +
+        "board), offer ONLY component groups -- no balls or individual " +
+        "components. Boards without sections are unaffected.")]
+    [SerializeField] private bool groupsOnlyOnSectionBoards = true;
 
     [Header("3D Offer Display")]
     [Tooltip(
@@ -64,6 +74,29 @@ public sealed class ShopOfferShelfController : MonoBehaviour
 
         _generator = new ShopOfferGenerator(
             allBallDefinitions, allComponentDefinitions);
+    }
+
+    /// <summary>
+    /// Returns the subset of <see cref="allGroupDefinitions"/> whose category
+    /// matches one of the supplied <see cref="BoardSection"/>s. An empty/absent
+    /// section set yields an empty list, so boards with no sections never offer
+    /// groups.
+    /// </summary>
+    private List<ComponentGroupDefinition> GetGroupsForSections(BoardSection[] sections)
+    {
+        var result = new List<ComponentGroupDefinition>();
+        if (allGroupDefinitions.Count == 0 || sections == null || sections.Length == 0)
+            return result;
+
+        var present = new HashSet<BoardSectionCategory>();
+        foreach (BoardSection s in sections)
+            if (s != null) present.Add(s.Category);
+
+        foreach (ComponentGroupDefinition g in allGroupDefinitions)
+            if (g != null && g.IsValid() && present.Contains(g.Category))
+                result.Add(g);
+
+        return result;
     }
 
     public void Cleanup()
@@ -140,6 +173,25 @@ public sealed class ShopOfferShelfController : MonoBehaviour
 
         int minO = ship != null ? ship.MinOffers : 3;
         int maxO = ship != null ? ship.MaxOffers : 6;
+
+        // Rebuild the generator each visit so the group pool reflects the
+        // sections present on the currently-loaded board. On a section/modular
+        // board, offer ONLY component groups (no balls or individual
+        // components); other boards keep the normal balls + components pool.
+        BoardSection[] sections =
+            Object.FindObjectsByType<BoardSection>(FindObjectsSortMode.None);
+        List<ComponentGroupDefinition> boardGroups = GetGroupsForSections(sections);
+        bool sectionBoard = sections.Length > 0;
+
+        _generator = (groupsOnlyOnSectionBoards && sectionBoard)
+            ? new ShopOfferGenerator(
+                new List<BallDefinition>(),
+                new List<BoardComponentDefinition>(),
+                boardGroups)
+            : new ShopOfferGenerator(
+                allBallDefinitions,
+                allComponentDefinitions,
+                boardGroups);
 
         _currentOffers.Clear();
         _currentOffers.AddRange(

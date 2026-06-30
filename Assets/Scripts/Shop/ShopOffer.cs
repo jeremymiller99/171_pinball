@@ -13,28 +13,33 @@ public sealed class ShopOffer
     public enum OfferType
     {
         Ball,
-        BoardComponent
+        BoardComponent,
+        ComponentGroup
     }
 
     public OfferType Type { get; }
     public BallDefinition BallDef { get; }
     public BoardComponentDefinition ComponentDef { get; }
+    public ComponentGroupDefinition GroupDef { get; }
 
     private readonly int _purchasePrice;
 
-    public string DisplayName => Type == OfferType.Ball
-        ? BallDef.GetSafeDisplayName()
+    public string DisplayName =>
+        Type == OfferType.Ball ? BallDef.GetSafeDisplayName()
+        : Type == OfferType.ComponentGroup ? GroupDef.GetSafeDisplayName()
         : ComponentDef.GetSafeDisplayName();
 
-    public string Description => Type == OfferType.Ball
-        ? BallDef.Description
+    public string Description =>
+        Type == OfferType.Ball ? BallDef.Description
+        : Type == OfferType.ComponentGroup ? GroupDef.Description
         : ComponentDef.Description;
 
     /// <summary>
     /// Definition base price before shop multipliers (ball int, component float).
     /// </summary>
-    public float BasePrice => Type == OfferType.Ball
-        ? BallDef.Price
+    public float BasePrice =>
+        Type == OfferType.Ball ? BallDef.Price
+        : Type == OfferType.ComponentGroup ? GroupDef.Price
         : ComponentDef.Price;
 
     /// <summary>
@@ -42,24 +47,28 @@ public sealed class ShopOffer
     /// </summary>
     public int Price => _purchasePrice;
 
-    public Sprite Icon => Type == OfferType.Ball
-        ? BallDef.Icon
+    public Sprite Icon =>
+        Type == OfferType.Ball ? BallDef.Icon
+        : Type == OfferType.ComponentGroup ? GroupDef.Icon
         : ComponentDef.Icon;
 
-    public GameObject Prefab => Type == OfferType.Ball
-        ? BallDef.Prefab
+    public GameObject Prefab =>
+        Type == OfferType.Ball ? BallDef.Prefab
+        : Type == OfferType.ComponentGroup ? GroupDef.GroupPrefab
         : ComponentDef.Prefab;
 
-    public ElementType ElementType => Type == OfferType.Ball
-        ? BallDef.ElementType
+    public ElementType ElementType =>
+        Type == OfferType.Ball ? BallDef.ElementType
+        : Type == OfferType.ComponentGroup ? GroupDef.ElementType
         : ComponentDef.ElementType;
 
     /// <summary>
     /// True when the underlying definition ScriptableObject exists.
     /// A missing prefab is allowed -- a fallback cube will be shown instead.
     /// </summary>
-    public bool IsValid => Type == OfferType.Ball
-        ? (BallDef != null)
+    public bool IsValid =>
+        Type == OfferType.Ball ? (BallDef != null)
+        : Type == OfferType.ComponentGroup ? (GroupDef != null)
         : (ComponentDef != null);
 
     public ShopOffer(BallDefinition ball, float combinedPriceMultiplier)
@@ -67,6 +76,7 @@ public sealed class ShopOffer
         Type = OfferType.Ball;
         BallDef = ball;
         ComponentDef = null;
+        GroupDef = null;
         _purchasePrice = ComputeFinalPrice(ball.Price, combinedPriceMultiplier);
     }
 
@@ -75,7 +85,17 @@ public sealed class ShopOffer
         Type = OfferType.BoardComponent;
         BallDef = null;
         ComponentDef = component;
+        GroupDef = null;
         _purchasePrice = ComputeFinalPrice(component.Price, combinedPriceMultiplier);
+    }
+
+    public ShopOffer(ComponentGroupDefinition group, float combinedPriceMultiplier)
+    {
+        Type = OfferType.ComponentGroup;
+        BallDef = null;
+        ComponentDef = null;
+        GroupDef = group;
+        _purchasePrice = ComputeFinalPrice(group.Price, combinedPriceMultiplier);
     }
 
     private static int ComputeFinalPrice(float basePrice, float combinedPriceMultiplier)

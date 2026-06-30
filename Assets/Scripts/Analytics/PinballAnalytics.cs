@@ -247,11 +247,21 @@ public static class PinballAnalytics
             return offer.BallDef != null ? offer.BallDef.Id : string.Empty;
         }
 
+        if (offer.Type == ShopOffer.OfferType.ComponentGroup)
+        {
+            return offer.GroupDef != null ? offer.GroupDef.Id : string.Empty;
+        }
+
         return offer.ComponentDef != null ? offer.ComponentDef.Id : string.Empty;
     }
 
     private static string GetOfferType(ShopOffer offer)
     {
-        return offer.Type == ShopOffer.OfferType.Ball ? "Ball" : "BoardComponent";
+        switch (offer.Type)
+        {
+            case ShopOffer.OfferType.Ball: return "Ball";
+            case ShopOffer.OfferType.ComponentGroup: return "ComponentGroup";
+            default: return "BoardComponent";
+        }
     }
 }

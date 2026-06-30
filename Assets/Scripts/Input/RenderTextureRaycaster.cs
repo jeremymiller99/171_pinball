@@ -192,6 +192,16 @@ public class RenderTextureRaycaster : MonoBehaviour
                     .OnBoardComponentClicked(boardComp);
                 return;
             }
+
+            BoardSection boardSection =
+                hitObject.GetComponentInParent<BoardSection>();
+
+            if (boardSection != null)
+            {
+                _cachedShopController
+                    .OnBoardSectionClicked(boardSection);
+                return;
+            }
         }
 
         if (_cachedShopController != null

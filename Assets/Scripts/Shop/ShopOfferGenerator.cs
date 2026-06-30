@@ -14,13 +14,16 @@ public sealed class ShopOfferGenerator
 {
     private readonly IList<BallDefinition> _allBalls;
     private readonly IList<BoardComponentDefinition> _allComponents;
+    private readonly IList<ComponentGroupDefinition> _allGroups;
 
     public ShopOfferGenerator(
         IList<BallDefinition> allBalls,
-        IList<BoardComponentDefinition> allComponents)
+        IList<BoardComponentDefinition> allComponents,
+        IList<ComponentGroupDefinition> allGroups = null)
     {
         _allBalls = allBalls ?? new List<BallDefinition>();
         _allComponents = allComponents ?? new List<BoardComponentDefinition>();
+        _allGroups = allGroups ?? new List<ComponentGroupDefinition>();
     }
 
     /// <summary>
@@ -126,6 +129,13 @@ public sealed class ShopOfferGenerator
                 : RarityWeight(BallRarity.Common);
         }
 
+        if (offer.Type == ShopOffer.OfferType.ComponentGroup)
+        {
+            return offer.GroupDef != null
+                ? RarityWeight(offer.GroupDef.Rarity)
+                : RarityWeight(BallRarity.Common);
+        }
+
         return offer.ComponentDef != null
             ? RarityWeight(offer.ComponentDef.Rarity)
             : RarityWeight(BallRarity.Common);
@@ -178,6 +188,21 @@ public sealed class ShopOfferGenerator
 
             if (hasProgression
                 && !ProgressionService.Instance.IsComponentUnlocked(def.Id))
+            {
+                continue;
+            }
+
+            pool.Add(new ShopOffer(def, combinedPriceMultiplier));
+        }
+
+        // Groups are pre-filtered by the shelf to the categories present on the
+        // loaded board, so any group passed in here is eligible. (Progression
+        // gating for groups is intentionally out of scope for the prototype.)
+        for (int i = 0; i < _allGroups.Count; i++)
+        {
+            ComponentGroupDefinition def = _allGroups[i];
+
+            if (def == null || !def.IsValid())
             {
                 continue;
             }

@@ -253,6 +253,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         }
 
         _shelf.ConsumeOffer(_selectedOfferIndex);
+        SteamAchievements.UnlockFirstComponentPurchase();
         ExitPlacementMode();
 
         SetPrompt($"Placed {def.GetSafeDisplayName()}.");
@@ -685,6 +686,8 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
+        SteamAchievements.UnlockFirstBallPurchase();
+
         if (ballSpawner != null && offer.BallDef?.Prefab != null)
         {
             ballSpawner.AddBallAnimated(offer.BallDef.Prefab, insertSlot);
@@ -846,6 +849,7 @@ public sealed class UnifiedShopController : MonoBehaviour
             coinController?.AddCoinsUnscaled(sellPrice);
         }
         loadoutCtrl.ReplaceBallInLoadout(slotIndex, newDef);
+        SteamAchievements.UnlockFirstBallPurchase();
 
         _shelf.ConsumeOffer(offerIndex);
 

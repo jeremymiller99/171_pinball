@@ -287,6 +287,10 @@ public class GameRulesManager : MonoBehaviour
                 roundIndex = Mathf.Max(0, roundIndex + 1);
                 ApplyCurrentRoundFromWindow();
 
+                var achBoard = GameSession.Instance?.GetCurrentBoard();
+                if (achBoard != null)
+                    SteamAchievements.CheckLevelMilestone(roundIndex, achBoard.boardSceneName);
+
                 ServiceLocator.Get<ScoreUIController>()?.SetRoundIndex(roundIndex);
                 scoreManager.SetGoal(CurrentGoal);
 
@@ -359,7 +363,9 @@ public class GameRulesManager : MonoBehaviour
         BoardRoot root = boardLoader.CurrentBoardRoot;
         if (root == null || !root.IsCleared(this) || session == null) return false;
 
-        return session.GetNextBoard() == null;
+        // Boards are standalone: clearing the current board wins the run,
+        // regardless of whether the run plan lists more boards after it.
+        return true;
     }
 
     private void CompleteRunAndShowWinScreen()
@@ -461,6 +467,8 @@ public class GameRulesManager : MonoBehaviour
         _shopOpen = true;
         if (ballSpawner != null) ballSpawner.ClearActiveBalls();
         ShopOpened?.Invoke();
+
+        SteamAchievements.UnlockFirstShopVisit();
 
         scoreManager?.ResetMultiplier();
 

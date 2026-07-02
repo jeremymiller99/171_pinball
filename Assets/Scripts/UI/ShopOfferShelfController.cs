@@ -153,9 +153,35 @@ public sealed class ShopOfferShelfController : MonoBehaviour
         }
     }
 
+#if UNITY_EDITOR
+    // Prototype/testing convenience: if no groups were wired into the inspector
+    // list, auto-discover every ComponentGroupDefinition asset so the shop still
+    // offers groups in the editor. Builds should populate the list explicitly.
+    private void EnsureGroupCatalogInEditor()
+    {
+        if (allGroupDefinitions.Count > 0) return;
+
+        foreach (string guid in UnityEditor.AssetDatabase.FindAssets("t:ComponentGroupDefinition"))
+        {
+            string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+            var def = UnityEditor.AssetDatabase.LoadAssetAtPath<ComponentGroupDefinition>(path);
+            if (def != null && !allGroupDefinitions.Contains(def))
+                allGroupDefinitions.Add(def);
+        }
+
+        if (allGroupDefinitions.Count > 0)
+            Debug.Log($"[ShopOfferShelf] Editor fallback: auto-loaded {allGroupDefinitions.Count} " +
+                      "ComponentGroupDefinition asset(s) because the inspector list was empty.");
+    }
+#endif
+
     public void RebuildOffers()
     {
         ClearOfferDisplays();
+
+#if UNITY_EDITOR
+        EnsureGroupCatalogInEditor();
+#endif
 
         if (_generator == null)
         {

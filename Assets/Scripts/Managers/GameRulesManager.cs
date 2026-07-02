@@ -360,6 +360,34 @@ public class GameRulesManager : MonoBehaviour
         OpenShop();
     }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    /// <summary>
+    /// Debug/testing only: force the shop open on the current board regardless of
+    /// round progression. Flips the availability gate on, then reuses the normal
+    /// button-entry path so the shop opens exactly as it would in production.
+    /// No-op if the shop is already open.
+    /// </summary>
+    public void DebugForceOpenShop()
+    {
+        if (_shopOpen)
+        {
+            Debug.Log("[GameRulesManager] DebugForceOpenShop ignored: shop already open.");
+            return;
+        }
+
+        // Force-opening skips gameplay, so there's no coin income yet. Top up to a
+        // spendable floor so purchases can actually be tested.
+        const int debugCoinFloor = 999;
+        if (Coins < debugCoinFloor)
+        {
+            AddCoinsUnscaled(debugCoinFloor - Coins);
+        }
+
+        _shopAvailable = true;
+        TryEnterShopFromButton();
+    }
+#endif
+
     public void RefreshBallsRemaining()
     {
         ballsRemaining = BallLoadoutCount;

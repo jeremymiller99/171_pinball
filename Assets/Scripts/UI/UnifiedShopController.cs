@@ -696,8 +696,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         {
             SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughCoinsFor", "Not enough coins for {0}.", offer.DisplayName));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
-            if (confirmPanel != null) confirmPanel.Hide();
-            RefreshUI();
+            CancelDragDropBoard();
             return;
         }
 
@@ -708,6 +707,12 @@ public sealed class UnifiedShopController : MonoBehaviour
         _selectedOfferIndex = offerIndex;
         _targetComponent = target;
         ConfirmComponentPlacement();
+    }
+
+    public void CancelDragDropBoard()
+    {
+        if (confirmPanel != null) confirmPanel.Hide();
+        RefreshUI();
     }
 
     private void ShowDragDropBallReplaceConfirm(int offerIndex, int slotIndex)

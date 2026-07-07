@@ -1300,14 +1300,10 @@ public class RenderTextureRaycaster : MonoBehaviour
         // exists in the scene, otherwise fall back to the item's own shelf
         // depth. Resolved at runtime so the anchor can live in another scene
         // (e.g. the shop scene) than this camera.
-        var planeAnchor = ServiceLocator.Get<OfferDragPlaneAnchor>();
-        Vector3 planePoint = planeAnchor != null
-            ? planeAnchor.transform.position
-            : _offerDragOriginalPos;
 
         _offerDragPlane = new Plane(
             -targetCamera.transform.forward,
-            planePoint);
+            _offerDragOriginalPos);
 
         Vector2 startViewport = ScreenToViewport(startScreenPos);
         Ray startRay = targetCamera.ViewportPointToRay(startViewport);

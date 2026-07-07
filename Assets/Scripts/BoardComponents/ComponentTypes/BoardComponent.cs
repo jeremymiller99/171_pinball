@@ -253,6 +253,12 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
 
         _isHoverHighlighted = false;
         EnsureSelectionOutline();
+        if (GetComponent<ShopOffer3DEntry>() != null)
+        {
+            ApplyHighlightOutlineSettings(selectionOutline, Color.white);
+            return;
+        }
+
         ApplyDefaultOutlineSettings(selectionOutline);
     }
 

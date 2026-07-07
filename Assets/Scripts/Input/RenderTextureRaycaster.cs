@@ -37,32 +37,31 @@ public class RenderTextureRaycaster : MonoBehaviour
     [Header("Shop offer drag")]
     [SerializeField] private float offerDragThresholdPixels = 12f;
 
-    private GameObject _lastHoveredObject;
-    private bool _tooltipShownByHover;
-    private BallSpawner _cachedSpawner;
-    private BoardComponent _highlightedComponent;
-    private Outline _highlightedOutline;
-    private Color _highlightedOutlinePrevColor;
-    private UnifiedShopController _cachedShopController;
-    private ShopHub _highlightedHub;
+    [SerializeField] private GameObject _lastHoveredObject;
+    [SerializeField] private bool _tooltipShownByHover;
+    [SerializeField] private BallSpawner _cachedSpawner;
+    [SerializeField] private BoardComponent _highlightedComponent;
+    [SerializeField] private Outline _highlightedOutline;
+    [SerializeField] private UnifiedShopController _cachedShopController;
+    [SerializeField] private ShopHub _highlightedHub;
 
-    private ShopOffer3DEntry _offerDragEntry;
-    private Vector2 _offerDragStartScreenPos;
-    private bool _offerDragThresholdExceeded;
+    [SerializeField] private ShopOffer3DEntry _offerDragEntry;
+    [SerializeField] private Vector2 _offerDragStartScreenPos;
+    [SerializeField] private bool _offerDragThresholdExceeded;
 
-    private Vector3 _offerDragOriginalPos;
-    private Vector3 _offerDragWorldOffset;
-    private Plane _offerDragPlane;
-    private Collider[] _offerDragDisabledColliders;
+    [SerializeField] private Vector3 _offerDragOriginalPos;
+    [SerializeField] private Vector3 _offerDragWorldOffset;
+    [SerializeField] private Plane _offerDragPlane;
+    [SerializeField] private Collider[] _offerDragDisabledColliders;
 
     // Hand ball drag-to-swap state
-    private GameObject _handBallDragObject;
-    private int _handBallDragSlot = -1;
-    private Vector2 _handBallDragStartScreenPos;
-    private Vector3 _handBallDragOriginalPos;
-    private bool _handBallDragThresholdExceeded;
-    private Plane _handBallDragPlane;
-    private Vector3 _handBallDragWorldOffset;
+    [SerializeField] private GameObject _handBallDragObject;
+    [SerializeField] private int _handBallDragSlot = -1;
+    [SerializeField] private Vector2 _handBallDragStartScreenPos;
+    [SerializeField] private Vector3 _handBallDragOriginalPos;
+    [SerializeField] private bool _handBallDragThresholdExceeded;
+    [SerializeField] private Plane _handBallDragPlane;
+    [SerializeField] private Vector3 _handBallDragWorldOffset;
 
     private void Awake()
     {
@@ -101,6 +100,8 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             return;
         }
+
+        ClearHover();
 
         Vector2 viewportPoint = ScreenToViewport(mouseScreenPos);
         Ray ray = targetCamera.ViewportPointToRay(viewportPoint);
@@ -160,7 +161,6 @@ public class RenderTextureRaycaster : MonoBehaviour
                 clickableLayers))
         {
             currentTooltipObject = null;
-            ClearHover();
             return;
         }
 
@@ -180,18 +180,17 @@ public class RenderTextureRaycaster : MonoBehaviour
                                 out TooltipUI.PriceMode priceMode,
                                 out int price))
         {
-            HandleControllerHighlight(hitObject);
+            HandleHighlight(hitObject);
         } else
         {
             GameObject handBall =
                 FindClosestHandBallOnRay(rayDown);
             if (handBall != null)
             {
-                HandleControllerHighlight(handBall);
+                HandleHighlight(handBall);
             } else
             {
                 currentTooltipObject = null;
-                ClearHover();
             }
         }
 
@@ -298,6 +297,12 @@ public class RenderTextureRaycaster : MonoBehaviour
 
     private void HandleHover(Vector2 mouseScreenPos)
     {
+        if (WasClickedThisFrame())
+        {
+            ClearHeaderHover();
+            return;
+        }
+
         Vector2 viewportDown = ScreenToViewport(mouseScreenPos);
         Ray rayDown = targetCamera.ViewportPointToRay(viewportDown);
 
@@ -322,6 +327,12 @@ public class RenderTextureRaycaster : MonoBehaviour
             {
                 hitObject = handBall;
             }
+        }
+
+        if (hitObject == currentTooltipObject)
+        {
+            ApplyHighlight(hitObject);
+            return;
         }
 
         if (TryResolveHeaderTooltipFromObject(hitObject,
@@ -444,6 +455,40 @@ public class RenderTextureRaycaster : MonoBehaviour
             ShowTooltipAtPosition(
                 title, desc, posOnScreen,
                 elementType, secondaryElementType, 
+                priceMode, price);
+            _tooltipShownByHover = true;
+        }
+    }
+
+    public void HandleHighlight(GameObject selectedObject)
+    {
+        ClearHighlight();
+        currentTooltipObject = selectedObject;
+        Vector2 posOnScreen = targetCamera.WorldToViewportPoint(selectedObject.transform.position);
+        posOnScreen.x *= Screen.width;
+        posOnScreen.y *= Screen.height;
+        string title = null;
+        string desc = null;
+        ElementType elementType = ElementType.None;
+        ElementType secondaryElementType = ElementType.None;
+        TooltipUI.PriceMode priceMode = TooltipUI.PriceMode.None;
+        int price = 0;
+
+        if (selectedObject != null)
+        {
+            TryResolveTooltipFromObject(
+                selectedObject, out title, out desc,
+                out elementType, out secondaryElementType,
+                out priceMode, out price);
+        }
+
+        ApplyHighlight(selectedObject);
+
+        if (selectedObject != _lastHoveredObject)
+        {
+            ShowTooltipAtPosition(
+                title, desc, posOnScreen,
+                elementType, secondaryElementType,
                 priceMode, price);
             _tooltipShownByHover = true;
         }
@@ -1188,8 +1233,8 @@ public class RenderTextureRaycaster : MonoBehaviour
 
         if (_handBallDragPlane.Raycast(ray, out float enter))
         {
-            _handBallDragObject.transform.position =
-                ray.GetPoint(enter) + _handBallDragWorldOffset;
+            //_handBallDragObject.transform.position = ray.GetPoint(enter) + _handBallDragWorldOffset;
+            _handBallDragObject.transform.position = ray.GetPoint(enter);
         }
     }
 
@@ -1255,14 +1300,10 @@ public class RenderTextureRaycaster : MonoBehaviour
         // exists in the scene, otherwise fall back to the item's own shelf
         // depth. Resolved at runtime so the anchor can live in another scene
         // (e.g. the shop scene) than this camera.
-        var planeAnchor = ServiceLocator.Get<OfferDragPlaneAnchor>();
-        Vector3 planePoint = planeAnchor != null
-            ? planeAnchor.transform.position
-            : _offerDragOriginalPos;
 
         _offerDragPlane = new Plane(
             -targetCamera.transform.forward,
-            planePoint);
+            _offerDragOriginalPos);
 
         Vector2 startViewport = ScreenToViewport(startScreenPos);
         Ray startRay = targetCamera.ViewportPointToRay(startViewport);
@@ -1365,6 +1406,8 @@ public class RenderTextureRaycaster : MonoBehaviour
             return;
         }
 
+        ClearHighlight();
+
         ShopHub hub = obj.GetComponentInParent<ShopHub>();
         if (hub != null)
         {
@@ -1399,8 +1442,6 @@ public class RenderTextureRaycaster : MonoBehaviour
         if (outline != null)
         {
             _highlightedOutline = outline;
-            _highlightedOutlinePrevColor =
-                outline.OutlineColor;
             outline.OutlineColor = Color.white;
         }
     }
@@ -1411,19 +1452,21 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             _highlightedHub.SetHovered(false);
             _highlightedHub = null;
+            return;
         }
 
         if (_highlightedComponent != null)
         {
             _highlightedComponent.UnhighlightHover();
             _highlightedComponent = null;
+            return;
         }
 
         if (_highlightedOutline != null && _highlightedOutline.GetComponent<ShopOffer3DEntry>() == null)
         {
-            _highlightedOutline.OutlineColor =
-                _highlightedOutlinePrevColor;
+            _highlightedOutline.OutlineColor = Color.black;
             _highlightedOutline = null;
+            return;
         }
     }
 

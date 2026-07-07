@@ -22,7 +22,7 @@ public sealed class TooltipHeaderManager : MonoBehaviour
     private TooltipHeaderUI _instance;
     private Canvas _overlayCanvas;
 
-    private const int tooltipSortOrder = 9999;
+    private const int tooltipSortOrder = 101;
     private const float panelWidth = 220f;
     private const float nameFontSize = 18f;
 

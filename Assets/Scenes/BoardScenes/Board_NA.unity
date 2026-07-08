@@ -32296,6 +32296,63 @@ MonoBehaviour:
   devilWashColor: {r: 0.45, g: 0.08, b: 0.12, a: 1}
   normalWashColor: {r: 0.12, g: 0.1, b: 0.22, a: 1}
   overlayOffset: {x: 0, y: 0, z: -0.01}
+--- !u!1001 &2120440147
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 0b9f911e2f2e3dd46ba1bda19ec7412b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -8.20658
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0b9f911e2f2e3dd46ba1bda19ec7412b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2.5952206
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0b9f911e2f2e3dd46ba1bda19ec7412b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -19.428333
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0b9f911e2f2e3dd46ba1bda19ec7412b, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071067
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0b9f911e2f2e3dd46ba1bda19ec7412b, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0b9f911e2f2e3dd46ba1bda19ec7412b, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0b9f911e2f2e3dd46ba1bda19ec7412b, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0b9f911e2f2e3dd46ba1bda19ec7412b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0b9f911e2f2e3dd46ba1bda19ec7412b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0b9f911e2f2e3dd46ba1bda19ec7412b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0b9f911e2f2e3dd46ba1bda19ec7412b, type: 3}
+      propertyPath: m_Name
+      value: DroneGunner
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0b9f911e2f2e3dd46ba1bda19ec7412b, type: 3}
 --- !u!1 &2122177424
 GameObject:
   m_ObjectHideFlags: 0
@@ -37697,3 +37754,4 @@ SceneRoots:
   - {fileID: 572398420}
   - {fileID: 8192697805093227562}
   - {fileID: 230555258}
+  - {fileID: 2120440147}

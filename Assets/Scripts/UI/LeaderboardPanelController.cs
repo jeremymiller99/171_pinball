@@ -139,11 +139,20 @@ public sealed class LeaderboardPanelController : MonoBehaviour
     private void OnEnable()
     {
         SteamLeaderboards.PlayerNamesUpdated += OnPlayerNamesUpdated;
+        SteamLeaderboards.ScoreUploaded += OnScoreUploaded;
     }
 
     private void OnDisable()
     {
         SteamLeaderboards.PlayerNamesUpdated -= OnPlayerNamesUpdated;
+        SteamLeaderboards.ScoreUploaded -= OnScoreUploaded;
+    }
+
+    private void OnScoreUploaded()
+    {
+        // The panel usually opens while the run's upload is still in flight;
+        // refetch once Steam confirms so the player's fresh entry shows up.
+        FetchScores();
     }
 
     private string CurrentBoardSceneName

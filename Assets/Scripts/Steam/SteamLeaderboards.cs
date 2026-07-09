@@ -25,6 +25,9 @@ public class SteamLeaderboards : MonoBehaviour
     /// <summary>Raised when a previously unknown player name has been resolved.</summary>
     public static event Action PlayerNamesUpdated;
 
+    /// <summary>Raised when Steam confirms a score upload landed on a leaderboard.</summary>
+    public static event Action ScoreUploaded;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
     {
@@ -186,10 +189,18 @@ public class SteamLeaderboards : MonoBehaviour
     private void DoUpload(SteamLeaderboard_t board, int score, int level)
     {
         int[] details = { level };
-        SteamUserStats.UploadLeaderboardScore(
+        var uploadCall = SteamUserStats.UploadLeaderboardScore(
             board,
             ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodKeepBest,
             score, details, details.Length);
+        var cr = CallResult<LeaderboardScoreUploaded_t>.Create();
+        cr.Set(uploadCall, (result, ioFailure) =>
+        {
+            if (ioFailure || result.m_bSuccess == 0) return;
+
+            ScoreUploaded?.Invoke();
+        });
+        _activeCallResults.Add(cr);
     }
 
     private void DownloadInternal(string leaderboardName, ELeaderboardDataRequest requestType,

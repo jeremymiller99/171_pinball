@@ -10,17 +10,6 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
-## 0.9.0 — Steam leaderboards + shop/level achievements
-_2026-07-08 · Contributor: Devin_
-- Leaderboards are now Steam-backed instead of local. `LocalLeaderboard`/`LeaderboardData`/`LeaderboardEntry` and the name-entry screen are gone — Steam persona names identify players, so the post-run panel goes straight to the score list with your row highlighted and your global rank in the header (fetched via `GlobalAroundUser`).
-- `SteamLeaderboards` upgraded: uploads now use `FindOrCreateLeaderboard` (boards no longer need to be pre-created on the Steamworks partner site) and attach level-reached as a leaderboard detail; downloads return a Steamworks-free `SteamLeaderboardEntry` struct (rank/name/score/level) so UI code compiles with `DISABLESTEAMWORKS`. Unknown player names are resolved via `RequestUserInformation` + `PersonaStateChange_t` and rows refresh when they arrive.
-- Leaderboard panel: read-only view (main menu button) now has a board switcher (loads all `BoardDefinition` assets from `Resources/BoardDefinitions`) and both views have a VIEW: GLOBAL / VIEW: FRIENDS toggle. Steam-unavailable, fetching, and empty states each show a status line.
-- Ported achievements from the `Devin/SteamCloud&Achievements` branch: `ACH_FIRST_SHOP` (first shop open), `ACH_BUY_BALL` (ball purchase/replace), `ACH_BUY_COMPONENT` (component purchase), `ACH_LEVEL5_<BOARD>` (reach level 5 per board), plus session-side dedup and logging in `SteamAchievements`. Call sites wired in `GameRulesManager` and `UnifiedShopController`.
-- New localization keys (English fallback works untranslated until re-import): `gameplay.leaderboard.fetching`/`.noEntries`/`.steamUnavailable`/`.viewGlobal`/`.viewFriends`. The old `enterName`/`namePlaceholder`/`submit` keys are unused now.
-- Steam integration actually enabled: added the `com.rlabrecque.steamworks.net` UPM package (git, 2025.163.0 — same as the old SteamCloud branch) and swapped the Standalone scripting define from `DISABLESTEAMWORKS` to `STEAMWORKS_NET`. Main had Steam compiled out, which is why the panel said "(Steam unavailable)" with the client running.
-- Leaderboard rows now live in a ScrollRect so the CONTINUE/BACK button is never pushed off the panel; persona-name callback registration moved out of `Awake` (raced `SteamManager` bootstrap).
-- Known follow-ups: the new achievement IDs must be defined on the Steamworks partner site; the post-run rank fetch can race the score upload (may show the pre-run rank for a moment).
-
 ## 0.8.7 — Spanish localization pass on MainMenu (continued)
 _2026-06-01 · Contributor: Devin_
 - Cleaned up 4 typo keys in `Menu Labels` that had leading whitespace (`␣mainMenu.settings.displayMode`, `␣mainMenu.settings.resolution`, `␣mainMenu.highscore`, `␣mainMenu.rank`). Stripped the leading space in-place via direct YAML edit so the key IDs and existing translations were preserved. Also fixed two wrong English source values in the same pass: `displayMode` was set to `Display`, now `Display Mode`; `highscore` was set to `Highscore` (no colon), now `Highscore:` to match the ChallengeCard source string.

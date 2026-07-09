@@ -27,6 +27,7 @@ public sealed class LeaderboardPanelController : MonoBehaviour
 
     private const float buttonHeight = 56f;
     private const float rowHeight = 36f;
+    private const float scrollViewHeight = 360f;
 
     private float _timeScaleBefore = 1f;
     private float _fixedDeltaBefore = 0.02f;
@@ -53,6 +54,7 @@ public sealed class LeaderboardPanelController : MonoBehaviour
 
     private GameObject _listPanel;
     private GameObject _rowsRoot;
+    private ScrollRect _scrollRect;
     private TextMeshProUGUI _headerLabel;
     private TextMeshProUGUI _boardLabel;
     private TextMeshProUGUI _statusLabel;
@@ -253,8 +255,9 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         var vlg = _listPanel.GetComponent<VerticalLayoutGroup>();
         vlg.childAlignment = TextAnchor.UpperCenter;
         vlg.childControlWidth = true;
-        vlg.childControlHeight = false;
+        vlg.childControlHeight = true;
         vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
         vlg.spacing = 6f;
         vlg.padding = new RectOffset(24, 24, 24, 24);
 
@@ -280,22 +283,49 @@ public sealed class LeaderboardPanelController : MonoBehaviour
             LocalizedUI.Format("gameplay.leaderboard.top", "TOP {0}", maxRowsShown),
             labelFontSize, FontStyles.Bold, TextAlignmentOptions.Center);
 
+        var scrollGo = new GameObject("ScrollView",
+            typeof(RectTransform),
+            typeof(RectMask2D),
+            typeof(ScrollRect),
+            typeof(LayoutElement));
+
+        scrollGo.transform.SetParent(_listPanel.transform, false);
+
+        var scrollLe = scrollGo.GetComponent<LayoutElement>();
+        scrollLe.preferredHeight = scrollViewHeight;
+
         _rowsRoot = new GameObject("Rows",
             typeof(RectTransform),
             typeof(VerticalLayoutGroup),
-            typeof(LayoutElement));
+            typeof(ContentSizeFitter));
 
-        _rowsRoot.transform.SetParent(_listPanel.transform, false);
+        _rowsRoot.transform.SetParent(scrollGo.transform, false);
 
-        var rowsLe = _rowsRoot.GetComponent<LayoutElement>();
-        rowsLe.preferredHeight = maxRowsShown * (rowHeight + 6f);
+        var rowsRt = _rowsRoot.GetComponent<RectTransform>();
+        rowsRt.anchorMin = new Vector2(0f, 1f);
+        rowsRt.anchorMax = new Vector2(1f, 1f);
+        rowsRt.pivot = new Vector2(0.5f, 1f);
+        rowsRt.offsetMin = Vector2.zero;
+        rowsRt.offsetMax = Vector2.zero;
 
         var rowsVlg = _rowsRoot.GetComponent<VerticalLayoutGroup>();
         rowsVlg.childAlignment = TextAnchor.UpperCenter;
         rowsVlg.childControlWidth = true;
-        rowsVlg.childControlHeight = false;
+        rowsVlg.childControlHeight = true;
         rowsVlg.childForceExpandWidth = true;
+        rowsVlg.childForceExpandHeight = false;
         rowsVlg.spacing = 6f;
+
+        var rowsFitter = _rowsRoot.GetComponent<ContentSizeFitter>();
+        rowsFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        _scrollRect = scrollGo.GetComponent<ScrollRect>();
+        _scrollRect.content = rowsRt;
+        _scrollRect.viewport = scrollGo.GetComponent<RectTransform>();
+        _scrollRect.horizontal = false;
+        _scrollRect.vertical = true;
+        _scrollRect.movementType = ScrollRect.MovementType.Clamped;
+        _scrollRect.scrollSensitivity = 24f;
 
         _statusLabel = BuildLabel(_listPanel.transform, "", labelFontSize,
             FontStyles.Italic, TextAlignmentOptions.Center);
@@ -340,9 +370,10 @@ public sealed class LeaderboardPanelController : MonoBehaviour
 
         var hlg = row.GetComponent<HorizontalLayoutGroup>();
         hlg.childAlignment = TextAnchor.MiddleCenter;
-        hlg.childControlWidth = false;
+        hlg.childControlWidth = true;
         hlg.childControlHeight = true;
         hlg.childForceExpandWidth = false;
+        hlg.childForceExpandHeight = false;
         hlg.spacing = 12f;
 
         BuildSmallButton(row.transform, "PrevBoard", "<", () => CycleBoard(-1));
@@ -422,6 +453,8 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         {
             BuildRow(_rowsRoot.transform, _entries[i]);
         }
+
+        if (_scrollRect != null) _scrollRect.verticalNormalizedPosition = 1f;
     }
 
     private void BuildRow(Transform parent, SteamLeaderboardEntry entry)

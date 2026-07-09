@@ -44,13 +44,6 @@ public class SteamLeaderboards : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
-
-#if !DISABLESTEAMWORKS
-        if (SteamManager.Initialized)
-        {
-            _personaStateChange = Callback<PersonaStateChange_t>.Create(OnPersonaStateChange);
-        }
-#endif
     }
 
     public static bool IsAvailable
@@ -268,6 +261,12 @@ public class SteamLeaderboards : MonoBehaviour
 
     private string ResolvePlayerName(CSteamID user)
     {
+        // Registered lazily: this only runs after a download, so Steam is initialized.
+        if (_personaStateChange == null)
+        {
+            _personaStateChange = Callback<PersonaStateChange_t>.Create(OnPersonaStateChange);
+        }
+
         // Steam only knows names of friends and recently seen players; request the
         // rest and refresh rows via PlayerNamesUpdated when the data arrives.
         if (SteamFriends.RequestUserInformation(user, true))

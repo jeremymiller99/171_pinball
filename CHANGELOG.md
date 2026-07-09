@@ -17,6 +17,8 @@ _2026-07-08 · Contributor: Devin_
 - Leaderboard panel: read-only view (main menu button) now has a board switcher (loads all `BoardDefinition` assets from `Resources/BoardDefinitions`) and both views have a VIEW: GLOBAL / VIEW: FRIENDS toggle. Steam-unavailable, fetching, and empty states each show a status line.
 - Ported achievements from the `Devin/SteamCloud&Achievements` branch: `ACH_FIRST_SHOP` (first shop open), `ACH_BUY_BALL` (ball purchase/replace), `ACH_BUY_COMPONENT` (component purchase), `ACH_LEVEL5_<BOARD>` (reach level 5 per board), plus session-side dedup and logging in `SteamAchievements`. Call sites wired in `GameRulesManager` and `UnifiedShopController`.
 - New localization keys (English fallback works untranslated until re-import): `gameplay.leaderboard.fetching`/`.noEntries`/`.steamUnavailable`/`.viewGlobal`/`.viewFriends`. The old `enterName`/`namePlaceholder`/`submit` keys are unused now.
+- Steam integration actually enabled: added the `com.rlabrecque.steamworks.net` UPM package (git, 2025.163.0 — same as the old SteamCloud branch) and swapped the Standalone scripting define from `DISABLESTEAMWORKS` to `STEAMWORKS_NET`. Main had Steam compiled out, which is why the panel said "(Steam unavailable)" with the client running.
+- Leaderboard rows now live in a ScrollRect so the CONTINUE/BACK button is never pushed off the panel; persona-name callback registration moved out of `Awake` (raced `SteamManager` bootstrap).
 - Known follow-ups: the new achievement IDs must be defined on the Steamworks partner site; the post-run rank fetch can race the score upload (may show the pre-run rank for a moment).
 
 ## 0.8.7 — Spanish localization pass on MainMenu (continued)

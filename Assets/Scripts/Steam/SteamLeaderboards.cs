@@ -1,12 +1,32 @@
 #if !DISABLESTEAMWORKS
 using Steamworks;
-using System.Collections.Generic;
 #endif
+using System;
+using System.Collections.Generic;
 using UnityEngine;
+
+/// <summary>
+/// Steamworks-free view of a leaderboard row so UI code compiles without Steam.
+/// </summary>
+public struct SteamLeaderboardEntry
+{
+    public int rank;
+    public ulong steamId;
+    public string playerName;
+    public int score;
+    public int levelReached;
+    public bool isLocalUser;
+}
 
 public class SteamLeaderboards : MonoBehaviour
 {
     public static SteamLeaderboards Instance { get; private set; }
+
+    /// <summary>Raised when a previously unknown player name has been resolved.</summary>
+    public static event Action PlayerNamesUpdated;
+
+    /// <summary>Raised when Steam confirms a score upload landed on a leaderboard.</summary>
+    public static event Action ScoreUploaded;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
@@ -29,12 +49,82 @@ public class SteamLeaderboards : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public static void UploadScore(string boardSceneName, int score)
+    public static bool IsAvailable
+    {
+        get
+        {
+#if !DISABLESTEAMWORKS
+            return SteamManager.Initialized && Instance != null;
+#else
+            return false;
+#endif
+        }
+    }
+
+    public static void UploadScore(string boardSceneName, int score, int levelReached)
     {
 #if !DISABLESTEAMWORKS
-        if (!SteamManager.Initialized || Instance == null) return;
+        if (!IsAvailable) return;
         if (string.IsNullOrEmpty(boardSceneName)) return;
-        Instance.UploadInternal("HighScore_" + boardSceneName, score);
+        Instance.UploadInternal("HighScore_" + boardSceneName, score, levelReached);
+#endif
+    }
+
+    /// <summary>
+    /// Downloads global top entries for a board. Results arrive via the callback;
+    /// an empty list means no entries or Steam unavailable.
+    /// </summary>
+    public static void DownloadGlobalScores(string boardSceneName, int rangeStart, int rangeEnd,
+        Action<List<SteamLeaderboardEntry>> onComplete)
+    {
+#if !DISABLESTEAMWORKS
+        if (!IsAvailable)
+        {
+            onComplete?.Invoke(new List<SteamLeaderboardEntry>());
+            return;
+        }
+        Instance.DownloadInternal("HighScore_" + boardSceneName,
+            ELeaderboardDataRequest.k_ELeaderboardDataRequestGlobal, rangeStart, rangeEnd, onComplete);
+#else
+        onComplete?.Invoke(new List<SteamLeaderboardEntry>());
+#endif
+    }
+
+    /// <summary>
+    /// Downloads friend entries for a board (always includes the local user).
+    /// </summary>
+    public static void DownloadFriendScores(string boardSceneName,
+        Action<List<SteamLeaderboardEntry>> onComplete)
+    {
+#if !DISABLESTEAMWORKS
+        if (!IsAvailable)
+        {
+            onComplete?.Invoke(new List<SteamLeaderboardEntry>());
+            return;
+        }
+        Instance.DownloadInternal("HighScore_" + boardSceneName,
+            ELeaderboardDataRequest.k_ELeaderboardDataRequestFriends, 0, 0, onComplete);
+#else
+        onComplete?.Invoke(new List<SteamLeaderboardEntry>());
+#endif
+    }
+
+    /// <summary>
+    /// Downloads entries centered on the local user, which carries their global rank.
+    /// </summary>
+    public static void DownloadScoresAroundUser(string boardSceneName, int range,
+        Action<List<SteamLeaderboardEntry>> onComplete)
+    {
+#if !DISABLESTEAMWORKS
+        if (!IsAvailable)
+        {
+            onComplete?.Invoke(new List<SteamLeaderboardEntry>());
+            return;
+        }
+        Instance.DownloadInternal("HighScore_" + boardSceneName,
+            ELeaderboardDataRequest.k_ELeaderboardDataRequestGlobalAroundUser, -range, range, onComplete);
+#else
+        onComplete?.Invoke(new List<SteamLeaderboardEntry>());
 #endif
     }
 
@@ -42,27 +132,32 @@ public class SteamLeaderboards : MonoBehaviour
     private readonly Dictionary<string, SteamLeaderboard_t> _leaderboards =
         new Dictionary<string, SteamLeaderboard_t>();
 
-    private readonly List<(string name, int score)> _pendingUploads =
-        new List<(string, int)>();
+    private readonly List<(string name, int score, int level)> _pendingUploads =
+        new List<(string, int, int)>();
 
     private readonly HashSet<string> _findInProgress = new HashSet<string>();
     private readonly List<object> _activeCallResults = new List<object>();
+    private readonly HashSet<ulong> _nameRequests = new HashSet<ulong>();
 
-    private void UploadInternal(string leaderboardName, int score)
+    private Callback<PersonaStateChange_t> _personaStateChange;
+
+    private void UploadInternal(string leaderboardName, int score, int level)
     {
         if (_leaderboards.TryGetValue(leaderboardName, out var handle))
         {
-            DoUpload(handle, score);
+            DoUpload(handle, score, level);
             return;
         }
 
-        _pendingUploads.Add((leaderboardName, score));
+        _pendingUploads.Add((leaderboardName, score, level));
 
         if (_findInProgress.Contains(leaderboardName)) return;
 
         _findInProgress.Add(leaderboardName);
         string captured = leaderboardName;
-        var findCall = SteamUserStats.FindLeaderboard(leaderboardName);
+        var findCall = SteamUserStats.FindOrCreateLeaderboard(leaderboardName,
+            ELeaderboardSortMethod.k_ELeaderboardSortMethodDescending,
+            ELeaderboardDisplayType.k_ELeaderboardDisplayTypeNumeric);
         var cr = CallResult<LeaderboardFindResult_t>.Create();
         cr.Set(findCall, (result, ioFailure) => OnLeaderboardFound(result, ioFailure, captured));
         _activeCallResults.Add(cr);
@@ -85,44 +180,31 @@ public class SteamLeaderboards : MonoBehaviour
         {
             if (_pendingUploads[i].name == requestedName)
             {
-                DoUpload(result.m_hSteamLeaderboard, _pendingUploads[i].score);
+                DoUpload(result.m_hSteamLeaderboard, _pendingUploads[i].score, _pendingUploads[i].level);
                 _pendingUploads.RemoveAt(i);
             }
         }
     }
 
-    private void DoUpload(SteamLeaderboard_t board, int score)
+    private void DoUpload(SteamLeaderboard_t board, int score, int level)
     {
-        SteamUserStats.UploadLeaderboardScore(
+        int[] details = { level };
+        var uploadCall = SteamUserStats.UploadLeaderboardScore(
             board,
             ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodKeepBest,
-            score, null, 0);
-    }
+            score, details, details.Length);
+        var cr = CallResult<LeaderboardScoreUploaded_t>.Create();
+        cr.Set(uploadCall, (result, ioFailure) =>
+        {
+            if (ioFailure || result.m_bSuccess == 0) return;
 
-    /// <summary>
-    /// Downloads global top entries for a board. Results are returned via the callback.
-    /// </summary>
-    public static void DownloadGlobalScores(string boardSceneName, int rangeStart, int rangeEnd,
-        System.Action<LeaderboardEntry_t[]> onComplete)
-    {
-        if (!SteamManager.Initialized || Instance == null) return;
-        Instance.DownloadInternal("HighScore_" + boardSceneName,
-            ELeaderboardDataRequest.k_ELeaderboardDataRequestGlobal, rangeStart, rangeEnd, onComplete);
-    }
-
-    /// <summary>
-    /// Downloads friend entries for a board. Results are returned via the callback.
-    /// </summary>
-    public static void DownloadFriendScores(string boardSceneName,
-        System.Action<LeaderboardEntry_t[]> onComplete)
-    {
-        if (!SteamManager.Initialized || Instance == null) return;
-        Instance.DownloadInternal("HighScore_" + boardSceneName,
-            ELeaderboardDataRequest.k_ELeaderboardDataRequestFriends, 0, 0, onComplete);
+            ScoreUploaded?.Invoke();
+        });
+        _activeCallResults.Add(cr);
     }
 
     private void DownloadInternal(string leaderboardName, ELeaderboardDataRequest requestType,
-        int rangeStart, int rangeEnd, System.Action<LeaderboardEntry_t[]> onComplete)
+        int rangeStart, int rangeEnd, Action<List<SteamLeaderboardEntry>> onComplete)
     {
         if (_leaderboards.TryGetValue(leaderboardName, out var handle))
         {
@@ -137,7 +219,7 @@ public class SteamLeaderboards : MonoBehaviour
         {
             if (ioFailure || result.m_bLeaderboardFound == 0)
             {
-                onComplete?.Invoke(new LeaderboardEntry_t[0]);
+                onComplete?.Invoke(new List<SteamLeaderboardEntry>());
                 return;
             }
 
@@ -148,28 +230,81 @@ public class SteamLeaderboards : MonoBehaviour
     }
 
     private void DoDownload(SteamLeaderboard_t board, ELeaderboardDataRequest requestType,
-        int rangeStart, int rangeEnd, System.Action<LeaderboardEntry_t[]> onComplete)
+        int rangeStart, int rangeEnd, Action<List<SteamLeaderboardEntry>> onComplete)
     {
         var downloadCall = SteamUserStats.DownloadLeaderboardEntries(board, requestType, rangeStart, rangeEnd);
         var cr = CallResult<LeaderboardScoresDownloaded_t>.Create();
         cr.Set(downloadCall, (result, ioFailure) =>
         {
+            var entries = new List<SteamLeaderboardEntry>();
             if (ioFailure || result.m_cEntryCount == 0)
             {
-                onComplete?.Invoke(new LeaderboardEntry_t[0]);
+                onComplete?.Invoke(entries);
                 return;
             }
 
-            var entries = new LeaderboardEntry_t[result.m_cEntryCount];
+            CSteamID localId = SteamUser.GetSteamID();
+            int[] details = new int[1];
+
             for (int i = 0; i < result.m_cEntryCount; i++)
             {
-                SteamUserStats.GetDownloadedLeaderboardEntry(
-                    result.m_hSteamLeaderboardEntries, i, out entries[i], null, 0);
+                if (!SteamUserStats.GetDownloadedLeaderboardEntry(
+                        result.m_hSteamLeaderboardEntries, i, out var raw, details, details.Length))
+                {
+                    continue;
+                }
+
+                entries.Add(new SteamLeaderboardEntry
+                {
+                    rank = raw.m_nGlobalRank,
+                    steamId = raw.m_steamIDUser.m_SteamID,
+                    playerName = ResolvePlayerName(raw.m_steamIDUser),
+                    score = raw.m_nScore,
+                    levelReached = raw.m_cDetails > 0 ? details[0] : 0,
+                    isLocalUser = raw.m_steamIDUser == localId
+                });
             }
 
             onComplete?.Invoke(entries);
         });
         _activeCallResults.Add(cr);
     }
+
+    private string ResolvePlayerName(CSteamID user)
+    {
+        // Registered lazily: this only runs after a download, so Steam is initialized.
+        if (_personaStateChange == null)
+        {
+            _personaStateChange = Callback<PersonaStateChange_t>.Create(OnPersonaStateChange);
+        }
+
+        // Steam only knows names of friends and recently seen players; request the
+        // rest and refresh rows via PlayerNamesUpdated when the data arrives.
+        if (SteamFriends.RequestUserInformation(user, true))
+        {
+            _nameRequests.Add(user.m_SteamID);
+            return "...";
+        }
+
+        return SteamFriends.GetFriendPersonaName(user);
+    }
+
+    private void OnPersonaStateChange(PersonaStateChange_t data)
+    {
+        if (!_nameRequests.Remove(data.m_ulSteamID)) return;
+
+        PlayerNamesUpdated?.Invoke();
+    }
 #endif
+
+    /// <summary>Best-known display name for a user; valid once entries have been downloaded.</summary>
+    public static string GetPlayerName(ulong steamId)
+    {
+#if !DISABLESTEAMWORKS
+        if (!IsAvailable) return "";
+        return SteamFriends.GetFriendPersonaName(new CSteamID(steamId));
+#else
+        return "";
+#endif
+    }
 }

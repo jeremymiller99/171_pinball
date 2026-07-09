@@ -64,6 +64,8 @@ public sealed class DisplaySettingsManager : MonoBehaviour
         for (int i = 0; i < raw.Length; i++)
         {
             Resolution r = raw[i];
+            if (!Mathf.Approximately((r.width / (float)r.height), (1280f / 720f))) continue;
+
             long key = (long)r.width << 32 | (uint)r.height;
 
             if (!unique.ContainsKey(key))

@@ -279,6 +279,13 @@ public sealed class LeaderboardPanelController : MonoBehaviour
             BuildLabel(_listPanel.transform,
                 LocalizedUI.Format("gameplay.leaderboard.score", "Score: {0}", FormatScore(_score)),
                 scoreFontSize, FontStyles.Bold, TextAlignmentOptions.Center);
+
+            string boardDisplayName = ResolveBoardDisplayName(_boardName);
+            if (!string.IsNullOrEmpty(boardDisplayName))
+            {
+                BuildLabel(_listPanel.transform, boardDisplayName,
+                    labelFontSize, FontStyles.Bold, TextAlignmentOptions.Center);
+            }
         }
 
         if (_isReadOnly && _boards.Length > 0)
@@ -422,6 +429,19 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         if (_boardLabel == null || _boards.Length == 0) return;
 
         _boardLabel.text = _boards[_boardIndex].displayName;
+    }
+
+    private static string ResolveBoardDisplayName(string boardSceneName)
+    {
+        if (string.IsNullOrEmpty(boardSceneName)) return "";
+
+        BoardDefinition[] boards = Resources.LoadAll<BoardDefinition>(boardDefinitionsResourcePath);
+        foreach (BoardDefinition board in boards)
+        {
+            if (board.boardSceneName == boardSceneName) return board.displayName;
+        }
+
+        return boardSceneName;
     }
 
     private void BuildModeButton(Transform parent)

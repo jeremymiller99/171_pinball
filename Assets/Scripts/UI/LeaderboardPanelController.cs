@@ -10,16 +10,14 @@ public sealed class LeaderboardPanelController : MonoBehaviour
 {
     private const string overlayCanvasName = "LeaderboardOverlayCanvas";
     private const string rootObjectName = "LeaderboardPanel";
+    private const string boardDefinitionsResourcePath = "BoardDefinitions";
     private const int maxRowsShown = 10;
-    private const int maxNameLength = 16;
     private const int sortingOrder = 9999;
     private const float referenceWidth = 1920f;
     private const float referenceHeight = 1080f;
 
-    private const float entryPanelWidth = 560f;
-    private const float entryPanelHeight = 360f;
     private const float listPanelWidth = 720f;
-    private const float listPanelHeight = 720f;
+    private const float listPanelHeight = 780f;
 
     private const float titleFontSize = 36f;
     private const float scoreFontSize = 42f;
@@ -28,7 +26,6 @@ public sealed class LeaderboardPanelController : MonoBehaviour
     private const float rowFontSize = 22f;
 
     private const float buttonHeight = 56f;
-    private const float inputHeight = 50f;
     private const float rowHeight = 36f;
 
     private float _timeScaleBefore = 1f;
@@ -41,54 +38,54 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         new Dictionary<Behaviour, bool>();
 
     private long _score;
-    private int _levelReached;
     private string _boardName;
     private bool _wasWin;
+    private bool _isReadOnly;
     private Action _onContinue;
 
-    private GameObject _entryPanel;
+    private BoardDefinition[] _boards = Array.Empty<BoardDefinition>();
+    private int _boardIndex;
+    private bool _showFriends;
+    private int _fetchToken;
+    private int _localRank = -1;
+
+    private List<SteamLeaderboardEntry> _entries = new List<SteamLeaderboardEntry>();
+
     private GameObject _listPanel;
-    private TMP_InputField _nameInput;
-    private LeaderboardEntry _justSubmitted;
-    private int _submittedRank = -1;
-    private bool _isReadOnly;
+    private GameObject _rowsRoot;
+    private TextMeshProUGUI _headerLabel;
+    private TextMeshProUGUI _boardLabel;
+    private TextMeshProUGUI _statusLabel;
+    private TextMeshProUGUI _modeButtonLabel;
 
     public static void ShowReadOnly(Action onClose = null)
     {
-        Canvas canvas = EnsureOverlayCanvas();
-
-        var rootGo = new GameObject(rootObjectName,
-            typeof(RectTransform),
-            typeof(CanvasRenderer),
-            typeof(Image),
-            typeof(LeaderboardPanelController));
-
-        rootGo.transform.SetParent(canvas.transform, false);
-
-        var rt = rootGo.GetComponent<RectTransform>();
-        rt.anchorMin = Vector2.zero;
-        rt.anchorMax = Vector2.one;
-        rt.offsetMin = Vector2.zero;
-        rt.offsetMax = Vector2.zero;
-
-        var bg = rootGo.GetComponent<Image>();
-        bg.color = new Color(0f, 0f, 0f, 0.85f);
-
-        var ctrl = rootGo.GetComponent<LeaderboardPanelController>();
-        ctrl._score = 0L;
-        ctrl._levelReached = 0;
-        ctrl._boardName = "";
-        ctrl._wasWin = false;
-        ctrl._onContinue = onClose;
+        LeaderboardPanelController ctrl = CreateRoot();
         ctrl._isReadOnly = true;
+        ctrl._onContinue = onClose;
+        ctrl._boards = Resources.LoadAll<BoardDefinition>(boardDefinitionsResourcePath);
 
         ctrl.PauseAndLockInput();
         ctrl.BuildListPanel();
+        ctrl.FetchScores();
     }
 
     public static void Show(long score, int levelReached, string boardName,
         bool wasWin, Action onContinue)
     {
+        LeaderboardPanelController ctrl = CreateRoot();
+        ctrl._score = Math.Max(0L, score);
+        ctrl._boardName = boardName ?? "";
+        ctrl._wasWin = wasWin;
+        ctrl._onContinue = onContinue;
+
+        ctrl.PauseAndLockInput();
+        ctrl.BuildListPanel();
+        ctrl.FetchScores();
+    }
+
+    private static LeaderboardPanelController CreateRoot()
+    {
         Canvas canvas = EnsureOverlayCanvas();
 
         var rootGo = new GameObject(rootObjectName,
@@ -108,15 +105,7 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         var bg = rootGo.GetComponent<Image>();
         bg.color = new Color(0f, 0f, 0f, 0.85f);
 
-        var ctrl = rootGo.GetComponent<LeaderboardPanelController>();
-        ctrl._score = Math.Max(0L, score);
-        ctrl._levelReached = Math.Max(0, levelReached);
-        ctrl._boardName = boardName ?? "";
-        ctrl._wasWin = wasWin;
-        ctrl._onContinue = onContinue;
-
-        ctrl.PauseAndLockInput();
-        ctrl.BuildEntryPanel();
+        return rootGo.GetComponent<LeaderboardPanelController>();
     }
 
     private static Canvas EnsureOverlayCanvas()
@@ -145,174 +134,102 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         return c;
     }
 
-    private void BuildEntryPanel()
+    private void OnEnable()
     {
-        _entryPanel = new GameObject("EntryPanel",
-            typeof(RectTransform),
-            typeof(Image),
-            typeof(VerticalLayoutGroup));
-
-        _entryPanel.transform.SetParent(transform, false);
-
-        var rt = _entryPanel.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.5f, 0.5f);
-        rt.anchorMax = new Vector2(0.5f, 0.5f);
-        rt.pivot = new Vector2(0.5f, 0.5f);
-        rt.sizeDelta = new Vector2(entryPanelWidth, entryPanelHeight);
-
-        var bg = _entryPanel.GetComponent<Image>();
-        bg.color = new Color(0.08f, 0.08f, 0.1f, 0.95f);
-
-        var vlg = _entryPanel.GetComponent<VerticalLayoutGroup>();
-        vlg.childAlignment = TextAnchor.MiddleCenter;
-        vlg.childControlWidth = true;
-        vlg.childControlHeight = false;
-        vlg.childForceExpandWidth = true;
-        vlg.spacing = 16f;
-        vlg.padding = new RectOffset(24, 24, 24, 24);
-
-        BuildLabel(_entryPanel.transform,
-            _wasWin
-                ? LocalizedUI.Get("gameplay.leaderboard.runComplete", "RUN COMPLETE")
-                : LocalizedUI.Get("gameplay.leaderboard.runEnded", "RUN ENDED"),
-            titleFontSize, FontStyles.Bold, TextAlignmentOptions.Center);
-
-        BuildLabel(_entryPanel.transform,
-            LocalizedUI.Format("gameplay.leaderboard.score", "Score: {0}", FormatScore(_score)),
-            scoreFontSize, FontStyles.Bold, TextAlignmentOptions.Center);
-
-        BuildLabel(_entryPanel.transform,
-            LocalizedUI.Get("gameplay.leaderboard.enterName", "Enter your name:"),
-            labelFontSize, FontStyles.Normal, TextAlignmentOptions.Center);
-
-        BuildNameInput(_entryPanel.transform);
-        BuildSubmitButton(_entryPanel.transform);
+        SteamLeaderboards.PlayerNamesUpdated += OnPlayerNamesUpdated;
     }
 
-    private void BuildNameInput(Transform parent)
+    private void OnDisable()
     {
-        var go = new GameObject("NameInput",
-            typeof(RectTransform),
-            typeof(Image),
-            typeof(TMP_InputField),
-            typeof(LayoutElement));
-
-        go.transform.SetParent(parent, false);
-
-        var le = go.GetComponent<LayoutElement>();
-        le.preferredHeight = inputHeight;
-
-        var img = go.GetComponent<Image>();
-        img.color = new Color(0.15f, 0.15f, 0.18f, 1f);
-
-        var textArea = new GameObject("Text Area",
-            typeof(RectTransform),
-            typeof(RectMask2D));
-        textArea.transform.SetParent(go.transform, false);
-
-        var taRt = textArea.GetComponent<RectTransform>();
-        taRt.anchorMin = Vector2.zero;
-        taRt.anchorMax = Vector2.one;
-        taRt.offsetMin = new Vector2(12f, 6f);
-        taRt.offsetMax = new Vector2(-12f, -6f);
-
-        var placeholder = new GameObject("Placeholder",
-            typeof(RectTransform),
-            typeof(TextMeshProUGUI));
-        placeholder.transform.SetParent(textArea.transform, false);
-
-        var phRt = placeholder.GetComponent<RectTransform>();
-        phRt.anchorMin = Vector2.zero;
-        phRt.anchorMax = Vector2.one;
-        phRt.offsetMin = Vector2.zero;
-        phRt.offsetMax = Vector2.zero;
-
-        var phTmp = placeholder.GetComponent<TextMeshProUGUI>();
-        phTmp.text = LocalizedUI.Get("gameplay.leaderboard.namePlaceholder", "Name...");
-        phTmp.fontSize = 28f;
-        phTmp.color = new Color(0.7f, 0.7f, 0.7f, 0.6f);
-        phTmp.alignment = TextAlignmentOptions.Left;
-        phTmp.fontStyle = FontStyles.Italic;
-        phTmp.enableWordWrapping = false;
-
-        var textGo = new GameObject("Text",
-            typeof(RectTransform),
-            typeof(TextMeshProUGUI));
-        textGo.transform.SetParent(textArea.transform, false);
-
-        var txtRt = textGo.GetComponent<RectTransform>();
-        txtRt.anchorMin = Vector2.zero;
-        txtRt.anchorMax = Vector2.one;
-        txtRt.offsetMin = Vector2.zero;
-        txtRt.offsetMax = Vector2.zero;
-
-        var txtTmp = textGo.GetComponent<TextMeshProUGUI>();
-        txtTmp.text = "";
-        txtTmp.fontSize = 28f;
-        txtTmp.color = Color.white;
-        txtTmp.alignment = TextAlignmentOptions.Left;
-        txtTmp.enableWordWrapping = false;
-
-        var input = go.GetComponent<TMP_InputField>();
-        input.textViewport = taRt;
-        input.textComponent = txtTmp;
-        input.placeholder = phTmp;
-        input.characterLimit = maxNameLength;
-        input.lineType = TMP_InputField.LineType.SingleLine;
-        input.text = LocalLeaderboard.GetLastUsedName();
-        input.onSubmit.AddListener(OnInputSubmit);
-
-        _nameInput = input;
+        SteamLeaderboards.PlayerNamesUpdated -= OnPlayerNamesUpdated;
     }
 
-    private void BuildSubmitButton(Transform parent)
+    private string CurrentBoardSceneName
     {
-        var go = BuildButton(parent, "SubmitButton", LocalizedUI.Get("gameplay.leaderboard.submit", "SUBMIT SCORE"), OnSubmit);
-
-        if (_nameInput != null)
+        get
         {
-            _nameInput.Select();
-            _nameInput.ActivateInputField();
+            if (!_isReadOnly) return _boardName;
+            if (_boards.Length == 0) return "";
+
+            return _boards[_boardIndex].boardSceneName;
         }
     }
 
-    private void OnInputSubmit(string ignored)
+    private void FetchScores()
     {
-        OnSubmit();
-    }
+        _entries.Clear();
+        _localRank = -1;
+        RebuildRows();
 
-    private void OnSubmit()
-    {
-        string playerName = _nameInput != null ? _nameInput.text : "";
-        if (string.IsNullOrWhiteSpace(playerName))
+        if (!SteamLeaderboards.IsAvailable)
         {
-            playerName = "Anonymous";
+            SetStatus(LocalizedUI.Get("gameplay.leaderboard.steamUnavailable", "(Steam unavailable)"));
+            return;
         }
 
-        playerName = playerName.Trim();
-
-        _submittedRank = LocalLeaderboard.Submit(playerName, _score, _levelReached,
-            _boardName, _wasWin);
-
-        var top = LocalLeaderboard.GetTopEntries(maxRowsShown);
-        for (int i = 0; i < top.Count; i++)
+        string board = CurrentBoardSceneName;
+        if (string.IsNullOrEmpty(board))
         {
-            if (top[i].score == _score
-                && string.Equals(top[i].playerName, playerName, StringComparison.Ordinal)
-                && top[i].levelReached == _levelReached)
+            SetStatus(LocalizedUI.Get("gameplay.leaderboard.noEntries", "(no entries yet)"));
+            return;
+        }
+
+        SetStatus(LocalizedUI.Get("gameplay.leaderboard.fetching", "(fetching scores...)"));
+
+        _fetchToken++;
+        int token = _fetchToken;
+
+        Action<List<SteamLeaderboardEntry>> onScores = entries =>
+        {
+            if (this == null || token != _fetchToken) return;
+
+            _entries = entries;
+            SetStatus(_entries.Count == 0
+                ? LocalizedUI.Get("gameplay.leaderboard.noEntries", "(no entries yet)")
+                : "");
+            RebuildRows();
+        };
+
+        if (_showFriends)
+        {
+            SteamLeaderboards.DownloadFriendScores(board, onScores);
+        }
+        else
+        {
+            SteamLeaderboards.DownloadGlobalScores(board, 1, maxRowsShown, onScores);
+        }
+
+        if (!_isReadOnly)
+        {
+            SteamLeaderboards.DownloadScoresAroundUser(board, 0, entries =>
             {
-                _justSubmitted = top[i];
-                break;
-            }
-        }
+                if (this == null || token != _fetchToken) return;
 
-        if (_entryPanel != null)
+                foreach (SteamLeaderboardEntry entry in entries)
+                {
+                    if (!entry.isLocalUser) continue;
+
+                    _localRank = entry.rank;
+                    RefreshHeader();
+                    break;
+                }
+            });
+        }
+    }
+
+    private void OnPlayerNamesUpdated()
+    {
+        for (int i = 0; i < _entries.Count; i++)
         {
-            Destroy(_entryPanel);
-            _entryPanel = null;
+            string resolved = SteamLeaderboards.GetPlayerName(_entries[i].steamId);
+            if (string.IsNullOrEmpty(resolved)) continue;
+
+            SteamLeaderboardEntry entry = _entries[i];
+            entry.playerName = resolved;
+            _entries[i] = entry;
         }
 
-        BuildListPanel();
+        RebuildRows();
     }
 
     private void BuildListPanel()
@@ -341,36 +258,47 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         vlg.spacing = 6f;
         vlg.padding = new RectOffset(24, 24, 24, 24);
 
-        string headerText;
-        if (_isReadOnly)
-        {
-            headerText = LocalizedUI.Get("gameplay.leaderboard.title", "LEADERBOARD");
-        }
-        else
-        {
-            headerText = _submittedRank > 0
-                ? LocalizedUI.Format("gameplay.leaderboard.yourRank", "YOUR RANK: #{0}", _submittedRank)
-                : LocalizedUI.Get("gameplay.leaderboard.title", "LEADERBOARD");
-        }
-
-        BuildLabel(_listPanel.transform, headerText,
+        _headerLabel = BuildLabel(_listPanel.transform, "",
             titleFontSize, FontStyles.Bold, TextAlignmentOptions.Center);
+        RefreshHeader();
 
-        BuildLabel(_listPanel.transform, LocalizedUI.Format("gameplay.leaderboard.top", "TOP {0}", maxRowsShown),
+        if (!_isReadOnly)
+        {
+            BuildLabel(_listPanel.transform,
+                LocalizedUI.Format("gameplay.leaderboard.score", "Score: {0}", FormatScore(_score)),
+                scoreFontSize, FontStyles.Bold, TextAlignmentOptions.Center);
+        }
+
+        if (_isReadOnly && _boards.Length > 0)
+        {
+            BuildBoardSwitcher(_listPanel.transform);
+        }
+
+        BuildModeButton(_listPanel.transform);
+
+        BuildLabel(_listPanel.transform,
+            LocalizedUI.Format("gameplay.leaderboard.top", "TOP {0}", maxRowsShown),
             labelFontSize, FontStyles.Bold, TextAlignmentOptions.Center);
 
-        var top = LocalLeaderboard.GetTopEntries(maxRowsShown);
-        for (int i = 0; i < top.Count; i++)
-        {
-            BuildRow(_listPanel.transform, i + 1, top[i],
-                ReferenceEquals(top[i], _justSubmitted));
-        }
+        _rowsRoot = new GameObject("Rows",
+            typeof(RectTransform),
+            typeof(VerticalLayoutGroup),
+            typeof(LayoutElement));
 
-        if (top.Count == 0)
-        {
-            BuildLabel(_listPanel.transform, "(no entries yet)", labelFontSize,
-                FontStyles.Italic, TextAlignmentOptions.Center);
-        }
+        _rowsRoot.transform.SetParent(_listPanel.transform, false);
+
+        var rowsLe = _rowsRoot.GetComponent<LayoutElement>();
+        rowsLe.preferredHeight = maxRowsShown * (rowHeight + 6f);
+
+        var rowsVlg = _rowsRoot.GetComponent<VerticalLayoutGroup>();
+        rowsVlg.childAlignment = TextAnchor.UpperCenter;
+        rowsVlg.childControlWidth = true;
+        rowsVlg.childControlHeight = false;
+        rowsVlg.childForceExpandWidth = true;
+        rowsVlg.spacing = 6f;
+
+        _statusLabel = BuildLabel(_listPanel.transform, "", labelFontSize,
+            FontStyles.Italic, TextAlignmentOptions.Center);
 
         string buttonLabel = _isReadOnly
             ? LocalizedUI.Get("gameplay.leaderboard.back", "BACK")
@@ -378,9 +306,129 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         BuildButton(_listPanel.transform, "ContinueButton", buttonLabel, OnContinue);
     }
 
-    private void BuildRow(Transform parent, int rank, LeaderboardEntry entry, bool highlight)
+    private void RefreshHeader()
     {
-        var row = new GameObject("Row" + rank,
+        if (_headerLabel == null) return;
+
+        if (_isReadOnly)
+        {
+            _headerLabel.text = LocalizedUI.Get("gameplay.leaderboard.title", "LEADERBOARD");
+            return;
+        }
+
+        string runText = _wasWin
+            ? LocalizedUI.Get("gameplay.leaderboard.runComplete", "RUN COMPLETE")
+            : LocalizedUI.Get("gameplay.leaderboard.runEnded", "RUN ENDED");
+
+        _headerLabel.text = _localRank > 0
+            ? runText + " -- " + LocalizedUI.Format(
+                "gameplay.leaderboard.yourRank", "YOUR RANK: #{0}", _localRank)
+            : runText;
+    }
+
+    private void BuildBoardSwitcher(Transform parent)
+    {
+        var row = new GameObject("BoardSwitcher",
+            typeof(RectTransform),
+            typeof(HorizontalLayoutGroup),
+            typeof(LayoutElement));
+
+        row.transform.SetParent(parent, false);
+
+        var le = row.GetComponent<LayoutElement>();
+        le.preferredHeight = buttonHeight;
+
+        var hlg = row.GetComponent<HorizontalLayoutGroup>();
+        hlg.childAlignment = TextAnchor.MiddleCenter;
+        hlg.childControlWidth = false;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = false;
+        hlg.spacing = 12f;
+
+        BuildSmallButton(row.transform, "PrevBoard", "<", () => CycleBoard(-1));
+
+        var labelGo = new GameObject("BoardLabel",
+            typeof(RectTransform),
+            typeof(TextMeshProUGUI),
+            typeof(LayoutElement));
+        labelGo.transform.SetParent(row.transform, false);
+
+        var labelLe = labelGo.GetComponent<LayoutElement>();
+        labelLe.preferredWidth = 360f;
+        labelLe.preferredHeight = buttonHeight;
+
+        _boardLabel = labelGo.GetComponent<TextMeshProUGUI>();
+        _boardLabel.fontSize = buttonFontSize;
+        _boardLabel.fontStyle = FontStyles.Bold;
+        _boardLabel.color = Color.white;
+        _boardLabel.alignment = TextAlignmentOptions.Center;
+        _boardLabel.enableWordWrapping = false;
+        RefreshBoardLabel();
+
+        BuildSmallButton(row.transform, "NextBoard", ">", () => CycleBoard(1));
+    }
+
+    private void CycleBoard(int direction)
+    {
+        if (_boards.Length == 0) return;
+
+        _boardIndex = (_boardIndex + direction + _boards.Length) % _boards.Length;
+        RefreshBoardLabel();
+        FetchScores();
+    }
+
+    private void RefreshBoardLabel()
+    {
+        if (_boardLabel == null || _boards.Length == 0) return;
+
+        _boardLabel.text = _boards[_boardIndex].displayName;
+    }
+
+    private void BuildModeButton(Transform parent)
+    {
+        GameObject go = BuildButton(parent, "ModeButton", ModeButtonText(), () =>
+        {
+            _showFriends = !_showFriends;
+            if (_modeButtonLabel != null) _modeButtonLabel.text = ModeButtonText();
+            FetchScores();
+        });
+
+        _modeButtonLabel = go.GetComponentInChildren<TextMeshProUGUI>();
+    }
+
+    private string ModeButtonText()
+    {
+        return _showFriends
+            ? LocalizedUI.Get("gameplay.leaderboard.viewFriends", "VIEW: FRIENDS")
+            : LocalizedUI.Get("gameplay.leaderboard.viewGlobal", "VIEW: GLOBAL");
+    }
+
+    private void SetStatus(string text)
+    {
+        if (_statusLabel != null) _statusLabel.text = text ?? "";
+    }
+
+    private void RebuildRows()
+    {
+        if (_rowsRoot == null) return;
+
+        for (int i = _rowsRoot.transform.childCount - 1; i >= 0; i--)
+        {
+            Destroy(_rowsRoot.transform.GetChild(i).gameObject);
+        }
+
+        int shown = Mathf.Min(_entries.Count, maxRowsShown);
+        for (int i = 0; i < shown; i++)
+        {
+            BuildRow(_rowsRoot.transform, _entries[i]);
+        }
+    }
+
+    private void BuildRow(Transform parent, SteamLeaderboardEntry entry)
+    {
+        bool highlight = entry.isLocalUser;
+
+        var row = new GameObject("Row" + entry.rank,
             typeof(RectTransform),
             typeof(Image),
             typeof(HorizontalLayoutGroup),
@@ -404,13 +452,14 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         hlg.spacing = 12f;
         hlg.padding = new RectOffset(12, 12, 4, 4);
 
-        BuildRowCell(row.transform, "#" + rank, 70f,
+        BuildRowCell(row.transform, "#" + entry.rank, 70f,
             TextAlignmentOptions.Left, highlight);
         BuildRowCell(row.transform, entry.playerName, 280f,
             TextAlignmentOptions.Left, highlight);
         BuildRowCell(row.transform, FormatScore(entry.score), 200f,
             TextAlignmentOptions.Right, highlight);
-        BuildRowCell(row.transform, LocalizedUI.Format("gameplay.leaderboard.levelShort", "Lv {0}", entry.levelReached), 80f,
+        BuildRowCell(row.transform, LocalizedUI.Format(
+                "gameplay.leaderboard.levelShort", "Lv {0}", entry.levelReached), 80f,
             TextAlignmentOptions.Right, highlight);
     }
 
@@ -479,7 +528,17 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         return go;
     }
 
-    private void BuildLabel(Transform parent, string text, float fontSize,
+    private void BuildSmallButton(Transform parent, string objectName, string text,
+        Action onClick)
+    {
+        GameObject go = BuildButton(parent, objectName, text, onClick);
+
+        var le = go.GetComponent<LayoutElement>();
+        le.preferredWidth = buttonHeight;
+        le.preferredHeight = buttonHeight;
+    }
+
+    private TextMeshProUGUI BuildLabel(Transform parent, string text, float fontSize,
         FontStyles style, TextAlignmentOptions align)
     {
         var go = new GameObject("Label",
@@ -499,6 +558,8 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         tmp.color = Color.white;
         tmp.alignment = align;
         tmp.enableWordWrapping = false;
+
+        return tmp;
     }
 
     private void OnContinue()

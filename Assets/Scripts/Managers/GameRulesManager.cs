@@ -310,6 +310,9 @@ public class GameRulesManager : MonoBehaviour
                 roundIndex = Mathf.Max(0, roundIndex + 1);
                 ApplyCurrentRoundFromWindow();
 
+                if (!string.IsNullOrEmpty(boardId))
+                    SteamAchievements.CheckLevelMilestone(roundIndex, boardId);
+
                 ServiceLocator.Get<ScoreUIController>()?.SetRoundIndex(roundIndex);
                 scoreManager.SetGoal(CurrentGoal);
 
@@ -514,6 +517,8 @@ public class GameRulesManager : MonoBehaviour
         if (ballSpawner != null) ballSpawner.ClearActiveBalls();
         ShopOpened?.Invoke();
 
+        SteamAchievements.UnlockFirstShopVisit();
+
         scoreManager?.ResetMultiplier();
         ServiceLocator.Get<AudioManager>()?.SetMusicState(3f);
 
@@ -537,7 +542,7 @@ public class GameRulesManager : MonoBehaviour
         if (currentBoard != null)
         {
             SteamLeaderboards.UploadScore(currentBoard.boardSceneName,
-                (int)Math.Min(capturedScore, int.MaxValue));
+                (int)Math.Min(capturedScore, int.MaxValue), Mathf.Max(1, roundIndex + 1));
         }
 
         PinballAnalytics.LogRunHighScore(capturedScore, boardName);

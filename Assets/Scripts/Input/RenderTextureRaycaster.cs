@@ -12,7 +12,6 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Events;
 using System.Collections.Generic;
-using UnityEditor.ShaderKeywordFilter;
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;

@@ -8,8 +8,11 @@
 // Updated 2026-03-27: hand ball drag-to-swap (click+threshold → visual drag, drop on another ball).
 // Updated 2026-04-06 by Antigravity (claude-4.6-opus):
 // hover tooltips now display ElementType with colored label.
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Events;
+using System.Collections.Generic;
+using UnityEditor.ShaderKeywordFilter;
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -175,6 +178,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         if (TryResolveTooltipFromObject(hitObject,
                                 out string title,
                                 out string desc,
+                                out List<string> tags,
                                 out ElementType elementType,
                                 out ElementType secondaryElementType,
                                 out TooltipUI.PriceMode priceMode,
@@ -363,6 +367,7 @@ public class RenderTextureRaycaster : MonoBehaviour
     private static void ShowTooltip(
         string title,
         string desc,
+        List<string> tags,
         ElementType elementType,
         ElementType secondaryElementType,
         TooltipUI.PriceMode priceMode,
@@ -371,13 +376,13 @@ public class RenderTextureRaycaster : MonoBehaviour
         switch (priceMode)
         {
             case TooltipUI.PriceMode.Buy:
-                TooltipManager.ShowBuy(title, desc, elementType, secondaryElementType, price);
+                TooltipManager.ShowBuy(title, desc, tags, elementType, secondaryElementType, price);
                 break;
             case TooltipUI.PriceMode.Sell:
-                TooltipManager.ShowSell(title, desc, elementType, secondaryElementType, price);
+                TooltipManager.ShowSell(title, desc, tags, elementType, secondaryElementType, price);
                 break;
             default:
-                TooltipManager.Show(title, desc, elementType, secondaryElementType);
+                TooltipManager.Show(title, desc, tags, elementType, secondaryElementType);
                 break;
         }
     }
@@ -385,6 +390,7 @@ public class RenderTextureRaycaster : MonoBehaviour
     private static void ShowTooltipAtPosition(
         string title,
         string desc,
+        List<string> tags,
         Vector2 position,
         ElementType elementType,
         ElementType secondaryElementType,
@@ -394,13 +400,13 @@ public class RenderTextureRaycaster : MonoBehaviour
         switch (priceMode)
         {
             case TooltipUI.PriceMode.Buy:
-                TooltipManager.ShowBuyAtPosition(title, desc, position, elementType, secondaryElementType, price);
+                TooltipManager.ShowBuyAtPosition(title, desc, tags, position, elementType, secondaryElementType, price);
                 break;
             case TooltipUI.PriceMode.Sell:
-                TooltipManager.ShowSellAtPosition(title, desc, position, elementType, secondaryElementType, price);
+                TooltipManager.ShowSellAtPosition(title, desc, tags, position, elementType, secondaryElementType, price);
                 break;
             default:
-                TooltipManager.ShowAtPosition(title, desc, position, elementType, secondaryElementType);
+                TooltipManager.ShowAtPosition(title, desc, tags, position, elementType, secondaryElementType);
                 break;
         }
     }
@@ -434,6 +440,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         posOnScreen.y *= Screen.height;
         string title = null;
         string desc = null;
+        List<string> tags = null;
         ElementType elementType = ElementType.None;
         ElementType secondaryElementType = ElementType.None;
         TooltipUI.PriceMode priceMode = TooltipUI.PriceMode.None;
@@ -442,7 +449,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         if (selectedObject != null)
         {
             TryResolveTooltipFromObject(
-                selectedObject, out title, out desc,
+                selectedObject, out title, out desc, out tags,
                 out elementType, out secondaryElementType,
                 out priceMode, out price);
         }
@@ -453,7 +460,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             _lastHoveredObject = selectedObject;
             ApplyHighlight(selectedObject);
             ShowTooltipAtPosition(
-                title, desc, posOnScreen,
+                title, desc, tags, posOnScreen,
                 elementType, secondaryElementType, 
                 priceMode, price);
             _tooltipShownByHover = true;
@@ -469,6 +476,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         posOnScreen.y *= Screen.height;
         string title = null;
         string desc = null;
+        List<string> tags = null;
         ElementType elementType = ElementType.None;
         ElementType secondaryElementType = ElementType.None;
         TooltipUI.PriceMode priceMode = TooltipUI.PriceMode.None;
@@ -477,7 +485,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         if (selectedObject != null)
         {
             TryResolveTooltipFromObject(
-                selectedObject, out title, out desc,
+                selectedObject, out title, out desc, out tags,
                 out elementType, out secondaryElementType,
                 out priceMode, out price);
         }
@@ -487,7 +495,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         if (selectedObject != _lastHoveredObject)
         {
             ShowTooltipAtPosition(
-                title, desc, posOnScreen,
+                title, desc, tags, posOnScreen,
                 elementType, secondaryElementType,
                 priceMode, price);
             _tooltipShownByHover = true;
@@ -546,6 +554,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         GameObject obj,
         out string title,
         out string desc,
+        out List<string> tags,
         out ElementType elementType,
         out ElementType secondaryElementType,
         out TooltipUI.PriceMode priceMode,
@@ -553,6 +562,7 @@ public class RenderTextureRaycaster : MonoBehaviour
     {
         title = null;
         desc = null;
+        tags = null;
         elementType = ElementType.None;
         secondaryElementType = ElementType.None;
         priceMode = TooltipUI.PriceMode.None;
@@ -629,6 +639,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             title = ballDef.GetSafeDisplayName();
             desc = BuildBallTooltipDescription(
                 ballLink.gameObject, ballDef);
+            tags = ballDef.Tags;
             elementType = ballDef.ElementType;
             secondaryElementType = ballDef.SecondaryElementType;
 
@@ -662,7 +673,8 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             title = moduleDef.GetSafeDisplayName();
             desc = moduleDef.Description;
-            elementType = ElementType.Module;
+            elementType = moduleDef.ElementType;
+            secondaryElementType = moduleDef.SecondaryElementType;
             return true;
         }
 
@@ -785,7 +797,8 @@ public class RenderTextureRaycaster : MonoBehaviour
                 out ArtifactDefinition moduleDef))
         {
             title = moduleDef.GetSafeDisplayName();
-            elementType = ElementType.Module;
+            elementType = moduleDef.ElementType;
+            secondaryElementType = moduleDef.SecondaryElementType;
             return true;
         }
 

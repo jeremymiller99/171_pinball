@@ -1,0 +1,11 @@
+Name10;Desc;Outlink(s)
+Bouncy;Bouncy objects have more knockback and give extra score based on the velocity of the colliding ball(s).;
+Charge;When an object is Shocked, it gains Charge. Certain objects will require Charge to activate certain abilities. Sometimes, Charge is reset to 0 after the object is triggered. If a Charged object is not Shocked for 2 seconds, it begins losing 2 Charge per second.;Shocked Shocked
+Detonate;When an object detonates, it is destroyed. All nearby objects act as if collided with by the detonated object.;
+Flammable;This attribute is accompanied by a value X. When Ignited, a Flammable object will be On Fire for X seconds.;Ignited On Fire
+Frozen;Frozen objects shatter when they collide, doubling the scoring of that collision and applying increased knockback. They then lose the Frozen effect.;
+Fuel;When an object is fueled, it gains one Flammable. This does not reset between launches.;Flammable
+Ignite;If a Flammable object is Ignited, that object becomes On Fire.;Flammable Ignited On Fire
+Odds;Any object that has "X in Y" chances has Odds. Increasing odds means lowering Y by that amount.;
+On Fire;When a ball or component is On Fire, it activates as if collided with every 0.5 seconds. Additionally, if any Flammable object comes into contact with it, that object is Ignited. Objects that are On Fire can be Fueled to extend the duration of the effect.;Flammable Ignited On Fire Fueled
+Shock;When an object is Shocked, it gains Charge.;Charge

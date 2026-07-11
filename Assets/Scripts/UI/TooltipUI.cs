@@ -9,6 +9,9 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using NUnit.Framework;
+using System.Collections.Generic;
+
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -48,8 +51,16 @@ public sealed class TooltipUI : MonoBehaviour
     [Tooltip("Text inside the sell panel that renders the item sell price.")]
     [SerializeField] private TMP_Text sellPriceText;
 
+    [SerializeField] private DefinitionPanel firstDefinitionPanel;
+    [SerializeField] private DefinitionPanel secondDefinitionPanel;
+
     [SerializeField] private bool controllerInUse = false;
     [SerializeField] private Vector2 cachedVector;
+
+    //Auto populated from ball CSV population.
+    public List<BallDefinition> necessaryBallDefinitions = new List<BallDefinition>();
+    public List<TermDefinition> necessaryTermDefinitions = new List<TermDefinition>();
+
 
     private RectTransform _rect;
     private Canvas _rootCanvas;
@@ -92,11 +103,13 @@ public sealed class TooltipUI : MonoBehaviour
     public void Show(
         string title,
         string description,
+        List<string> tags,
         ElementType elementType = ElementType.None,
         ElementType secondaryElementType = ElementType.None)
     {
         ApplyContent(title, description, elementType, secondaryElementType);
         SetPricePanels(PriceMode.None, 0);
+        SetDefinitionPanels(tags);
 
         gameObject.SetActive(true);
         _rect.SetAsLastSibling();
@@ -110,33 +123,37 @@ public sealed class TooltipUI : MonoBehaviour
     public void ShowBuy(
         string title,
         string description,
+        List<string> tags,
         ElementType elementType,
         ElementType secondaryElementType,
         int price)
     {
-        Show(title, description, elementType, secondaryElementType);
+        Show(title, description, tags, elementType, secondaryElementType);
         SetPricePanels(PriceMode.Buy, price);
     }
 
     public void ShowSell(
         string title,
         string description,
+        List<string> tags,
         ElementType elementType,
         ElementType secondaryElementType,
         int price)
     {
-        Show(title, description, elementType, secondaryElementType);
+        Show(title, description, tags, elementType, secondaryElementType);
         SetPricePanels(PriceMode.Sell, price);
     }
 
     public void ShowAtPosition(string title,
                                string description,
+                               List<string> tags,
                                Vector2 position,
                                ElementType elementType = ElementType.None,
                                ElementType secondaryElementType = ElementType.None)
     {
         ApplyContent(title, description, elementType, secondaryElementType);
         SetPricePanels(PriceMode.None, 0);
+        SetDefinitionPanels(tags);
 
         gameObject.SetActive(true);
         _rect.SetAsLastSibling();
@@ -184,27 +201,72 @@ public sealed class TooltipUI : MonoBehaviour
     public void ShowBuyAtPosition(
         string title,
         string description,
+        List<string> tags,
         Vector2 position,
         ElementType elementType,
         ElementType secondaryElementType,
         int price)
     {
-        ShowAtPosition(title, description, position, elementType, secondaryElementType);
+        ShowAtPosition(title, description, tags, position, elementType, secondaryElementType);
         SetPricePanels(PriceMode.Buy, price);
     }
 
     public void ShowSellAtPosition(
         string title,
         string description,
+        List<string> tags,
         Vector2 position,
         ElementType elementType,
         ElementType secondaryElementType,
         int price)
     {
-        ShowAtPosition(title, description, position, elementType, secondaryElementType);
+        ShowAtPosition(title, description, tags, position, elementType, secondaryElementType);
         SetPricePanels(PriceMode.Sell, price);
     }
 
+    private void SetDefinitionPanels(List<string> tags)
+    {
+        if (tags == null || tags.Count == 0)
+        {
+            firstDefinitionPanel.gameObject.SetActive(false);
+            secondDefinitionPanel.gameObject.SetActive(false);
+            return;
+        }
+
+        if (tags.Count == 1)
+        {
+            firstDefinitionPanel.gameObject.SetActive(true);
+            secondDefinitionPanel.gameObject.SetActive(false);
+            PopulateDefintionPanel(firstDefinitionPanel, tags[0]);
+        } else
+        {
+            firstDefinitionPanel.gameObject.SetActive(true);
+            secondDefinitionPanel.gameObject.SetActive(true);
+            PopulateDefintionPanel(firstDefinitionPanel, tags[0]);
+            PopulateDefintionPanel(firstDefinitionPanel, tags[1]);
+        }
+    }
+
+    private void PopulateDefintionPanel(DefinitionPanel panel, string tag)
+    {
+        foreach (var def in necessaryTermDefinitions)
+        {
+            if (def.DisplayName == tag)
+            {
+                panel.Populate(def);
+                break;
+            }
+        }
+
+        foreach (var def in necessaryBallDefinitions)
+        {
+            if (def.DisplayName == tag)
+            {
+                panel.Populate(def);
+                break;
+            }
+        }
+    }
 
     public void Hide()
     {

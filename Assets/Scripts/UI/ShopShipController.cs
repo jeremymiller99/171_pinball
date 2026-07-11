@@ -392,6 +392,7 @@ public sealed class ShopMerchantTooltipHover : MonoBehaviour,
         TooltipManager.Show(
             title,
             desc,
+            null,
             catalog);
     }
 

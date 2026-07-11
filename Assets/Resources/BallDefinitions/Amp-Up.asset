@@ -15,10 +15,12 @@ MonoBehaviour:
   id: AmpUp
   displayName: Amp-up
   description: 'Active: Breaks on first collision. The next ball in queue permanently
-    gains the active ability: "On collision, have a 25% chance to score 0.1 multiplier."'
+    gains the active ability: "On collision, have 1 in 4 Odds to score 0.1 multiplier."'
   rarity: 1
-  elementType: 6
+  elementType: 3
   secondaryElementType: 2
+  tags:
+  - Odds
   icon: {fileID: 21300000, guid: e681d574556e4974e9a4c5a6ac0c74ab, type: 3}
   prefab: {fileID: 5723297401256486482, guid: e7d6c8b0a2941d3e4f50608192a3b4c5, type: 3}
   price: 15

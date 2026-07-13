@@ -190,6 +190,13 @@ public sealed class ShopTransitionController : MonoBehaviour
         _inputLocked = true;
         LockGameplayInput();
 
+        // Shop-only tooltip skin, re-rolled each visit; the shared roll
+        // keeps tooltip and header panels matching. Reverted on close so
+        // other screens keep the default tooltip look.
+        int backgroundRoll = UnityEngine.Random.Range(0, int.MaxValue);
+        TooltipManager.ApplyShopSkin(backgroundRoll);
+        TooltipHeaderManager.ApplyShopSkin(backgroundRoll);
+
         bool unified = IsUsingUnifiedShop();
         Debug.Log($"[ShopTransition] usingUnifiedShop={unified}, cameraRig={cameraRig != null}, shopCanvasRoot={shopCanvasRoot != null}");
 
@@ -225,6 +232,9 @@ public sealed class ShopTransitionController : MonoBehaviour
             afterClosed?.Invoke();
             return;
         }
+
+        TooltipManager.ApplyDefaultSkin();
+        TooltipHeaderManager.ApplyDefaultSkin();
 
         if (_isTransitioning)
         {

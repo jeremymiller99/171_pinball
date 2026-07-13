@@ -44,6 +44,19 @@ public sealed class TooltipHeaderUI : MonoBehaviour
     [Tooltip("Text inside the shop panel that renders the item cost.")]
     [SerializeField] private TMP_Text descText;
 
+    [Header("Shop skin")]
+    [Tooltip("Backgrounds for the shop-only skin; one is rolled per "
+        + "visit via TooltipHeaderManager.ApplyShopSkin.")]
+    [SerializeField] private List<Material> backgroundMaterials =
+        new List<Material>();
+
+    [Tooltip("Sliced sprite with the panel shape in alpha and the "
+        + "neon border ring in the red channel.")]
+    [SerializeField] private Sprite shopSkinSprite;
+
+    [SerializeField] private float shopSkinAlpha = 0.85f;
+    [SerializeField] private float shopSkinPpu = 4f;
+
     [SerializeField] private bool controllerInUse = false;
     [SerializeField] private Vector2 cachedVector;
     [SerializeField] private string defaultText = "Click to Inspect";
@@ -203,6 +216,110 @@ public sealed class TooltipHeaderUI : MonoBehaviour
         {
             gameObject.SetActive(false);
         }
+    }
+
+    // Shop-only skin; reverted on shop close so other screens keep the
+    // prefab's original look. Same roll modulo count on tooltip and
+    // header keeps both panels on the same theme for a given visit.
+    public void ApplyShopSkin(int roll)
+    {
+        if (backgroundMaterials.Count == 0 || shopSkinSprite == null)
+        {
+            return;
+        }
+
+        CaptureDefaultSkinIfNeeded();
+
+        Material mat =
+            backgroundMaterials[Mathf.Abs(roll) % backgroundMaterials.Count];
+
+        SkinImage(GetComponent<Image>(), mat);
+        SkinImage(descPanel == null
+            ? null
+            : descPanel.GetComponent<Image>(), mat);
+    }
+
+    public void ApplyDefaultSkin()
+    {
+        if (!_defaultSkinCaptured)
+        {
+            return;
+        }
+
+        foreach (var entry in _defaultImageStates)
+        {
+            Image image = entry.Key;
+            if (image == null)
+            {
+                continue;
+            }
+
+            DefaultImageState state = entry.Value;
+            image.material = state.material;
+            image.sprite = state.sprite;
+            image.color = state.color;
+            image.type = state.type;
+            image.pixelsPerUnitMultiplier = state.pixelsPerUnitMultiplier;
+        }
+    }
+
+    private struct DefaultImageState
+    {
+        public Material material;
+        public Sprite sprite;
+        public Color color;
+        public Image.Type type;
+        public float pixelsPerUnitMultiplier;
+    }
+
+    private readonly Dictionary<Image, DefaultImageState>
+        _defaultImageStates = new Dictionary<Image, DefaultImageState>();
+    private bool _defaultSkinCaptured;
+
+    private void CaptureDefaultSkinIfNeeded()
+    {
+        if (_defaultSkinCaptured)
+        {
+            return;
+        }
+
+        _defaultSkinCaptured = true;
+
+        CaptureImageDefault(GetComponent<Image>());
+        CaptureImageDefault(descPanel == null
+            ? null
+            : descPanel.GetComponent<Image>());
+    }
+
+    private void CaptureImageDefault(Image image)
+    {
+        if (image == null || _defaultImageStates.ContainsKey(image))
+        {
+            return;
+        }
+
+        _defaultImageStates[image] = new DefaultImageState
+        {
+            material = image.material,
+            sprite = image.sprite,
+            color = image.color,
+            type = image.type,
+            pixelsPerUnitMultiplier = image.pixelsPerUnitMultiplier,
+        };
+    }
+
+    private void SkinImage(Image image, Material mat)
+    {
+        if (image == null)
+        {
+            return;
+        }
+
+        image.material = mat;
+        image.sprite = shopSkinSprite;
+        image.type = Image.Type.Sliced;
+        image.pixelsPerUnitMultiplier = shopSkinPpu;
+        image.color = new Color(1f, 1f, 1f, shopSkinAlpha);
     }
 
     public bool IsVisible => gameObject.activeSelf;

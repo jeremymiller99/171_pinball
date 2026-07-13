@@ -17,8 +17,9 @@ MonoBehaviour:
   description: 'Active: On collision, scores 1 point. Then, this value increases
     by 50% rounded up.'
   rarity: 2
-  elementType: 1
+  elementType: 6
   secondaryElementType: 0
+  tags: []
   icon: {fileID: 21300000, guid: af63de4465c43cf499133b557e6ee7cb, type: 3}
   prefab: {fileID: 5723297401256486482, guid: e1f2a3b4c5d6748596a7b8c9d0e1f2a3, type: 3}
   price: 30

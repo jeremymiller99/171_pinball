@@ -1,43 +1,43 @@
-Name42;Desc;Rarity;Type(s)
-8 Ball;Active: Every 8th hit scores 0.3 multiplier.;Common;Amplifier
-Amp-up;Active: Breaks on first collision. The next ball in queue permanently gains the active ability: "On collision, have a 25% chance to score 0.1 multiplier.";Uncommon;Catalyst;Amplifier
-Archer;Active: While active, creates temporary target rollovers that score 5 points when hit (one at a time). Each consecutive target hit increases this amount by 5. If a target fades before it's hit, points scored from it is halved;Uncommon;Striker
-Ball of Minor Inconvenience;Active: Collisions with this ball score 150%, but every 5 seconds this ball does nothing for 7.5 seconds.;Common;Striker
-Blank Canvas;Passive: This ball gains the passive ability of the last launched ball. Active: This ball gains the active ability of the next ball in queue.;Uncommon;Catalyst
-Blue Two;Active: Every second collision with this ball scores double points.;Common;Striker
-Bomb;Active: After 30 seconds, this ball Detonates, scoring at 200%.;Common;Catalyst
-Charcoal;Active: Flammable 5. Passive: On launch, Fuel the active ball twice.;Common;Catalyst
-Chicken;Active: When you fulfill a quota, creates an Egg in the first open spot of your queue.;Uncommon;Amplifier
-Confetti;Active: Every 4th collision, creates 3 Holoballs that disappear on their 3rd collision.;Uncommon;Splitter
-Cross-Eyed;Active: Inverts paddle input. Doubles all multiplier scored.;Common;Anomaly
-Debt;Active: On launch, lose 50% of your credits (max 20). Upon level up, gain twice as many credits as you lost.;Uncommon;Mint
-Egg;Active: Breaks on first collision. When it does, increase the effectiveness of the next ball in queue by 50%.;Uncommon;Catalyst
-Eye on the Prize;Active: Scores 300%. On first collision, create 10 Pinballs that score 10%.;Rare;Splitter
-Fireball;Active: Flammable 5. On launch, Ignite this ball. Once this ball is no longer Flammable, it detonates. Cannot be Fueled.;Common;Striker
-Four Leaf Clover;Passive: Increases the Odds on all objects by 1.;Uncommon;Mint
-Freeze Tag;Active: On 10th collision, freezes in place. When this ball collides with another ball, it unfreezes and scores 200%.;Common;Anomaly
-Gear;Active: Scores 75% points on collision. Passive: Doubles the amount of points gained on other Gears.;Uncommon;Amplifier
-Holoball;Active: Temporary. Cannot collide with other balls.;-;-
-Hunger;Passive: On launch, destroy the ball behind this one in queue. This ball gains 100% scoring.;Common;Anomaly
-Interdimensional Golf Ball;Active: Scores 200%. This is reduced by 5 percentage points every flipper use, resets when this collides with a portal.;Uncommon;Striker
-Investor;Active: Gives $1 every 12th collision.;Common;Mint
-Joker;Active: Scores 150% on collision.;Common;Striker
-Leprechaun;Active: On collision, has a 1 in 5 chance of giving $1.;Uncommon;Mint
-Lucky 7;Active: On collision, has a 1 in 7 chance to score 0.7 multiplier.;Common;Amplifier
-M.O.A.B.;Active: On the 50th collision, detonates, activating all nearby components and scoring at 1000%.;Rare;Catalyst
-Matryoshka;Active: Every 10 collisions, splits into two smaller balls that can also split. Balls get smaller for each split, up to 4 total balls.;Uncommon;Splitter
-Meatball;Active: Leaves a trail of sauce that scores multiplier when rolled over and disappears after 5 seconds.;Uncommon;Amplifier
-Piggy Bank;Passive: Upon fulfilling a quota, this ball gains $3 in sell value. Active: Breaks on first collision. On collision, gain this ball's sell value.;Uncommon;Mint;Catalyst
-Pimball;Active: On collision, make components happy by permanently increasing their total score by 5%.;Uncommon;Anomaly
-Pinball;A standard ball.;-;-
-Pitball;Active: Every 100 units travelled, score 0.1 multiplier.;Uncommon;Amplifier
-Quick Learner;Active: Upon fulfilling a quota, the next ball in queue doubles its base scoring.;Uncommon;Catalyst
-Racket Ball;Active: On collision with a paddle, score multiplier. This cannot be triggered consecutively on the same paddle.;Common;Amplifier
-Recall;Active: On loss, create a copy of this ball in the launch chamber. It retains all buffs but loses its active effect.;Common;Catalyst
-Red Two;Active: Every second collision with this ball scores double multiplier.;Common;Amplifier
-Scatter;Active: On first collision, this ball splits in two.;Common;Splitter
-Snowball;Active: On collision, scores 1 point. Then, this value increases by 50% rounded up.;Rare;Striker
-Speed;Active: Scores from 75% - 200% based on the ball's velocity.;Common;Striker
-Steel Kilogram;Active: Heavy. Scores 150%.;Common;Striker
-Suspense;Active: Gain increased scoring based on the length of time since a flipper was last active.;Rare;Anomaly
-Wall Ball;Active: On collision with a wall, score 5 points.;Common;Striker
+Name42;Desc;Rarity;Type(s);Outlink(s)
+8 Ball;Active: Every 8th hit scores 0.3 multiplier.;Common;Standard;
+Amp-up;Active: Breaks on first collision. The next ball in queue permanently gains the active ability: "On collision, have 1 in 4 Odds to score 0.1 multiplier.";Uncommon;Exchange;Odds
+Archer;Active: While active, Crafts temporary target rollovers that score 5 points when hit (one at a time). Each consecutive target hit increases this amount by 5. If a target fades before it's hit, points scored from it is halved;Uncommon;Alteration;Crafts
+Ball of Minor Inconvenience;Active: Collisions with this ball score 150%, but every 5 seconds this ball does nothing for 7.5 seconds.;Common;Standard;
+Blank Canvas;Passive: This ball gains the passive ability of the last launched ball. Active: This ball gains the active ability of the next ball in queue.;Uncommon;Alteration;
+Blue Two;Active: Every second collision with this ball scores double points.;Common;Standard;
+Bomb;Active: After 30 seconds, this ball Detonates, scoring at 200%.;Common;Entropy;Detonates
+Charcoal;Active: Flammable 5. On collision, Fuel the other object. Passive: On launch, Fuel the active ball twice.;Common;Entropy;Flammable Fuel Fuel
+Chicken;Active: When you fulfill a quota, Crafts an Egg in the first open spot of your queue.;Uncommon;Alteration;Crafts Egg
+Confetti;Active: Every 4th collision, creates 3 Holoballs that disappear on their 3rd collision.;Uncommon;Tech;Holoballs
+Cross-Eyed;Active: Inverts paddle input. Doubles all multiplier scored.;Common;Standard;
+Debt;Active: On launch, lose 50% of your credits (max 20). Upon level up, gain twice as many credits as you lost.;Uncommon;Exchange;
+Egg;Active: Breaks on first collision. When it does, increase the effectiveness of the next ball in queue by 50%.;Uncommon;Standard;
+Eye on the Prize;Active: Scores 300%. On first collision, Craft 10 Pinballs that score 10%.;Rare;Tech;Craft Pinballs
+Fireball;Active: Flammable 5. On launch, Ignite this ball. Once this ball is no longer Flammable, it detonates. Cannot be Fueled.;Common;Entropy;Flammable Ignite Flammable detonates Fueled
+Four Leaf Clover;Passive: Increases the Odds on all objects by 1.;Uncommon;Exchange;Odds
+Freeze Tag;Active: On 10th collision, becomes Frozen and stays in place. When this ball collides with another ball, it unfreezes and scores 200%.;Common;Void;Frozen
+Gear;Active: Scores 75% points on collision. Passive: Doubles the amount of points gained on other Gears.;Uncommon;Tech;
+Holoball;Active: Temporary. Cannot collide with other balls.;-;-;
+Hunger;Passive: On launch, destroy the ball behind this one in queue. This ball gains 100% scoring.;Common;Void;
+Interdimensional Golf Ball;Active: Scores 200%. This is reduced by 5 percentage points every flipper use, resets when this collides with a portal.;Uncommon;Standard;
+Investor;Active: Gives $1 every 12th collision.;Common;Exchange;
+Joker;Active: Scores 150% on collision.;Common;Standard;
+Leprechaun;Active: On collision, has a 1 in 5 chance of giving $1.;Uncommon;Exchange;
+Lucky 7;Active: On collision, has 1 in 7 Odds to score 0.7 multiplier.;Common;Exchange;Odds
+M.O.A.B.;Active: On the 50th collision, detonates, activating all nearby components and scoring at 1000%.;Rare;Entropy;detonates
+Matryoshka;Active: Every 10 collisions, splits into two smaller balls that can also split. Balls get smaller for each split, up to 4 total balls.;Uncommon;Standard;
+Meatball;Active: Leaves a trail of sauce that scores multiplier when rolled over and disappears after 5 seconds.;Uncommon;Standard;
+Piggy Bank;Passive: Upon fulfilling a quota, this ball gains $3 in sell value. Active: Breaks on first collision. On collision, gain this ball's sell value.;Uncommon;Exchange;
+Pimball;Active: On collision, make components happy by permanently increasing their total score by 5%.;Uncommon;Standard;
+Pinball;A standard ball.;-;-;
+Pitball;Active: Every 100 units travelled, score 0.1 multiplier.;Uncommon;Standard;
+Quick Learner;Active: Upon fulfilling a quota, the next ball in queue doubles its base scoring.;Uncommon;Standard;
+Racket Ball;Active: On collision with a paddle, score multiplier. This cannot be triggered consecutively on the same paddle.;Common;Standard;
+Recall;Active: On loss, Craft a copy of this ball in the launch chamber. It retains all buffs but loses its active effect.;Common;Tech;Craft
+Red Two;Active: Every second collision with this ball scores double multiplier.;Common;Standard;
+Scatter;Active: On first collision, this ball splits in two.;Common;Standard;
+Snowball;Active: On collision, scores 1 point. Then, this value increases by 50% rounded up.;Rare;Void;
+Speed;Active: Scores from 75% - 200% based on the ball's velocity.;Common;Standard;
+Steel Kilogram;Active: Heavy. Scores 150%.;Common;Standard;
+Suspense;Active: Gain increased scoring based on the length of time since a flipper was last active.;Rare;Standard;
+Wall Ball;Active: On collision with a wall, score 5 points.;Common;Standard;

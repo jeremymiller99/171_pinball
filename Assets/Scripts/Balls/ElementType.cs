@@ -9,11 +9,10 @@
 public enum ElementType
 {
     None,
-    Striker,
-    Amplifier,
-    Mint,
-    Splitter,
-    Anomaly,
-    Catalyst,
-    Module
+    Alteration,
+    Entropy,
+    Exchange,
+    Standard,
+    Tech,
+    Void,
 }

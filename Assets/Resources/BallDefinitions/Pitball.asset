@@ -16,8 +16,9 @@ MonoBehaviour:
   displayName: Pitball
   description: 'Active: Every 100 units travelled, score 0.1 multiplier.'
   rarity: 1
-  elementType: 2
+  elementType: 4
   secondaryElementType: 0
+  tags: []
   icon: {fileID: 21300000, guid: af63de4465c43cf499133b557e6ee7cb, type: 3}
   prefab: {fileID: 5723297401256486482, guid: e1f2a3b4c5d64758696a7b8c9d0e1f2a, type: 3}
   price: 15

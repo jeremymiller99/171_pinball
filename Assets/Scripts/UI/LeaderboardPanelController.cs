@@ -44,11 +44,19 @@ public sealed class LeaderboardPanelController : MonoBehaviour
     private bool _isReadOnly;
     private Action _onContinue;
 
+    private enum ViewMode
+    {
+        Global,
+        Friends,
+        Local,
+    }
+
     private BoardDefinition[] _boards = Array.Empty<BoardDefinition>();
     private int _boardIndex;
-    private bool _showFriends;
+    private ViewMode _viewMode;
     private int _fetchToken;
     private int _localRank = -1;
+    private bool _clearArmed;
 
     private List<SteamLeaderboardEntry> _entries = new List<SteamLeaderboardEntry>();
 
@@ -59,6 +67,9 @@ public sealed class LeaderboardPanelController : MonoBehaviour
     private TextMeshProUGUI _boardLabel;
     private TextMeshProUGUI _statusLabel;
     private TextMeshProUGUI _modeButtonLabel;
+    private TextMeshProUGUI _topLabel;
+    private GameObject _clearButton;
+    private TextMeshProUGUI _clearButtonLabel;
 
     public static void ShowReadOnly(Action onClose = null)
     {
@@ -107,7 +118,16 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         var bg = rootGo.GetComponent<Image>();
         bg.color = new Color(0f, 0f, 0f, 0.85f);
 
-        return rootGo.GetComponent<LeaderboardPanelController>();
+        var ctrl = rootGo.GetComponent<LeaderboardPanelController>();
+
+        // Without Steam (shared-machine playtests) the global view has
+        // nothing to show, so open on the local list instead.
+        if (!SteamLeaderboards.IsAvailable)
+        {
+            ctrl._viewMode = ViewMode.Local;
+        }
+
+        return ctrl;
     }
 
     private static Canvas EnsureOverlayCanvas()
@@ -172,6 +192,14 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         _localRank = -1;
         RebuildRows();
 
+        // Local scores come from PlayerPrefs, so this view works even
+        // when Steam is unavailable (shared-machine playtests).
+        if (_viewMode == ViewMode.Local)
+        {
+            FetchLocalScores();
+            return;
+        }
+
         if (!SteamLeaderboards.IsAvailable)
         {
             SetStatus(LocalizedUI.Get("gameplay.leaderboard.steamUnavailable", "(Steam unavailable)"));
@@ -201,7 +229,7 @@ public sealed class LeaderboardPanelController : MonoBehaviour
             RebuildRows();
         };
 
-        if (_showFriends)
+        if (_viewMode == ViewMode.Friends)
         {
             SteamLeaderboards.DownloadFriendScores(board, onScores);
         }
@@ -226,6 +254,36 @@ public sealed class LeaderboardPanelController : MonoBehaviour
                 }
             });
         }
+    }
+
+    private void FetchLocalScores()
+    {
+        string board = CurrentBoardSceneName;
+        if (string.IsNullOrEmpty(board))
+        {
+            SetStatus(LocalizedUI.Get("gameplay.leaderboard.noEntries", "(no entries yet)"));
+            return;
+        }
+
+        List<LocalLeaderboards.Entry> saved = LocalLeaderboards.GetEntries(board);
+        for (int i = 0; i < saved.Count; i++)
+        {
+            DateTime when = new DateTime(saved[i].ticksUtc, DateTimeKind.Utc)
+                .ToLocalTime();
+
+            _entries.Add(new SteamLeaderboardEntry
+            {
+                rank = i + 1,
+                playerName = when.ToString("MM/dd HH:mm", CultureInfo.InvariantCulture),
+                score = (int)Math.Min(saved[i].score, int.MaxValue),
+                levelReached = saved[i].level,
+            });
+        }
+
+        SetStatus(_entries.Count == 0
+            ? LocalizedUI.Get("gameplay.leaderboard.noEntries", "(no entries yet)")
+            : "");
+        RebuildRows();
     }
 
     private void OnPlayerNamesUpdated()
@@ -294,10 +352,11 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         }
 
         BuildModeButton(_listPanel.transform);
+        BuildClearButton(_listPanel.transform);
 
-        BuildLabel(_listPanel.transform,
-            LocalizedUI.Format("gameplay.leaderboard.top", "TOP {0}", maxRowsShown),
+        _topLabel = BuildLabel(_listPanel.transform, "",
             labelFontSize, FontStyles.Bold, TextAlignmentOptions.Center);
+        RefreshTopLabel();
 
         var scrollGo = new GameObject("ScrollView",
             typeof(RectTransform),
@@ -448,8 +507,10 @@ public sealed class LeaderboardPanelController : MonoBehaviour
     {
         GameObject go = BuildButton(parent, "ModeButton", ModeButtonText(), () =>
         {
-            _showFriends = !_showFriends;
+            _viewMode = (ViewMode)(((int)_viewMode + 1) % 3);
             if (_modeButtonLabel != null) _modeButtonLabel.text = ModeButtonText();
+            RefreshClearButton();
+            RefreshTopLabel();
             FetchScores();
         });
 
@@ -458,9 +519,67 @@ public sealed class LeaderboardPanelController : MonoBehaviour
 
     private string ModeButtonText()
     {
-        return _showFriends
-            ? LocalizedUI.Get("gameplay.leaderboard.viewFriends", "VIEW: FRIENDS")
-            : LocalizedUI.Get("gameplay.leaderboard.viewGlobal", "VIEW: GLOBAL");
+        switch (_viewMode)
+        {
+            case ViewMode.Friends:
+                return LocalizedUI.Get("gameplay.leaderboard.viewFriends", "VIEW: FRIENDS");
+            case ViewMode.Local:
+                return LocalizedUI.Get("gameplay.leaderboard.viewLocal", "VIEW: LOCAL");
+            default:
+                return LocalizedUI.Get("gameplay.leaderboard.viewGlobal", "VIEW: GLOBAL");
+        }
+    }
+
+    private void BuildClearButton(Transform parent)
+    {
+        _clearButton = BuildButton(parent, "ClearButton", "", OnClearClicked);
+        _clearButton.GetComponent<Image>().color = new Color(0.8f, 0.25f, 0.25f, 1f);
+        _clearButtonLabel = _clearButton.GetComponentInChildren<TextMeshProUGUI>();
+        RefreshClearButton();
+    }
+
+    // Two clicks to clear so a stray tap can't wipe a playtest session.
+    private void OnClearClicked()
+    {
+        if (_viewMode != ViewMode.Local) return;
+
+        if (!_clearArmed)
+        {
+            _clearArmed = true;
+            if (_clearButtonLabel != null) _clearButtonLabel.text = ClearButtonText();
+            return;
+        }
+
+        LocalLeaderboards.ClearAll();
+        _clearArmed = false;
+        if (_clearButtonLabel != null) _clearButtonLabel.text = ClearButtonText();
+        FetchScores();
+    }
+
+    private string ClearButtonText()
+    {
+        return _clearArmed
+            ? LocalizedUI.Get("gameplay.leaderboard.clearConfirm",
+                "REALLY CLEAR? (ALL BOARDS)")
+            : LocalizedUI.Get("gameplay.leaderboard.clear", "CLEAR LOCAL SCORES");
+    }
+
+    private void RefreshClearButton()
+    {
+        if (_clearButton == null) return;
+
+        _clearArmed = false;
+        if (_clearButtonLabel != null) _clearButtonLabel.text = ClearButtonText();
+        _clearButton.SetActive(_viewMode == ViewMode.Local);
+    }
+
+    private void RefreshTopLabel()
+    {
+        if (_topLabel == null) return;
+
+        _topLabel.text = _viewMode == ViewMode.Local
+            ? LocalizedUI.Get("gameplay.leaderboard.allRuns", "ALL RUNS")
+            : LocalizedUI.Format("gameplay.leaderboard.top", "TOP {0}", maxRowsShown);
     }
 
     private void SetStatus(string text)
@@ -477,7 +596,11 @@ public sealed class LeaderboardPanelController : MonoBehaviour
             Destroy(_rowsRoot.transform.GetChild(i).gameObject);
         }
 
-        int shown = Mathf.Min(_entries.Count, maxRowsShown);
+        // Local mode lists every recorded run and relies on the scroll
+        // view; Steam modes keep the fixed top-N cut.
+        int shown = _viewMode == ViewMode.Local
+            ? _entries.Count
+            : Mathf.Min(_entries.Count, maxRowsShown);
         for (int i = 0; i < shown; i++)
         {
             BuildRow(_rowsRoot.transform, _entries[i]);

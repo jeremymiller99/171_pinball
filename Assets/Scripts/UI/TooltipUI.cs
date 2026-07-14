@@ -74,8 +74,18 @@ public sealed class TooltipUI : MonoBehaviour
         + "ships, modules). Leave empty to roll blue/pink per visit.")]
     [SerializeField] private Material defaultShopMaterial;
 
+    [Tooltip("Static twins of the rarity materials, used on the buy/"
+        + "sell price bars so they match the header's frozen look.")]
+    [SerializeField] private List<Material> staticRarityMaterials =
+        new List<Material>();
+
+    [Tooltip("Static material for the price bars when the item has no "
+        + "rarity.")]
+    [SerializeField] private Material staticDefaultMaterial;
+
     [SerializeField] private float shopSkinAlpha = 0.85f;
     [SerializeField] private float shopSkinPanelPpu = 2f;
+    [SerializeField] private float shopSkinBarPpu = 4f;
 
     [SerializeField] private bool controllerInUse = false;
     [SerializeField] private Vector2 cachedVector;
@@ -318,7 +328,7 @@ public sealed class TooltipUI : MonoBehaviour
             : backgroundMaterials[Mathf.Abs(roll) % backgroundMaterials.Count];
         _shopSkinActive = true;
 
-        SkinAllPanels(_rolledMaterial);
+        SkinAllPanels(_rolledMaterial, staticDefaultMaterial);
     }
 
     // Recolors the skin for the item being shown. Rarity items are
@@ -327,23 +337,13 @@ public sealed class TooltipUI : MonoBehaviour
     // material in the shop, or the default look elsewhere.
     public void ApplyRaritySkin(BallRarity? rarity)
     {
-        Material mat = null;
-        if (rarity.HasValue)
-        {
-            int index = (int)rarity.Value;
-            if (index >= 0
-                && index < rarityMaterials.Count
-                && rarityMaterials[index] != null)
-            {
-                mat = rarityMaterials[index];
-            }
-        }
+        Material mat = PickByRarity(rarityMaterials, rarity);
 
         if (mat == null)
         {
             if (_shopSkinActive && _rolledMaterial != null)
             {
-                SkinAllPanels(_rolledMaterial);
+                SkinAllPanels(_rolledMaterial, staticDefaultMaterial);
             }
             else
             {
@@ -352,17 +352,39 @@ public sealed class TooltipUI : MonoBehaviour
             return;
         }
 
+        Material barMat = PickByRarity(staticRarityMaterials, rarity);
+
         CaptureDefaultSkinIfNeeded();
-        SkinAllPanels(mat);
+        SkinAllPanels(mat, barMat != null ? barMat : staticDefaultMaterial);
     }
 
-    // The buy/sell price bars intentionally keep the prefab look; only
-    // the main panel and definition panels take the arcade skin.
-    private void SkinAllPanels(Material mat)
+    private static Material PickByRarity(
+        List<Material> materials, BallRarity? rarity)
+    {
+        if (!rarity.HasValue)
+        {
+            return null;
+        }
+
+        int index = (int)rarity.Value;
+        return index >= 0 && index < materials.Count
+            ? materials[index]
+            : null;
+    }
+
+    // The main panel and definition panels animate; the price bars use
+    // the static twin so they match the header's frozen look.
+    private void SkinAllPanels(Material mat, Material barMat)
     {
         SkinImage(GetComponent<Image>(), mat, shopSkinPanelPpu);
         SkinImage(GetPanelImage(firstDefinitionPanel), mat, shopSkinPanelPpu);
         SkinImage(GetPanelImage(secondDefinitionPanel), mat, shopSkinPanelPpu);
+
+        if (barMat != null)
+        {
+            SkinImage(GetPanelImage(shopPanel), barMat, shopSkinBarPpu);
+            SkinImage(GetPanelImage(sellPanel), barMat, shopSkinBarPpu);
+        }
     }
 
     public void ApplyDefaultSkin()
@@ -423,6 +445,8 @@ public sealed class TooltipUI : MonoBehaviour
         CaptureImageDefault(GetComponent<Image>());
         CaptureImageDefault(GetPanelImage(firstDefinitionPanel));
         CaptureImageDefault(GetPanelImage(secondDefinitionPanel));
+        CaptureImageDefault(GetPanelImage(shopPanel));
+        CaptureImageDefault(GetPanelImage(sellPanel));
     }
 
     private void CaptureImageDefault(Image image)
@@ -457,6 +481,11 @@ public sealed class TooltipUI : MonoBehaviour
     }
 
     private static Image GetPanelImage(DefinitionPanel panel)
+    {
+        return panel == null ? null : panel.GetComponent<Image>();
+    }
+
+    private static Image GetPanelImage(GameObject panel)
     {
         return panel == null ? null : panel.GetComponent<Image>();
     }

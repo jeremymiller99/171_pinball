@@ -1,4 +1,5 @@
 // Change: add 10 width black outline to plunger visual to match board components.
+using System;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -32,6 +33,8 @@ public sealed class PinballLauncher : MonoBehaviour
 
     [Tooltip("Optional row of BoardLights; lit count follows charge (see LauncherPowerMeter).")]
     [SerializeField] private LauncherPowerMeter powerMeter;
+
+    public static event Action<GameObject> BallLaunched;
 
     private Rigidbody _ballRb;
     private float _charge;
@@ -107,7 +110,8 @@ public sealed class PinballLauncher : MonoBehaviour
 
         Vector3 dir = launchDirection.forward.normalized;
         _ballRb.AddForce(dir * _charge, ForceMode.Impulse);
-        
+        BallLaunched?.Invoke(_ballRb.gameObject);
+
         ServiceLocator.Get<AudioManager>()?.PlayLaunch(transform.position);
         ServiceLocator.Get<HapticManager>()?.PlayLaunchHaptic();
 

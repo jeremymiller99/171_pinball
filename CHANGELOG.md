@@ -10,6 +10,38 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.9.0 — Fire status system (Flammable / Ignite / On Fire / Fuel) + Fireball & Charcoal
+_2026-07-14 · Contributor: Devin_
+- New keyword-driven fire status system in `Assets/Scripts/StatusEffects/`: `FireStatus`
+  (shared stacks/burn/tick core), `BallFireStatus` (contact spread both directions,
+  fuel-on-contact, 0.5s re-activation of the last component hit, loadout write-back),
+  `ComponentFireStatus` (added at runtime when a component is first Fueled; ticks its hit
+  effect while burning), `FireStatusUtility` (get-or-add helpers + tick gating during
+  shop/drain/no-run). Flammable X = X stacks = X seconds of burn once Ignited; Fuel adds a
+  stack and extends an active burn; burning consumes ~1 stack/second.
+- `BoardComponent.ActivateAsIfHit()`: new programmatic activation path (no ball, so no ball
+  multipliers) with overrides on `Bumper` (audio, no bounce/shake), `BombComponent`
+  (extracted `TryExplode()`, ticks count toward explosions), `CasinoComponent` (payout only
+  every Nth activation), `FrozenComponent` (extracted `HandleHitProgression()`, ticks chip
+  the freeze). `DuplicatingComponent` intentionally keeps base behavior (can't clone without
+  a source ball).
+- New balls: **Fireball** (`FireballBall`, Striker — launches On Fire via new
+  `PinballLauncher.BallLaunched` static event, cannot be Fueled, detonates like a bomb when
+  its burn ends, then retires through the drain flow) and **Charcoal** (`CharcoalBall`,
+  Catalyst — fuels everything it touches; while queued, every launched ball is Fueled twice).
+  CSV rows for both already existed in `Ball-Descriptions.csv`.
+- Fuel persists between launches: new `_extraFlammableStacksBySlot` parallel list in
+  `BallLoadoutController` (synced through all loadout mutators) +
+  `BallSpawner.SyncFireStacksFromLoadout()` on hand rebuild.
+- Fixed `TooltipUI` bug where the second definition panel was never populated (both tags
+  rendered into the first panel).
+- Known limitations: board-component definitions still have no tooltip term tags (only balls
+  surface keyword panels); legacy `FireComponent` heat-up bumper is untouched and unrelated
+  to the new system; prefabs/definitions for the two balls are set up in-editor (see below).
+- Note: the "bump version text in MainMenu.unity" step from AGENTS.md appears stale — the
+  menu label is CI-driven via `BuildVersionLabel`/`Application.version`; no `v0.x.y` scene
+  text exists to update.
+
 ## 0.8.7 — Spanish localization pass on MainMenu (continued)
 _2026-06-01 · Contributor: Devin_
 - Cleaned up 4 typo keys in `Menu Labels` that had leading whitespace (`␣mainMenu.settings.displayMode`, `␣mainMenu.settings.resolution`, `␣mainMenu.highscore`, `␣mainMenu.rank`). Stripped the leading space in-place via direct YAML edit so the key IDs and existing translations were preserved. Also fixed two wrong English source values in the same pass: `displayMode` was set to `Display`, now `Display Mode`; `highscore` was set to `Highscore` (no colon), now `Highscore:` to match the ChallengeCard source string.

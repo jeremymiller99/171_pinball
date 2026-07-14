@@ -317,16 +317,13 @@ public sealed class TooltipUI : MonoBehaviour
         SkinAllPanels(_rolledMaterial);
     }
 
-    // Recolors the shop skin for the item being shown; null (or an
-    // unmapped rarity) falls back to the visit's rolled material.
+    // Recolors the skin for the item being shown. Rarity items are
+    // skinned even outside the shop (hand balls, placed components);
+    // without a rarity the panel falls back to the visit's rolled
+    // material in the shop, or the default look elsewhere.
     public void ApplyRaritySkin(BallRarity? rarity)
     {
-        if (!_shopSkinActive)
-        {
-            return;
-        }
-
-        Material mat = _rolledMaterial;
+        Material mat = null;
         if (rarity.HasValue)
         {
             int index = (int)rarity.Value;
@@ -338,10 +335,21 @@ public sealed class TooltipUI : MonoBehaviour
             }
         }
 
-        if (mat != null)
+        if (mat == null)
         {
-            SkinAllPanels(mat);
+            if (_shopSkinActive && _rolledMaterial != null)
+            {
+                SkinAllPanels(_rolledMaterial);
+            }
+            else
+            {
+                RestoreDefaultImages();
+            }
+            return;
         }
+
+        CaptureDefaultSkinIfNeeded();
+        SkinAllPanels(mat);
     }
 
     private void SkinAllPanels(Material mat)
@@ -354,6 +362,13 @@ public sealed class TooltipUI : MonoBehaviour
     }
 
     public void ApplyDefaultSkin()
+    {
+        RestoreDefaultImages();
+        _shopSkinActive = false;
+        _rolledMaterial = null;
+    }
+
+    private void RestoreDefaultImages()
     {
         if (!_defaultSkinCaptured)
         {
@@ -375,9 +390,6 @@ public sealed class TooltipUI : MonoBehaviour
             image.type = state.type;
             image.pixelsPerUnitMultiplier = state.pixelsPerUnitMultiplier;
         }
-
-        _shopSkinActive = false;
-        _rolledMaterial = null;
     }
 
     private struct DefaultImageState

@@ -361,7 +361,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallFireStatus
   baseFlammableStacks: 5
   canBeFueled: 1
-  fireVfxPrefab: {fileID: 0}
+  fireVfxPrefab: {fileID: 5480221703651420917, guid: 8cbac2eec3174914bba73b4f64d91a19, type: 3}
   stacks: 0
   isOnFire: 0
   burnSecondsRemaining: 0

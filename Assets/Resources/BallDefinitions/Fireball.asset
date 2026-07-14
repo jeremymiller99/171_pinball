@@ -22,6 +22,6 @@ MonoBehaviour:
   tags:
   - Flammable
   - Ignite
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: d7434d3e6b3544ffadb70624ea371fc6, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 876eddcb5f1b27d409a87956e706bb13, type: 3}
   price: 10

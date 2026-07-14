@@ -45,10 +45,15 @@ public sealed class TooltipHeaderUI : MonoBehaviour
     [SerializeField] private TMP_Text descText;
 
     [Header("Shop skin")]
-    [Tooltip("Static skin for the header: same bordered shape as the "
-        + "tooltip but white outline, black fill, and no animation or "
-        + "rarity tint.")]
-    [SerializeField] private Material skinMaterial;
+    [Tooltip("Static (non-animated) backgrounds indexed by BallRarity "
+        + "(Common through Legendary), matching the tooltip's colors "
+        + "and glowing border.")]
+    [SerializeField] private List<Material> rarityMaterials =
+        new List<Material>();
+
+    [Tooltip("Static background for tooltips without a rarity (hub, "
+        + "ships, modules).")]
+    [SerializeField] private Material defaultMaterial;
 
     [Tooltip("Sliced sprite with the panel shape in alpha and the "
         + "neon border ring in the red channel.")]
@@ -219,11 +224,12 @@ public sealed class TooltipHeaderUI : MonoBehaviour
     }
 
     // Shop-only skin; reverted on shop close so other screens keep the
-    // prefab's original look. Unlike the tooltip, the header always
-    // uses the one static material regardless of rarity.
+    // prefab's original look. The header uses static twins of the
+    // tooltip's rarity materials so both share colors and the glowing
+    // border, but only the tooltip animates.
     public void ApplyShopSkin()
     {
-        if (skinMaterial == null || shopSkinSprite == null)
+        if (defaultMaterial == null || shopSkinSprite == null)
         {
             return;
         }
@@ -231,28 +237,47 @@ public sealed class TooltipHeaderUI : MonoBehaviour
         CaptureDefaultSkinIfNeeded();
         _shopSkinActive = true;
 
-        SkinAllPanels(skinMaterial);
+        SkinAllPanels(defaultMaterial);
     }
 
-    // Mirrors the tooltip's skin lifetime: skinned for the whole shop
-    // visit, and outside the shop only while showing a rarity item
-    // (hand balls, placed components); default look otherwise.
+    // Mirrors the tooltip's skin lifetime: rarity items are skinned
+    // even outside the shop (hand balls, placed components); without
+    // a rarity the panel uses the default material in the shop, or
+    // the prefab look elsewhere.
     public void ApplyRaritySkin(BallRarity? rarity)
     {
-        if (skinMaterial == null || shopSkinSprite == null)
+        if (shopSkinSprite == null)
         {
             return;
         }
 
-        if (_shopSkinActive || rarity.HasValue)
+        Material mat = null;
+        if (rarity.HasValue)
         {
-            CaptureDefaultSkinIfNeeded();
-            SkinAllPanels(skinMaterial);
+            int index = (int)rarity.Value;
+            if (index >= 0
+                && index < rarityMaterials.Count
+                && rarityMaterials[index] != null)
+            {
+                mat = rarityMaterials[index];
+            }
         }
-        else
+
+        if (mat == null)
         {
-            RestoreDefaultImages();
+            if (_shopSkinActive && defaultMaterial != null)
+            {
+                SkinAllPanels(defaultMaterial);
+            }
+            else
+            {
+                RestoreDefaultImages();
+            }
+            return;
         }
+
+        CaptureDefaultSkinIfNeeded();
+        SkinAllPanels(mat);
     }
 
     private void SkinAllPanels(Material mat)

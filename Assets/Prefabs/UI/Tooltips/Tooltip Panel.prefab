@@ -1647,6 +1647,24 @@ MonoBehaviour:
   secondDefinitionPanel: {fileID: 3261836817418361769}
   controllerInUse: 0
   cachedVector: {x: 0, y: 0}
+  backgroundMaterials:
+  - {fileID: 2100000, guid: 779dd0671ad2447fa8e15aef160d03dd, type: 2}
+  - {fileID: 2100000, guid: 89647fabda444f88b1c0a929bdb4e0ac, type: 2}
+  shopSkinSprite: {fileID: 21300000, guid: 01906ddfc3f843f4b35d88f740c11386, type: 3}
+  rarityMaterials:
+  - {fileID: 2100000, guid: 862a7bb567b44bbea08ea9761b88c3d5, type: 2}
+  - {fileID: 2100000, guid: 37a93057ad4c435db2fe2ea7e8e1fa8d, type: 2}
+  - {fileID: 2100000, guid: 61a2164f77d74cfd92314948e3cd91a9, type: 2}
+  - {fileID: 2100000, guid: ad2039b1ba6f47179b07071d170d3963, type: 2}
+  - {fileID: 2100000, guid: cfa724d2846f4ceab2a30645e4c42ad8, type: 2}
+  defaultShopMaterial: {fileID: 2100000, guid: ad2039b1ba6f47179b07071d170d3963, type: 2}
+  staticRarityMaterials:
+  - {fileID: 2100000, guid: 862a7bb567b44bbea08ea9761b88c3d5, type: 2}
+  - {fileID: 2100000, guid: 37a93057ad4c435db2fe2ea7e8e1fa8d, type: 2}
+  - {fileID: 2100000, guid: 61a2164f77d74cfd92314948e3cd91a9, type: 2}
+  - {fileID: 2100000, guid: ad2039b1ba6f47179b07071d170d3963, type: 2}
+  - {fileID: 2100000, guid: cfa724d2846f4ceab2a30645e4c42ad8, type: 2}
+  staticDefaultMaterial: {fileID: 2100000, guid: ad2039b1ba6f47179b07071d170d3963, type: 2}
   necessaryBallDefinitions: []
   necessaryTermDefinitions:
   - {fileID: 11400000, guid: 3cdf96321533ea74786bc6ad07e36ca7, type: 2}

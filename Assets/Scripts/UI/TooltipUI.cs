@@ -54,6 +54,39 @@ public sealed class TooltipUI : MonoBehaviour
     [SerializeField] private DefinitionPanel firstDefinitionPanel;
     [SerializeField] private DefinitionPanel secondDefinitionPanel;
 
+    [Header("Shop skin")]
+    [Tooltip("Backgrounds for the shop-only skin; one is rolled per "
+        + "visit via TooltipManager.ApplyShopSkin.")]
+    [SerializeField] private List<Material> backgroundMaterials =
+        new List<Material>();
+
+    [Tooltip("Sliced sprite with the panel shape in alpha and the "
+        + "neon border ring in the red channel.")]
+    [SerializeField] private Sprite shopSkinSprite;
+
+    [Tooltip("Backgrounds indexed by BallRarity (Common through "
+        + "Legendary); items without a rarity keep the rolled visit "
+        + "material.")]
+    [SerializeField] private List<Material> rarityMaterials =
+        new List<Material>();
+
+    [Tooltip("Shop background for tooltips without a rarity (hub, "
+        + "ships, modules). Leave empty to roll blue/pink per visit.")]
+    [SerializeField] private Material defaultShopMaterial;
+
+    [Tooltip("Static twins of the rarity materials, used on the buy/"
+        + "sell price bars so they match the header's frozen look.")]
+    [SerializeField] private List<Material> staticRarityMaterials =
+        new List<Material>();
+
+    [Tooltip("Static material for the price bars when the item has no "
+        + "rarity.")]
+    [SerializeField] private Material staticDefaultMaterial;
+
+    [SerializeField] private float shopSkinAlpha = 0.85f;
+    [SerializeField] private float shopSkinPanelPpu = 2f;
+    [SerializeField] private float shopSkinBarPpu = 4f;
+
     [SerializeField] private bool controllerInUse = false;
     [SerializeField] private Vector2 cachedVector;
 
@@ -276,6 +309,187 @@ public sealed class TooltipUI : MonoBehaviour
         }
     }
 
+    // The shared tooltip serves every screen (shop, progression, ship
+    // select), so the arcade restyle is applied only while the shop is
+    // open and reverted on close; other screens keep the prefab look.
+    // Same roll modulo count on tooltip and header keeps both panels
+    // on the same theme for a given shop visit.
+    public void ApplyShopSkin(int roll)
+    {
+        if (backgroundMaterials.Count == 0 || shopSkinSprite == null)
+        {
+            return;
+        }
+
+        CaptureDefaultSkinIfNeeded();
+
+        _rolledMaterial = defaultShopMaterial != null
+            ? defaultShopMaterial
+            : backgroundMaterials[Mathf.Abs(roll) % backgroundMaterials.Count];
+        _shopSkinActive = true;
+
+        SkinAllPanels(_rolledMaterial, staticDefaultMaterial);
+    }
+
+    // Recolors the skin for the item being shown. Rarity items are
+    // skinned even outside the shop (hand balls, placed components);
+    // without a rarity the panel falls back to the visit's rolled
+    // material in the shop, or the default look elsewhere.
+    public void ApplyRaritySkin(BallRarity? rarity)
+    {
+        Material mat = PickByRarity(rarityMaterials, rarity);
+
+        if (mat == null)
+        {
+            if (_shopSkinActive && _rolledMaterial != null)
+            {
+                SkinAllPanels(_rolledMaterial, staticDefaultMaterial);
+            }
+            else
+            {
+                RestoreDefaultImages();
+            }
+            return;
+        }
+
+        Material barMat = PickByRarity(staticRarityMaterials, rarity);
+
+        CaptureDefaultSkinIfNeeded();
+        SkinAllPanels(mat, barMat != null ? barMat : staticDefaultMaterial);
+    }
+
+    private static Material PickByRarity(
+        List<Material> materials, BallRarity? rarity)
+    {
+        if (!rarity.HasValue)
+        {
+            return null;
+        }
+
+        int index = (int)rarity.Value;
+        return index >= 0 && index < materials.Count
+            ? materials[index]
+            : null;
+    }
+
+    // The main panel and definition panels animate; the price bars use
+    // the static twin so they match the header's frozen look.
+    private void SkinAllPanels(Material mat, Material barMat)
+    {
+        SkinImage(GetComponent<Image>(), mat, shopSkinPanelPpu);
+        SkinImage(GetPanelImage(firstDefinitionPanel), mat, shopSkinPanelPpu);
+        SkinImage(GetPanelImage(secondDefinitionPanel), mat, shopSkinPanelPpu);
+
+        if (barMat != null)
+        {
+            SkinImage(GetPanelImage(shopPanel), barMat, shopSkinBarPpu);
+            SkinImage(GetPanelImage(sellPanel), barMat, shopSkinBarPpu);
+        }
+    }
+
+    public void ApplyDefaultSkin()
+    {
+        RestoreDefaultImages();
+        _shopSkinActive = false;
+        _rolledMaterial = null;
+    }
+
+    private void RestoreDefaultImages()
+    {
+        if (!_defaultSkinCaptured)
+        {
+            return;
+        }
+
+        foreach (var entry in _defaultImageStates)
+        {
+            Image image = entry.Key;
+            if (image == null)
+            {
+                continue;
+            }
+
+            DefaultImageState state = entry.Value;
+            image.material = state.material;
+            image.sprite = state.sprite;
+            image.color = state.color;
+            image.type = state.type;
+            image.pixelsPerUnitMultiplier = state.pixelsPerUnitMultiplier;
+        }
+    }
+
+    private struct DefaultImageState
+    {
+        public Material material;
+        public Sprite sprite;
+        public Color color;
+        public Image.Type type;
+        public float pixelsPerUnitMultiplier;
+    }
+
+    private readonly Dictionary<Image, DefaultImageState>
+        _defaultImageStates = new Dictionary<Image, DefaultImageState>();
+    private Material _rolledMaterial;
+    private bool _shopSkinActive;
+    private bool _defaultSkinCaptured;
+
+    private void CaptureDefaultSkinIfNeeded()
+    {
+        if (_defaultSkinCaptured)
+        {
+            return;
+        }
+
+        _defaultSkinCaptured = true;
+
+        CaptureImageDefault(GetComponent<Image>());
+        CaptureImageDefault(GetPanelImage(firstDefinitionPanel));
+        CaptureImageDefault(GetPanelImage(secondDefinitionPanel));
+        CaptureImageDefault(GetPanelImage(shopPanel));
+        CaptureImageDefault(GetPanelImage(sellPanel));
+    }
+
+    private void CaptureImageDefault(Image image)
+    {
+        if (image == null || _defaultImageStates.ContainsKey(image))
+        {
+            return;
+        }
+
+        _defaultImageStates[image] = new DefaultImageState
+        {
+            material = image.material,
+            sprite = image.sprite,
+            color = image.color,
+            type = image.type,
+            pixelsPerUnitMultiplier = image.pixelsPerUnitMultiplier,
+        };
+    }
+
+    private void SkinImage(Image image, Material mat, float ppu)
+    {
+        if (image == null)
+        {
+            return;
+        }
+
+        image.material = mat;
+        image.sprite = shopSkinSprite;
+        image.type = Image.Type.Sliced;
+        image.pixelsPerUnitMultiplier = ppu;
+        image.color = new Color(1f, 1f, 1f, shopSkinAlpha);
+    }
+
+    private static Image GetPanelImage(DefinitionPanel panel)
+    {
+        return panel == null ? null : panel.GetComponent<Image>();
+    }
+
+    private static Image GetPanelImage(GameObject panel)
+    {
+        return panel == null ? null : panel.GetComponent<Image>();
+    }
+
     public bool IsVisible => gameObject.activeSelf;
 
     /// <summary>
@@ -337,6 +551,10 @@ public sealed class TooltipUI : MonoBehaviour
         ElementType elementType,
         ElementType secondaryElementType)
     {
+        // Reset to the visit material so a previous item's rarity color
+        // never lingers; callers with a rarity re-skin right after.
+        ApplyRaritySkin(null);
+
         if (nameText == null || descText == null)
         {
             return;

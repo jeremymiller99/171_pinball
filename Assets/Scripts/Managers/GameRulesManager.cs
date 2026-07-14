@@ -543,6 +543,8 @@ public class GameRulesManager : MonoBehaviour
         {
             SteamLeaderboards.UploadScore(currentBoard.boardSceneName,
                 (int)Math.Min(capturedScore, int.MaxValue), Mathf.Max(1, roundIndex + 1));
+            LocalLeaderboards.AddScore(currentBoard.boardSceneName,
+                capturedScore, Mathf.Max(1, roundIndex + 1));
         }
 
         PinballAnalytics.LogRunHighScore(capturedScore, boardName);

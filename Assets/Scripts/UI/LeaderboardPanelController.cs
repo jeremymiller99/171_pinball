@@ -118,7 +118,16 @@ public sealed class LeaderboardPanelController : MonoBehaviour
         var bg = rootGo.GetComponent<Image>();
         bg.color = new Color(0f, 0f, 0f, 0.85f);
 
-        return rootGo.GetComponent<LeaderboardPanelController>();
+        var ctrl = rootGo.GetComponent<LeaderboardPanelController>();
+
+        // Without Steam (shared-machine playtests) the global view has
+        // nothing to show, so open on the local list instead.
+        if (!SteamLeaderboards.IsAvailable)
+        {
+            ctrl._viewMode = ViewMode.Local;
+        }
+
+        return ctrl;
     }
 
     private static Canvas EnsureOverlayCanvas()

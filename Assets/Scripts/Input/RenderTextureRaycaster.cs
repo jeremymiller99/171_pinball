@@ -89,6 +89,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         HandleHandBallDragEnd(mouseScreenPos);
         HandleClick(mouseScreenPos);
         HandleHover(mouseScreenPos);
+        UpdatePulse();
     }
 
     private void OnDisable()
@@ -1398,6 +1399,7 @@ public class RenderTextureRaycaster : MonoBehaviour
 
     public void ClearHover()
     {
+        StopPulse();
         ClearHighlight();
 
         if (_tooltipShownByHover)
@@ -1532,10 +1534,27 @@ public class RenderTextureRaycaster : MonoBehaviour
         return null;
     }
 
+    // The highlight is cleared and re-applied every frame while the
+    // cursor rests on an object, so the pulse can't stop inside
+    // ClearHighlight; it runs for as long as the clicked item keeps
+    // its tooltip open.
+    private void UpdatePulse()
+    {
+        if (_pulsingItem == null)
+        {
+            return;
+        }
+
+        if (currentTooltipObject == null
+            || !TooltipManager.IsVisible
+            || ResolveItemRoot(currentTooltipObject) != _pulsingItem.transform)
+        {
+            StopPulse();
+        }
+    }
+
     private void ClearHighlight()
     {
-        StopPulse();
-
         if (_highlightedHub != null)
         {
             _highlightedHub.SetHovered(false);

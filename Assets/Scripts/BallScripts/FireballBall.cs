@@ -41,8 +41,12 @@ public sealed class FireballBall : Ball
         base.OnCollisionEnter(collision);
 
         // Split or duplicated fireballs never pass through the launcher, so
-        // fall back to igniting on their first contact.
-        IgniteOnce();
+        // fall back to igniting on their first component hit. Resting
+        // contact with lane or wall geometry must not start the fuse.
+        if (GetBoardComponentsForScoring(collision.collider).Length > 0)
+        {
+            IgniteOnce();
+        }
     }
 
     private void OnBallLaunched(GameObject launched)

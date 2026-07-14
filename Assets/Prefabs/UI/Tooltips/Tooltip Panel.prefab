@@ -1657,6 +1657,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 167ee138afea4c6997999adf51e6ef6b, type: 2}
   - {fileID: 2100000, guid: 37744c167b4c48acac4853afaf6306fc, type: 2}
   - {fileID: 2100000, guid: 6347639f18b64ea3b74c378fd2a735dc, type: 2}
+  defaultShopMaterial: {fileID: 2100000, guid: 37744c167b4c48acac4853afaf6306fc, type: 2}
   necessaryBallDefinitions: []
   necessaryTermDefinitions:
   - {fileID: 11400000, guid: 3cdf96321533ea74786bc6ad07e36ca7, type: 2}

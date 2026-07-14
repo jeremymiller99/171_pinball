@@ -70,6 +70,10 @@ public sealed class TooltipUI : MonoBehaviour
     [SerializeField] private List<Material> rarityMaterials =
         new List<Material>();
 
+    [Tooltip("Shop background for tooltips without a rarity (hub, "
+        + "ships, modules). Leave empty to roll blue/pink per visit.")]
+    [SerializeField] private Material defaultShopMaterial;
+
     [SerializeField] private float shopSkinAlpha = 0.85f;
     [SerializeField] private float shopSkinPanelPpu = 2f;
     [SerializeField] private float shopSkinBarPpu = 4f;
@@ -310,8 +314,9 @@ public sealed class TooltipUI : MonoBehaviour
 
         CaptureDefaultSkinIfNeeded();
 
-        _rolledMaterial =
-            backgroundMaterials[Mathf.Abs(roll) % backgroundMaterials.Count];
+        _rolledMaterial = defaultShopMaterial != null
+            ? defaultShopMaterial
+            : backgroundMaterials[Mathf.Abs(roll) % backgroundMaterials.Count];
         _shopSkinActive = true;
 
         SkinAllPanels(_rolledMaterial);

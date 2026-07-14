@@ -47,6 +47,8 @@ public class RenderTextureRaycaster : MonoBehaviour
     [SerializeField] private UnifiedShopController _cachedShopController;
     [SerializeField] private ShopHub _highlightedHub;
 
+    private ShopItemPulse _pulsingItem;
+
     [SerializeField] private ShopOffer3DEntry _offerDragEntry;
     [SerializeField] private Vector2 _offerDragStartScreenPos;
     [SerializeField] private bool _offerDragThresholdExceeded;
@@ -87,6 +89,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         HandleHandBallDragEnd(mouseScreenPos);
         HandleClick(mouseScreenPos);
         HandleHover(mouseScreenPos);
+        UpdatePulse();
     }
 
     private void OnDisable()
@@ -470,6 +473,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             ClearHighlight();
             _lastHoveredObject = selectedObject;
             ApplyHighlight(selectedObject);
+            StartPulse(selectedObject);
             ShowTooltipAtPosition(
                 title, desc, tags, posOnScreen,
                 elementType, secondaryElementType,
@@ -503,6 +507,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         }
 
         ApplyHighlight(selectedObject);
+        StartPulse(selectedObject);
 
         if (selectedObject != _lastHoveredObject)
         {
@@ -1433,6 +1438,7 @@ public class RenderTextureRaycaster : MonoBehaviour
 
     public void ClearHover()
     {
+        StopPulse();
         ClearHighlight();
 
         if (_tooltipShownByHover)
@@ -1494,6 +1500,95 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             _highlightedOutline = outline;
             outline.OutlineColor = Color.white;
+        }
+    }
+
+    // Pulses the clicked item's root while its tooltip is open. Only
+    // shop items resolve to a root (hub/ship clicks don't pulse), and
+    // the pulse ends whenever the highlight clears.
+    private void StartPulse(GameObject obj)
+    {
+        StopPulse();
+
+        if (obj == null)
+        {
+            return;
+        }
+
+        EnsureShopController();
+        if (_cachedShopController == null
+            || !_cachedShopController.IsShopActive)
+        {
+            return;
+        }
+
+        Transform root = ResolveItemRoot(obj);
+        if (root == null)
+        {
+            return;
+        }
+
+        ShopItemPulse pulse = root.GetComponent<ShopItemPulse>();
+        if (pulse == null)
+        {
+            pulse = root.gameObject.AddComponent<ShopItemPulse>();
+        }
+
+        pulse.enabled = true;
+        _pulsingItem = pulse;
+    }
+
+    private void StopPulse()
+    {
+        if (_pulsingItem != null)
+        {
+            _pulsingItem.enabled = false;
+            _pulsingItem = null;
+        }
+    }
+
+    private static Transform ResolveItemRoot(GameObject obj)
+    {
+        ShopOffer3DEntry offer =
+            obj.GetComponentInParent<ShopOffer3DEntry>();
+        if (offer != null)
+        {
+            return offer.transform;
+        }
+
+        BallDefinitionLink ball =
+            obj.GetComponentInParent<BallDefinitionLink>();
+        if (ball != null)
+        {
+            return ball.transform;
+        }
+
+        BoardComponentDefinitionLink comp =
+            obj.GetComponentInParent<BoardComponentDefinitionLink>();
+        if (comp != null)
+        {
+            return comp.transform;
+        }
+
+        return null;
+    }
+
+    // The highlight is cleared and re-applied every frame while the
+    // cursor rests on an object, so the pulse can't stop inside
+    // ClearHighlight; it runs for as long as the clicked item keeps
+    // its tooltip open.
+    private void UpdatePulse()
+    {
+        if (_pulsingItem == null)
+        {
+            return;
+        }
+
+        if (currentTooltipObject == null
+            || !TooltipManager.IsVisible
+            || ResolveItemRoot(currentTooltipObject) != _pulsingItem.transform)
+        {
+            StopPulse();
         }
     }
 

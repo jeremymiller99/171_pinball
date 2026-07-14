@@ -76,7 +76,6 @@ public sealed class TooltipUI : MonoBehaviour
 
     [SerializeField] private float shopSkinAlpha = 0.85f;
     [SerializeField] private float shopSkinPanelPpu = 2f;
-    [SerializeField] private float shopSkinBarPpu = 4f;
 
     [SerializeField] private bool controllerInUse = false;
     [SerializeField] private Vector2 cachedVector;
@@ -357,13 +356,13 @@ public sealed class TooltipUI : MonoBehaviour
         SkinAllPanels(mat);
     }
 
+    // The buy/sell price bars intentionally keep the prefab look; only
+    // the main panel and definition panels take the arcade skin.
     private void SkinAllPanels(Material mat)
     {
         SkinImage(GetComponent<Image>(), mat, shopSkinPanelPpu);
         SkinImage(GetPanelImage(firstDefinitionPanel), mat, shopSkinPanelPpu);
         SkinImage(GetPanelImage(secondDefinitionPanel), mat, shopSkinPanelPpu);
-        SkinImage(GetPanelImage(shopPanel), mat, shopSkinBarPpu);
-        SkinImage(GetPanelImage(sellPanel), mat, shopSkinBarPpu);
     }
 
     public void ApplyDefaultSkin()
@@ -424,8 +423,6 @@ public sealed class TooltipUI : MonoBehaviour
         CaptureImageDefault(GetComponent<Image>());
         CaptureImageDefault(GetPanelImage(firstDefinitionPanel));
         CaptureImageDefault(GetPanelImage(secondDefinitionPanel));
-        CaptureImageDefault(GetPanelImage(shopPanel));
-        CaptureImageDefault(GetPanelImage(sellPanel));
     }
 
     private void CaptureImageDefault(Image image)
@@ -460,11 +457,6 @@ public sealed class TooltipUI : MonoBehaviour
     }
 
     private static Image GetPanelImage(DefinitionPanel panel)
-    {
-        return panel == null ? null : panel.GetComponent<Image>();
-    }
-
-    private static Image GetPanelImage(GameObject panel)
     {
         return panel == null ? null : panel.GetComponent<Image>();
     }

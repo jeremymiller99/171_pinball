@@ -8,7 +8,7 @@ using UnityEngine;
 public sealed class ShopItemPulse : MonoBehaviour
 {
     // Unscaled time so the pulse keeps moving if the shop pauses the game.
-    private const float pulsesPerSecond = 1.6f;
+    private const float pulsesPerSecond = 0.8f;
     private const float amplitude = 0.04f;
 
     private Vector3 _baseScale;

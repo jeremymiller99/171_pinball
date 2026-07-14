@@ -344,7 +344,8 @@ public class RenderTextureRaycaster : MonoBehaviour
                                 out ElementType elementType,
                                 out ElementType secondaryElementType,
                                 out TooltipUI.PriceMode priceMode,
-                                out int price))
+                                out int price,
+                                out BallRarity? _))
         {
             HandleHoverHighlight(hitObject);
         }
@@ -422,7 +423,8 @@ public class RenderTextureRaycaster : MonoBehaviour
     ElementType elementType,
     ElementType secondaryElementType,
     TooltipUI.PriceMode priceMode,
-    int price)
+    int price,
+    BallRarity? rarity = null)
     {
         switch (priceMode)
         {
@@ -436,6 +438,8 @@ public class RenderTextureRaycaster : MonoBehaviour
                 TooltipHeaderManager.Show(title, elementType, secondaryElementType);
                 break;
         }
+
+        TooltipHeaderManager.ApplyRaritySkin(rarity);
     }
 
     public void HandleControllerHighlight(GameObject selectedObject)
@@ -523,13 +527,14 @@ public class RenderTextureRaycaster : MonoBehaviour
         ElementType secondaryElementType = ElementType.None;
         TooltipUI.PriceMode priceMode = TooltipUI.PriceMode.None;
         int price = 0;
+        BallRarity? rarity = null;
 
         if (selectedObject != null)
         {
             TryResolveHeaderTooltipFromObject(
                 selectedObject, out title,
                 out elementType, out secondaryElementType,
-                out priceMode, out price);
+                out priceMode, out price, out rarity);
         }
         else
         {
@@ -539,7 +544,8 @@ public class RenderTextureRaycaster : MonoBehaviour
         ClearHighlight();
         ApplyHighlight(selectedObject);
         ShowHeaderTooltip(
-            title, elementType, secondaryElementType, priceMode, price);
+            title, elementType, secondaryElementType, priceMode, price,
+            rarity);
         _tooltipShownByHover = true;
     }
 
@@ -708,13 +714,15 @@ public class RenderTextureRaycaster : MonoBehaviour
         out ElementType elementType,
         out ElementType secondaryElementType,
         out TooltipUI.PriceMode priceMode,
-        out int price)
+        out int price,
+        out BallRarity? rarity)
     {
         title = null;
         elementType = ElementType.None;
         secondaryElementType = ElementType.None;
         priceMode = TooltipUI.PriceMode.None;
         price = 0;
+        rarity = null;
 
         if (obj == currentTooltipObject)
         {
@@ -775,6 +783,14 @@ public class RenderTextureRaycaster : MonoBehaviour
             elementType = offer.ElementType;
             priceMode = TooltipUI.PriceMode.Buy;
             price = Mathf.Max(0, offer.Price);
+            if (offer.BallDef != null)
+            {
+                rarity = offer.BallDef.Rarity;
+            }
+            else if (offer.ComponentDef != null)
+            {
+                rarity = offer.ComponentDef.Rarity;
+            }
             return true;
         }
 
@@ -788,6 +804,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             title = ballDef.GetSafeDisplayName();
             elementType = ballDef.ElementType;
             secondaryElementType = ballDef.SecondaryElementType;
+            rarity = ballDef.Rarity;
 
             if (ServiceLocator.Get<GameRulesManager>().IsShopOpen && ballLink.GetComponent<ShopOffer3DEntry>() == null)
             {
@@ -806,6 +823,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             title = compDef.GetSafeDisplayName();
             elementType = compDef.ElementType;
+            rarity = compDef.Rarity;
             return true;
         }
 

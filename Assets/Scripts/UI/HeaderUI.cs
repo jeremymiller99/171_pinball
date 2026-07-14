@@ -54,6 +54,12 @@ public sealed class TooltipHeaderUI : MonoBehaviour
         + "neon border ring in the red channel.")]
     [SerializeField] private Sprite shopSkinSprite;
 
+    [Tooltip("Backgrounds indexed by BallRarity (Common through "
+        + "Legendary); items without a rarity keep the rolled visit "
+        + "material.")]
+    [SerializeField] private List<Material> rarityMaterials =
+        new List<Material>();
+
     [SerializeField] private float shopSkinAlpha = 0.85f;
     [SerializeField] private float shopSkinPpu = 4f;
 
@@ -230,9 +236,42 @@ public sealed class TooltipHeaderUI : MonoBehaviour
 
         CaptureDefaultSkinIfNeeded();
 
-        Material mat =
+        _rolledMaterial =
             backgroundMaterials[Mathf.Abs(roll) % backgroundMaterials.Count];
+        _shopSkinActive = true;
 
+        SkinAllPanels(_rolledMaterial);
+    }
+
+    // Recolors the shop skin for the item being shown; null (or an
+    // unmapped rarity) falls back to the visit's rolled material.
+    public void ApplyRaritySkin(BallRarity? rarity)
+    {
+        if (!_shopSkinActive)
+        {
+            return;
+        }
+
+        Material mat = _rolledMaterial;
+        if (rarity.HasValue)
+        {
+            int index = (int)rarity.Value;
+            if (index >= 0
+                && index < rarityMaterials.Count
+                && rarityMaterials[index] != null)
+            {
+                mat = rarityMaterials[index];
+            }
+        }
+
+        if (mat != null)
+        {
+            SkinAllPanels(mat);
+        }
+    }
+
+    private void SkinAllPanels(Material mat)
+    {
         SkinImage(GetComponent<Image>(), mat);
         SkinImage(descPanel == null
             ? null
@@ -261,6 +300,9 @@ public sealed class TooltipHeaderUI : MonoBehaviour
             image.type = state.type;
             image.pixelsPerUnitMultiplier = state.pixelsPerUnitMultiplier;
         }
+
+        _shopSkinActive = false;
+        _rolledMaterial = null;
     }
 
     private struct DefaultImageState
@@ -274,6 +316,8 @@ public sealed class TooltipHeaderUI : MonoBehaviour
 
     private readonly Dictionary<Image, DefaultImageState>
         _defaultImageStates = new Dictionary<Image, DefaultImageState>();
+    private Material _rolledMaterial;
+    private bool _shopSkinActive;
     private bool _defaultSkinCaptured;
 
     private void CaptureDefaultSkinIfNeeded()
@@ -380,6 +424,10 @@ public sealed class TooltipHeaderUI : MonoBehaviour
         ElementType elementType = ElementType.None,
         ElementType secondaryElementType = ElementType.None)
     {
+        // Reset to the visit material so a previous item's rarity color
+        // never lingers; callers with a rarity re-skin right after.
+        ApplyRaritySkin(null);
+
         if (nameText == null)
         {
             return;

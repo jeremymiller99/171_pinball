@@ -155,7 +155,7 @@ public sealed class TooltipHeaderManager : MonoBehaviour
         mgr._instance.Hide();
     }
 
-    public static void ApplyShopSkin(int roll)
+    public static void ApplyShopSkin()
     {
         var mgr = ServiceLocator.Get<TooltipHeaderManager>();
         if (mgr == null || mgr._instance == null)
@@ -163,7 +163,7 @@ public sealed class TooltipHeaderManager : MonoBehaviour
             return;
         }
 
-        mgr._instance.ApplyShopSkin(roll);
+        mgr._instance.ApplyShopSkin();
     }
 
     public static void ApplyDefaultSkin()

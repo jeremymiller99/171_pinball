@@ -45,24 +45,14 @@ public sealed class TooltipHeaderUI : MonoBehaviour
     [SerializeField] private TMP_Text descText;
 
     [Header("Shop skin")]
-    [Tooltip("Backgrounds for the shop-only skin; one is rolled per "
-        + "visit via TooltipHeaderManager.ApplyShopSkin.")]
-    [SerializeField] private List<Material> backgroundMaterials =
-        new List<Material>();
+    [Tooltip("Static skin for the header: same bordered shape as the "
+        + "tooltip but white outline, black fill, and no animation or "
+        + "rarity tint.")]
+    [SerializeField] private Material skinMaterial;
 
     [Tooltip("Sliced sprite with the panel shape in alpha and the "
         + "neon border ring in the red channel.")]
     [SerializeField] private Sprite shopSkinSprite;
-
-    [Tooltip("Backgrounds indexed by BallRarity (Common through "
-        + "Legendary); items without a rarity keep the rolled visit "
-        + "material.")]
-    [SerializeField] private List<Material> rarityMaterials =
-        new List<Material>();
-
-    [Tooltip("Shop background for tooltips without a rarity (hub, "
-        + "ships, modules). Leave empty to roll blue/pink per visit.")]
-    [SerializeField] private Material defaultShopMaterial;
 
     [SerializeField] private float shopSkinAlpha = 0.85f;
     [SerializeField] private float shopSkinPpu = 4f;
@@ -229,58 +219,40 @@ public sealed class TooltipHeaderUI : MonoBehaviour
     }
 
     // Shop-only skin; reverted on shop close so other screens keep the
-    // prefab's original look. Same roll modulo count on tooltip and
-    // header keeps both panels on the same theme for a given visit.
-    public void ApplyShopSkin(int roll)
+    // prefab's original look. Unlike the tooltip, the header always
+    // uses the one static material regardless of rarity.
+    public void ApplyShopSkin()
     {
-        if (backgroundMaterials.Count == 0 || shopSkinSprite == null)
+        if (skinMaterial == null || shopSkinSprite == null)
         {
             return;
         }
 
         CaptureDefaultSkinIfNeeded();
-
-        _rolledMaterial = defaultShopMaterial != null
-            ? defaultShopMaterial
-            : backgroundMaterials[Mathf.Abs(roll) % backgroundMaterials.Count];
         _shopSkinActive = true;
 
-        SkinAllPanels(_rolledMaterial);
+        SkinAllPanels(skinMaterial);
     }
 
-    // Recolors the skin for the item being shown. Rarity items are
-    // skinned even outside the shop (hand balls, placed components);
-    // without a rarity the panel falls back to the visit's rolled
-    // material in the shop, or the default look elsewhere.
+    // Mirrors the tooltip's skin lifetime: skinned for the whole shop
+    // visit, and outside the shop only while showing a rarity item
+    // (hand balls, placed components); default look otherwise.
     public void ApplyRaritySkin(BallRarity? rarity)
     {
-        Material mat = null;
-        if (rarity.HasValue)
+        if (skinMaterial == null || shopSkinSprite == null)
         {
-            int index = (int)rarity.Value;
-            if (index >= 0
-                && index < rarityMaterials.Count
-                && rarityMaterials[index] != null)
-            {
-                mat = rarityMaterials[index];
-            }
-        }
-
-        if (mat == null)
-        {
-            if (_shopSkinActive && _rolledMaterial != null)
-            {
-                SkinAllPanels(_rolledMaterial);
-            }
-            else
-            {
-                RestoreDefaultImages();
-            }
             return;
         }
 
-        CaptureDefaultSkinIfNeeded();
-        SkinAllPanels(mat);
+        if (_shopSkinActive || rarity.HasValue)
+        {
+            CaptureDefaultSkinIfNeeded();
+            SkinAllPanels(skinMaterial);
+        }
+        else
+        {
+            RestoreDefaultImages();
+        }
     }
 
     private void SkinAllPanels(Material mat)
@@ -295,7 +267,6 @@ public sealed class TooltipHeaderUI : MonoBehaviour
     {
         RestoreDefaultImages();
         _shopSkinActive = false;
-        _rolledMaterial = null;
     }
 
     private void RestoreDefaultImages()
@@ -333,7 +304,6 @@ public sealed class TooltipHeaderUI : MonoBehaviour
 
     private readonly Dictionary<Image, DefaultImageState>
         _defaultImageStates = new Dictionary<Image, DefaultImageState>();
-    private Material _rolledMaterial;
     private bool _shopSkinActive;
     private bool _defaultSkinCaptured;
 

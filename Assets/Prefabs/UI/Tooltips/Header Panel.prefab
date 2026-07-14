@@ -605,17 +605,8 @@ MonoBehaviour:
   typeText: {fileID: 6498016372908269708}
   descPanel: {fileID: 4157025883028214817}
   descText: {fileID: 7295151124345588030}
-  backgroundMaterials:
-  - {fileID: 2100000, guid: 779dd0671ad2447fa8e15aef160d03dd, type: 2}
-  - {fileID: 2100000, guid: 89647fabda444f88b1c0a929bdb4e0ac, type: 2}
+  skinMaterial: {fileID: 2100000, guid: 0450ba15cfcf4b65bf8c32479bb9824c, type: 2}
   shopSkinSprite: {fileID: 21300000, guid: 01906ddfc3f843f4b35d88f740c11386, type: 3}
-  rarityMaterials:
-  - {fileID: 2100000, guid: 089fe70b8f0f47c2bd14cce32d9dd772, type: 2}
-  - {fileID: 2100000, guid: db66b9e29c8b4ff88ef94d79a27120ff, type: 2}
-  - {fileID: 2100000, guid: 167ee138afea4c6997999adf51e6ef6b, type: 2}
-  - {fileID: 2100000, guid: 37744c167b4c48acac4853afaf6306fc, type: 2}
-  - {fileID: 2100000, guid: 6347639f18b64ea3b74c378fd2a735dc, type: 2}
-  defaultShopMaterial: {fileID: 2100000, guid: 37744c167b4c48acac4853afaf6306fc, type: 2}
   controllerInUse: 0
   cachedVector: {x: 0, y: 0}
   defaultText: Click to Inspect

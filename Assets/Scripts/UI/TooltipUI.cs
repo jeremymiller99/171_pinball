@@ -276,7 +276,7 @@ public sealed class TooltipUI : MonoBehaviour
             firstDefinitionPanel.gameObject.SetActive(true);
             secondDefinitionPanel.gameObject.SetActive(true);
             PopulateDefintionPanel(firstDefinitionPanel, tags[0]);
-            PopulateDefintionPanel(firstDefinitionPanel, tags[1]);
+            PopulateDefintionPanel(secondDefinitionPanel, tags[1]);
         }
     }
 

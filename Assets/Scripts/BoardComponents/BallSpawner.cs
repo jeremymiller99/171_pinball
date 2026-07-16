@@ -310,6 +310,7 @@ public sealed class BallSpawner : MonoBehaviour
 
         LayoutHandImmediate();
         SyncAmpedUpStateFromLoadout();
+        SyncFireStacksFromLoadout();
     }
 
     private void SyncAmpedUpStateFromLoadout()
@@ -323,6 +324,26 @@ public sealed class BallSpawner : MonoBehaviour
             Ball ball = _handBalls[i].GetComponent<Ball>();
             if (ball == null) continue;
             ball.SetAmpedUp(loadout.GetAmpedUpForSlot(i));
+        }
+    }
+
+    private void SyncFireStacksFromLoadout()
+    {
+        var loadout = ServiceLocator.Get<BallLoadoutController>();
+        if (loadout == null) return;
+
+        for (int i = 0; i < _handBalls.Count; i++)
+        {
+            if (_handBalls[i] == null) continue;
+            Ball ball = _handBalls[i].GetComponent<Ball>();
+            if (ball == null) continue;
+
+            int extraStacks = loadout.GetExtraFlammableStacksForSlot(i);
+            BallFireStatus status = ball.GetComponent<BallFireStatus>();
+            if (status == null && extraStacks <= 0) continue;
+
+            status = FireStatusUtility.GetOrAddBallStatus(ball);
+            status.SetStacks(status.BaseFlammableStacks + extraStacks);
         }
     }
 

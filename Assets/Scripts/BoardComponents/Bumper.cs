@@ -49,6 +49,17 @@ public class Bumper : BoardComponent
         }
     }
 
+    public override void ActivateAsIfHit()
+    {
+        base.ActivateAsIfHit();
+
+        Vector3 bumperCenter = bumperCollider != null
+            ? bumperCollider.bounds.center
+            : transform.position;
+
+        ServiceLocator.Get<AudioManager>()?.PlayBumperHit(bumperCenter);
+    }
+
     public void MultiplyBounceForce(float multiplier)
     {
         // Intentionally a no-op: bumper upgrades should not change bounce strength.

@@ -2,13 +2,14 @@ using UnityEngine;
 
 /// <summary>
 /// Lerps this object (e.g. the main menu camera) between several transforms:
-/// a default point, a second point, a third point, a fourth point, and a fifth
-/// point. The object snaps to the default position/rotation when the scene starts.
+/// a default point, a second, third, fourth, fifth and sixth point. The object
+/// snaps to the default position/rotation when the scene starts.
 ///
 /// Assign the empty GameObjects in the inspector. Call GoToSecond() /
-/// GoToThird() / GoToFourth() / GoToFifth() / GoToDefault() (or a Toggle* method) to move —
-/// e.g. from a UI button. Movement always starts from wherever the object
-/// currently is, so you can jump between any of the points at any time.
+/// GoToThird() / GoToFourth() / GoToFifth() / GoToSixth() / GoToDefault() (or a
+/// Toggle* method) to move — e.g. from a UI button. Movement always starts from
+/// wherever the object currently is, so you can jump between any of the points
+/// at any time.
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class CameraLerpBetweenPoints : MonoBehaviour
@@ -28,6 +29,9 @@ public sealed class CameraLerpBetweenPoints : MonoBehaviour
 
     [Tooltip("The fifth position to move to (reachable from anywhere with N).")]
     public Transform fifthPoint;
+
+    [Tooltip("The sixth position to move to (star mission briefing; returns to the fifth point when the briefing closes).")]
+    public Transform sixthPoint;
 
     [Header("Movement")]
     [Tooltip("Seconds to travel between points.")]
@@ -117,6 +121,9 @@ public sealed class CameraLerpBetweenPoints : MonoBehaviour
     /// <summary>Move toward the fifth point.</summary>
     public void GoToFifth() => GoToPoint(fifthPoint);
 
+    /// <summary>Move toward the sixth point.</summary>
+    public void GoToSixth() => GoToPoint(sixthPoint);
+
     /// <summary>Toggle between the default and second points.</summary>
     public void ToggleTarget() => GoToPoint(_current == secondPoint ? defaultPoint : secondPoint);
 
@@ -128,4 +135,11 @@ public sealed class CameraLerpBetweenPoints : MonoBehaviour
 
     /// <summary>Toggle between the default and fifth points.</summary>
     public void ToggleFifth() => GoToPoint(_current == fifthPoint ? defaultPoint : fifthPoint);
+
+    /// <summary>
+    /// Toggle between the sixth point and the fifth. The star map lives at the
+    /// fifth point, so a briefing opens to the sixth and closes back to the
+    /// fifth rather than all the way out to the default.
+    /// </summary>
+    public void ToggleSixth() => GoToPoint(_current == sixthPoint ? fifthPoint : sixthPoint);
 }

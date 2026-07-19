@@ -125,6 +125,18 @@ public class StarMapGenerator : MonoBehaviour
     [SerializeField] bool _showTooltips = true;
     [SerializeField] float _tooltipFontSize = 7f;
 
+    [Header("Missions")]
+    [Tooltip("Open a mission briefing when a star is clicked.")]
+    [SerializeField] bool _showMissionPanel = true;
+    [Tooltip("Separate canvas that hosts the briefing. The panel is built inside it and the whole canvas is toggled on and off as stars are opened and closed. Leave empty to overlay the briefing on the map itself instead.")]
+    [SerializeField] RectTransform _starInfoCanvas;
+    [Tooltip("Optional. When set, opening a briefing lerps the camera to its sixth point, and closing one returns it to the fifth point (where the star map lives).")]
+    [SerializeField] CameraLerpBetweenPoints _cameraLerp;
+    [Tooltip("Leave empty to load every BoardDefinition from Resources/BoardDefinitions.")]
+    [SerializeField] BoardDefinition[] _boards;
+    [Tooltip("Leave empty to load every PlayerShipDefinition from Resources/PlayerShipDefinitions.")]
+    [SerializeField] PlayerShipDefinition[] _ships;
+
     /// <summary>A cluster: its territory polygon plus the stars inside it.</summary>
     class Territory
     {
@@ -146,6 +158,8 @@ public class StarMapGenerator : MonoBehaviour
     StarMapBackdrop _backdrop;
     StarMapBackButton _backButton;
     StarMapTooltip _tooltip;
+    StarMapMissionPanel _missionPanel;
+    List<StarMapMissionCatalog.Assignment> _assignments;
     Sprite _coreSprite;
     Sprite _glowSprite;
 
@@ -157,6 +171,8 @@ public class StarMapGenerator : MonoBehaviour
 
     /// <summary>Fires when a territory is opened at the region level.</summary>
     public event System.Action<int> RegionOpened;
+    /// <summary>Fires when the player commits to a mission from the briefing panel.</summary>
+    public event System.Action<MissionLaunchRequest> MissionLaunched;
     /// <summary>Fires when the player clicks a star. Hook your run logic here.</summary>
     public event System.Action<StarMapNode> NodeSelected;
 
@@ -188,6 +204,7 @@ public class StarMapGenerator : MonoBehaviour
 
         ClearMap();
         EnsureSprites();
+        EnsureCatalog();
         EnsureRig();
 
         Rect rect = _content.rect;
@@ -285,6 +302,9 @@ public class StarMapGenerator : MonoBehaviour
         // raycastTarget under the cursor never fires OnPointerExit.
         if (_tooltip != null) _tooltip.Hide();
 
+        // No star is selected at the top level, so the info screen goes dark.
+        if (_missionPanel != null) _missionPanel.Close();
+
         if (immediate) _focuser.FocusImmediate(_mapCentre, _regionViewZoom);
         else _focuser.FocusOn(_mapCentre, _regionViewZoom);
     }
@@ -320,6 +340,9 @@ public class StarMapGenerator : MonoBehaviour
         // The region being drilled into just stopped accepting pointer events,
         // so its tooltip would otherwise linger.
         if (_tooltip != null) _tooltip.Hide();
+
+        // Entering a territory clears any briefing left from the last one.
+        if (_missionPanel != null) _missionPanel.Close();
 
         _focuser.FocusOn(_activeTerritory.Centre, _starViewZoom);
 
@@ -595,6 +618,12 @@ public class StarMapGenerator : MonoBehaviour
         var node = go.AddComponent<StarMapNode>();
         node.Initialise(index, type, localPos, core, glow, color, _pulseSpeed);
         node.DisplayName = StarMapNaming.Star(_seed, territory.Index, index);
+
+        StarMapMissionCatalog.Assignment assignment =
+            StarMapMissionCatalog.Pick(_assignments, _seed, territory.Index, index);
+        node.Board = assignment.Board;
+        node.Mission = assignment.Mission;
+
         node.Clicked += HandleNodeClicked;
         node.HoverChanged += HandleNodeHover;
 
@@ -781,11 +810,77 @@ public class StarMapGenerator : MonoBehaviour
             _linkRenderer.SetLinkColor(i, touches ? _selectedLinkColor : _linkColor);
         }
 
+        if (_showTooltips && _tooltip != null) _tooltip.Hide();
+        if (_showMissionPanel && _missionPanel != null) _missionPanel.Open(node);
+
         var handler = NodeSelected;
         if (handler != null) handler(node);
     }
 
+    /// <summary>
+    /// The star-info canvas just switched on, so bring the camera in to it.
+    /// Driven by the canvas toggle rather than by the click, so the camera and
+    /// the screen can never disagree about which one is showing.
+    /// </summary>
+    void HandleMissionPanelOpened()
+    {
+        if (_cameraLerp != null) _cameraLerp.GoToSixth();
+    }
+
+    /// <summary>
+    /// The canvas switched off, so pull back to the star map — however it
+    /// closed: the X, clicking away, backing out, or opening another territory.
+    /// </summary>
+    void HandleMissionPanelClosed()
+    {
+        if (_cameraLerp != null) _cameraLerp.GoToFifth();
+    }
+
+    void HandleMissionLaunched(MissionLaunchRequest request)
+    {
+        var handler = MissionLaunched;
+        if (handler != null) handler(request);
+    }
+
     // -------------------------------------------------------------- plumbing
+
+    /// <summary>
+    /// Loads the real board / mission assets and flattens them into the pool
+    /// stars draw from.
+    /// </summary>
+    void EnsureCatalog()
+    {
+        List<BoardDefinition> boards = StarMapMissionCatalog.LoadBoards(_boards);
+        _assignments = StarMapMissionCatalog.BuildAssignments(boards);
+
+        if (_assignments.Count == 0)
+        {
+            Debug.LogWarning(string.Format(
+                "[StarMapGenerator] No BoardDefinitions found. Assign them on the component, " +
+                "or put them under Resources/{0}. Stars will have no mission attached.",
+                StarMapMissionCatalog.BoardResourcePath), this);
+            return;
+        }
+
+        int playable = 0;
+        for (int i = 0; i < _assignments.Count; i++)
+            if (_assignments[i].IsPlayable) playable++;
+
+        if (playable == 0)
+        {
+            Debug.LogWarning(string.Format(
+                "[StarMapGenerator] {0} board(s) loaded but none has a mission in its Missions " +
+                "array, so no star is launchable. Add a Challenge Mode to a BoardDefinition.",
+                _assignments.Count), this);
+        }
+        else if (playable < _assignments.Count)
+        {
+            Debug.Log(string.Format(
+                "[StarMapGenerator] {0} of {1} board/mission pairings are playable; the rest " +
+                "are boards with an empty Missions array and will show as unsurveyed.",
+                playable, _assignments.Count), this);
+        }
+    }
 
     /// <summary>
     /// Builds the viewport rig: clipping mask, backdrop, the zooming content,
@@ -855,10 +950,45 @@ public class StarMapGenerator : MonoBehaviour
             _tooltip = tooltipRect.gameObject.AddComponent<StarMapTooltip>();
         _tooltip.Configure(_viewport, _content, _tooltipFontSize);
 
+        EnsureMissionPanel();
+
         _focuser = _viewport.GetComponent<StarMapFocuser>();
         if (_focuser == null)
             _focuser = _viewport.gameObject.AddComponent<StarMapFocuser>();
         _focuser.Configure(_viewport, _content);
+    }
+
+    /// <summary>
+    /// Builds the mission briefing, either inside the dedicated star-info canvas
+    /// or, if none is assigned, as a modal overlay on the map itself.
+    /// </summary>
+    void EnsureMissionPanel()
+    {
+        bool hosted = _starInfoCanvas != null;
+        RectTransform host = hosted ? _starInfoCanvas : _viewport;
+
+        // The canvas is normally left switched off in the scene, and UI built
+        // under an inactive object can't measure text or lay out. Switch it on
+        // for the build; Configure closes the panel, which switches it back off.
+        bool wasActive = host.gameObject.activeSelf;
+        if (hosted && !wasActive) host.gameObject.SetActive(true);
+
+        RectTransform panelRect = EnsureChild(host, "MissionPanel");
+        panelRect.SetAsLastSibling();
+
+        _missionPanel = panelRect.GetComponent<StarMapMissionPanel>();
+        if (_missionPanel == null)
+            _missionPanel = panelRect.gameObject.AddComponent<StarMapMissionPanel>();
+
+        _missionPanel.MissionLaunched -= HandleMissionLaunched;
+        _missionPanel.MissionLaunched += HandleMissionLaunched;
+        _missionPanel.Opened -= HandleMissionPanelOpened;
+        _missionPanel.Opened += HandleMissionPanelOpened;
+        _missionPanel.Closed -= HandleMissionPanelClosed;
+        _missionPanel.Closed += HandleMissionPanelClosed;
+
+        _missionPanel.Configure(host, StarMapMissionCatalog.LoadShips(_ships),
+                                hosted ? host.gameObject : null);
     }
 
     static RectTransform EnsureChild(RectTransform parent, string name)

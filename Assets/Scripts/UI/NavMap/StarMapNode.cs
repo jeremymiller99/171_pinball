@@ -29,6 +29,11 @@ public class StarMapNode : MonoBehaviour,
     /// <summary>Designation shown in the hover tooltip.</summary>
     public string DisplayName { get; set; }
 
+    /// <summary>Playfield this star drops you into. Assigned by the generator.</summary>
+    public BoardDefinition Board { get; set; }
+    /// <summary>Mission run on that playfield. Null when the board has no missions authored.</summary>
+    public ChallengeModeDefinition Mission { get; set; }
+
     public event Action<StarMapNode> Clicked;
     public event Action<StarMapNode, bool> HoverChanged;
 

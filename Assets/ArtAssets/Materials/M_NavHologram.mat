@@ -31,23 +31,23 @@ Material:
     m_Ints: []
     m_Floats:
     - _Alpha: 0.55
-    - _Brightness: 0.71
+    - _Brightness: 0.28
     - _Flicker: 0.05
     - _FlickerSpeed: 14
     - _GlitchIntensity: 0.02
     - _GlitchSpeed: 6
     - _GridCount: 16
-    - _GridIntensity: 0.18
+    - _GridIntensity: 0.381
     - _GridLineWidth: 0.02
     - _Noise: 0.06
-    - _RimIntensity: 1.6
+    - _RimIntensity: 1.49
     - _RimPower: 2.5
     - _ScanlineCount: 180
     - _ScanlineIntensity: 0.4
     - _ScanlineSharpness: 1.5
     - _ScanlineSpeed: -1.5
     - _SweepHeight: 0.12
-    - _SweepIntensity: 0.26
+    - _SweepIntensity: 0
     - _SweepSpeed: 0.35
     - _VignetteIntensity: 0.5
     m_Colors:

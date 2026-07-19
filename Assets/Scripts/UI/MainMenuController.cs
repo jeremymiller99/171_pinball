@@ -32,7 +32,8 @@ public sealed class MainMenuController : MonoBehaviour
         Main = 0,        // Camera point 1 — monitor 1 canvas (these buttons).
         Play = 1,        // Camera point 2 — monitor 2 canvas.
         Progression = 2, // Camera point 3 — progression canvas / panel.
-        Settings = 3     // Camera point 4 — settings canvas / panel.
+        Settings = 3,    // Camera point 4 — settings canvas / panel.
+        Fifth = 4        // Camera point 5 — reachable from anywhere with N.
     }
 
     [Header("Menu options (assign the TMP_Text objects)")]
@@ -218,6 +219,15 @@ public sealed class MainMenuController : MonoBehaviour
         if (WasReturnToLegacyMenuPressed())
         {
             ReturnToLegacyMenu();
+            return;
+        }
+
+        // N jumps the camera to the fifth point from anywhere in this scene —
+        // including from Play / Progression / Settings. Escape backs out to Main
+        // as usual.
+        if (WasGoToFifthPressed())
+        {
+            GoToFifthPoint();
             return;
         }
 
@@ -503,6 +513,47 @@ public sealed class MainMenuController : MonoBehaviour
     }
 
     /// <summary>
+    /// Move the camera to the fifth point. Reachable from any camera point (the
+    /// N key), so it also tears down whatever canvas currently owns input.
+    /// </summary>
+    public void GoToFifthPoint()
+    {
+        if (_location == MenuLocation.Fifth)
+        {
+            return;
+        }
+
+        Debug.Log("[MainMenu] Camera point 5 selected.");
+
+        // Hand input back from monitor 2 and hide the other panels so nothing
+        // from the previous location lingers on screen.
+        if (monitor2Controller != null)
+        {
+            monitor2Controller.Deactivate();
+        }
+        if (settingsPanel != null)
+        {
+            settingsPanel.SetActive(false);
+        }
+        if (progressionPanel != null)
+        {
+            progressionPanel.SetActive(false);
+        }
+
+        _location = MenuLocation.Fifth;
+        SetMainInteractable(false);
+
+        if (cameraLerp != null)
+        {
+            cameraLerp.GoToFifth();
+        }
+        else
+        {
+            Debug.LogWarning($"{nameof(MainMenuController)}: no {nameof(CameraLerpBetweenPoints)} assigned; cannot move camera.", this);
+        }
+    }
+
+    /// <summary>
     /// Return to camera point 1 and re-enable the main menu buttons. Hook this
     /// to a "Back" button on the Play / Settings canvases (or it fires on the
     /// cancel key, e.g. Escape).
@@ -607,6 +658,16 @@ public sealed class MainMenuController : MonoBehaviour
         return kb != null && kb.backquoteKey.wasPressedThisFrame;
 #else
         return Input.GetKeyDown(KeyCode.BackQuote);
+#endif
+    }
+
+    private static bool WasGoToFifthPressed()
+    {
+#if ENABLE_INPUT_SYSTEM
+        Keyboard kb = Keyboard.current;
+        return kb != null && kb.nKey.wasPressedThisFrame;
+#else
+        return Input.GetKeyDown(KeyCode.N);
 #endif
     }
 

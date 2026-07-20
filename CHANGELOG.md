@@ -10,6 +10,41 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.9.3 — Breaking-news chyron crawl (Monitor 1b political-decay screen)
+_2026-07-19 · Contributor: JJ_
+- New `Assets/Scripts/UI/BreakingNewsCrawl.cs` — a MonoBehaviour that procedurally builds a
+  horizontal breaking-news chyron inside any RectTransform under a Canvas. A red "BREAKING"
+  tag pins to the left (cycling through configurable labels like BREAKING / LIVE / ALERT /
+  URGENT and pulsing between two colors on a flash timer), while a seamless two-copy
+  marquee scrolls political-decay headlines right-to-left across the remainder of the
+  container. Headlines, colors, scroll speed, tag width, cycle intervals, and font are all
+  inspector-tunable; the crawl area auto-adds a `RectMask2D` so text is hard-clipped to its
+  bounds. Meant to sit as a third slab on the Monitor 1b canvas alongside
+  `StockTickerDisplay` and `StockChartDisplay`.
+
+## 0.9.2 — Crashing single-stock line-chart display (Monitor 1b companion)
+_2026-07-19 · Contributor: JJ_
+- New `Assets/Scripts/UI/StockChartDisplay.cs` + `Assets/Scripts/UI/StockChartLineGraphic.cs`
+  — a MonoBehaviour that procedurally builds an animated single-stock line chart inside any
+  RectTransform, paired with a custom `MaskableGraphic` that draws the polyline, optional
+  area fill, and optional faint grid. A sliding sample window advances on a jittered timer
+  using a downward-biased random walk (with configurable plunge spikes and rare small
+  bounces), and the header label continuously updates with the current price and cumulative
+  window % change. All colors, thickness, grid divisions, background, and clipping are
+  inspector-tunable; a `RectMask2D` is auto-added by default so the chart stays inside its
+  container. Meant to sit next to `StockTickerDisplay` on the Monitor 1b canvas.
+
+## 0.9.1 — Crashing stock-ticker display (Monitor 1b main-menu ambient screen)
+_2026-07-19 · Contributor: JJ_
+- New `Assets/Scripts/UI/StockTickerDisplay.cs` — a self-contained MonoBehaviour that
+  procedurally builds a scrolling red stock ticker inside any RectTransform under a Canvas.
+  Rows animate upward, prices tick down on a jittered timer, and a configurable "big drop"
+  chance hammers a random row with a large percentage loss and pulses both the row and an
+  optional background image bright red. Rows recycle as they scroll off the top; symbols and
+  starting prices are randomized from serialized lists. Intended for the Monitor 1b canvas
+  on `Assets/Scenes/Core/MainMenu 1.unity` (attach in the editor — no prefab required; add
+  an optional `TMP_Text` header and background `Image` and assign in the inspector).
+
 ## 0.9.0 — Fire status system (Flammable / Ignite / On Fire / Fuel) + Fireball & Charcoal
 _2026-07-14 · Contributor: Devin_
 - New keyword-driven fire status system in `Assets/Scripts/StatusEffects/`: `FireStatus`

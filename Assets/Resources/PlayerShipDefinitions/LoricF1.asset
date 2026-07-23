@@ -21,12 +21,12 @@ MonoBehaviour:
   shopPriceMultiplier: 1
   startingMaxBalls: 5
   startingHand:
-  - {fileID: 11400000, guid: bd26085432cc41cbad14c5fc708fe1a4, type: 2}
-  - {fileID: 11400000, guid: 22f67c0a7b284d77a6e2be2b20ab2f49, type: 2}
-  - {fileID: 11400000, guid: 6991960fb850487b89ead027c40ba193, type: 2}
-  - {fileID: 11400000, guid: 6991960fb850487b89ead027c40ba193, type: 2}
-  - {fileID: 11400000, guid: def7cfab5eaa89b4f94ba76799b74244, type: 2}
+  - {fileID: 11400000, guid: cea58c17d5a2d46c1baff2d288a8ac96, type: 2}
+  - {fileID: 11400000, guid: cea58c17d5a2d46c1baff2d288a8ac96, type: 2}
+  - {fileID: 11400000, guid: cea58c17d5a2d46c1baff2d288a8ac96, type: 2}
+  - {fileID: 11400000, guid: cea58c17d5a2d46c1baff2d288a8ac96, type: 2}
+  - {fileID: 11400000, guid: cea58c17d5a2d46c1baff2d288a8ac96, type: 2}
   scoreMultiplier: 1
   coinMultiplier: 1
   multMultiplier: 1
-  startingCoins: 100
+  startingCoins: 0

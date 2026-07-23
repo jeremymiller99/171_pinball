@@ -10,6 +10,21 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.10.2 — Lighter reworked to two-hit fuse + PR cleanup
+_2026-07-23 · Contributor: Devin_
+- Lighter no longer self-destructs off its own burn tick half a second after catching
+  (playtest read it as the bumper just vanishing). It now explodes only when a ball hits
+  it while it burns; an untouched burn refills its innate fuel so it can be lit again.
+- Extra fire tracing: Lighter logs which trigger lit or popped it, Engine logs its charge
+  state on spawn, AddCharge gains, and stacks it holds while uncharged.
+- Playtest verified in-game: Matchstick launch strikes, cross-round stack banking,
+  Charcoal/Molotov queue fueling, Molotov break, Gas Station pay/surge/reset (surges
+  chain across launches via fires that survive the drain tally - flagged for balance
+  review), Lighter two-hit blast, Engine stack-to-score conversion.
+- Reverted all test-mode settings: Loric F1 hand and starting coins, Gas Station cost
+  back to 10, board scene test placements and the Matchstick test install on the shared
+  launcher prefab.
+
 ## 0.10.1 — Gas Station credit popups, plunger-ball tooltip, fire console tracing
 _2026-07-23 · Contributor: Devin_
 - Gas Station now spawns a floating "-10" over itself when it takes credits and a red
@@ -27,7 +42,7 @@ _2026-07-23 · Contributor: Devin_
   silence.
 - Loric F1 test loadout: hand reordered to Charcoal, Molotov, Fireball, Fireball, Pinball
   (fuel carriers first, igniters after) and `startingCoins` set to 100 so the Gas Station
-  has credits to take. Revert before release.
+  has credits to take. Reverted in 0.10.2.
 
 ## 0.10.0 — Remaining fire items: Matchstick, Lighter, Gas Station, Engine, Unfinished Molotov
 _2026-07-23 · Contributor: Devin_

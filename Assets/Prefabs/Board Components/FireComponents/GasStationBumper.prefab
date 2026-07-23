@@ -124,7 +124,7 @@ MonoBehaviour:
   bounceForce: 50
   shakeDuration: 0.22
   shakeMagnitude: 0.16
-  creditCost: 1
+  creditCost: 10
   fuelPerHit: 1
   onFireCountForSurge: 5
   surgeFuelAmount: 3

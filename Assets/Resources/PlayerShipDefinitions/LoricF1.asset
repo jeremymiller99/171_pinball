@@ -20,7 +20,12 @@ MonoBehaviour:
   elementType: 1
   shopPriceMultiplier: 1
   startingMaxBalls: 5
-  startingHand: []
+  startingHand:
+  - {fileID: 11400000, guid: cea58c17d5a2d46c1baff2d288a8ac96, type: 2}
+  - {fileID: 11400000, guid: cea58c17d5a2d46c1baff2d288a8ac96, type: 2}
+  - {fileID: 11400000, guid: cea58c17d5a2d46c1baff2d288a8ac96, type: 2}
+  - {fileID: 11400000, guid: cea58c17d5a2d46c1baff2d288a8ac96, type: 2}
+  - {fileID: 11400000, guid: cea58c17d5a2d46c1baff2d288a8ac96, type: 2}
   scoreMultiplier: 1
   coinMultiplier: 1
   multMultiplier: 1

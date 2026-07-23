@@ -46,7 +46,10 @@ public sealed class BallFireStatus : FireStatus
 
         foreach (BoardComponent component in components)
         {
-            component.ActivateAsIfHit();
+            if (FireStatusUtility.CanCatchFire(component))
+            {
+                component.ActivateAsIfHit();
+            }
         }
     }
 
@@ -72,6 +75,11 @@ public sealed class BallFireStatus : FireStatus
         {
             foreach (BoardComponent component in components)
             {
+                if (!FireStatusUtility.CanCatchFire(component))
+                {
+                    continue;
+                }
+
                 ComponentFireStatus status =
                     component.GetComponent<ComponentFireStatus>();
                 if (status != null && status.IsFlammable)

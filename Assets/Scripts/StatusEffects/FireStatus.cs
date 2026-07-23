@@ -13,13 +13,17 @@ public abstract class FireStatus : MonoBehaviour
 
     [SerializeField] private int baseFlammableStacks = 0;
     [SerializeField] private bool canBeFueled = true;
+    [Tooltip("Overrides the flame prefab from FireVfxLibrary for this object.")]
     [SerializeField] private GameObject fireVfxPrefab;
+    [Tooltip("Overrides the smoke prefab from FireVfxLibrary for this object.")]
+    [SerializeField] private GameObject fueledVfxPrefab;
     [SerializeField] private int stacks;
     [SerializeField] private bool isOnFire;
     [SerializeField] private float burnSecondsRemaining;
 
     private float _tickAccumulator;
     private GameObject _fireVfxInstance;
+    private GameObject _fueledVfxInstance;
 
     public event Action Ignited;
     public event Action BurnedOut;
@@ -31,9 +35,16 @@ public abstract class FireStatus : MonoBehaviour
     public bool IsOnFire => isOnFire;
     public bool CanBeFueled => canBeFueled;
 
+    /// <summary>
+    /// True while the object carries Fuel beyond its innate Flammable rating,
+    /// which is what the smoke VFX advertises.
+    /// </summary>
+    public bool IsFueled => stacks > baseFlammableStacks;
+
     protected virtual void Awake()
     {
         stacks = baseFlammableStacks;
+        StacksChanged += RefreshFueledVfx;
     }
 
     protected virtual void Update()
@@ -68,6 +79,8 @@ public abstract class FireStatus : MonoBehaviour
 
     protected virtual void OnDestroy()
     {
+        StacksChanged -= RefreshFueledVfx;
+        DestroyFueledVfx();
         if (isOnFire)
         {
             ServiceLocator.Get<AudioManager>()?.StopBurningSound();
@@ -140,10 +153,13 @@ public abstract class FireStatus : MonoBehaviour
 
     private void StartFireFeedback()
     {
-        if (fireVfxPrefab != null && _fireVfxInstance == null)
+        if (_fireVfxInstance == null)
         {
-            _fireVfxInstance = Instantiate(fireVfxPrefab, transform);
+            _fireVfxInstance = fireVfxPrefab != null
+                ? Instantiate(fireVfxPrefab, transform)
+                : FireVfxLibrary.Instance?.InstantiateOnFireVfx(transform);
         }
+        RefreshFueledVfx();
         ServiceLocator.Get<AudioManager>()?.StartBurningSound();
     }
 
@@ -154,6 +170,38 @@ public abstract class FireStatus : MonoBehaviour
             Destroy(_fireVfxInstance);
             _fireVfxInstance = null;
         }
+        RefreshFueledVfx();
         ServiceLocator.Get<AudioManager>()?.StopBurningSound();
+    }
+
+    /// <summary>
+    /// Smoke shows only while Fueled and unlit: once the object catches, the
+    /// fire VFX takes over.
+    /// </summary>
+    private void RefreshFueledVfx()
+    {
+        if (!IsFueled || isOnFire)
+        {
+            DestroyFueledVfx();
+            return;
+        }
+
+        if (_fueledVfxInstance != null)
+        {
+            return;
+        }
+
+        _fueledVfxInstance = fueledVfxPrefab != null
+            ? Instantiate(fueledVfxPrefab, transform)
+            : FireVfxLibrary.Instance?.InstantiateFueledVfx(transform);
+    }
+
+    private void DestroyFueledVfx()
+    {
+        if (_fueledVfxInstance != null)
+        {
+            Destroy(_fueledVfxInstance);
+            _fueledVfxInstance = null;
+        }
     }
 }

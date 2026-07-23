@@ -10,6 +10,41 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.9.6 — Fire VFX trim + flippers and portals are fireproof
+_2026-07-20 · Contributor: JJ_
+- `FireVfxLibrary` now owns spawning of its own prefabs and applies a per-prefab scale and
+  emission-rate trim, so the shared smoke and flames can be toned down without editing the
+  CFXR assets. Smoke defaults to 0.3 scale / 0.35 emission — it was eating far too much
+  screen space at full size. Per-object `fireVfxPrefab` / `fueledVfxPrefab` overrides spawn
+  untrimmed, so Charcoal and Fireball are unaffected.
+- Swapped the shared On Fire prefab from `CFXR Fire` to `CFXR2 Firewall A`.
+- New `FireStatusUtility.CanCatchFire`: components whose `componentType` is `Flipper` or
+  `Portal` never get a `ComponentFireStatus`, so they can no longer be Fueled or lit. Also
+  guarded in `BallFireStatus`'s contact-ignite loop so an editor-placed status on one of
+  those can't light either, and in its burn tick so a ball that is itself On Fire stops
+  re-triggering a flipper or portal it happens to be resting against.
+
+## 0.9.5 — Flame VFX for burning board components
+_2026-07-20 · Contributor: JJ_
+- `FireVfxLibrary` gained an `onFireVfxPrefab` slot, wired to `CFXR Fire`, and
+  `FireStatus.StartFireFeedback` now falls back to it when the object has no
+  `fireVfxPrefab` of its own. Board components — which are always given their
+  `ComponentFireStatus` at runtime and so can never be wired in the inspector — finally
+  show flames while On Fire. Charcoal and Fireball keep their own `OnFireVFX` prefab.
+
+## 0.9.4 — Smoke VFX for Fueled objects
+_2026-07-20 · Contributor: JJ_
+- `Assets/Scripts/StatusEffects/FireStatus.cs` now spawns a looping smoke effect on any
+  object carrying Fuel beyond its innate Flammable rating (new `IsFueled` property), so a
+  board component that Charcoal has fueled visibly smolders before it ever catches. The
+  smoke is parented to the object, refreshes off `StacksChanged`, and is torn down when the
+  object ignites (the fire VFX takes over), burns out, or is destroyed.
+- New `Assets/Scripts/StatusEffects/FireVfxLibrary.cs` + `Assets/Resources/FireVfxLibrary.asset`
+  — a Resources-loaded prefab library, needed because `ComponentFireStatus` is always added
+  at runtime and so can never have inspector-wired prefab fields. Points at
+  `CFXR Smoke Source 3D` by default; a per-object `fueledVfxPrefab` field on `FireStatus`
+  overrides it.
+
 ## 0.9.3 — Breaking-news chyron crawl (Monitor 1b political-decay screen)
 _2026-07-19 · Contributor: JJ_
 - New `Assets/Scripts/UI/BreakingNewsCrawl.cs` — a MonoBehaviour that procedurally builds a

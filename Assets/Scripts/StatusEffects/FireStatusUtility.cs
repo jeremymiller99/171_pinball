@@ -1,8 +1,37 @@
 public static class FireStatusUtility
 {
-    public static ComponentFireStatus GetOrAddComponentStatus(BoardComponent component)
+    private static readonly BoardComponentType[] nonFlammableTypes =
+    {
+        BoardComponentType.Flipper,
+        BoardComponentType.Portal
+    };
+
+    /// <summary>
+    /// Flippers and portals are never Flammable: the player needs them to stay
+    /// readable, and re-activating them every burn tick would fire teleports
+    /// and flips on their own.
+    /// </summary>
+    public static bool CanCatchFire(BoardComponent component)
     {
         if (component == null)
+        {
+            return false;
+        }
+
+        foreach (BoardComponentType type in nonFlammableTypes)
+        {
+            if (component.componentType == type)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static ComponentFireStatus GetOrAddComponentStatus(BoardComponent component)
+    {
+        if (!CanCatchFire(component))
         {
             return null;
         }

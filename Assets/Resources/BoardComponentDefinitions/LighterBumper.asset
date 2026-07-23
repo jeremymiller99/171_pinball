@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1965a039b036c804e95a533e2df9861b, type: 3}
+  m_Name: LighterBumper
+  m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinition
+  id: Lighter
+  displayName: Lighter
+  description: 'On collision, Ignite. If this component is On Fire, it is destroyed,
+    fueling all nearby objects twice and Igniting them.'
+  componentType: 0
+  rarity: 0
+  elementType: 2
+  icon: {fileID: 0}
+  prefab: {fileID: 4773778546837097395, guid: f04291eadd9a4f7989252729a4fc725a, type: 3}
+  price: 10

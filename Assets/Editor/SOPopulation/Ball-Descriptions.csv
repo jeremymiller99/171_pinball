@@ -40,4 +40,5 @@ Snowball;Active: On collision, scores 1 point. Then, this value increases by 50%
 Speed;Active: Scores from 75% - 200% based on the ball's velocity.;Common;Standard;
 Steel Kilogram;Active: Heavy. Scores 150%.;Common;Standard;
 Suspense;Active: Gain increased scoring based on the length of time since a flipper was last active.;Rare;Standard;
+Unfinished Molotov;Active: On collision, Fuels both itself and the other object. This has a chance to destroy the ball. Passive: On launch, Fuel the balls ahead of this one in queue once.;Common;Entropy;Fuel Flammable
 Wall Ball;Active: On collision with a wall, score 5 points.;Common;Standard;

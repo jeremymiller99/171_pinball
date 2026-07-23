@@ -10,6 +10,31 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.10.0 — Remaining fire items: Matchstick, Lighter, Gas Station, Engine, Unfinished Molotov
+_2026-07-23 · Contributor: Devin_
+- `MatchstickPlunger` (attach to the launcher): Ignites every ball as it launches, so
+  Flammable loadouts no longer depend on Fireball or board fire to get going.
+- `LighterComponent` + `LighterBumper` prefab/definition: hits Ignite it (innate
+  Flammable 5), and any activation while On Fire — a second hit or its own burn tick —
+  destroys it, Fueling everything in `blastRadius` twice and Igniting it. The burn tick
+  makes it a half-second fuse once lit, and blast-lit lighters chain.
+- `GasStationComponent` + `GasStationBumper` prefab/definition: ball hits cost 10 Credits
+  (via `CoinController.TrySpendCoins`) and Fuel the ball once. When five objects burn at
+  once it surges — Fuels the whole board 3x and stops charging — and resets on launch.
+- `EngineComponent` + `EngineBumper` prefab/definition: while Charged, Flammable stacks it
+  collects convert straight to score (5 per stack) off `StacksChanged` instead of burning.
+  No Shock system exists yet, so charge is inspector-seeded with `AddCharge` as the hook.
+- `MolotovBall` + `Unfinished Molotov` prefab/definition/CSV row, added as a shop starter:
+  contact with a component or ball Fuels both sides (other side via `fuelOtherOnContact`),
+  each pour has a 1-in-20 chance to break the bottle and retire the ball through the drain
+  flow, and while queued it Fuels every launched ball once (same pattern as Charcoal).
+- New `FireStatusUtility` helpers `CountObjectsOnFire` / `FuelAllObjectsOnBoard` back the
+  Gas Station surge; the fuel-all path routes through `CanCatchFire`, so flippers and
+  portals stay fireproof.
+- Tooltip fix: `Tooltip Panel.prefab`'s `necessaryTermDefinitions` only contained Odds, so
+  Fireball's and Charcoal's keyword panels (Flammable / Ignite / Fuel) rendered empty.
+  Wired in the Flammable, Ignite, Fuel, On Fire, Detonate, and Charge term definitions.
+
 ## 0.9.6 — Fire VFX trim + flippers and portals are fireproof
 _2026-07-20 · Contributor: JJ_
 - `FireVfxLibrary` now owns spawning of its own prefabs and applies a per-prefab scale and

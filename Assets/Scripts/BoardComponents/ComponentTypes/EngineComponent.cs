@@ -72,6 +72,9 @@ public class EngineComponent : Bumper
         _fireStatus.SetStacks(0);
         _converting = false;
 
+        FireDebug.Log(
+            $"{name} converts {stacks} stacks into {stacks * scorePerFlammableStack} score");
+
         if (scoreManager == null)
         {
             scoreManager = ServiceLocator.Get<ScoreManager>();

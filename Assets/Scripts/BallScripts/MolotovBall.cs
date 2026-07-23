@@ -81,6 +81,7 @@ public sealed class MolotovBall : Ball
             return;
         }
 
+        FireDebug.Log($"{name} (queued) fuels {launched.name} x{queuedFuelPerLaunch} at launch");
         FireStatusUtility.GetOrAddBallStatus(launchedBall)?.Fuel(queuedFuelPerLaunch);
     }
 
@@ -92,6 +93,7 @@ public sealed class MolotovBall : Ball
         }
 
         _broken = true;
+        FireDebug.Log($"{name} broke and retires");
 
         DrainHandler drainHandler = ServiceLocator.Get<DrainHandler>();
         if (drainHandler != null)

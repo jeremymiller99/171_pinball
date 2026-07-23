@@ -35,6 +35,12 @@ public class RenderTextureRaycaster : MonoBehaviour
     [Header("Hover Tooltip")]
     [SerializeField] private bool enableHoverTooltip = true;
     [SerializeField] private GameObject currentTooltipObject;
+    [Tooltip("How close the cursor ray must pass to an active ball " +
+        "(e.g. the ball waiting at the plunger) for its tooltip to show.")]
+    [SerializeField] private float activeBallHoverRadius = 1.5f;
+    [Tooltip("Balls moving faster than this are skipped so tooltips " +
+        "don't flicker while the ball is in play.")]
+    [SerializeField] private float activeBallHoverMaxSpeed = 0.5f;
 
     [Header("Shop offer drag")]
     [SerializeField] private float offerDragThresholdPixels = 12f;
@@ -192,6 +198,11 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             GameObject handBall =
                 FindClosestHandBallOnRay(rayDown);
+            if (handBall == null)
+            {
+                handBall = FindActiveBallNearRay(rayDown);
+            }
+
             if (handBall != null)
             {
                 HandleHighlight(handBall);
@@ -356,6 +367,10 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             GameObject handBall =
                 FindClosestHandBallOnRay(rayDown);
+            if (handBall == null)
+            {
+                handBall = FindActiveBallNearRay(rayDown);
+            }
 
             if (handBall != null)
             {
@@ -981,6 +996,57 @@ public class RenderTextureRaycaster : MonoBehaviour
     private GameObject FindClosestHandBallOnRay(Ray ray)
     {
         return FindClosestHandBallOnRay(ray, null);
+    }
+
+    /// <summary>
+    /// Returns the active ball (e.g. the one promoted to the plunger and
+    /// waiting for launch) whose center lies near the cursor ray. Active
+    /// balls are no longer parked on hand-slot cubes, so the slot-based
+    /// hover lookup misses them. Fast-moving balls are skipped.
+    /// </summary>
+    private GameObject FindActiveBallNearRay(Ray ray)
+    {
+        if (_cachedSpawner == null)
+        {
+            _cachedSpawner = ServiceLocator.Get<BallSpawner>();
+        }
+        if (_cachedSpawner == null)
+        {
+            return null;
+        }
+
+        GameObject best = null;
+        float bestDist = activeBallHoverRadius;
+
+        foreach (GameObject ball in _cachedSpawner.ActiveBalls)
+        {
+            if (ball == null)
+            {
+                continue;
+            }
+
+            Rigidbody rb = ball.GetComponent<Rigidbody>();
+            if (rb != null && !rb.isKinematic
+                && rb.linearVelocity.magnitude > activeBallHoverMaxSpeed)
+            {
+                continue;
+            }
+
+            Vector3 toBall = ball.transform.position - ray.origin;
+            if (Vector3.Dot(toBall, ray.direction) < 0f)
+            {
+                continue;
+            }
+
+            float dist = Vector3.Cross(ray.direction, toBall).magnitude;
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                best = ball;
+            }
+        }
+
+        return best;
     }
 
     /// <summary>

@@ -1754,11 +1754,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6714476454855297192, guid: 5d16b2224c9708a4680e3058fb788d96, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3.0531309
+      value: -3.1
       objectReference: {fileID: 0}
     - target: {fileID: 6714476454855297192, guid: 5d16b2224c9708a4680e3058fb788d96, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 6.3437166
+      value: 6.29
       objectReference: {fileID: 0}
     - target: {fileID: 6714476454855297192, guid: 5d16b2224c9708a4680e3058fb788d96, type: 3}
       propertyPath: m_LocalRotation.w
@@ -14726,6 +14726,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92d9738409b227d41a9797c8684427e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardLight
+--- !u!1001 &637076321
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4773778546837097395, guid: adffd8ae9c1d469080b9070fd56a1bab, type: 3}
+      propertyPath: m_Name
+      value: GasStationBumper
+      objectReference: {fileID: 0}
+    - target: {fileID: 6714476454855297192, guid: adffd8ae9c1d469080b9070fd56a1bab, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.6333503
+      objectReference: {fileID: 0}
+    - target: {fileID: 6714476454855297192, guid: adffd8ae9c1d469080b9070fd56a1bab, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -4.91831
+      objectReference: {fileID: 0}
+    - target: {fileID: 6714476454855297192, guid: adffd8ae9c1d469080b9070fd56a1bab, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 2.581924
+      objectReference: {fileID: 0}
+    - target: {fileID: 6714476454855297192, guid: adffd8ae9c1d469080b9070fd56a1bab, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.999209
+      objectReference: {fileID: 0}
+    - target: {fileID: 6714476454855297192, guid: adffd8ae9c1d469080b9070fd56a1bab, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.03925861
+      objectReference: {fileID: 0}
+    - target: {fileID: 6714476454855297192, guid: adffd8ae9c1d469080b9070fd56a1bab, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.0002492018
+      objectReference: {fileID: 0}
+    - target: {fileID: 6714476454855297192, guid: adffd8ae9c1d469080b9070fd56a1bab, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.0063426765
+      objectReference: {fileID: 0}
+    - target: {fileID: 6714476454855297192, guid: adffd8ae9c1d469080b9070fd56a1bab, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -4.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6714476454855297192, guid: adffd8ae9c1d469080b9070fd56a1bab, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -0.057
+      objectReference: {fileID: 0}
+    - target: {fileID: 6714476454855297192, guid: adffd8ae9c1d469080b9070fd56a1bab, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0.73
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: adffd8ae9c1d469080b9070fd56a1bab, type: 3}
 --- !u!4 &642026024 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7718294612392993566, guid: a0552d35fcb08c348815a72581abc0bf, type: 3}
@@ -37697,3 +37754,4 @@ SceneRoots:
   - {fileID: 572398420}
   - {fileID: 8192697805093227562}
   - {fileID: 230555258}
+  - {fileID: 637076321}

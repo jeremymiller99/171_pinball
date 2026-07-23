@@ -14,6 +14,10 @@ public class GasStationComponent : Bumper
     [SerializeField] private int surgeFuelAmount = 3;
     [SerializeField] private float surgeCheckInterval = 0.25f;
 
+    [Header("Credit Popups")]
+    [SerializeField] private Color paidPopupColor = new Color(1f, 0.84f, 0.3f);
+    [SerializeField] private Color brokePopupColor = new Color(1f, 0.35f, 0.3f);
+
     private bool _surged;
     private float _surgeCheckTimer;
 
@@ -37,9 +41,21 @@ public class GasStationComponent : Bumper
             return;
         }
 
-        if (_surged || PayForFuel())
+        if (_surged)
         {
+            FireDebug.Log($"{name}: free fuel for {ball.name} (surged)");
             FireStatusUtility.GetOrAddBallStatus(ball)?.Fuel(fuelPerHit);
+        }
+        else if (PayForFuel())
+        {
+            FireDebug.Log($"{name}: -{creditCost} credits, fuels {ball.name}");
+            SpawnCreditPopup($"-{creditCost}", paidPopupColor);
+            FireStatusUtility.GetOrAddBallStatus(ball)?.Fuel(fuelPerHit);
+        }
+        else
+        {
+            FireDebug.Log($"{name}: {ball.name} hit, but not enough credits");
+            SpawnCreditPopup($"NEED {creditCost}", brokePopupColor);
         }
     }
 
@@ -59,9 +75,13 @@ public class GasStationComponent : Bumper
         }
 
         _surgeCheckTimer = 0f;
-        if (FireStatusUtility.CountObjectsOnFire() >= onFireCountForSurge)
+        int burning = FireStatusUtility.CountObjectsOnFire();
+        if (burning >= onFireCountForSurge)
         {
             _surged = true;
+            FireDebug.Log(
+                $"{name} SURGE: {burning} objects burning, fueling whole board "
+                + $"x{surgeFuelAmount}, credits now free");
             FireStatusUtility.FuelAllObjectsOnBoard(surgeFuelAmount);
         }
     }
@@ -72,8 +92,28 @@ public class GasStationComponent : Bumper
         return coins != null && coins.TrySpendCoins(creditCost);
     }
 
+    private void SpawnCreditPopup(string text, Color color)
+    {
+        if (floatingTextSpawner == null)
+        {
+            floatingTextSpawner = ServiceLocator.Get<FloatingTextSpawner>();
+        }
+        if (floatingTextSpawner == null)
+        {
+            return;
+        }
+
+        floatingTextSpawner.SpawnText(
+            transform.position, text, hitCountFontAsset,
+            hitCountPopupScale, hitCountPopupOffset, color);
+    }
+
     private void OnBallLaunched(GameObject launched)
     {
+        if (_surged)
+        {
+            FireDebug.Log($"{name} reset on launch, charging credits again");
+        }
         _surged = false;
         _surgeCheckTimer = 0f;
     }

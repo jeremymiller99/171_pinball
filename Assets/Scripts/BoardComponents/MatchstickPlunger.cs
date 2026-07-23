@@ -20,6 +20,20 @@ public sealed class MatchstickPlunger : MonoBehaviour
     private void OnBallLaunched(GameObject launched)
     {
         Ball ball = launched != null ? launched.GetComponent<Ball>() : null;
-        FireStatusUtility.GetOrAddBallStatus(ball)?.Ignite();
+        BallFireStatus status = FireStatusUtility.GetOrAddBallStatus(ball);
+        if (status == null)
+        {
+            return;
+        }
+
+        if (status.IsFlammable && !status.IsOnFire)
+        {
+            FireDebug.Log($"Matchstick strikes {launched.name} at launch");
+            status.Ignite();
+        }
+        else if (!status.IsOnFire)
+        {
+            FireDebug.Log($"Matchstick: {launched.name} has no Flammable stacks, no light");
+        }
     }
 }

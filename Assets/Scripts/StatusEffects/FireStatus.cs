@@ -97,6 +97,7 @@ public abstract class FireStatus : MonoBehaviour
         isOnFire = true;
         burnSecondsRemaining = stacks;
         _tickAccumulator = 0f;
+        FireDebug.Log($"{name} ignited, burning for {stacks}s");
         StartFireFeedback();
         Ignited?.Invoke();
     }
@@ -113,6 +114,9 @@ public abstract class FireStatus : MonoBehaviour
         {
             burnSecondsRemaining += amount;
         }
+        FireDebug.Log(isOnFire
+            ? $"{name} fueled +{amount}, burn extended to {burnSecondsRemaining:0.#}s"
+            : $"{name} fueled +{amount}, now Flammable {stacks}");
         StacksChanged?.Invoke();
     }
 
@@ -139,6 +143,7 @@ public abstract class FireStatus : MonoBehaviour
 
     private void EndBurn()
     {
+        FireDebug.Log($"{name} burned out");
         isOnFire = false;
         burnSecondsRemaining = 0f;
         _tickAccumulator = 0f;

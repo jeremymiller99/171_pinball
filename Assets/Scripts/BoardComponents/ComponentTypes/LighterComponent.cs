@@ -93,6 +93,9 @@ public class LighterComponent : Bumper
             }
         }
 
+        FireDebug.Log(
+            $"{name} explodes, fueling and igniting {affected.Count} nearby objects");
+
         // Fuel before Igniting so even bare objects catch from the blast.
         foreach (FireStatus status in affected)
         {

@@ -10,6 +10,25 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.10.1 — Gas Station credit popups, plunger-ball tooltip, fire console tracing
+_2026-07-23 · Contributor: Devin_
+- Gas Station now spawns a floating "-10" over itself when it takes credits and a red
+  "NEED 10" when the player can't pay, so a refused hit is no longer silent (it previously
+  only played the failed-purchase sound).
+- Hover tooltips now work on the promoted ball waiting at the plunger. Active balls are no
+  longer parked on hand-slot cubes, so the slot-based lookup missed them;
+  `RenderTextureRaycaster` gained a proximity fallback against `BallSpawner.ActiveBalls`
+  (skipping fast-moving balls so tooltips don't flicker mid-play).
+- New `FireDebug` console tracing for the whole fire system - filter the Console on
+  "[Fire]". Logs every Fuel (+amount and new total), Ignite (burn duration), burn-out,
+  stack banking to loadout slots, Charcoal/Molotov queue fueling, Matchstick strikes
+  (including "no stacks, no light"), Lighter explosions, Gas Station payments/refusals/
+  surges/resets, and Engine stack-to-score conversions. Flip `FireDebug.enabled` to
+  silence.
+- Loric F1 test loadout: hand reordered to Charcoal, Molotov, Fireball, Fireball, Pinball
+  (fuel carriers first, igniters after) and `startingCoins` set to 100 so the Gas Station
+  has credits to take. Revert before release.
+
 ## 0.10.0 — Remaining fire items: Matchstick, Lighter, Gas Station, Engine, Unfinished Molotov
 _2026-07-23 · Contributor: Devin_
 - `MatchstickPlunger` (attach to the launcher): Ignites every ball as it launches, so

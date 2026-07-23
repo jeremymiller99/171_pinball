@@ -129,8 +129,14 @@ public sealed class BallFireStatus : FireStatus
         BallLoadoutController loadout = ServiceLocator.Get<BallLoadoutController>();
         if (loadout != null)
         {
-            loadout.SetExtraFlammableStacksForSlot(
-                marker.SlotIndex, Stacks - BaseFlammableStacks);
+            int extra = Stacks - BaseFlammableStacks;
+            loadout.SetExtraFlammableStacksForSlot(marker.SlotIndex, extra);
+            if (extra > 0)
+            {
+                FireDebug.Log(
+                    $"{name} banked {extra} extra stacks to slot {marker.SlotIndex} "
+                    + "(kept for next round)");
+            }
         }
     }
 }

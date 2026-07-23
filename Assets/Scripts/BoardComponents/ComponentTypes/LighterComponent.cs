@@ -31,17 +31,17 @@ public class LighterComponent : Bumper
 
         if (collision.collider.GetComponent<Ball>() != null)
         {
-            HandleActivation();
+            HandleActivation("ball hit");
         }
     }
 
     public override void ActivateAsIfHit()
     {
         base.ActivateAsIfHit();
-        HandleActivation();
+        HandleActivation("activation tick");
     }
 
-    private void HandleActivation()
+    private void HandleActivation(string source)
     {
         if (_exploded || _fireStatus == null)
         {
@@ -50,10 +50,12 @@ public class LighterComponent : Bumper
 
         if (_fireStatus.IsOnFire)
         {
+            FireDebug.Log($"{name} triggered by {source} while burning, exploding");
             Explode();
         }
-        else
+        else if (_fireStatus.IsFlammable)
         {
+            FireDebug.Log($"{name} lit by {source}, blows on its next activation");
             _fireStatus.Ignite();
         }
     }

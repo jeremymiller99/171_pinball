@@ -37,6 +37,9 @@ public class EngineComponent : Bumper
 
     private void Start()
     {
+        FireDebug.Log(IsCharged
+            ? $"{name} charged ({charge}/{chargeNeeded}), converting stacks to score"
+            : $"{name} uncharged ({charge}/{chargeNeeded}), stacks will accumulate");
         ConvertStacksToScore();
     }
 
@@ -51,12 +54,13 @@ public class EngineComponent : Bumper
     public void AddCharge(int amount)
     {
         charge += amount;
+        FireDebug.Log($"{name} gains {amount} Charge ({charge}/{chargeNeeded})");
         ConvertStacksToScore();
     }
 
     private void ConvertStacksToScore()
     {
-        if (_converting || !IsCharged || _fireStatus == null)
+        if (_converting || _fireStatus == null)
         {
             return;
         }
@@ -64,6 +68,13 @@ public class EngineComponent : Bumper
         int stacks = _fireStatus.Stacks;
         if (stacks <= 0)
         {
+            return;
+        }
+
+        if (!IsCharged)
+        {
+            FireDebug.Log(
+                $"{name} uncharged ({charge}/{chargeNeeded}), holding {stacks} stacks");
             return;
         }
 

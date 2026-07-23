@@ -1668,6 +1668,12 @@ MonoBehaviour:
   necessaryBallDefinitions: []
   necessaryTermDefinitions:
   - {fileID: 11400000, guid: 3cdf96321533ea74786bc6ad07e36ca7, type: 2}
+  - {fileID: 11400000, guid: a59e3b19c8106234ebcb43754cfb18cf, type: 2}
+  - {fileID: 11400000, guid: 2c4ca26c7545b3144bc625a787be3809, type: 2}
+  - {fileID: 11400000, guid: 83fe7ebbf7886234cb9893604f3a719d, type: 2}
+  - {fileID: 11400000, guid: 5e05aec4a8645b34cabcd0a178698d18, type: 2}
+  - {fileID: 11400000, guid: 306c2785b7236174b8e8fa3d0fd46188, type: 2}
+  - {fileID: 11400000, guid: b1b9390de6cceb74da0abaedbbc45db0, type: 2}
 --- !u!1 &7894267292567440132
 GameObject:
   m_ObjectHideFlags: 0

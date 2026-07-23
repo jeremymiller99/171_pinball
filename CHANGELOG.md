@@ -10,6 +10,65 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.10.2 — Lighter reworked to two-hit fuse + PR cleanup
+_2026-07-23 · Contributor: Devin_
+- Lighter no longer self-destructs off its own burn tick half a second after catching
+  (playtest read it as the bumper just vanishing). It now explodes only when a ball hits
+  it while it burns; an untouched burn refills its innate fuel so it can be lit again.
+- Extra fire tracing: Lighter logs which trigger lit or popped it, Engine logs its charge
+  state on spawn, AddCharge gains, and stacks it holds while uncharged.
+- Playtest verified in-game: Matchstick launch strikes, cross-round stack banking,
+  Charcoal/Molotov queue fueling, Molotov break, Gas Station pay/surge/reset (surges
+  chain across launches via fires that survive the drain tally - flagged for balance
+  review), Lighter two-hit blast, Engine stack-to-score conversion.
+- Reverted all test-mode settings: Loric F1 hand and starting coins, Gas Station cost
+  back to 10, board scene test placements and the Matchstick test install on the shared
+  launcher prefab.
+
+## 0.10.1 — Gas Station credit popups, plunger-ball tooltip, fire console tracing
+_2026-07-23 · Contributor: Devin_
+- Gas Station now spawns a floating "-10" over itself when it takes credits and a red
+  "NEED 10" when the player can't pay, so a refused hit is no longer silent (it previously
+  only played the failed-purchase sound).
+- Hover tooltips now work on the promoted ball waiting at the plunger. Active balls are no
+  longer parked on hand-slot cubes, so the slot-based lookup missed them;
+  `RenderTextureRaycaster` gained a proximity fallback against `BallSpawner.ActiveBalls`
+  (skipping fast-moving balls so tooltips don't flicker mid-play).
+- New `FireDebug` console tracing for the whole fire system - filter the Console on
+  "[Fire]". Logs every Fuel (+amount and new total), Ignite (burn duration), burn-out,
+  stack banking to loadout slots, Charcoal/Molotov queue fueling, Matchstick strikes
+  (including "no stacks, no light"), Lighter explosions, Gas Station payments/refusals/
+  surges/resets, and Engine stack-to-score conversions. Flip `FireDebug.enabled` to
+  silence.
+- Loric F1 test loadout: hand reordered to Charcoal, Molotov, Fireball, Fireball, Pinball
+  (fuel carriers first, igniters after) and `startingCoins` set to 100 so the Gas Station
+  has credits to take. Reverted in 0.10.2.
+
+## 0.10.0 — Remaining fire items: Matchstick, Lighter, Gas Station, Engine, Unfinished Molotov
+_2026-07-23 · Contributor: Devin_
+- `MatchstickPlunger` (attach to the launcher): Ignites every ball as it launches, so
+  Flammable loadouts no longer depend on Fireball or board fire to get going.
+- `LighterComponent` + `LighterBumper` prefab/definition: hits Ignite it (innate
+  Flammable 5), and any activation while On Fire — a second hit or its own burn tick —
+  destroys it, Fueling everything in `blastRadius` twice and Igniting it. The burn tick
+  makes it a half-second fuse once lit, and blast-lit lighters chain.
+- `GasStationComponent` + `GasStationBumper` prefab/definition: ball hits cost 10 Credits
+  (via `CoinController.TrySpendCoins`) and Fuel the ball once. When five objects burn at
+  once it surges — Fuels the whole board 3x and stops charging — and resets on launch.
+- `EngineComponent` + `EngineBumper` prefab/definition: while Charged, Flammable stacks it
+  collects convert straight to score (5 per stack) off `StacksChanged` instead of burning.
+  No Shock system exists yet, so charge is inspector-seeded with `AddCharge` as the hook.
+- `MolotovBall` + `Unfinished Molotov` prefab/definition/CSV row, added as a shop starter:
+  contact with a component or ball Fuels both sides (other side via `fuelOtherOnContact`),
+  each pour has a 1-in-20 chance to break the bottle and retire the ball through the drain
+  flow, and while queued it Fuels every launched ball once (same pattern as Charcoal).
+- New `FireStatusUtility` helpers `CountObjectsOnFire` / `FuelAllObjectsOnBoard` back the
+  Gas Station surge; the fuel-all path routes through `CanCatchFire`, so flippers and
+  portals stay fireproof.
+- Tooltip fix: `Tooltip Panel.prefab`'s `necessaryTermDefinitions` only contained Odds, so
+  Fireball's and Charcoal's keyword panels (Flammable / Ignite / Fuel) rendered empty.
+  Wired in the Flammable, Ignite, Fuel, On Fire, Detonate, and Charge term definitions.
+
 ## 0.9.6 — Fire VFX trim + flippers and portals are fireproof
 _2026-07-20 · Contributor: JJ_
 - `FireVfxLibrary` now owns spawning of its own prefabs and applies a per-prefab scale and

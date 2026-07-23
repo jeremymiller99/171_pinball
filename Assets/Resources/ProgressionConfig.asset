@@ -33,6 +33,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6c71f1d73f9f4c8c8dac17a0533b385d, type: 2}
   - {fileID: 11400000, guid: 6991960fb850487b89ead027c40ba193, type: 2}
   - {fileID: 11400000, guid: bd26085432cc41cbad14c5fc708fe1a4, type: 2}
+  - {fileID: 11400000, guid: 22f67c0a7b284d77a6e2be2b20ab2f49, type: 2}
   starterComponents:
   - {fileID: 11400000, guid: 2e273d8f0ebdcd4468266621efe53fbc, type: 2}
   - {fileID: 11400000, guid: de01d113460379245af3316a58b26496, type: 2}
@@ -40,6 +41,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2c99ec52697a8a840a8f0ce2c523e050, type: 2}
   - {fileID: 11400000, guid: bded03c7a8388984f91044d1043a8e3f, type: 2}
   - {fileID: 11400000, guid: 98dfc8b51082f9345b5f1f4759fcf959, type: 2}
+  - {fileID: 11400000, guid: 1d49880a4de1469ea96a87b09d50f857, type: 2}
+  - {fileID: 11400000, guid: ffeb35ffc91f4bb98773c35d0ec56ce0, type: 2}
+  - {fileID: 11400000, guid: 507b10fc91d544e9bb4f20e10e89b3c0, type: 2}
   tiers:
   - xpThreshold: 10000
     rewardBall: {fileID: 11400000, guid: c5d187ab5d6fe49339d3b893bd17a9c6, type: 2}

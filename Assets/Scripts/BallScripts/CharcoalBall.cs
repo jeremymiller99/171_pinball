@@ -54,6 +54,7 @@ public sealed class CharcoalBall : Ball
             return;
         }
 
+        FireDebug.Log($"{name} (queued) fuels {launched.name} x{fuelPerLaunch} at launch");
         FireStatusUtility.GetOrAddBallStatus(launchedBall)?.Fuel(fuelPerLaunch);
     }
 }

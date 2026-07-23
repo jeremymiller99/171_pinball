@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Catalyst bumper: hits Ignite it, and any activation while On Fire (a second
-/// hit or its own burn tick) destroys it, Fueling everything nearby twice and
-/// Igniting it. The burn tick makes the lighter a short fuse once lit.
+/// Catalyst bumper: a hit Ignites it, and a second ball hit while it burns
+/// destroys it, Fueling everything nearby twice and Igniting it. If it burns
+/// out untouched it refills its innate fuel and can be lit again.
 /// </summary>
 public class LighterComponent : Bumper
 {
@@ -23,6 +23,19 @@ public class LighterComponent : Bumper
         {
             _fireStatus = FireStatusUtility.GetOrAddComponentStatus(this);
         }
+
+        if (_fireStatus != null)
+        {
+            _fireStatus.BurnedOut += RefillFuel;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (_fireStatus != null)
+        {
+            _fireStatus.BurnedOut -= RefillFuel;
+        }
     }
 
     new protected void OnCollisionEnter(Collision collision)
@@ -31,17 +44,11 @@ public class LighterComponent : Bumper
 
         if (collision.collider.GetComponent<Ball>() != null)
         {
-            HandleActivation("ball hit");
+            HandleBallHit();
         }
     }
 
-    public override void ActivateAsIfHit()
-    {
-        base.ActivateAsIfHit();
-        HandleActivation("activation tick");
-    }
-
-    private void HandleActivation(string source)
+    private void HandleBallHit()
     {
         if (_exploded || _fireStatus == null)
         {
@@ -50,14 +57,27 @@ public class LighterComponent : Bumper
 
         if (_fireStatus.IsOnFire)
         {
-            FireDebug.Log($"{name} triggered by {source} while burning, exploding");
+            FireDebug.Log($"{name} hit while burning, exploding");
             Explode();
         }
         else if (_fireStatus.IsFlammable)
         {
-            FireDebug.Log($"{name} lit by {source}, blows on its next activation");
+            FireDebug.Log($"{name} lit by hit, explodes if hit again while burning");
             _fireStatus.Ignite();
         }
+    }
+
+    // An untouched burn empties the stacks; top the reservoir back up so
+    // the lighter can be lit again instead of going dead.
+    private void RefillFuel()
+    {
+        if (_exploded || _fireStatus == null)
+        {
+            return;
+        }
+
+        FireDebug.Log($"{name} burn ended untouched, refilling its fuel");
+        _fireStatus.SetStacks(_fireStatus.BaseFlammableStacks);
     }
 
     private void Explode()

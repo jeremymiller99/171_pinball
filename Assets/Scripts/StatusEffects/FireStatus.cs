@@ -83,7 +83,7 @@ public abstract class FireStatus : MonoBehaviour
         DestroyFueledVfx();
         if (isOnFire)
         {
-            ServiceLocator.Get<AudioManager>()?.StopBurningSound();
+            ServiceLocator.Get<AudioManager>()?.StopBurningSound(gameObject);
         }
     }
 
@@ -165,7 +165,7 @@ public abstract class FireStatus : MonoBehaviour
                 : FireVfxLibrary.Instance?.InstantiateOnFireVfx(transform);
         }
         RefreshFueledVfx();
-        ServiceLocator.Get<AudioManager>()?.StartBurningSound();
+        ServiceLocator.Get<AudioManager>()?.StartBurningSound(gameObject);
     }
 
     private void StopFireFeedback()
@@ -176,7 +176,7 @@ public abstract class FireStatus : MonoBehaviour
             _fireVfxInstance = null;
         }
         RefreshFueledVfx();
-        ServiceLocator.Get<AudioManager>()?.StopBurningSound();
+        ServiceLocator.Get<AudioManager>()?.StopBurningSound(gameObject);
     }
 
     /// <summary>

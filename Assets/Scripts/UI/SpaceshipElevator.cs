@@ -91,6 +91,10 @@ public sealed class SpaceshipElevator : MonoBehaviour
     /// </summary>
     public void ShowShip(GameObject shipModelPrefab)
     {
+        // Sound spans the whole animation, so it starts here as the animation starts.
+        // PlayShipSelect cuts any in-progress sting, mirroring Play() cutting the prior
+        // coroutine - re-selecting restarts both together.
+        ServiceLocator.Get<AudioManager>()?.PlayShipSelect(elevator.gameObject);
         Play(SwapSequence(shipModelPrefab));
     }
 
@@ -105,15 +109,17 @@ public sealed class SpaceshipElevator : MonoBehaviour
         ClearShip();
         SetLocalY(raisedLocalY);
         elevator.localRotation = _homeRotation;
+
+        // Reset cancels the animation with no motion, so cut its sound too rather than
+        // leave the sting playing after the platform has snapped away.
+        ServiceLocator.Get<AudioManager>()?.StopShipSelect();
     }
 
     // Spin down, swap the model at the bottom, then spin back up.
     private IEnumerator SwapSequence(GameObject shipModelPrefab)
     {
-        AudioManager audio = ServiceLocator.Get<AudioManager>();
-
-        // Drop-target "down" as the platform sinks into the floor to swap the model.
-        audio?.PlayDropTargetDown(elevator.position);
+        // Audio for the swap is the single ship-select sting started in ShowShip, which
+        // spans the whole down-and-up animation - no per-phase sounds here.
         yield return Move(loweredLocalY);
 
         ClearShip();
@@ -132,8 +138,6 @@ public sealed class SpaceshipElevator : MonoBehaviour
             SetTrailsEmitting(false);
         }
 
-        // Drop-target "up" as it rises back into view carrying the chosen ship.
-        audio?.PlayDropTargetUp(elevator.position);
         yield return Move(raisedLocalY);
         _routine = null;
     }

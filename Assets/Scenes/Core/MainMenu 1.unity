@@ -3352,6 +3352,9 @@ MonoBehaviour:
       Data3: -544931439
       Data4: 505712395
     Path: event:/music_main
+  mainMenuSceneNames:
+  - MainMenu 1
+  - MainMenu
   masterBusPath: bus:/
   musicBusPath: bus:/Music
   sfxBusPath: bus:/SFX
@@ -3474,6 +3477,13 @@ MonoBehaviour:
       Data3: 153186719
       Data4: 1881532589
     Path: event:/value/value_level_up
+  shipSelectSound:
+    Guid:
+      Data1: 763346739
+      Data2: 1224386788
+      Data3: -1373916515
+      Data4: -2090307087
+    Path: event:/environment/env_change_ship
   bumperHitSound:
     Guid:
       Data1: 1449137371
@@ -3481,13 +3491,20 @@ MonoBehaviour:
       Data3: -1154293597
       Data4: -2036301457
     Path: event:/ingame/comp_generic/comp_bumper_param
-  multHitSound:
+  rolloverHitSound:
     Guid:
       Data1: 52175844
       Data2: 1280125249
       Data3: -157741152
       Data4: 1337080504
     Path: event:/ingame/comp_generic/comp_target_param
+  kickerHitSound:
+    Guid:
+      Data1: -637490646
+      Data2: 1157163110
+      Data3: 1195741366
+      Data4: 1679904213
+    Path: event:/ingame/comp_generic/comp_kicker
   flipperUpSound:
     Guid:
       Data1: -1860561248
@@ -3509,6 +3526,13 @@ MonoBehaviour:
       Data3: 1672712324
       Data4: -809238670
     Path: event:/ingame/ball__generic/ball_launched
+  launchDoorSound:
+    Guid:
+      Data1: -1648374938
+      Data2: 1282745675
+      Data3: -276791385
+      Data4: 1664326195
+    Path: event:/environment/env_launch_doors
   portalSound:
     Guid:
       Data1: -452830574
@@ -3635,6 +3659,13 @@ MonoBehaviour:
       Data3: -1783620213
       Data4: -1256172435
     Path: event:/environment/env_screen_hum_loop
+  whirringSoundEvent:
+    Guid:
+      Data1: 1684859871
+      Data2: 1114256557
+      Data3: -2023871355
+      Data4: -2096247187
+    Path: event:/environment/env_pc_whir_loop
   sirenSoundEvent:
     Guid:
       Data1: 1933643124
@@ -3642,6 +3673,13 @@ MonoBehaviour:
       Data3: 681546910
       Data4: 229115585
     Path: event:/value/value_emergency_start_loop
+  radioChatterSoundEvent:
+    Guid:
+      Data1: 1464931412
+      Data2: 1120817454
+      Data3: 330089369
+      Data4: -1733940127
+    Path: event:/environment/env_radio_chatter_loop
 --- !u!4 &266196554
 Transform:
   m_ObjectHideFlags: 0
@@ -7312,9 +7350,9 @@ GameObject:
   m_Component:
   - component: {fileID: 527587504}
   - component: {fileID: 527587503}
-  - component: {fileID: 527587502}
   - component: {fileID: 527587505}
   - component: {fileID: 527587506}
+  - component: {fileID: 527587507}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -7322,14 +7360,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &527587502
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 527587501}
-  m_Enabled: 1
 --- !u!20 &527587503
 Camera:
   m_ObjectHideFlags: 0
@@ -7485,6 +7515,20 @@ MonoBehaviour:
     m_RotationOrder: 4
   lerpRotation: 1
   useUnscaledTime: 1
+--- !u!114 &527587507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 527587501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioListener
+  nonRigidbodyVelocity: 0
+  attenuationObject: {fileID: 0}
 --- !u!1 &530161362
 GameObject:
   m_ObjectHideFlags: 0
@@ -11556,7 +11600,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 192.4, y: -59.2}
+  m_AnchoredPosition: {x: 192.3999, y: -59.19995}
   m_SizeDelta: {x: 400, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &923190152
@@ -17873,7 +17917,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -95.1, y: 25.900024}
+  m_AnchoredPosition: {x: -95.1001, y: 25.900024}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1418252268
@@ -25326,6 +25370,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1889700249}
   - component: {fileID: 1889700248}
+  - component: {fileID: 1889700250}
   m_Layer: 0
   m_Name: Main Menu Controller
   m_TagString: Untagged
@@ -25345,6 +25390,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf7736f65471ce445a665d423575d6ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuController
+  hummingEmitter: {fileID: 0}
+  whirringEmitter: {fileID: 966452332}
   playText: {fileID: 4558786038544478416}
   settingsText: {fileID: 1474164931}
   progressionText: {fileID: 328675474}
@@ -25372,6 +25419,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1889700250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1889700247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a252c48f7c034342a62cf8522a525e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RadioChatterEmitter
 --- !u!1 &1932672379
 GameObject:
   m_ObjectHideFlags: 0

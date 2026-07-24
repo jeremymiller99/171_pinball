@@ -36,6 +36,14 @@ public sealed class MainMenuController : MonoBehaviour
         Fifth = 4        // Camera point 5 — reachable from anywhere with N.
     }
 
+    [Header("Ambience emitters")]
+    [Tooltip("World object the looping screen hum is emitted from (e.g. the monitor). " +
+             "Leave empty to play it non-positionally at the listener.")]
+    [SerializeField] private Transform hummingEmitter;
+    [Tooltip("World object the looping PC whirr is emitted from (e.g. the tower). " +
+             "Leave empty to play it non-positionally at the listener.")]
+    [SerializeField] private Transform whirringEmitter;
+
     [Header("Menu options (assign the TMP_Text objects)")]
     [Tooltip("The 'Play' text object.")]
     [SerializeField] private TMP_Text playText;
@@ -112,13 +120,15 @@ public sealed class MainMenuController : MonoBehaviour
     {
         // Start the looping screen-hum ambience for the menu. Done in Start (not
         // Awake/OnEnable) so the AudioManager has finished registering itself.
-        ServiceLocator.Get<AudioManager>()?.StartHummingSound();
+        ServiceLocator.Get<AudioManager>()?.StartHummingSound(hummingEmitter != null ? hummingEmitter.gameObject : null);
+        ServiceLocator.Get<AudioManager>()?.StartWhirringSound(whirringEmitter != null ? whirringEmitter.gameObject : null);
     }
 
     private void OnDestroy()
     {
         // Stop the hum when leaving the menu scene.
         ServiceLocator.Get<AudioManager>()?.StopHummingSound();
+        ServiceLocator.Get<AudioManager>()?.StopWhirringSound();
     }
 
     private void Initialize()

@@ -176,6 +176,9 @@ public class GameRulesManager : MonoBehaviour
         ServiceLocator.Get<AudioManager>()?.SetMusicMuffled(false);
         float musicState = (ModifierController?.CurrentRoundData != null && ModifierController.CurrentRoundData.type == RoundType.Devil) ? 1f : 0f;
         ServiceLocator.Get<AudioManager>()?.SetMusicState(musicState);
+        // Clear any loss state from a prior failed attempt: this covers Retry, which
+        // routes back through StartRound without passing through the menu.
+        ServiceLocator.Get<AudioManager>()?.SetMusicLoss(0f);
 
         ballsRemaining = BallLoadoutCount;
 
@@ -530,6 +533,10 @@ public class GameRulesManager : MonoBehaviour
 
     public void ShowRoundFailed()
     {
+        // Swing the music into its loss variant. Retrying clears this back to 0 in
+        // StartRound; quitting to the menu stops the music entirely.
+        ServiceLocator.Get<AudioManager>()?.SetMusicLoss(1f);
+
         if (ballSpawner != null) ballSpawner.ClearAll();
 
         var session = GameSession.Instance;

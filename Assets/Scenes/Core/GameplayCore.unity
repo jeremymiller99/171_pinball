@@ -954,6 +954,7 @@ GameObject:
   - component: {fileID: 330585548}
   - component: {fileID: 330585550}
   - component: {fileID: 330585551}
+  - component: {fileID: 330585552}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1139,7 +1140,41 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   enableHoverTooltip: 1
+  currentTooltipObject: {fileID: 0}
   offerDragThresholdPixels: 12
+  _lastHoveredObject: {fileID: 0}
+  _tooltipShownByHover: 0
+  _cachedSpawner: {fileID: 0}
+  _highlightedComponent: {fileID: 0}
+  _highlightedOutline: {fileID: 0}
+  _cachedShopController: {fileID: 0}
+  _highlightedHub: {fileID: 0}
+  _offerDragEntry: {fileID: 0}
+  _offerDragStartScreenPos: {x: 0, y: 0}
+  _offerDragThresholdExceeded: 0
+  _offerDragOriginalPos: {x: 0, y: 0, z: 0}
+  _offerDragWorldOffset: {x: 0, y: 0, z: 0}
+  _offerDragDisabledColliders: []
+  _handBallDragObject: {fileID: 0}
+  _handBallDragSlot: -1
+  _handBallDragStartScreenPos: {x: 0, y: 0}
+  _handBallDragOriginalPos: {x: 0, y: 0, z: 0}
+  _handBallDragThresholdExceeded: 0
+  _handBallDragWorldOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &330585552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioListener
+  nonRigidbodyVelocity: 0
+  attenuationObject: {fileID: 0}
 --- !u!1 &338551169
 GameObject:
   m_ObjectHideFlags: 0
@@ -7035,7 +7070,7 @@ PrefabInstance:
     - target: {fileID: 5277920733326585311, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: cancelButton
       value: 
-      objectReference: {fileID: 2054941051}
+      objectReference: {fileID: 0}
     - target: {fileID: 5477001121217150180, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 74.8
@@ -7902,17 +7937,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
---- !u!114 &2054941051 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5648917450332632532, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
-  m_PrefabInstance: {fileID: 1967764145}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!1 &2105254387
 GameObject:
   m_ObjectHideFlags: 0

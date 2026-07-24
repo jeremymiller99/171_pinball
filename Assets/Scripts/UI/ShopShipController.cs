@@ -291,7 +291,7 @@ public class ShopShipController : MonoBehaviour
     {
         _isParked = false;
         SpaceshipDeparting?.Invoke();
-        ServiceLocator.Get<AudioManager>()?.PlayAlienDeparture();
+        ServiceLocator.Get<AudioManager>()?.PlayAlienDeparture(gameObject);
 
         var marker = ServiceLocator.Get<ShopShipMarker>();
         if (marker == null || marker.offscreenTransform == null || marker.parkTransform == null)
@@ -309,7 +309,7 @@ public class ShopShipController : MonoBehaviour
     private IEnumerator FlyRoutine(Vector3 fromPos, Vector3 toPos, Quaternion startRot, bool isFlyingIn, System.Action onComplete)
     {
         _isParked = false;
-        ServiceLocator.Get<AudioManager>()?.StartAlienShipRumble();
+        ServiceLocator.Get<AudioManager>()?.StartAlienShipRumble(gameObject);
 
         Vector3 direction = toPos - fromPos;
         Quaternion lookRotation = startRot;
@@ -341,7 +341,7 @@ public class ShopShipController : MonoBehaviour
         audio?.StopAlienShipRumble();
         if (isFlyingIn)
         {
-            audio?.PlayAlienArrival(0);
+            audio?.PlayAlienArrival(0, gameObject);
         }
 
         if (isFlyingIn)

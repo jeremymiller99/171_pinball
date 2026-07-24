@@ -216,7 +216,7 @@ GameObject:
   - component: {fileID: 7374129119119500375}
   - component: {fileID: 8270898341964329840}
   m_Layer: 0
-  m_Name: Bumper 2
+  m_Name: Kicker
   m_TagString: Bumper
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

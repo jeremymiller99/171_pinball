@@ -91,6 +91,11 @@ public sealed class BoardLoader : MonoBehaviour
 
         currentBoardRoot.Initialize(board);
 
+        // Gameplay music starts here rather than with the AudioManager, so it only runs
+        // once the player is actually on a table. No-ops if it's already playing, so
+        // advancing to the next board doesn't restart the loop.
+        ServiceLocator.Get<AudioManager>()?.StartBoardMusic();
+
         // Disable duplicate Main Camera and EventSystem in the board scene.
         // GameplayCore provides the main view; additive boards must not have competing cameras/input.
         DisableBoardSceneDuplicates(loadedScene);

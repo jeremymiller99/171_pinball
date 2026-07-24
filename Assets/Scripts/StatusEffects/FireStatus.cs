@@ -70,7 +70,7 @@ public abstract class FireStatus : MonoBehaviour
     {
         if (isOnFire)
         {
-            ServiceLocator.Get<AudioManager>()?.StopBurningSound();
+            ServiceLocator.Get<AudioManager>()?.StopBurningSound(gameObject);
         }
     }
 
@@ -144,7 +144,7 @@ public abstract class FireStatus : MonoBehaviour
         {
             _fireVfxInstance = Instantiate(fireVfxPrefab, transform);
         }
-        ServiceLocator.Get<AudioManager>()?.StartBurningSound();
+        ServiceLocator.Get<AudioManager>()?.StartBurningSound(gameObject);
     }
 
     private void StopFireFeedback()
@@ -154,6 +154,6 @@ public abstract class FireStatus : MonoBehaviour
             Destroy(_fireVfxInstance);
             _fireVfxInstance = null;
         }
-        ServiceLocator.Get<AudioManager>()?.StopBurningSound();
+        ServiceLocator.Get<AudioManager>()?.StopBurningSound(gameObject);
     }
 }

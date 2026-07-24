@@ -333,8 +333,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26
-  m_fontSizeBase: 26
+  m_fontSize: 22
+  m_fontSizeBase: 22
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -593,6 +593,17 @@ MonoBehaviour:
   sellPriceText: {fileID: 0}
   firstDefinitionPanel: {fileID: 0}
   secondDefinitionPanel: {fileID: 0}
+  termDefinitionResourcePath: TermDefinitions
+  ballDefinitionResourcePath: BallDefinitions
+  backgroundMaterials: []
+  shopSkinSprite: {fileID: 0}
+  rarityMaterials: []
+  defaultShopMaterial: {fileID: 0}
+  staticRarityMaterials: []
+  staticDefaultMaterial: {fileID: 0}
+  shopSkinAlpha: 0.85
+  shopSkinPanelPpu: 2
+  shopSkinBarPpu: 4
   controllerInUse: 0
   cachedVector: {x: 0, y: 0}
   necessaryBallDefinitions: []
@@ -708,6 +719,17 @@ MonoBehaviour:
   sellPriceText: {fileID: 0}
   firstDefinitionPanel: {fileID: 0}
   secondDefinitionPanel: {fileID: 0}
+  termDefinitionResourcePath: TermDefinitions
+  ballDefinitionResourcePath: BallDefinitions
+  backgroundMaterials: []
+  shopSkinSprite: {fileID: 0}
+  rarityMaterials: []
+  defaultShopMaterial: {fileID: 0}
+  staticRarityMaterials: []
+  staticDefaultMaterial: {fileID: 0}
+  shopSkinAlpha: 0.85
+  shopSkinPanelPpu: 2
+  shopSkinBarPpu: 4
   controllerInUse: 0
   cachedVector: {x: 0, y: 0}
   necessaryBallDefinitions: []
@@ -1076,8 +1098,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26
-  m_fontSizeBase: 26
+  m_fontSize: 22
+  m_fontSizeBase: 22
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1154,7 +1176,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 5}
+  m_AnchoredPosition: {x: 0, y: -22}
   m_SizeDelta: {x: 200, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1910875925987999101
@@ -1212,8 +1234,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 10
-  m_fontSizeBase: 10
+  m_fontSize: 13
+  m_fontSizeBase: 13
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1426,7 +1448,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 5}
+  m_AnchoredPosition: {x: 0, y: -22}
   m_SizeDelta: {x: 200, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4197853099144117132
@@ -1484,8 +1506,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 10
-  m_fontSizeBase: 10
+  m_fontSize: 13
+  m_fontSizeBase: 13
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1645,8 +1667,8 @@ MonoBehaviour:
   sellPriceText: {fileID: 4218435702175117013}
   firstDefinitionPanel: {fileID: 7961109355782729555}
   secondDefinitionPanel: {fileID: 3261836817418361769}
-  controllerInUse: 0
-  cachedVector: {x: 0, y: 0}
+  termDefinitionResourcePath: TermDefinitions
+  ballDefinitionResourcePath: BallDefinitions
   backgroundMaterials:
   - {fileID: 2100000, guid: 779dd0671ad2447fa8e15aef160d03dd, type: 2}
   - {fileID: 2100000, guid: 89647fabda444f88b1c0a929bdb4e0ac, type: 2}
@@ -1665,6 +1687,11 @@ MonoBehaviour:
   - {fileID: 2100000, guid: ad2039b1ba6f47179b07071d170d3963, type: 2}
   - {fileID: 2100000, guid: cfa724d2846f4ceab2a30645e4c42ad8, type: 2}
   staticDefaultMaterial: {fileID: 2100000, guid: ad2039b1ba6f47179b07071d170d3963, type: 2}
+  shopSkinAlpha: 0.85
+  shopSkinPanelPpu: 2
+  shopSkinBarPpu: 4
+  controllerInUse: 0
+  cachedVector: {x: 0, y: 0}
   necessaryBallDefinitions: []
   necessaryTermDefinitions:
   - {fileID: 11400000, guid: 3cdf96321533ea74786bc6ad07e36ca7, type: 2}
@@ -1766,8 +1793,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 10
-  m_fontSizeBase: 10
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

@@ -14,5 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TermDefinition
   id: 
   displayName: Flammable
-  description: This attribute is accompanied by a value X. When Ignited, a Flammable
-    object will be On Fire for X seconds.
+  description: When Ignited, a Flammable object will be On Fire for X seconds.

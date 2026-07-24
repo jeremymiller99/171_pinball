@@ -1141,6 +1141,8 @@ MonoBehaviour:
       m_Calls: []
   enableHoverTooltip: 1
   currentTooltipObject: {fileID: 0}
+  activeBallHoverRadius: 1.5
+  activeBallHoverMaxSpeed: 0.5
   offerDragThresholdPixels: 12
   _lastHoveredObject: {fileID: 0}
   _tooltipShownByHover: 0
@@ -6989,7 +6991,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: allComponentDefinitions.Array.size
-      value: 12
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4560419963199066672, guid: a4984373e4f3f8a4c8bd2035a09e4f4f, type: 3}
       propertyPath: 'allComponentDefinitions.Array.data[4]'

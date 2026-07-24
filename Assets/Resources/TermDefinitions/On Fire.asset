@@ -14,7 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TermDefinition
   id: 
   displayName: On Fire
-  description: When a ball or component is On Fire, it activates as if collided with
-    every 0.5 seconds. Additionally, if any Flammable object comes into contact with
-    it, that object is Ignited. Objects that are On Fire can be Fueled to extend
-    the duration of the effect.
+  description: On Fire activates the component every 0.5 seconds. Any Flammable object
+    will ignite on collision.

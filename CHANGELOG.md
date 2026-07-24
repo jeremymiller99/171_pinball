@@ -10,6 +10,38 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.10.3 — Tooltip keyword panels resolve from the description text
+_2026-07-24 · Contributor: JJ_
+- Definition Panel 1/2 now populate from any keyword the item's description mentions,
+  not just from a ball's authored tags. Board components, modules, ships, shop offers and
+  the hub had no tags at all, so their keyword panels never appeared — Fire Bumper now
+  pops On Fire, Lighter pops Ignite + On Fire, Frozen Bumper pops Frozen, Gas Station pops
+  Fuel + On Fire, Engine Bumper pops Charge + Flammable.
+- Matching is whole-word and case-insensitive with the inflections the copy actually uses
+  (`Ignite` → "Ignited", `Fuel` → "Fueled", `Detonate` → "detonates"). Longer terms win an
+  overlap, so a future `Fire` term can't steal a match from `On Fire`. Panels are ordered
+  by where the term appears in the sentence.
+- Terms are now loaded from `Resources/TermDefinitions` at runtime instead of relying on
+  `Tooltip Panel.prefab`'s hand-wired `necessaryTermDefinitions`. That list was missing
+  Bouncy, Frozen and Shock, and `necessaryBallDefinitions` was empty — the same wiring gap
+  that already broke keyword panels once in 0.10.0. Ball tags resolve out of
+  `Resources/BallDefinitions` the same way. The prefab lists are still honored as overrides.
+- Stale-text fix: an unresolved tag used to leave its panel *active* showing the previous
+  item's keyword. A panel is now shown only once a definition actually resolved, so
+  Confetti (`Holoballs`) and Eye on The Prize (`Craft`, `Pinballs`) hide theirs rather than
+  lying. Content gaps behind those: `Holoballs` and `Craft` have no asset at all and need
+  term assets authored; `Pinballs` fails only because the tag is pluralized and the asset
+  is `Pinball` — tag matching is deliberately exact, so one of the two names has to change.
+- Tags are matched against the locale-invariant asset name first, and `DefinitionPanel`
+  null-guards its text refs, so the runtime-built fallback tooltip in `TooltipManager`
+  (which never assigns the panels) can no longer throw on `Show`.
+- Known limitation — English only. `TermDefinition` has no `LocalizedContent` route and
+  `content_localization.csv` has no `term.*` keys, so the scan builds its patterns from raw
+  English display names while `BallDefinition.Description` is translated. Under a non-English
+  locale the tag-driven panels still resolve (asset names are locale-invariant) but the
+  description scan matches nothing. Adding `term.*` keys and routing
+  `TermDefinition.DisplayName`/`Description` through `LocalizedContent` closes this.
+
 ## 0.10.2 — Lighter reworked to two-hit fuse + PR cleanup
 _2026-07-23 · Contributor: Devin_
 - Lighter no longer self-destructs off its own burn tick half a second after catching

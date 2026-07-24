@@ -14,5 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TermDefinition
   id: 
   displayName: Fuel
-  description: When an object is fueled, it gains one Flammable. This does not reset
-    between launches.
+  description: Gain 1 Flammable.

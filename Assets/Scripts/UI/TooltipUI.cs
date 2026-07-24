@@ -6,11 +6,16 @@
 // Updated 2026-04-21: added ShowBuy/ShowSell with dedicated price panels
 // so buy/sell prices render inside the prefab-authored panels instead of
 // being prepended to the description string.
+// Updated 2026-07-24 by Claude Code (claude-opus-5): definition panels now also
+// resolve keywords found in the description text and load their terms from
+// Resources, so every tooltip source gets keyword panels and an unresolved tag
+// hides its panel instead of showing the previous item's text.
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 
 #if ENABLE_INPUT_SYSTEM
@@ -53,6 +58,18 @@ public sealed class TooltipUI : MonoBehaviour
 
     [SerializeField] private DefinitionPanel firstDefinitionPanel;
     [SerializeField] private DefinitionPanel secondDefinitionPanel;
+
+    [Header("Keyword definitions")]
+    [Tooltip("Resources folder holding every TermDefinition. Loaded at runtime "
+        + "so a keyword resolves even when the list below was never re-populated "
+        + "by the CSV import.")]
+    [SerializeField] private string termDefinitionResourcePath =
+        "TermDefinitions";
+
+    [Tooltip("Resources folder holding every BallDefinition, used when a tag "
+        + "names another ball rather than a term.")]
+    [SerializeField] private string ballDefinitionResourcePath =
+        "BallDefinitions";
 
     [Header("Shop skin")]
     [Tooltip("Backgrounds for the shop-only skin; one is rolled per "
@@ -102,6 +119,51 @@ public sealed class TooltipUI : MonoBehaviour
 
     private const float cursorOffsetY = 40f;
     private const float screenEdgePadding = 12f;
+    private const int definitionPanelCount = 2;
+
+    // Matches a whole word, allowing the plural/past/gerund forms the ball and
+    // component copy uses: Ignite -> Ignited, Fuel -> Fueled, Detonate ->
+    // detonates.
+    private const string keywordSuffixPattern = "(s|es|d|ed|ing)?";
+
+    private static readonly RegexOptions keywordRegexOptions =
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant;
+
+    private List<TermDefinition> _termLookup;
+    private List<BallDefinition> _ballLookup;
+    private List<Regex> _keywordPatterns;
+
+    private readonly List<DefinitionEntry> _resolvedDefinitions =
+        new List<DefinitionEntry>();
+
+    private readonly List<KeywordMatch> _keywordMatches =
+        new List<KeywordMatch>();
+
+    private readonly struct DefinitionEntry
+    {
+        public DefinitionEntry(string displayName, string description)
+        {
+            DisplayName = displayName;
+            Description = description;
+        }
+
+        public string DisplayName { get; }
+        public string Description { get; }
+    }
+
+    private readonly struct KeywordMatch
+    {
+        public KeywordMatch(int index, int length, TermDefinition definition)
+        {
+            Index = index;
+            Length = length;
+            Definition = definition;
+        }
+
+        public int Index { get; }
+        public int Length { get; }
+        public TermDefinition Definition { get; }
+    }
 
 
     private void Awake()
@@ -119,6 +181,7 @@ public sealed class TooltipUI : MonoBehaviour
         _canvasGroup = GetComponent<CanvasGroup>();
         _canvasGroup.blocksRaycasts = false;
         CacheCanvas();
+        EnsureDefinitionLookups();
         gameObject.SetActive(false);
     }
 
@@ -142,7 +205,7 @@ public sealed class TooltipUI : MonoBehaviour
     {
         ApplyContent(title, description, elementType, secondaryElementType);
         SetPricePanels(PriceMode.None, 0);
-        SetDefinitionPanels(tags);
+        SetDefinitionPanels(tags, description);
 
         gameObject.SetActive(true);
         _rect.SetAsLastSibling();
@@ -186,7 +249,7 @@ public sealed class TooltipUI : MonoBehaviour
     {
         ApplyContent(title, description, elementType, secondaryElementType);
         SetPricePanels(PriceMode.None, 0);
-        SetDefinitionPanels(tags);
+        SetDefinitionPanels(tags, description);
 
         gameObject.SetActive(true);
         _rect.SetAsLastSibling();
@@ -257,46 +320,243 @@ public sealed class TooltipUI : MonoBehaviour
         SetPricePanels(PriceMode.Sell, price);
     }
 
-    private void SetDefinitionPanels(List<string> tags)
+    /// <summary>
+    /// Fills the two keyword panels from the item's authored tags first, then
+    /// from any term named in its description. A panel is only shown once a
+    /// definition actually resolved, so it can never keep a previous item's
+    /// text.
+    /// </summary>
+    private void SetDefinitionPanels(List<string> tags, string description)
     {
-        if (tags == null || tags.Count == 0)
+        EnsureDefinitionLookups();
+
+        _resolvedDefinitions.Clear();
+        CollectTaggedDefinitions(tags);
+        CollectKeywordDefinitions(description);
+
+        ApplyDefinitionPanel(firstDefinitionPanel, 0);
+        ApplyDefinitionPanel(secondDefinitionPanel, 1);
+    }
+
+    private void ApplyDefinitionPanel(DefinitionPanel panel, int index)
+    {
+        if (panel == null)
         {
-            firstDefinitionPanel.gameObject.SetActive(false);
-            secondDefinitionPanel.gameObject.SetActive(false);
             return;
         }
 
-        if (tags.Count == 1)
+        if (index >= _resolvedDefinitions.Count)
         {
-            firstDefinitionPanel.gameObject.SetActive(true);
-            secondDefinitionPanel.gameObject.SetActive(false);
-            PopulateDefintionPanel(firstDefinitionPanel, tags[0]);
-        } else
+            panel.gameObject.SetActive(false);
+            return;
+        }
+
+        DefinitionEntry entry = _resolvedDefinitions[index];
+        panel.Populate(entry.DisplayName, entry.Description);
+        panel.gameObject.SetActive(true);
+    }
+
+    private void CollectTaggedDefinitions(List<string> tags)
+    {
+        if (tags == null)
         {
-            firstDefinitionPanel.gameObject.SetActive(true);
-            secondDefinitionPanel.gameObject.SetActive(true);
-            PopulateDefintionPanel(firstDefinitionPanel, tags[0]);
-            PopulateDefintionPanel(secondDefinitionPanel, tags[1]);
+            return;
+        }
+
+        foreach (string tag in tags)
+        {
+            if (_resolvedDefinitions.Count >= definitionPanelCount)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(tag))
+            {
+                continue;
+            }
+
+            TermDefinition term = FindTerm(tag);
+            if (term != null)
+            {
+                AddDefinition(
+                    term.GetSafeDisplayName(), term.Description);
+                continue;
+            }
+
+            BallDefinition ball = FindBall(tag);
+            if (ball != null)
+            {
+                AddDefinition(
+                    ball.GetSafeDisplayName(), ball.Description);
+            }
         }
     }
 
-    private void PopulateDefintionPanel(DefinitionPanel panel, string tag)
+    private void CollectKeywordDefinitions(string description)
     {
-        foreach (var def in necessaryTermDefinitions)
+        if (string.IsNullOrWhiteSpace(description)
+            || _resolvedDefinitions.Count >= definitionPanelCount)
         {
-            if (def.DisplayName == tag)
+            return;
+        }
+
+        _keywordMatches.Clear();
+
+        for (int i = 0; i < _termLookup.Count; i++)
+        {
+            if (_keywordPatterns[i] == null)
             {
-                panel.Populate(def);
-                break;
+                continue;
+            }
+
+            System.Text.RegularExpressions.Match match =
+                _keywordPatterns[i].Match(description);
+            if (!match.Success || OverlapsExistingMatch(match))
+            {
+                continue;
+            }
+
+            _keywordMatches.Add(new KeywordMatch(
+                match.Index, match.Length, _termLookup[i]));
+        }
+
+        // Terms were tested longest-first so an overlap resolves to the longer
+        // name, but the panels read better in the order the copy mentions them.
+        _keywordMatches.Sort(
+            (a, b) => a.Index.CompareTo(b.Index));
+
+        foreach (KeywordMatch match in _keywordMatches)
+        {
+            if (_resolvedDefinitions.Count >= definitionPanelCount)
+            {
+                return;
+            }
+
+            AddDefinition(
+                match.Definition.GetSafeDisplayName(),
+                match.Definition.Description);
+        }
+    }
+
+    private bool OverlapsExistingMatch(
+        System.Text.RegularExpressions.Match match)
+    {
+        foreach (KeywordMatch existing in _keywordMatches)
+        {
+            if (match.Index < existing.Index + existing.Length
+                && existing.Index < match.Index + match.Length)
+            {
+                return true;
             }
         }
 
-        foreach (var def in necessaryBallDefinitions)
+        return false;
+    }
+
+    private void AddDefinition(string displayName, string description)
+    {
+        foreach (DefinitionEntry entry in _resolvedDefinitions)
         {
-            if (def.DisplayName == tag)
+            if (entry.DisplayName == displayName)
             {
-                panel.Populate(def);
-                break;
+                return;
+            }
+        }
+
+        _resolvedDefinitions.Add(
+            new DefinitionEntry(displayName, description));
+    }
+
+    // Tags are authored as CSV asset names, so the locale-invariant asset name
+    // is matched first and the localized display name only as a fallback.
+    private TermDefinition FindTerm(string tag)
+    {
+        foreach (TermDefinition def in _termLookup)
+        {
+            if (def.name == tag || def.DisplayName == tag)
+            {
+                return def;
+            }
+        }
+
+        return null;
+    }
+
+    private BallDefinition FindBall(string tag)
+    {
+        foreach (BallDefinition def in _ballLookup)
+        {
+            if (def.name == tag || def.DisplayName == tag)
+            {
+                return def;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Builds the term/ball lookups once. The prefab's hand-wired lists are
+    /// kept for authored overrides but the Resources sweep is what guarantees
+    /// every shipped term is reachable.
+    /// </summary>
+    private void EnsureDefinitionLookups()
+    {
+        if (_termLookup != null)
+        {
+            return;
+        }
+
+        _termLookup = new List<TermDefinition>();
+        AddNamedDefinitions(_termLookup, necessaryTermDefinitions);
+        AddNamedDefinitions(
+            _termLookup,
+            Resources.LoadAll<TermDefinition>(termDefinitionResourcePath));
+
+        _termLookup.Sort((a, b) =>
+            b.GetSafeDisplayName().Length
+                .CompareTo(a.GetSafeDisplayName().Length));
+
+        // Index-aligned with _termLookup; an unnamed term stays findable by
+        // tag but is given no pattern so it can't match stray prose.
+        _keywordPatterns = new List<Regex>(_termLookup.Count);
+        foreach (TermDefinition def in _termLookup)
+        {
+            if (string.IsNullOrWhiteSpace(def.DisplayName))
+            {
+                _keywordPatterns.Add(null);
+                continue;
+            }
+
+            _keywordPatterns.Add(new Regex(
+                @"\b"
+                + Regex.Escape(def.DisplayName)
+                + keywordSuffixPattern
+                + @"\b",
+                keywordRegexOptions));
+        }
+
+        _ballLookup = new List<BallDefinition>();
+        AddNamedDefinitions(_ballLookup, necessaryBallDefinitions);
+        AddNamedDefinitions(
+            _ballLookup,
+            Resources.LoadAll<BallDefinition>(ballDefinitionResourcePath));
+    }
+
+    private static void AddNamedDefinitions<T>(
+        List<T> target, IEnumerable<T> source)
+        where T : UnityEngine.Object
+    {
+        if (source == null)
+        {
+            return;
+        }
+
+        foreach (T item in source)
+        {
+            if (item != null && !target.Contains(item))
+            {
+                target.Add(item);
             }
         }
     }

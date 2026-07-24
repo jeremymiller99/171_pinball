@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: FireVfxLibrary
   m_EditorClassIdentifier: Assembly-CSharp::FireVfxLibrary
   fueledVfxPrefab: {fileID: 8656522925564163052, guid: e509867be4f82f246a95eca1ee5a2d61, type: 3}
-  fueledVfxScale: 0.3
+  fueledVfxScale: 0.45
   fueledVfxEmissionMultiplier: 0.35
-  onFireVfxPrefab: {fileID: 8172849020266659018, guid: 2af5562ce69fc2d448481a1587a352a5, type: 3}
+  onFireVfxPrefab: {fileID: 1206498299807332555, guid: af6c1e3f046eecd4d81330aeb285600f, type: 3}
   onFireVfxScale: 0.5
   onFireVfxEmissionMultiplier: 1

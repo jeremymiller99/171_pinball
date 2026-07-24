@@ -44,40 +44,55 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1d49880a4de1469ea96a87b09d50f857, type: 2}
   - {fileID: 11400000, guid: ffeb35ffc91f4bb98773c35d0ec56ce0, type: 2}
   - {fileID: 11400000, guid: 507b10fc91d544e9bb4f20e10e89b3c0, type: 2}
+  starterShips:
+  - {fileID: 11400000, guid: 39f57c8ee62a2354abfe20f520879a5a, type: 2}
+  - {fileID: 11400000, guid: 672581e447f11ad4995811d59ff8ba31, type: 2}
   tiers:
   - xpThreshold: 10000
     rewardBall: {fileID: 11400000, guid: c5d187ab5d6fe49339d3b893bd17a9c6, type: 2}
     rewardComponent: {fileID: 0}
+    rewardShip: {fileID: 0}
   - xpThreshold: 20000
     rewardBall: {fileID: 0}
     rewardComponent: {fileID: 11400000, guid: ca442fffa8476264d94780ba67994e3f, type: 2}
+    rewardShip: {fileID: 0}
   - xpThreshold: 30000
     rewardBall: {fileID: 11400000, guid: d0595fc864dad404d8c3c89b73f794b7, type: 2}
     rewardComponent: {fileID: 0}
+    rewardShip: {fileID: 0}
   - xpThreshold: 40000
     rewardBall: {fileID: 0}
     rewardComponent: {fileID: 11400000, guid: 78be3238a08a20f4fa5be324b0c8657e, type: 2}
+    rewardShip: {fileID: 0}
   - xpThreshold: 50000
     rewardBall: {fileID: 11400000, guid: 81c71a33b8bf04cf1b30eea0435ec7f8, type: 2}
     rewardComponent: {fileID: 0}
+    rewardShip: {fileID: 0}
   - xpThreshold: 60000
     rewardBall: {fileID: 0}
     rewardComponent: {fileID: 11400000, guid: 02d1ef1d206898948a8bc7704e5bad27, type: 2}
+    rewardShip: {fileID: 0}
   - xpThreshold: 70000
     rewardBall: {fileID: 11400000, guid: bc5c7467f0bb6f64f988fb888cbecd97, type: 2}
     rewardComponent: {fileID: 0}
+    rewardShip: {fileID: 0}
   - xpThreshold: 80000
     rewardBall: {fileID: 0}
     rewardComponent: {fileID: 11400000, guid: cc4abed5aa9e62b49b36e019a7e85a3a, type: 2}
+    rewardShip: {fileID: 0}
   - xpThreshold: 90000
     rewardBall: {fileID: 11400000, guid: cea58c17d5a2d46c1baff2d288a8ac96, type: 2}
     rewardComponent: {fileID: 0}
+    rewardShip: {fileID: 0}
   - xpThreshold: 100000
     rewardBall: {fileID: 0}
     rewardComponent: {fileID: 11400000, guid: f22b0a11bcce1314889410572c6f5dc9, type: 2}
+    rewardShip: {fileID: 0}
   - xpThreshold: 110000
     rewardBall: {fileID: 11400000, guid: 5e268c55c6e0e4e1fa52229fb8702861, type: 2}
     rewardComponent: {fileID: 0}
+    rewardShip: {fileID: 0}
   - xpThreshold: 120000
     rewardBall: {fileID: 0}
     rewardComponent: {fileID: 11400000, guid: f22b0a11bcce1314889410572c6f5dc9, type: 2}
+    rewardShip: {fileID: 0}

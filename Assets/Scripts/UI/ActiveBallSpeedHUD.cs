@@ -110,10 +110,8 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         InitMeterIfNeeded();
     }
 
-    private void Start()
-    {
-        ServiceLocator.Get<AudioManager>()?.StartRollingSound();
-    }
+    // The rolling loop is started (and re-pinned) from Update as soon as there is an
+    // active ball to attach it to - starting it here would leave it briefly unpositioned.
 
     private void ResolveRefs()
     {
@@ -210,6 +208,10 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         {
             _activeBall = ball;
             _activeRb = _activeBall ? _activeBall.GetComponent<Rigidbody>() : null;
+
+            // Re-pin the rolling loop to whichever ball is now live so it tracks that
+            // ball's position (and feeds its rigidbody velocity to FMOD for doppler).
+            ServiceLocator.Get<AudioManager>()?.StartRollingSound(_activeBall, _activeRb);
         }
 
         if (!_activeBall || !_activeRb)

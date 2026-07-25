@@ -18,14 +18,7 @@ public class BallCSVPopulator
             if (AssetDatabase.AssetPathExists("Assets" + ballSOPath + splitData[0] + ".asset"))
             {
                 BallDefinition ballDef = AssetDatabase.LoadAssetAtPath<BallDefinition>("Assets" + ballSOPath + splitData[0] + ".asset");
-                if (splitData.Length == 4)
-                {
-                    ballDef.UpdateDesc(splitData[0], splitData[1], splitData[2], splitData[3]);
-                } else
-                {
-                    ballDef.UpdateDesc(splitData[0], splitData[1], splitData[2], splitData[3], splitData[4]);
-                }
-                
+                ballDef.UpdateDesc(splitData);
                 EditorUtility.SetDirty(ballDef);
                 AssetDatabase.SaveAssetIfDirty(ballDef);
             }

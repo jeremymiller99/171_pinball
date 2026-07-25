@@ -155,6 +155,39 @@ public sealed class TooltipHeaderManager : MonoBehaviour
         mgr._instance.Hide();
     }
 
+    public static void ApplyShopSkin()
+    {
+        var mgr = ServiceLocator.Get<TooltipHeaderManager>();
+        if (mgr == null || mgr._instance == null)
+        {
+            return;
+        }
+
+        mgr._instance.ApplyShopSkin();
+    }
+
+    public static void ApplyDefaultSkin()
+    {
+        var mgr = ServiceLocator.Get<TooltipHeaderManager>();
+        if (mgr == null || mgr._instance == null)
+        {
+            return;
+        }
+
+        mgr._instance.ApplyDefaultSkin();
+    }
+
+    public static void ApplyRaritySkin(BallRarity? rarity)
+    {
+        var mgr = ServiceLocator.Get<TooltipHeaderManager>();
+        if (mgr == null || mgr._instance == null)
+        {
+            return;
+        }
+
+        mgr._instance.ApplyRaritySkin(rarity);
+    }
+
     public static bool IsVisible
     {
         get

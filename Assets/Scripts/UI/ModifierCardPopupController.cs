@@ -22,6 +22,9 @@ public sealed class ModifierCardPopupController : MonoBehaviour
     [Tooltip("Full on/off cycle time (seconds) of the red warning blink.")]
     [Min(0.01f)]
     [SerializeField] private float devilFlashCycleSeconds = 0.25f;
+    [Tooltip("World object the warning siren is emitted from. Leave empty to play it " +
+             "non-positionally at the listener.")]
+    [SerializeField] private Transform sirenEmitter;
 
     [Header("Runtime (debug)")]
     [SerializeField] private bool isHooked;
@@ -258,7 +261,7 @@ public sealed class ModifierCardPopupController : MonoBehaviour
         _devilLockedLevelIndex = levelIndex;
 
         DevilRoundLights.BeginWarningFlash(Mathf.Max(0.01f, devilFlashCycleSeconds));
-        ServiceLocator.Get<AudioManager>()?.StartSirenSound();
+        ServiceLocator.Get<AudioManager>()?.StartSirenSound(sirenEmitter != null ? sirenEmitter.gameObject : null);
 
         _devilWarningRoutine = StartCoroutine(DevilWarningRoutine(data, levelIndex));
     }

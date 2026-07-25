@@ -25,6 +25,19 @@ public class CasinoComponent : Bumper
 
         }
     }
+    public override void ActivateAsIfHit()
+    {
+        onBallHit?.Invoke();
+        ballHits++;
+        if (enableHitCountPopup)
+            SpawnBoardHitCountPopup(ballHits, 0);
+
+        if (ballHits % ballHitsToGamble == 0)
+        {
+            AddScore();
+        }
+    }
+
     override public void AddScore()
     {
         scoreManager.AddScore(Mathf.Floor(Random.Range(minScoreToAdd, maxScoreToAdd) * decimalPlace) / decimalPlace,

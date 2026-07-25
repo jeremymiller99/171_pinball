@@ -18,21 +18,23 @@ public class FrozenComponent : Bumper
     new void OnCollisionEnter(Collision collision)
     {
         base.OnCollisionEnter(collision);
-        if (!_unfrozen && ballHits <= ballHitsToUnfreeze)
-        {
-            SpawnBoardHitCountPopup(ballHits, ballHitsToUnfreeze);
-        }
-        if (ballHits == ballHitsToUnfreeze)
-        {
-            amountToScore = cachedAmountToScore;
-            _unfrozen = true;
-            ballHits = 0;
-        }
+        HandleHitProgression();
     }
 
     new void OnTriggerEnter(Collider other)
     {
         base.OnTriggerEnter(other);
+        HandleHitProgression();
+    }
+
+    public override void ActivateAsIfHit()
+    {
+        base.ActivateAsIfHit();
+        HandleHitProgression();
+    }
+
+    private void HandleHitProgression()
+    {
         if (!_unfrozen && ballHits <= ballHitsToUnfreeze)
         {
             SpawnBoardHitCountPopup(ballHits, ballHitsToUnfreeze);

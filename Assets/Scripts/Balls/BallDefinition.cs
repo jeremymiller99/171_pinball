@@ -2,7 +2,12 @@
 // Updated by Antigravity (claude-4.6-opus) on 2026-04-06:
 // added ElementType field.
 
+using NUnit.Framework;
 using UnityEngine;
+using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 /// <summary>
 /// Central source of truth for a ball's shop + UI metadata.
@@ -21,6 +26,7 @@ public class BallDefinition : ScriptableObject
     [SerializeField] private BallRarity rarity = BallRarity.Common;
     [SerializeField] private ElementType elementType = ElementType.None;
     [SerializeField] private ElementType secondaryElementType = ElementType.None;
+    [SerializeField] private List<string> tags = new List<string>();
     [SerializeField] private Sprite icon;
 
     [Header("Gameplay")]
@@ -28,6 +34,11 @@ public class BallDefinition : ScriptableObject
     [SerializeField] private GameObject prefab;
     [Min(0)]
     [SerializeField] private int price = 10;
+#if UNITY_EDITOR
+    private static string tooltipPrefabPath = "/Prefabs/UI/Tooltips/Tooltip Panel";
+    private static string ballSOPath = "/Resources/BallDefinitions/";
+    private static string termSOPath = "/Resources/TermDefinitions/";
+#endif
 
     public string Id => id;
     public string DisplayName => LocalizedContent.Get("ball", name, "name", displayName);
@@ -37,6 +48,7 @@ public class BallDefinition : ScriptableObject
     public ElementType SecondaryElementType => secondaryElementType;
     public Sprite Icon => icon;
     public GameObject Prefab => prefab;
+    public List<string> Tags => tags;
     public int Price => price;
 
     public static BallDefinition CreateRuntime(
@@ -85,13 +97,55 @@ public class BallDefinition : ScriptableObject
         price = Mathf.Max(0, price);
     }
 
-    public void UpdateDesc(string newName, string newDescription, string newRarity, string newType, string newSecondaryType = "")
+    public void UpdateDesc(string[] data)
     {
-        displayName = newName;
-        description = newDescription;
-        rarity = GetBallRarity(newRarity);
-        elementType = GetElementType(newType);
-        secondaryElementType = GetElementType(newSecondaryType);
+        displayName = data[0];
+        description = data[1];
+        rarity = GetBallRarity(data[2]);
+        elementType = GetElementType(data[3]);
+        string[] splitTags;
+        if (GetElementType(data[4]) != ElementType.None)
+        {
+            secondaryElementType = GetElementType(data[4]);
+            splitTags = data[5].Split(' ');
+        } else
+        {
+            splitTags = data[4].Split(' ');
+        }
+
+        for (int i = 0; i < splitTags.Length; i++)
+        {
+            if (!string.IsNullOrWhiteSpace(splitTags[i]) && !tags.Contains(splitTags[i]))
+            {
+                tags.Add(splitTags[i]);
+            }
+        }
+
+#if UNITY_EDITOR
+        TooltipUI tooltipPrefab = AssetDatabase.LoadAssetAtPath<TooltipUI>("Assets" + tooltipPrefabPath + ".prefab");
+        for (int i = 0; i < tags.Count; i++)
+        {
+            if (AssetDatabase.AssetPathExists("Assets" + ballSOPath + tags[i] + ".asset"))
+            {
+                BallDefinition ballDef = AssetDatabase.LoadAssetAtPath<BallDefinition>("Assets" + ballSOPath + tags[i] + ".asset");
+                if (tooltipPrefab.necessaryBallDefinitions.Contains(ballDef))
+                {
+                    continue;
+                }
+                tooltipPrefab.necessaryBallDefinitions.Add(ballDef);
+            } else if (AssetDatabase.AssetPathExists("Assets" + termSOPath + tags[i] + ".asset"))
+            {
+                TermDefinition termDef = AssetDatabase.LoadAssetAtPath<TermDefinition>("Assets" + termSOPath + tags[i] + ".asset");
+                if (tooltipPrefab.necessaryTermDefinitions.Contains(termDef))
+                {
+                    continue;
+                }
+                tooltipPrefab.necessaryTermDefinitions.Add(termDef);
+            }
+        }
+        EditorUtility.SetDirty(tooltipPrefab);
+        AssetDatabase.SaveAssetIfDirty(tooltipPrefab);
+#endif
     }
 
     public static ElementType GetElementType(
@@ -100,13 +154,12 @@ public class BallDefinition : ScriptableObject
 
         ElementType fallback = type.ToLower() switch
         {
-            "striker" => ElementType.Striker,
-            "amplifier" => ElementType.Amplifier,
-            "mint" => ElementType.Mint,
-            "splitter" => ElementType.Splitter,
-            "anomaly" => ElementType.Anomaly,
-            "catalyst" => ElementType.Catalyst,
-            "module" => ElementType.Module,
+            "standard" => ElementType.Standard,
+            "alteration" => ElementType.Alteration,
+            "exchange" => ElementType.Exchange,
+            "entropy" => ElementType.Entropy,
+            "tech" => ElementType.Tech,
+            "void" => ElementType.Void,
             _ => ElementType.None
         };
 

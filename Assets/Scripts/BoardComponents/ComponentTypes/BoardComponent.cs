@@ -324,6 +324,24 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
             amountToScore, typeOfScore, transform);
     }
 
+    /// <summary>
+    /// Programmatic activation (fire ticks, detonations): replays the
+    /// hit bookkeeping and scores without a ball, so no ball
+    /// multipliers apply.
+    /// </summary>
+    virtual public void ActivateAsIfHit()
+    {
+        onBallHit?.Invoke();
+        ballHits++;
+        if (enableHitCountPopup)
+            SpawnBoardHitCountPopup(ballHits, 0);
+
+        if (amountToScore != 0)
+        {
+            AddScore();
+        }
+    }
+
     protected void SpawnBoardHitCountPopup(
         int current, int total)
     {

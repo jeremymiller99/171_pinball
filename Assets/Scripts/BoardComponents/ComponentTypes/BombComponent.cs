@@ -22,14 +22,25 @@ public class BombComponent : Bumper
         base.OnCollisionEnter(collision);
         if (collision.collider.GetComponent<Ball>())
         {
-            SpawnBoardHitCountPopup(ballHits, ballHitsToExplode);
-            if (ballHits % ballHitsToExplode == 0)
-            {
-                ballHits = 0;
-                explosion.SetActive(true);
-                explosion.GetComponent<Bomb>().Explode();
-                StartCoroutine("DespawnExplosion");
-            }
+            TryExplode();
+        }
+    }
+
+    public override void ActivateAsIfHit()
+    {
+        base.ActivateAsIfHit();
+        TryExplode();
+    }
+
+    private void TryExplode()
+    {
+        SpawnBoardHitCountPopup(ballHits, ballHitsToExplode);
+        if (ballHits % ballHitsToExplode == 0)
+        {
+            ballHits = 0;
+            explosion.SetActive(true);
+            explosion.GetComponent<Bomb>().Explode();
+            StartCoroutine("DespawnExplosion");
         }
     }
 

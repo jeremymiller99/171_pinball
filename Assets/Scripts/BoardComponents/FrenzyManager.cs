@@ -42,7 +42,7 @@ public class FrenzyManager : MonoBehaviour
         // Board VFX is owned by LevelUpVFXTrigger (board scene), so the
         // frenzy particle is configured alongside the level-up effects.
         ServiceLocator.Get<LevelUpVFXTrigger>()?.SpawnFrenzyVFX(position);
-        ServiceLocator.Get<AudioManager>()?.PlayFrenzyActivated();
+        ServiceLocator.Get<AudioManager>()?.PlayFrenzyActivated(position);
     }
 
     // Freeze/unfreeze the frenzy countdown. Calls must be balanced; use the

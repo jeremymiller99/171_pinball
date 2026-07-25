@@ -84,6 +84,19 @@ public sealed class Monitor2Controller : MonoBehaviour
     [Tooltip("Placeholder shown on the mission list (2c) when the chosen playfield has no missions.")]
     [SerializeField] private string missionEmptyText = "No missions available";
 
+    [Header("Sequential reveal")]
+    [Tooltip("Canvas GameObjects revealed in order as the player fills things in. " +
+             "The playfield canvas is shown as soon as monitor 2 opens; the mission " +
+             "canvas turns on once a playfield is chosen; the ship canvas turns on " +
+             "once a mission is chosen. The Start canvas (2a) is left alone (always on).")]
+    [SerializeField] private GameObject playfieldCanvasRoot;
+
+    [Tooltip("Turned on only after a playfield has been chosen.")]
+    [SerializeField] private GameObject missionCanvasRoot;
+
+    [Tooltip("Turned on only after a mission has been chosen.")]
+    [SerializeField] private GameObject shipCanvasRoot;
+
     [Header("Styling")]
     [Tooltip("Color + arrows applied to the highlighted (caret) row on the focused list.")]
     [SerializeField] private Color selectedColor = new Color(0.95f, 0.95f, 1f, 1f);
@@ -215,9 +228,46 @@ public sealed class Monitor2Controller : MonoBehaviour
 
         UpdateSummaries();
         ApplyAllVisuals();
+        UpdateCanvasGating();
         RefreshStartState();
 
         _active = true;
+    }
+
+    // ---- Sequential reveal ---------------------------------------------
+
+    // Whether a canvas is currently available to see / focus. Steps unlock in
+    // order: the playfield is always open, the mission opens once a playfield is
+    // chosen, the ship opens once a mission is chosen. Start (2a) stays open.
+    private bool IsUnlocked(CanvasId id)
+    {
+        switch (id)
+        {
+            case CanvasId.Playfield: return true;
+            case CanvasId.Mission:   return _selectedBoard != null;
+            case CanvasId.Ship:      return _selectedMission != null;
+            case CanvasId.Start:     return true;
+            default:                 return false;
+        }
+    }
+
+    // Shows/hides the mission and ship canvases to match the unlock order. The
+    // playfield canvas is turned on here too (it's the first step), and the Start
+    // canvas (2a) is intentionally left alone so it's always visible.
+    private void UpdateCanvasGating()
+    {
+        if (playfieldCanvasRoot != null)
+        {
+            playfieldCanvasRoot.SetActive(IsUnlocked(CanvasId.Playfield));
+        }
+        if (missionCanvasRoot != null)
+        {
+            missionCanvasRoot.SetActive(IsUnlocked(CanvasId.Mission));
+        }
+        if (shipCanvasRoot != null)
+        {
+            shipCanvasRoot.SetActive(IsUnlocked(CanvasId.Ship));
+        }
     }
 
     /// <summary>Stops input handling and any Start flashing. Called on Back.</summary>
@@ -471,6 +521,7 @@ public sealed class Monitor2Controller : MonoBehaviour
 
         UpdateSummaries();
         ApplyAllVisuals();
+        UpdateCanvasGating();
         RefreshStartState();
     }
 
@@ -676,7 +727,21 @@ public sealed class Monitor2Controller : MonoBehaviour
     private void MoveFocus(int direction)
     {
         int count = 4; // Playfield, Mission, Ship, Start
-        int next = (((int)_focused + direction) % count + count) % count;
+        // Step over any canvases that haven't been unlocked yet so keyboard focus
+        // can't jump ahead to a hidden step.
+        int next = (int)_focused;
+        for (int step = 0; step < count; step++)
+        {
+            next = ((next + direction) % count + count) % count;
+            if (IsUnlocked((CanvasId)next))
+            {
+                break;
+            }
+        }
+        if (next == (int)_focused)
+        {
+            return;
+        }
         _focused = (CanvasId)next;
         PlayHoverSound();
         ApplyAllVisuals();

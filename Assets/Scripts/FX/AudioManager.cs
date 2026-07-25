@@ -2,14 +2,20 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using FMODUnity;
 using FMOD.Studio;
 using System.Collections;
+using System.Collections.Generic;
 
 public class AudioManager : MonoBehaviour
 {
     [Header("Music Settings")]
     [SerializeField] private EventReference mainMusicEvent;
+    [Tooltip("Scenes treated as the main menu. Loading one of these returns the music " +
+             "loop to its default variant so a run's modifier state doesn't follow the " +
+             "player back out to the menu.")]
+    [SerializeField] private string[] mainMenuSceneNames = { "MainMenu 1", "MainMenu" };
 
     [Header("Volume Buses")]
     [SerializeField] private string masterBusPath = "bus:/";
@@ -38,13 +44,24 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private EventReference rerollSound;
     [SerializeField] private EventReference swapSlotSound;
     [SerializeField] private EventReference levelUpSound;
+    [Tooltip("Plays over the whole ship-select animation. Restarted from the top if the " +
+             "ship is changed again before it finishes.")]
+    [SerializeField] private EventReference shipSelectSound;
 
     [Header("Gameplay Interactions")]
     [SerializeField] private EventReference bumperHitSound;
-    [SerializeField] private EventReference multHitSound;
+    [Tooltip("Hit sound for rollovers.")]
+    [FormerlySerializedAs("multHitSound")]
+    [SerializeField] private EventReference rolloverHitSound;
+    [Tooltip("Hit sound for kickers, which are a separate component type from bumpers. " +
+             "Leave null to fall back to whatever event is assigned on the kicker " +
+             "prefab itself.")]
+    [SerializeField] private EventReference kickerHitSound;
     [SerializeField] private EventReference flipperUpSound;
     [SerializeField] private EventReference flipperDownSound;
     [SerializeField] private EventReference launchSound;
+    [Tooltip("Plays as the hangar door slides open during the launch/start sequence.")]
+    [SerializeField] private EventReference launchDoorSound;
     [SerializeField] private EventReference portalSound;
     [SerializeField] private EventReference ballLostSound;
     [SerializeField] private EventReference textWhooshSound;
@@ -72,19 +89,30 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private EventReference burningSoundEvent;
     [Tooltip("Looping electric hum sound.")]
     [SerializeField] private EventReference hummingSoundEvent;
+    [Tooltip("Looping computer whirr sound.")]
+    [SerializeField] private EventReference whirringSoundEvent;
     [Tooltip("Looping emergency siren sound.")]
     [SerializeField] private EventReference sirenSoundEvent;
+    [Tooltip("Looping radio chatter ambience (env_radio_chatter_loop).")]
+    [SerializeField] private EventReference radioChatterSoundEvent;
 
     private EventInstance musicInstance;
     private EventInstance rollingSoundInstance;
     private EventInstance hummingSoundInstance;
+    private EventInstance whirringSoundInstance;
     private EventInstance sirenSoundInstance;
+    private EventInstance radioChatterInstance;
     private EventInstance alienShipRumbleInstance;
-    private EventInstance burningSoundInstance;
-    
+    private EventInstance shipSelectInstance;
+
+    // Burning is per-emitter: every object on fire gets its own instance pinned to
+    // its own transform, so two fires in different places are heard in both places.
+    private readonly Dictionary<GameObject, EventInstance> burningSoundInstances =
+        new Dictionary<GameObject, EventInstance>();
+    private readonly List<GameObject> orphanedBurnSources = new List<GameObject>();
+
     private int alienType = 0;
-    private int activeBurnCount = 0;
-    
+
     private FMOD.Studio.Bus masterBus;
     private FMOD.Studio.Bus musicBus;
     private FMOD.Studio.Bus sfxBus;
@@ -114,15 +142,19 @@ public class AudioManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    private void Start()
+    // Music is deliberately not started here: it begins when a board scene finishes
+    // loading (see BoardLoader), so the menu stays quiet until the player is on a table.
+
+    private void Update()
     {
-        if (!mainMusicEvent.IsNull)
-        {
-            StartMusic(mainMusicEvent);
-        }
+        ReleaseOrphanedBurningSounds();
     }
 
     private const float DefaultVolume = 0.8f;
+
+    // Default value of the music event's "modifier" parameter - the variant the loop
+    // plays outside of any round modifier.
+    private const float DefaultMusicState = 0f;
 
     private void InitializeBuses()
     {
@@ -145,6 +177,15 @@ public class AudioManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // Coming back out to the menu from a run: stop the music and let it fade out, so
+        // the menu is quiet again (music only plays on a board). Hooked off the scene
+        // load rather than the individual "quit to menu" call sites so every route back
+        // to the menu is covered.
+        if (IsMainMenuScene(scene))
+        {
+            StopMusic();
+        }
+
         // Find all buttons in the scene, including inactive ones
         Button[] allButtons = Resources.FindObjectsOfTypeAll<Button>();
 
@@ -157,6 +198,21 @@ public class AudioManager : MonoBehaviour
             }
         }
     }
+    private bool IsMainMenuScene(Scene scene)
+    {
+        if (mainMenuSceneNames == null) return false;
+
+        for (int i = 0; i < mainMenuSceneNames.Length; i++)
+        {
+            if (scene.name == mainMenuSceneNames[i])
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void WireButtonAudio(Button btn)
     {
         // Wire the click sound (preventing duplicates)
@@ -195,6 +251,27 @@ public class AudioManager : MonoBehaviour
 
     // General Audio Methods
 
+    /// <summary>
+    /// Starts the main music loop for gameplay. Called when a board scene finishes
+    /// loading. Safe to call on every board load: if the loop is already running it is
+    /// left alone rather than restarted, so moving between boards doesn't retrigger it.
+    /// </summary>
+    public void StartBoardMusic()
+    {
+        if (mainMusicEvent.IsNull) return;
+
+        if (musicInstance.isValid())
+        {
+            musicInstance.getPlaybackState(out PLAYBACK_STATE state);
+            if (state == PLAYBACK_STATE.PLAYING)
+            {
+                return;
+            }
+        }
+
+        StartMusic(mainMusicEvent);
+    }
+
     public void StartMusic(EventReference musicEvent)
     {
         if (musicInstance.isValid())
@@ -205,9 +282,20 @@ public class AudioManager : MonoBehaviour
 
         musicInstance = RuntimeManager.CreateInstance(musicEvent);
         musicInstance.start();
-        
-        SetMusicState(0f);
+
+        ResetMusicToDefault();
+    }
+
+    /// <summary>
+    /// Returns the music loop to its default variant and clears any muffling, without
+    /// restarting it. Used when the player leaves a run for the menu so the round's
+    /// modifier state doesn't carry over.
+    /// </summary>
+    public void ResetMusicToDefault()
+    {
+        SetMusicState(DefaultMusicState);
         SetMusicMuffled(false);
+        SetMusicLoss(0f);
     }
 
     public void SetMusicState(float stateValue)
@@ -226,148 +314,338 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    private void PlayOneShot(EventReference soundEvent, Vector3 worldPosition = default)
+    /// <summary>
+    /// Sets the music "loss" parameter (0 = normal, 1 = loss). The parameter has a seek
+    /// speed in FMOD, so this glides rather than snapping - set it and let it ease.
+    /// </summary>
+    public void SetMusicLoss(float value)
     {
-        if (!soundEvent.IsNull)
+        if (musicInstance.isValid())
         {
-            RuntimeManager.PlayOneShot(soundEvent, worldPosition);
+            musicInstance.setParameterByName("loss", value);
         }
     }
 
-    private void PlayOneShotWithParameter(EventReference soundEvent, string paramName, float paramValue, Vector3 worldPosition = default)
+    /// <summary>
+    /// Stops the music with a fade-out and releases it. Used when leaving a run for the
+    /// menu; the next board load starts a fresh instance via StartBoardMusic.
+    /// </summary>
+    public void StopMusic()
     {
-        if (!soundEvent.IsNull)
+        if (!musicInstance.isValid()) return;
+
+        musicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+        musicInstance.release();
+        musicInstance.clearHandle();
+    }
+
+    // 3D Playback Core
+    //
+    // Every SFX gets 3D attributes. Sounds with a real world position use it; sounds
+    // that are conceptually non-diegetic (UI, shop, scoring) are placed *at the listener*
+    // rather than left at their default of Vector3.zero. That distinction matters: an
+    // event authored as 3D in FMOD Studio and played at (0,0,0) is panned and attenuated
+    // toward the world origin, which is why unpositioned UI clicks drift off-centre.
+    // Anchoring them to the listener keeps them centred and at full volume even if the
+    // event picks up a spatializer later.
+
+    /// <summary>Current FMOD listener position, or the origin if the listener isn't up yet.</summary>
+    private static Vector3 GetListenerPosition()
+    {
+        if (RuntimeManager.StudioSystem.isValid() &&
+            RuntimeManager.StudioSystem.getListenerAttributes(0, out FMOD.ATTRIBUTES_3D attributes) == FMOD.RESULT.OK)
         {
-            EventInstance instance = RuntimeManager.CreateInstance(soundEvent);
-            instance.setParameterByName(paramName, paramValue);
-
-            if (worldPosition != default)
-            {
-                instance.set3DAttributes(RuntimeUtils.To3DAttributes(worldPosition));
-            }
-
-            instance.start();
-            instance.release();
+            return new Vector3(attributes.position.x, attributes.position.y, attributes.position.z);
         }
+
+        return Vector3.zero;
+    }
+
+    /// <summary>Non-diegetic one-shot: audible dead-centre regardless of camera.</summary>
+    private void PlayOneShot2D(EventReference soundEvent)
+    {
+        if (soundEvent.IsNull) return;
+        RuntimeManager.PlayOneShot(soundEvent, GetListenerPosition());
+    }
+
+    /// <summary>Positional one-shot fired at a fixed point in the world.</summary>
+    private void PlayOneShot(EventReference soundEvent, Vector3 worldPosition)
+    {
+        if (soundEvent.IsNull) return;
+        RuntimeManager.PlayOneShot(soundEvent, worldPosition);
+    }
+
+    /// <summary>
+    /// Positional one-shot that tracks a moving object for its lifetime. Falls back to
+    /// listener-centred playback when the source is gone, so a destroyed emitter can't
+    /// drop the sound at the world origin.
+    /// </summary>
+    private void PlayOneShotAttached(EventReference soundEvent, GameObject source)
+    {
+        if (soundEvent.IsNull) return;
+
+        if (source == null)
+        {
+            PlayOneShot2D(soundEvent);
+            return;
+        }
+
+        RuntimeManager.PlayOneShotAttached(soundEvent, source);
+    }
+
+    private void PlayOneShotWithParameter(EventReference soundEvent, string paramName, float paramValue, Vector3 worldPosition)
+    {
+        if (soundEvent.IsNull) return;
+
+        EventInstance instance = RuntimeManager.CreateInstance(soundEvent);
+        instance.setParameterByName(paramName, paramValue);
+        instance.set3DAttributes(RuntimeUtils.To3DAttributes(worldPosition));
+        instance.start();
+        instance.release();
+    }
+
+    private void PlayOneShotWithParameter2D(EventReference soundEvent, string paramName, float paramValue)
+    {
+        PlayOneShotWithParameter(soundEvent, paramName, paramValue, GetListenerPosition());
+    }
+
+    // Looping-instance helpers
+    //
+    // Looping events are created once and pinned to their emitter via
+    // AttachInstanceToGameObject, which re-sends 3D attributes every frame so the sound
+    // follows the object. Attaching also requires an explicit detach before release.
+
+    /// <summary>Positions a loop: attached to <paramref name="source"/>, or at the listener if there isn't one.</summary>
+    private static void AnchorInstance(EventInstance instance, GameObject source)
+    {
+        if (source != null)
+        {
+            RuntimeManager.AttachInstanceToGameObject(instance, source);
+        }
+        else
+        {
+            instance.set3DAttributes(RuntimeUtils.To3DAttributes(GetListenerPosition()));
+        }
+    }
+
+    /// <summary>Creates the loop if needed, (re)anchors it to the source, and starts it if idle.</summary>
+    private static void StartLoop(ref EventInstance instance, EventReference soundEvent, GameObject source)
+    {
+        if (soundEvent.IsNull) return;
+
+        if (!instance.isValid())
+        {
+            instance = RuntimeManager.CreateInstance(soundEvent);
+        }
+
+        // Re-anchor every call so a loop that outlives its original emitter
+        // (a new ball, a second alien ship) tracks the current one.
+        AnchorInstance(instance, source);
+
+        instance.getPlaybackState(out PLAYBACK_STATE state);
+        if (state != PLAYBACK_STATE.PLAYING)
+        {
+            instance.start();
+        }
+    }
+
+    private static void StopLoop(ref EventInstance instance)
+    {
+        if (!instance.isValid()) return;
+
+        RuntimeManager.DetachInstanceFromGameObject(instance);
+        instance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+        instance.release();
+        instance.clearHandle();
     }
 
     // Specific Gameplay & UI Functions
 
-    // UI Interactions
-    public void PlayButtonClick() => PlayOneShot(buttonClickSound);
-    public void PlayButtonHover() => PlayOneShot(buttonHoverSound);
-    public void PlayTutorialNext() => PlayOneShot(tutorialNextSound);
-    public void PlayTabSwitch() => PlayOneShot(tabSwitchSound);
-    public void PlayTransition() => PlayOneShot(transitionSound);
+    // UI Interactions - deliberately non-diegetic, anchored to the listener.
+    public void PlayButtonClick() => PlayOneShot2D(buttonClickSound);
+    public void PlayButtonHover() => PlayOneShot2D(buttonHoverSound);
+    public void PlayTutorialNext() => PlayOneShot2D(tutorialNextSound);
+    public void PlayTabSwitch() => PlayOneShot2D(tabSwitchSound);
+    public void PlayTransition() => PlayOneShot2D(transitionSound);
 
     // Aliens
 
-    public void PlayAlienArrival(int type)
+    /// <summary>
+    /// Plays the arrival sting for the given alien type at the ship's location.
+    /// Pass the ship so the sound tracks it if it is still moving.
+    /// </summary>
+    public void PlayAlienArrival(int type, GameObject source = null)
     {
         alienType = type;
         if (alienType == 0)
         {
-            PlayOneShot(cuteAlienArrivalSound);
+            PlayOneShotAttached(cuteAlienArrivalSound, source);
         }
         else if (alienType == 1)
         {
-            PlayOneShot(gruntAlienArrivalSound);
+            PlayOneShotAttached(gruntAlienArrivalSound, source);
         }
         else if (alienType == 2)
         {
-            PlayOneShot(bugAlienArrivalSound);
+            PlayOneShotAttached(bugAlienArrivalSound, source);
         }
     }
 
-    public void PlayAlienDeparture()
+    public void PlayAlienDeparture(GameObject source = null)
     {
         if (alienType == 0)
         {
-            PlayOneShot(cuteAlienDepartureSound);
+            PlayOneShotAttached(cuteAlienDepartureSound, source);
         }
         else if (alienType == 1)
         {
-            PlayOneShot(gruntAlienDepartureSound);
+            PlayOneShotAttached(gruntAlienDepartureSound, source);
         }
         else if (alienType == 2)
         {
-            PlayOneShot(bugAlienDepartureSound);
+            PlayOneShotAttached(bugAlienDepartureSound, source);
         }
     }
 
-    public void StartAlienShipRumble()
+    /// <summary>Starts the ship rumble loop pinned to the ship, so it pans as the ship flies in and out.</summary>
+    public void StartAlienShipRumble(GameObject source = null)
     {
-        if (alienShipRumbleSound.IsNull) return;
-
-        if (!alienShipRumbleInstance.isValid())
-        {
-            alienShipRumbleInstance = RuntimeManager.CreateInstance(alienShipRumbleSound);
-        }
-        
-        alienShipRumbleInstance.getPlaybackState(out PLAYBACK_STATE state);
-        if (state != PLAYBACK_STATE.PLAYING)
-        {
-            alienShipRumbleInstance.start();
-        }
+        StartLoop(ref alienShipRumbleInstance, alienShipRumbleSound, source);
     }
 
     public void StopAlienShipRumble()
     {
-        if (alienShipRumbleInstance.isValid())
+        StopLoop(ref alienShipRumbleInstance);
+    }
+
+    // Shop & Meta - non-diegetic.
+    public void PlayPurchase() => PlayOneShot2D(purchaseSound);
+    public void PlayFailedPurchase() => PlayOneShot2D(failedPurchaseSound);
+    public void PlayReroll() => PlayOneShot2D(rerollSound);
+    public void PlaySwapSlot() => PlayOneShot2D(swapSlotSound);
+    public void PlayLevelUp() => PlayOneShot2D(levelUpSound);
+
+    /// <summary>
+    /// Plays the ship-select sting for the whole selection animation. Held as an instance
+    /// (not a one-shot) so re-selecting cuts the in-progress sting and restarts from the
+    /// top instead of layering a second copy over it. Pass the animating object to have
+    /// the sound track it; pass null to play it at the listener.
+    /// </summary>
+    public void PlayShipSelect(GameObject source = null)
+    {
+        if (shipSelectSound.IsNull) return;
+
+        // Hard cut, not a fade: it's the same event each time, so an overlapping tail
+        // would flam against the restart.
+        StopShipSelect();
+
+        shipSelectInstance = RuntimeManager.CreateInstance(shipSelectSound);
+        AnchorInstance(shipSelectInstance, source);
+        shipSelectInstance.start();
+    }
+
+    public void StopShipSelect()
+    {
+        if (!shipSelectInstance.isValid()) return;
+
+        RuntimeManager.DetachInstanceFromGameObject(shipSelectInstance);
+        shipSelectInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+        shipSelectInstance.release();
+        shipSelectInstance.clearHandle();
+    }
+
+    // Gameplay Board - all diegetic, emitted from where the event happens on the table.
+
+    public void PlayBumperHit(Vector3 position, int variant=0)
+    {
+        PlayOneShotWithParameter(bumperHitSound, "collision_variant", variant, position);
+    }
+
+    public void PlayRolloverHit(Vector3 position, int variant=0)
+    {
+        PlayOneShotWithParameter(rolloverHitSound, "collision_variant", variant, position);
+    }
+
+    public void PlayKickerHit(Vector3 position, int variant=0)
+    {
+        PlayOneShotWithParameter(kickerHitSound, "collision_variant", variant, position);
+    }
+
+    /// <summary>
+    /// Plays a per-component hit event (the one assigned on the component's own prefab)
+    /// at its position. The comp_*_param events pick their sound from "collision_variant",
+    /// so the variant has to be set here - firing one of them without it lands on the
+    /// parameter's default, which is silent if that slot has no audio behind it.
+    /// Setting a parameter an event doesn't have is a harmless no-op in FMOD.
+    /// </summary>
+    public void PlayComponentHit(EventReference soundEvent, Vector3 position, int variant = 0)
+    {
+        PlayOneShotWithParameter(soundEvent, "collision_variant", variant, position);
+    }
+
+    /// <summary>
+    /// Plays the shared hit sound owned by this manager for a board component type, so a
+    /// type's sound lives in one place instead of being copied onto every prefab variant.
+    /// Returns false for types that don't have one yet, letting the caller fall back to
+    /// whatever event is assigned on the component itself. Add cases here as the
+    /// per-type sounds (drop target, kicker, ...) come in.
+    /// </summary>
+    public bool TryPlayComponentHit(BoardComponentType type, Vector3 position, int variant = 0)
+    {
+        switch (type)
         {
-            alienShipRumbleInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-            alienShipRumbleInstance.release();
-            alienShipRumbleInstance.clearHandle();
+            case BoardComponentType.Bumper:
+                if (bumperHitSound.IsNull) return false;
+                PlayBumperHit(position, variant);
+                return true;
+
+            case BoardComponentType.Rollover:
+                if (rolloverHitSound.IsNull) return false;
+                PlayRolloverHit(position, variant);
+                return true;
+
+            case BoardComponentType.Kicker:
+                if (kickerHitSound.IsNull) return false;
+                PlayKickerHit(position, variant);
+                return true;
+
+            default:
+                return false;
         }
     }
 
-    // Shop & Meta
-    public void PlayPurchase() => PlayOneShot(purchaseSound);
-    public void PlayFailedPurchase() => PlayOneShot(failedPurchaseSound);
-    public void PlayReroll() => PlayOneShot(rerollSound);
-    public void PlaySwapSlot() => PlayOneShot(swapSlotSound);
-    public void PlayLevelUp() => PlayOneShot(levelUpSound);
-
-    // Gameplay Board
-    public void PlayBumperHit(Vector3 position, int variant=0)
-    {
-        PlayOneShotWithParameter(bumperHitSound, "collision_variant", variant);
-    }
-
-    public void PlayMultHit(Vector3 position, int variant=0)
-    {
-        PlayOneShotWithParameter(multHitSound, "collision_variant", variant);
-    }
     public void PlayFlipperUp(Vector3 position) => PlayOneShot(flipperUpSound, position);
     public void PlayFlipperDown(Vector3 position) => PlayOneShot(flipperDownSound, position);
     public void PlayLaunch(Vector3 position) => PlayOneShot(launchSound, position);
+    public void PlayLaunchDoor(Vector3 position) => PlayOneShot(launchDoorSound, position);
     public void PlayPortal(Vector3 position) => PlayOneShot(portalSound, position);
-    public void PlayBallLost() => PlayOneShot(ballLostSound);
-    public void PlayWhoosh() => PlayOneShot(textWhooshSound);
-    
-    public void PlayShatter(Vector3 position = default) => PlayOneShot(shatterSound, position);
-    public void PlayEggCrack(Vector3 position = default) => PlayOneShot(eggCrackSound, position);
-    public void PlayExplosion(Vector3 position = default) => PlayOneShot(explosionSound, position);
-    public void PlayBallSplit(Vector3 position = default) => PlayOneShot(ballSplitSound, position);
-    public void PlayFireworks(Vector3 position = default) => PlayOneShot(fireworksSound, position);
-    public void PlayFrenzyGate(Vector3 position = default) => PlayOneShot(frenzyGateSound, position);
-    public void PlayDropTargetDown(Vector3 position = default) => PlayOneShot(dropTargetDownSound, position);
-    public void PlayDropTargetUp(Vector3 position = default) => PlayOneShot(dropTargetUpSound, position);
-    public void PlayFrenzyActivated() => PlayOneShot(frenzyActivatedSound);
+    public void PlayBallLost(Vector3 position) => PlayOneShot(ballLostSound, position);
+    public void PlayShatter(Vector3 position) => PlayOneShot(shatterSound, position);
+    public void PlayEggCrack(Vector3 position) => PlayOneShot(eggCrackSound, position);
+    public void PlayExplosion(Vector3 position) => PlayOneShot(explosionSound, position);
+    public void PlayBallSplit(Vector3 position) => PlayOneShot(ballSplitSound, position);
+    public void PlayFireworks(Vector3 position) => PlayOneShot(fireworksSound, position);
+    public void PlayFrenzyGate(Vector3 position) => PlayOneShot(frenzyGateSound, position);
+    public void PlayDropTargetDown(Vector3 position) => PlayOneShot(dropTargetDownSound, position);
+    public void PlayDropTargetUp(Vector3 position) => PlayOneShot(dropTargetUpSound, position);
+    public void PlayFrenzyActivated(Vector3 position) => PlayOneShot(frenzyActivatedSound, position);
 
-    // Scoring Logic
+    // Text whoosh belongs to the score popup, so it plays wherever that popup lives.
+    public void PlayWhoosh(Vector3 position) => PlayOneShot(textWhooshSound, position);
+
+    // Scoring Logic - non-diegetic readout, kept centred so it never ducks behind the table.
 
     public void PlayPointsAdd(int compTriggered)
     {
-        PlayOneShotWithParameter(pointsAddEvent, "compTriggered", compTriggered);
+        PlayOneShotWithParameter2D(pointsAddEvent, "compTriggered", compTriggered);
     }
 
     public void PlayMultAdd(int compTriggered)
     {
-        PlayOneShotWithParameter(multAddEvent, "compTriggered", compTriggered);
+        PlayOneShotWithParameter2D(multAddEvent, "compTriggered", compTriggered);
     }
 
-    public void PlayCoinAdd() => PlayOneShot(coinAddEvent);
+    public void PlayCoinAdd() => PlayOneShot2D(coinAddEvent);
 
     public void PlayStaggeredCoinSounds(int amount)
     {
@@ -383,14 +661,19 @@ public class AudioManager : MonoBehaviour
 
         for (int i = 0; i < amount; i++)
         {
-            PlayOneShot(coinAddEvent);
+            PlayOneShot2D(coinAddEvent);
             yield return new WaitForSeconds(0.025f);
         }
     }
 
-    // Continuous Rolling Sound 
+    // Continuous Rolling Sound
 
-    public void StartRollingSound()
+    /// <summary>
+    /// Starts (or retargets) the rolling loop on the active ball. Call again with a new
+    /// ball when the active ball changes - the loop follows whichever ball is passed last.
+    /// Passing the ball's Rigidbody also feeds FMOD its velocity for doppler.
+    /// </summary>
+    public void StartRollingSound(GameObject ball = null, Rigidbody ballBody = null)
     {
         if (rollingSoundEvent.IsNull) return;
 
@@ -398,7 +681,16 @@ public class AudioManager : MonoBehaviour
         {
             rollingSoundInstance = RuntimeManager.CreateInstance(rollingSoundEvent);
         }
-        
+
+        if (ball != null && ballBody != null)
+        {
+            RuntimeManager.AttachInstanceToGameObject(rollingSoundInstance, ball, ballBody);
+        }
+        else
+        {
+            AnchorInstance(rollingSoundInstance, ball);
+        }
+
         // Only start if it isn't already playing
         rollingSoundInstance.getPlaybackState(out PLAYBACK_STATE state);
         if (state != PLAYBACK_STATE.PLAYING)
@@ -417,104 +709,129 @@ public class AudioManager : MonoBehaviour
 
     public void StopRollingSound()
     {
-        if (rollingSoundInstance.isValid())
-        {
-            rollingSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-            rollingSoundInstance.release();
-            rollingSoundInstance.clearHandle();
-        }
+        StopLoop(ref rollingSoundInstance);
     }
 
     // Continuous Burning Sound
-    public void StartBurningSound()
+    //
+    // One instance per burning object rather than a shared refcounted loop, so several
+    // fires on different parts of the table are each heard from their own position.
+
+    /// <summary>Starts a burning loop pinned to <paramref name="source"/>. Repeat calls for the same source are ignored.</summary>
+    public void StartBurningSound(GameObject source)
     {
-        if (burningSoundEvent.IsNull) return;
+        if (burningSoundEvent.IsNull || source == null) return;
 
-        activeBurnCount++; // Keep track of how many items are burning
-
-        if (!burningSoundInstance.isValid())
+        if (burningSoundInstances.TryGetValue(source, out EventInstance existing) && existing.isValid())
         {
-            burningSoundInstance = RuntimeManager.CreateInstance(burningSoundEvent);
+            existing.getPlaybackState(out PLAYBACK_STATE existingState);
+            if (existingState == PLAYBACK_STATE.PLAYING)
+            {
+                return;
+            }
         }
 
-        burningSoundInstance.getPlaybackState(out PLAYBACK_STATE state);
-        if (state != PLAYBACK_STATE.PLAYING)
+        EventInstance instance = RuntimeManager.CreateInstance(burningSoundEvent);
+        RuntimeManager.AttachInstanceToGameObject(instance, source);
+        instance.start();
+        burningSoundInstances[source] = instance;
+    }
+
+    /// <summary>Stops the burning loop for one object. Other fires keep playing.</summary>
+    public void StopBurningSound(GameObject source)
+    {
+        if (source == null) return;
+
+        if (burningSoundInstances.TryGetValue(source, out EventInstance instance))
         {
-            burningSoundInstance.start();
+            StopLoop(ref instance);
+            burningSoundInstances.Remove(source);
         }
     }
 
-    public void StopBurningSound(bool stopAll=false)
+    /// <summary>
+    /// Reaps burning loops whose emitter was destroyed mid-burn (ball drained, target
+    /// removed) without a matching StopBurningSound. FMOD only drops such instances from
+    /// its attach list - the loop itself would otherwise keep playing at its last
+    /// position - so they have to be stopped and released here.
+    /// </summary>
+    private void ReleaseOrphanedBurningSounds()
     {
-        activeBurnCount--; 
+        if (burningSoundInstances.Count == 0) return;
 
-        // Only actually stop the sound if nothing else is still burning
-        if (activeBurnCount <= 0 || stopAll)
+        orphanedBurnSources.Clear();
+        foreach (var pair in burningSoundInstances)
         {
-            activeBurnCount = 0; // Prevent negative values just in case
-            if (burningSoundInstance.isValid())
+            if (pair.Key == null)
             {
-                burningSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-                burningSoundInstance.release();
-                burningSoundInstance.clearHandle();
+                orphanedBurnSources.Add(pair.Key);
             }
         }
+
+        foreach (GameObject source in orphanedBurnSources)
+        {
+            EventInstance instance = burningSoundInstances[source];
+            StopLoop(ref instance);
+            burningSoundInstances.Remove(source);
+        }
+
+        orphanedBurnSources.Clear();
+    }
+
+    /// <summary>Stops every burning loop at once (board-wide fire ending, teardown).</summary>
+    public void StopAllBurningSounds()
+    {
+        foreach (var pair in burningSoundInstances)
+        {
+            EventInstance instance = pair.Value;
+            StopLoop(ref instance);
+        }
+
+        burningSoundInstances.Clear();
     }
 
     // Continuous Humming Sound
-    public void StartHummingSound()
+    public void StartHummingSound(GameObject source = null)
     {
-        if (hummingSoundEvent.IsNull) return;
-
-        if (!hummingSoundInstance.isValid())
-        {
-            hummingSoundInstance = RuntimeManager.CreateInstance(hummingSoundEvent);
-        }
-        
-        // Only start if it isn't already playing
-        hummingSoundInstance.getPlaybackState(out PLAYBACK_STATE state);
-        if (state != PLAYBACK_STATE.PLAYING)
-        {
-            hummingSoundInstance.start();
-        }
+        StartLoop(ref hummingSoundInstance, hummingSoundEvent, source);
     }
 
     public void StopHummingSound()
     {
-        if (hummingSoundInstance.isValid())
-        {
-            hummingSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-            hummingSoundInstance.release();
-            hummingSoundInstance.clearHandle();
-        }
+        StopLoop(ref hummingSoundInstance);
+    }
+
+    // Continuous PC Whirring Sound
+    public void StartWhirringSound(GameObject source = null)
+    {
+        StartLoop(ref whirringSoundInstance, whirringSoundEvent, source);
+    }
+
+    public void StopWhirringSound()
+    {
+        StopLoop(ref whirringSoundInstance);
     }
 
     // Continuous Emergency Siren Sound
-    public void StartSirenSound()
+    public void StartSirenSound(GameObject source = null)
     {
-        if (sirenSoundEvent.IsNull) return;
-
-        if (!sirenSoundInstance.isValid())
-        {
-            sirenSoundInstance = RuntimeManager.CreateInstance(sirenSoundEvent);
-        }
-        
-        // Only start if it isn't already playing
-        sirenSoundInstance.getPlaybackState(out PLAYBACK_STATE state);
-        if (state != PLAYBACK_STATE.PLAYING)
-        {
-            sirenSoundInstance.start();
-        }
+        StartLoop(ref sirenSoundInstance, sirenSoundEvent, source);
     }
 
     public void StopSirenSound()
     {
-        if (sirenSoundInstance.isValid())
-        {
-            sirenSoundInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-            sirenSoundInstance.release();
-            sirenSoundInstance.clearHandle();
-        }
+        StopLoop(ref sirenSoundInstance);
+    }
+
+    // Continuous Radio Chatter Ambience
+    public void StartRadioChatter(GameObject source = null)
+    {
+        StartLoop(ref radioChatterInstance, radioChatterSoundEvent, source);
+    }
+
+    public void StopRadioChatter()
+    {
+        StopLoop(ref radioChatterInstance);
     }
 
     // Volume Controls 
@@ -537,9 +854,12 @@ public class AudioManager : MonoBehaviour
 
             StopRollingSound();
             StopAlienShipRumble();
-
-            activeBurnCount = 0; 
-            StopBurningSound(); 
+            StopHummingSound();
+            StopWhirringSound();
+            StopSirenSound();
+            StopRadioChatter();
+            StopShipSelect();
+            StopAllBurningSounds();
         }
     }
 }

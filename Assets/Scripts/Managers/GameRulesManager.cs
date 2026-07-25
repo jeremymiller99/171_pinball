@@ -176,6 +176,9 @@ public class GameRulesManager : MonoBehaviour
         ServiceLocator.Get<AudioManager>()?.SetMusicMuffled(false);
         float musicState = (ModifierController?.CurrentRoundData != null && ModifierController.CurrentRoundData.type == RoundType.Devil) ? 1f : 0f;
         ServiceLocator.Get<AudioManager>()?.SetMusicState(musicState);
+        // Clear any loss state from a prior failed attempt: this covers Retry, which
+        // routes back through StartRound without passing through the menu.
+        ServiceLocator.Get<AudioManager>()?.SetMusicLoss(0f);
 
         ballsRemaining = BallLoadoutCount;
 
@@ -309,6 +312,9 @@ public class GameRulesManager : MonoBehaviour
 
                 roundIndex = Mathf.Max(0, roundIndex + 1);
                 ApplyCurrentRoundFromWindow();
+
+                if (!string.IsNullOrEmpty(boardId))
+                    SteamAchievements.CheckLevelMilestone(roundIndex, boardId);
 
                 ServiceLocator.Get<ScoreUIController>()?.SetRoundIndex(roundIndex);
                 scoreManager.SetGoal(CurrentGoal);
@@ -514,6 +520,8 @@ public class GameRulesManager : MonoBehaviour
         if (ballSpawner != null) ballSpawner.ClearActiveBalls();
         ShopOpened?.Invoke();
 
+        SteamAchievements.UnlockFirstShopVisit();
+
         scoreManager?.ResetMultiplier();
         ServiceLocator.Get<AudioManager>()?.SetMusicState(3f);
 
@@ -525,6 +533,10 @@ public class GameRulesManager : MonoBehaviour
 
     public void ShowRoundFailed()
     {
+        // Swing the music into its loss variant. Retrying clears this back to 0 in
+        // StartRound; quitting to the menu stops the music entirely.
+        ServiceLocator.Get<AudioManager>()?.SetMusicLoss(1f);
+
         if (ballSpawner != null) ballSpawner.ClearAll();
 
         var session = GameSession.Instance;
@@ -537,7 +549,9 @@ public class GameRulesManager : MonoBehaviour
         if (currentBoard != null)
         {
             SteamLeaderboards.UploadScore(currentBoard.boardSceneName,
-                (int)Math.Min(capturedScore, int.MaxValue));
+                (int)Math.Min(capturedScore, int.MaxValue), Mathf.Max(1, roundIndex + 1));
+            LocalLeaderboards.AddScore(currentBoard.boardSceneName,
+                capturedScore, Mathf.Max(1, roundIndex + 1));
         }
 
         PinballAnalytics.LogRunHighScore(capturedScore, boardName);

@@ -431,8 +431,9 @@ public class ComponentUIController : MonoBehaviour
 
         if (ProgressionService.Instance == null)
         {
-            return new List<BoardComponentDefinition>(
-                allComponentDefinitions);
+            return RunPoolFilter.FilterComponentsWithFallback(
+                new List<BoardComponentDefinition>(
+                    allComponentDefinitions));
         }
 
         for (int i = 0;
@@ -454,6 +455,6 @@ public class ComponentUIController : MonoBehaviour
             }
         }
 
-        return result;
+        return RunPoolFilter.FilterComponentsWithFallback(result);
     }
 }

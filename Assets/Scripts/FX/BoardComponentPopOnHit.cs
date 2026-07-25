@@ -27,15 +27,21 @@ public class BoardComponentPopOnHit : MonoBehaviour
     [Header("Sound")]
     [Tooltip("Optional: plays when ball hits (e.g. target/rollover sound).")]
     [SerializeField] private EventReference hitSound;
+    [Tooltip("Value fed to the event's 'collision_variant' parameter. The comp_*_param " +
+             "events select which sound to play from this, so a variant with no audio " +
+             "behind it plays nothing. Ignored by events without that parameter.")]
+    [SerializeField] private int collisionVariant;
 
     private Transform[] popTargets;
     private Vector3[] baseScales;
     private Coroutine popCoroutine;
     private float lastTriggerTimeSeconds = float.NegativeInfinity;
+    private BoardComponent boardComponent;
 
     private void Awake()
     {
         CachePopTargets();
+        boardComponent = GetComponent<BoardComponent>();
     }
 
     private void OnEnable()
@@ -142,10 +148,7 @@ public class BoardComponentPopOnHit : MonoBehaviour
 
         lastTriggerTimeSeconds = Time.time;
 
-        if (!hitSound.IsNull)
-        {
-            RuntimeManager.PlayOneShot(hitSound, transform.position);
-        }
+        PlayHitSound();
 
         if (popTargets == null || baseScales == null || popTargets.Length != baseScales.Length)
         {
@@ -163,6 +166,31 @@ public class BoardComponentPopOnHit : MonoBehaviour
         }
 
         popCoroutine = StartCoroutine(PopRoutine());
+    }
+
+    /// <summary>
+    /// Prefers the AudioManager's sound for this component's type, so a type's sound is
+    /// owned in one place, and falls back to the event assigned on this prefab for the
+    /// types that don't have a shared one yet.
+    /// </summary>
+    private void PlayHitSound()
+    {
+        AudioManager audio = ServiceLocator.Get<AudioManager>();
+        if (audio == null)
+        {
+            return;
+        }
+
+        if (boardComponent != null &&
+            audio.TryPlayComponentHit(boardComponent.componentType, transform.position, collisionVariant))
+        {
+            return;
+        }
+
+        if (!hitSound.IsNull)
+        {
+            audio.PlayComponentHit(hitSound, transform.position, collisionVariant);
+        }
     }
 
     private IEnumerator PopRoutine()

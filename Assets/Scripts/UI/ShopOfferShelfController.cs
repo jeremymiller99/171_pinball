@@ -15,8 +15,18 @@ using UnityEngine;
 public sealed class ShopOfferShelfController : MonoBehaviour
 {
     [Header("Catalogs")]
+    [Tooltip(
+        "Leave EMPTY. The full catalog is loaded from " +
+        "Resources/BallDefinitions at runtime. Anything " +
+        "listed here silently shadows that catalog " +
+        "(test / curation escape hatch only).")]
     [SerializeField] private List<BallDefinition>
         allBallDefinitions = new List<BallDefinition>();
+
+    [Tooltip(
+        "Leave EMPTY. The full catalog is loaded from " +
+        "Resources/BoardComponentDefinitions at runtime. " +
+        "Anything listed here silently shadows that catalog.")]
     [SerializeField] private List<BoardComponentDefinition>
         allComponentDefinitions =
             new List<BoardComponentDefinition>();
@@ -41,6 +51,12 @@ public sealed class ShopOfferShelfController : MonoBehaviour
     private ShopOfferPanel _panel;
     private ShopOfferGenerator _generator;
 
+    // Full catalogs resolved once via RunItemCatalog (Resources, or the
+    // inspector overrides above). Unlock + ship/mission filtering happens per
+    // draw, not here.
+    private List<BallDefinition> _ballCatalog;
+    private List<BoardComponentDefinition> _componentCatalog;
+
     private readonly List<ShopOffer> _currentOffers =
         new List<ShopOffer>();
 
@@ -62,8 +78,21 @@ public sealed class ShopOfferShelfController : MonoBehaviour
                 "found in any loaded scene.");
         }
 
+        if (_ballCatalog == null)
+        {
+            _ballCatalog =
+                RunItemCatalog.LoadBalls(allBallDefinitions);
+        }
+
+        if (_componentCatalog == null)
+        {
+            _componentCatalog =
+                RunItemCatalog.LoadComponents(
+                    allComponentDefinitions);
+        }
+
         _generator = new ShopOfferGenerator(
-            allBallDefinitions, allComponentDefinitions);
+            _ballCatalog, _componentCatalog);
     }
 
     public void Cleanup()
@@ -89,7 +118,13 @@ public sealed class ShopOfferShelfController : MonoBehaviour
     /// </summary>
     public BallDefinition ResolveMysteryBall(BallRarity rarity)
     {
-        return MysteryBallResolver.Resolve(rarity, allBallDefinitions);
+        if (_ballCatalog == null)
+        {
+            _ballCatalog =
+                RunItemCatalog.LoadBalls(allBallDefinitions);
+        }
+
+        return MysteryBallResolver.Resolve(rarity, _ballCatalog);
     }
 
     public void ConsumeOffer(int offerIndex)

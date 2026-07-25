@@ -26,7 +26,9 @@ public static class RunCompletionHelper
         {
             SteamAchievements.UnlockBoardWin(board.boardSceneName);
             SteamLeaderboards.UploadScore(board.boardSceneName,
-                (int)Math.Min(points, int.MaxValue));
+                (int)Math.Min(points, int.MaxValue), Math.Max(1, levelReached));
+            LocalLeaderboards.AddScore(board.boardSceneName, points,
+                Math.Max(1, levelReached));
         }
 
         beforeShowWin?.Invoke();

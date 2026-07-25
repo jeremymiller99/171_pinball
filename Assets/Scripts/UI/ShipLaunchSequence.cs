@@ -61,8 +61,8 @@ public sealed class ShipLaunchSequence : MonoBehaviour
     {
         if (door != null)
         {
-            // Heavy gate cue as the hangar launch door slides open.
-            ServiceLocator.Get<AudioManager>()?.PlayFrenzyGate(door.position);
+            // Door cue as the hangar launch door slides open.
+            ServiceLocator.Get<AudioManager>()?.PlayLaunchDoor(door.position);
             yield return MoveDoorY(_doorClosedY + doorOpenHeight, doorOpenDuration);
         }
 
@@ -107,7 +107,7 @@ public sealed class ShipLaunchSequence : MonoBehaviour
 
         // Engine rumble while the ship powers up and shoots out; faded out once it's gone.
         AudioManager audio = ServiceLocator.Get<AudioManager>();
-        audio?.StartAlienShipRumble();
+        audio?.StartAlienShipRumble(ship.gameObject);
 
         float dur = Mathf.Max(0.01f, flightDuration);
         float elapsed = 0f;

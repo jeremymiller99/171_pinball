@@ -5,6 +5,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 /// <summary>
 /// Global singleton that owns the single shared tooltip instance.
@@ -22,7 +23,7 @@ public sealed class TooltipManager : MonoBehaviour
     private TooltipUI _instance;
     private Canvas _overlayCanvas;
 
-    private const int tooltipSortOrder = 100;
+    private const int tooltipSortOrder = 9999;
     private const float panelWidth = 220f;
     private const float nameFontSize = 18f;
     private const float descFontSize = 14f;
@@ -52,6 +53,7 @@ public sealed class TooltipManager : MonoBehaviour
     public static void Show(
         string title,
         string description,
+        List<string> tags,
         ElementType elementType = ElementType.None,
         ElementType secondaryElementType = ElementType.None)
     {
@@ -61,13 +63,12 @@ public sealed class TooltipManager : MonoBehaviour
             return;
         }
 
-        mgr._instance.Show(
-            title, description, elementType, secondaryElementType);
+        mgr._instance.Show(title, description, tags, elementType, secondaryElementType);
     }
 
     public static void ShowAtPosition(
         string title,
-        string description, Vector2 position,
+        string description, List<string> tags, Vector2 position,
         ElementType elementType = ElementType.None,
         ElementType secondaryElementType = ElementType.None)
     {
@@ -78,12 +79,13 @@ public sealed class TooltipManager : MonoBehaviour
         }
 
         mgr._instance.ShowAtPosition(
-            title, description, position, elementType, secondaryElementType);
+            title, description, tags, position, elementType, secondaryElementType);
     }
 
     public static void ShowBuy(
         string title,
         string description,
+        List<string> tags,
         ElementType elementType,
         ElementType secondaryElementType,
         int price)
@@ -95,12 +97,13 @@ public sealed class TooltipManager : MonoBehaviour
         }
 
         mgr._instance.ShowBuy(
-            title, description, elementType, secondaryElementType, price);
+            title, description, tags, elementType, secondaryElementType, price);
     }
 
     public static void ShowSell(
         string title,
         string description,
+        List<string> tags,
         ElementType elementType,
         ElementType secondaryElementType,
         int price)
@@ -112,12 +115,13 @@ public sealed class TooltipManager : MonoBehaviour
         }
 
         mgr._instance.ShowSell(
-            title, description, elementType, secondaryElementType, price);
+            title, description, tags, elementType, secondaryElementType, price);
     }
 
     public static void ShowBuyAtPosition(
         string title,
         string description,
+        List<string> tags,
         Vector2 position,
         ElementType elementType,
         ElementType secondaryElementType,
@@ -130,12 +134,13 @@ public sealed class TooltipManager : MonoBehaviour
         }
 
         mgr._instance.ShowBuyAtPosition(
-            title, description, position, elementType, secondaryElementType, price);
+            title, description, tags, position, elementType, secondaryElementType, price);
     }
 
     public static void ShowSellAtPosition(
         string title,
         string description,
+        List<string> tags,
         Vector2 position,
         ElementType elementType,
         ElementType secondaryElementType,
@@ -148,7 +153,7 @@ public sealed class TooltipManager : MonoBehaviour
         }
 
         mgr._instance.ShowSellAtPosition(
-            title, description, position, elementType, secondaryElementType, price);
+            title, description, tags, position, elementType, secondaryElementType, price);
     }
 
     public static void Hide()
@@ -160,6 +165,39 @@ public sealed class TooltipManager : MonoBehaviour
         }
 
         mgr._instance.Hide();
+    }
+
+    public static void ApplyShopSkin(int roll)
+    {
+        var mgr = ServiceLocator.Get<TooltipManager>();
+        if (mgr == null || mgr._instance == null)
+        {
+            return;
+        }
+
+        mgr._instance.ApplyShopSkin(roll);
+    }
+
+    public static void ApplyDefaultSkin()
+    {
+        var mgr = ServiceLocator.Get<TooltipManager>();
+        if (mgr == null || mgr._instance == null)
+        {
+            return;
+        }
+
+        mgr._instance.ApplyDefaultSkin();
+    }
+
+    public static void ApplyRaritySkin(BallRarity? rarity)
+    {
+        var mgr = ServiceLocator.Get<TooltipManager>();
+        if (mgr == null || mgr._instance == null)
+        {
+            return;
+        }
+
+        mgr._instance.ApplyRaritySkin(rarity);
     }
 
     public static bool IsVisible

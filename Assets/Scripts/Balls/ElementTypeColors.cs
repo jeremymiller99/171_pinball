@@ -13,18 +13,16 @@ public static class ElementTypeColors
     {
         return type switch
         {
-            ElementType.Striker
+            ElementType.Alteration
                 => new Color(0f, 0.749f, 1f),
-            ElementType.Amplifier
+            ElementType.Entropy
                 => new Color(1f, 0.2f, 0.2f),
-            ElementType.Mint
+            ElementType.Exchange
                 => new Color(0.224f, 1f, 0.078f),
-            ElementType.Splitter
+            ElementType.Tech
                 => new Color(1f, 0.4f, 0f),
-            ElementType.Anomaly
+            ElementType.Void
                 => new Color(1f, 0.412f, 0.706f),
-            ElementType.Catalyst
-                => new Color(0.753f, 0.753f, 0.753f),
             _ => Color.white
         };
     }
@@ -34,13 +32,12 @@ public static class ElementTypeColors
     {
         string fallback = type switch
         {
-            ElementType.Striker => "Striker",
-            ElementType.Amplifier => "Amplifier",
-            ElementType.Mint => "Mint",
-            ElementType.Splitter => "Splitter",
-            ElementType.Anomaly => "Anomaly",
-            ElementType.Catalyst => "Catalyst",
-            ElementType.Module => "Module",
+            ElementType.Standard => "Standard",
+            ElementType.Alteration => "Alteration",
+            ElementType.Entropy => "Entropy",
+            ElementType.Exchange => "Exchange",
+            ElementType.Tech => "Tech",
+            ElementType.Void => "Void",
             _ => "N/A"
         };
         // Localized via Content table key element.&lt;EnumName&gt;.name; English fallback above.

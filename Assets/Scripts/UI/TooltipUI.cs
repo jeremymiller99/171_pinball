@@ -6,9 +6,17 @@
 // Updated 2026-04-21: added ShowBuy/ShowSell with dedicated price panels
 // so buy/sell prices render inside the prefab-authored panels instead of
 // being prepended to the description string.
+// Updated 2026-07-24 by Claude Code (claude-opus-5): definition panels now also
+// resolve keywords found in the description text and load their terms from
+// Resources, so every tooltip source gets keyword panels and an unresolved tag
+// hides its panel instead of showing the previous item's text.
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using NUnit.Framework;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -48,8 +56,61 @@ public sealed class TooltipUI : MonoBehaviour
     [Tooltip("Text inside the sell panel that renders the item sell price.")]
     [SerializeField] private TMP_Text sellPriceText;
 
+    [SerializeField] private DefinitionPanel firstDefinitionPanel;
+    [SerializeField] private DefinitionPanel secondDefinitionPanel;
+
+    [Header("Keyword definitions")]
+    [Tooltip("Resources folder holding every TermDefinition. Loaded at runtime "
+        + "so a keyword resolves even when the list below was never re-populated "
+        + "by the CSV import.")]
+    [SerializeField] private string termDefinitionResourcePath =
+        "TermDefinitions";
+
+    [Tooltip("Resources folder holding every BallDefinition, used when a tag "
+        + "names another ball rather than a term.")]
+    [SerializeField] private string ballDefinitionResourcePath =
+        "BallDefinitions";
+
+    [Header("Shop skin")]
+    [Tooltip("Backgrounds for the shop-only skin; one is rolled per "
+        + "visit via TooltipManager.ApplyShopSkin.")]
+    [SerializeField] private List<Material> backgroundMaterials =
+        new List<Material>();
+
+    [Tooltip("Sliced sprite with the panel shape in alpha and the "
+        + "neon border ring in the red channel.")]
+    [SerializeField] private Sprite shopSkinSprite;
+
+    [Tooltip("Backgrounds indexed by BallRarity (Common through "
+        + "Legendary); items without a rarity keep the rolled visit "
+        + "material.")]
+    [SerializeField] private List<Material> rarityMaterials =
+        new List<Material>();
+
+    [Tooltip("Shop background for tooltips without a rarity (hub, "
+        + "ships, modules). Leave empty to roll blue/pink per visit.")]
+    [SerializeField] private Material defaultShopMaterial;
+
+    [Tooltip("Static twins of the rarity materials, used on the buy/"
+        + "sell price bars so they match the header's frozen look.")]
+    [SerializeField] private List<Material> staticRarityMaterials =
+        new List<Material>();
+
+    [Tooltip("Static material for the price bars when the item has no "
+        + "rarity.")]
+    [SerializeField] private Material staticDefaultMaterial;
+
+    [SerializeField] private float shopSkinAlpha = 0.85f;
+    [SerializeField] private float shopSkinPanelPpu = 2f;
+    [SerializeField] private float shopSkinBarPpu = 4f;
+
     [SerializeField] private bool controllerInUse = false;
     [SerializeField] private Vector2 cachedVector;
+
+    //Auto populated from ball CSV population.
+    public List<BallDefinition> necessaryBallDefinitions = new List<BallDefinition>();
+    public List<TermDefinition> necessaryTermDefinitions = new List<TermDefinition>();
+
 
     private RectTransform _rect;
     private Canvas _rootCanvas;
@@ -58,6 +119,51 @@ public sealed class TooltipUI : MonoBehaviour
 
     private const float cursorOffsetY = 40f;
     private const float screenEdgePadding = 12f;
+    private const int definitionPanelCount = 2;
+
+    // Matches a whole word, allowing the plural/past/gerund forms the ball and
+    // component copy uses: Ignite -> Ignited, Fuel -> Fueled, Detonate ->
+    // detonates.
+    private const string keywordSuffixPattern = "(s|es|d|ed|ing)?";
+
+    private static readonly RegexOptions keywordRegexOptions =
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant;
+
+    private List<TermDefinition> _termLookup;
+    private List<BallDefinition> _ballLookup;
+    private List<Regex> _keywordPatterns;
+
+    private readonly List<DefinitionEntry> _resolvedDefinitions =
+        new List<DefinitionEntry>();
+
+    private readonly List<KeywordMatch> _keywordMatches =
+        new List<KeywordMatch>();
+
+    private readonly struct DefinitionEntry
+    {
+        public DefinitionEntry(string displayName, string description)
+        {
+            DisplayName = displayName;
+            Description = description;
+        }
+
+        public string DisplayName { get; }
+        public string Description { get; }
+    }
+
+    private readonly struct KeywordMatch
+    {
+        public KeywordMatch(int index, int length, TermDefinition definition)
+        {
+            Index = index;
+            Length = length;
+            Definition = definition;
+        }
+
+        public int Index { get; }
+        public int Length { get; }
+        public TermDefinition Definition { get; }
+    }
 
 
     private void Awake()
@@ -75,6 +181,7 @@ public sealed class TooltipUI : MonoBehaviour
         _canvasGroup = GetComponent<CanvasGroup>();
         _canvasGroup.blocksRaycasts = false;
         CacheCanvas();
+        EnsureDefinitionLookups();
         gameObject.SetActive(false);
     }
 
@@ -92,11 +199,13 @@ public sealed class TooltipUI : MonoBehaviour
     public void Show(
         string title,
         string description,
+        List<string> tags,
         ElementType elementType = ElementType.None,
         ElementType secondaryElementType = ElementType.None)
     {
         ApplyContent(title, description, elementType, secondaryElementType);
         SetPricePanels(PriceMode.None, 0);
+        SetDefinitionPanels(tags, description);
 
         gameObject.SetActive(true);
         _rect.SetAsLastSibling();
@@ -110,33 +219,37 @@ public sealed class TooltipUI : MonoBehaviour
     public void ShowBuy(
         string title,
         string description,
+        List<string> tags,
         ElementType elementType,
         ElementType secondaryElementType,
         int price)
     {
-        Show(title, description, elementType, secondaryElementType);
+        Show(title, description, tags, elementType, secondaryElementType);
         SetPricePanels(PriceMode.Buy, price);
     }
 
     public void ShowSell(
         string title,
         string description,
+        List<string> tags,
         ElementType elementType,
         ElementType secondaryElementType,
         int price)
     {
-        Show(title, description, elementType, secondaryElementType);
+        Show(title, description, tags, elementType, secondaryElementType);
         SetPricePanels(PriceMode.Sell, price);
     }
 
     public void ShowAtPosition(string title,
                                string description,
+                               List<string> tags,
                                Vector2 position,
                                ElementType elementType = ElementType.None,
                                ElementType secondaryElementType = ElementType.None)
     {
         ApplyContent(title, description, elementType, secondaryElementType);
         SetPricePanels(PriceMode.None, 0);
+        SetDefinitionPanels(tags, description);
 
         gameObject.SetActive(true);
         _rect.SetAsLastSibling();
@@ -184,27 +297,269 @@ public sealed class TooltipUI : MonoBehaviour
     public void ShowBuyAtPosition(
         string title,
         string description,
+        List<string> tags,
         Vector2 position,
         ElementType elementType,
         ElementType secondaryElementType,
         int price)
     {
-        ShowAtPosition(title, description, position, elementType, secondaryElementType);
+        ShowAtPosition(title, description, tags, position, elementType, secondaryElementType);
         SetPricePanels(PriceMode.Buy, price);
     }
 
     public void ShowSellAtPosition(
         string title,
         string description,
+        List<string> tags,
         Vector2 position,
         ElementType elementType,
         ElementType secondaryElementType,
         int price)
     {
-        ShowAtPosition(title, description, position, elementType, secondaryElementType);
+        ShowAtPosition(title, description, tags, position, elementType, secondaryElementType);
         SetPricePanels(PriceMode.Sell, price);
     }
 
+    /// <summary>
+    /// Fills the two keyword panels from the item's authored tags first, then
+    /// from any term named in its description. A panel is only shown once a
+    /// definition actually resolved, so it can never keep a previous item's
+    /// text.
+    /// </summary>
+    private void SetDefinitionPanels(List<string> tags, string description)
+    {
+        EnsureDefinitionLookups();
+
+        _resolvedDefinitions.Clear();
+        CollectTaggedDefinitions(tags);
+        CollectKeywordDefinitions(description);
+
+        ApplyDefinitionPanel(firstDefinitionPanel, 0);
+        ApplyDefinitionPanel(secondDefinitionPanel, 1);
+    }
+
+    private void ApplyDefinitionPanel(DefinitionPanel panel, int index)
+    {
+        if (panel == null)
+        {
+            return;
+        }
+
+        if (index >= _resolvedDefinitions.Count)
+        {
+            panel.gameObject.SetActive(false);
+            return;
+        }
+
+        DefinitionEntry entry = _resolvedDefinitions[index];
+        panel.Populate(entry.DisplayName, entry.Description);
+        panel.gameObject.SetActive(true);
+    }
+
+    private void CollectTaggedDefinitions(List<string> tags)
+    {
+        if (tags == null)
+        {
+            return;
+        }
+
+        foreach (string tag in tags)
+        {
+            if (_resolvedDefinitions.Count >= definitionPanelCount)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(tag))
+            {
+                continue;
+            }
+
+            TermDefinition term = FindTerm(tag);
+            if (term != null)
+            {
+                AddDefinition(
+                    term.GetSafeDisplayName(), term.Description);
+                continue;
+            }
+
+            BallDefinition ball = FindBall(tag);
+            if (ball != null)
+            {
+                AddDefinition(
+                    ball.GetSafeDisplayName(), ball.Description);
+            }
+        }
+    }
+
+    private void CollectKeywordDefinitions(string description)
+    {
+        if (string.IsNullOrWhiteSpace(description)
+            || _resolvedDefinitions.Count >= definitionPanelCount)
+        {
+            return;
+        }
+
+        _keywordMatches.Clear();
+
+        for (int i = 0; i < _termLookup.Count; i++)
+        {
+            if (_keywordPatterns[i] == null)
+            {
+                continue;
+            }
+
+            System.Text.RegularExpressions.Match match =
+                _keywordPatterns[i].Match(description);
+            if (!match.Success || OverlapsExistingMatch(match))
+            {
+                continue;
+            }
+
+            _keywordMatches.Add(new KeywordMatch(
+                match.Index, match.Length, _termLookup[i]));
+        }
+
+        // Terms were tested longest-first so an overlap resolves to the longer
+        // name, but the panels read better in the order the copy mentions them.
+        _keywordMatches.Sort(
+            (a, b) => a.Index.CompareTo(b.Index));
+
+        foreach (KeywordMatch match in _keywordMatches)
+        {
+            if (_resolvedDefinitions.Count >= definitionPanelCount)
+            {
+                return;
+            }
+
+            AddDefinition(
+                match.Definition.GetSafeDisplayName(),
+                match.Definition.Description);
+        }
+    }
+
+    private bool OverlapsExistingMatch(
+        System.Text.RegularExpressions.Match match)
+    {
+        foreach (KeywordMatch existing in _keywordMatches)
+        {
+            if (match.Index < existing.Index + existing.Length
+                && existing.Index < match.Index + match.Length)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void AddDefinition(string displayName, string description)
+    {
+        foreach (DefinitionEntry entry in _resolvedDefinitions)
+        {
+            if (entry.DisplayName == displayName)
+            {
+                return;
+            }
+        }
+
+        _resolvedDefinitions.Add(
+            new DefinitionEntry(displayName, description));
+    }
+
+    // Tags are authored as CSV asset names, so the locale-invariant asset name
+    // is matched first and the localized display name only as a fallback.
+    private TermDefinition FindTerm(string tag)
+    {
+        foreach (TermDefinition def in _termLookup)
+        {
+            if (def.name == tag || def.DisplayName == tag)
+            {
+                return def;
+            }
+        }
+
+        return null;
+    }
+
+    private BallDefinition FindBall(string tag)
+    {
+        foreach (BallDefinition def in _ballLookup)
+        {
+            if (def.name == tag || def.DisplayName == tag)
+            {
+                return def;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Builds the term/ball lookups once. The prefab's hand-wired lists are
+    /// kept for authored overrides but the Resources sweep is what guarantees
+    /// every shipped term is reachable.
+    /// </summary>
+    private void EnsureDefinitionLookups()
+    {
+        if (_termLookup != null)
+        {
+            return;
+        }
+
+        _termLookup = new List<TermDefinition>();
+        AddNamedDefinitions(_termLookup, necessaryTermDefinitions);
+        AddNamedDefinitions(
+            _termLookup,
+            Resources.LoadAll<TermDefinition>(termDefinitionResourcePath));
+
+        _termLookup.Sort((a, b) =>
+            b.GetSafeDisplayName().Length
+                .CompareTo(a.GetSafeDisplayName().Length));
+
+        // Index-aligned with _termLookup; an unnamed term stays findable by
+        // tag but is given no pattern so it can't match stray prose.
+        _keywordPatterns = new List<Regex>(_termLookup.Count);
+        foreach (TermDefinition def in _termLookup)
+        {
+            if (string.IsNullOrWhiteSpace(def.DisplayName))
+            {
+                _keywordPatterns.Add(null);
+                continue;
+            }
+
+            _keywordPatterns.Add(new Regex(
+                @"\b"
+                + Regex.Escape(def.DisplayName)
+                + keywordSuffixPattern
+                + @"\b",
+                keywordRegexOptions));
+        }
+
+        _ballLookup = new List<BallDefinition>();
+        AddNamedDefinitions(_ballLookup, necessaryBallDefinitions);
+        AddNamedDefinitions(
+            _ballLookup,
+            Resources.LoadAll<BallDefinition>(ballDefinitionResourcePath));
+    }
+
+    private static void AddNamedDefinitions<T>(
+        List<T> target, IEnumerable<T> source)
+        where T : UnityEngine.Object
+    {
+        if (source == null)
+        {
+            return;
+        }
+
+        foreach (T item in source)
+        {
+            if (item != null && !target.Contains(item))
+            {
+                target.Add(item);
+            }
+        }
+    }
 
     public void Hide()
     {
@@ -212,6 +567,187 @@ public sealed class TooltipUI : MonoBehaviour
         {
             gameObject.SetActive(false);
         }
+    }
+
+    // The shared tooltip serves every screen (shop, progression, ship
+    // select), so the arcade restyle is applied only while the shop is
+    // open and reverted on close; other screens keep the prefab look.
+    // Same roll modulo count on tooltip and header keeps both panels
+    // on the same theme for a given shop visit.
+    public void ApplyShopSkin(int roll)
+    {
+        if (backgroundMaterials.Count == 0 || shopSkinSprite == null)
+        {
+            return;
+        }
+
+        CaptureDefaultSkinIfNeeded();
+
+        _rolledMaterial = defaultShopMaterial != null
+            ? defaultShopMaterial
+            : backgroundMaterials[Mathf.Abs(roll) % backgroundMaterials.Count];
+        _shopSkinActive = true;
+
+        SkinAllPanels(_rolledMaterial, staticDefaultMaterial);
+    }
+
+    // Recolors the skin for the item being shown. Rarity items are
+    // skinned even outside the shop (hand balls, placed components);
+    // without a rarity the panel falls back to the visit's rolled
+    // material in the shop, or the default look elsewhere.
+    public void ApplyRaritySkin(BallRarity? rarity)
+    {
+        Material mat = PickByRarity(rarityMaterials, rarity);
+
+        if (mat == null)
+        {
+            if (_shopSkinActive && _rolledMaterial != null)
+            {
+                SkinAllPanels(_rolledMaterial, staticDefaultMaterial);
+            }
+            else
+            {
+                RestoreDefaultImages();
+            }
+            return;
+        }
+
+        Material barMat = PickByRarity(staticRarityMaterials, rarity);
+
+        CaptureDefaultSkinIfNeeded();
+        SkinAllPanels(mat, barMat != null ? barMat : staticDefaultMaterial);
+    }
+
+    private static Material PickByRarity(
+        List<Material> materials, BallRarity? rarity)
+    {
+        if (!rarity.HasValue)
+        {
+            return null;
+        }
+
+        int index = (int)rarity.Value;
+        return index >= 0 && index < materials.Count
+            ? materials[index]
+            : null;
+    }
+
+    // The main panel and definition panels animate; the price bars use
+    // the static twin so they match the header's frozen look.
+    private void SkinAllPanels(Material mat, Material barMat)
+    {
+        SkinImage(GetComponent<Image>(), mat, shopSkinPanelPpu);
+        SkinImage(GetPanelImage(firstDefinitionPanel), mat, shopSkinPanelPpu);
+        SkinImage(GetPanelImage(secondDefinitionPanel), mat, shopSkinPanelPpu);
+
+        if (barMat != null)
+        {
+            SkinImage(GetPanelImage(shopPanel), barMat, shopSkinBarPpu);
+            SkinImage(GetPanelImage(sellPanel), barMat, shopSkinBarPpu);
+        }
+    }
+
+    public void ApplyDefaultSkin()
+    {
+        RestoreDefaultImages();
+        _shopSkinActive = false;
+        _rolledMaterial = null;
+    }
+
+    private void RestoreDefaultImages()
+    {
+        if (!_defaultSkinCaptured)
+        {
+            return;
+        }
+
+        foreach (var entry in _defaultImageStates)
+        {
+            Image image = entry.Key;
+            if (image == null)
+            {
+                continue;
+            }
+
+            DefaultImageState state = entry.Value;
+            image.material = state.material;
+            image.sprite = state.sprite;
+            image.color = state.color;
+            image.type = state.type;
+            image.pixelsPerUnitMultiplier = state.pixelsPerUnitMultiplier;
+        }
+    }
+
+    private struct DefaultImageState
+    {
+        public Material material;
+        public Sprite sprite;
+        public Color color;
+        public Image.Type type;
+        public float pixelsPerUnitMultiplier;
+    }
+
+    private readonly Dictionary<Image, DefaultImageState>
+        _defaultImageStates = new Dictionary<Image, DefaultImageState>();
+    private Material _rolledMaterial;
+    private bool _shopSkinActive;
+    private bool _defaultSkinCaptured;
+
+    private void CaptureDefaultSkinIfNeeded()
+    {
+        if (_defaultSkinCaptured)
+        {
+            return;
+        }
+
+        _defaultSkinCaptured = true;
+
+        CaptureImageDefault(GetComponent<Image>());
+        CaptureImageDefault(GetPanelImage(firstDefinitionPanel));
+        CaptureImageDefault(GetPanelImage(secondDefinitionPanel));
+        CaptureImageDefault(GetPanelImage(shopPanel));
+        CaptureImageDefault(GetPanelImage(sellPanel));
+    }
+
+    private void CaptureImageDefault(Image image)
+    {
+        if (image == null || _defaultImageStates.ContainsKey(image))
+        {
+            return;
+        }
+
+        _defaultImageStates[image] = new DefaultImageState
+        {
+            material = image.material,
+            sprite = image.sprite,
+            color = image.color,
+            type = image.type,
+            pixelsPerUnitMultiplier = image.pixelsPerUnitMultiplier,
+        };
+    }
+
+    private void SkinImage(Image image, Material mat, float ppu)
+    {
+        if (image == null)
+        {
+            return;
+        }
+
+        image.material = mat;
+        image.sprite = shopSkinSprite;
+        image.type = Image.Type.Sliced;
+        image.pixelsPerUnitMultiplier = ppu;
+        image.color = new Color(1f, 1f, 1f, shopSkinAlpha);
+    }
+
+    private static Image GetPanelImage(DefinitionPanel panel)
+    {
+        return panel == null ? null : panel.GetComponent<Image>();
+    }
+
+    private static Image GetPanelImage(GameObject panel)
+    {
+        return panel == null ? null : panel.GetComponent<Image>();
     }
 
     public bool IsVisible => gameObject.activeSelf;
@@ -275,6 +811,10 @@ public sealed class TooltipUI : MonoBehaviour
         ElementType elementType,
         ElementType secondaryElementType)
     {
+        // Reset to the visit material so a previous item's rarity color
+        // never lingers; callers with a rarity re-skin right after.
+        ApplyRaritySkin(null);
+
         if (nameText == null || descText == null)
         {
             return;

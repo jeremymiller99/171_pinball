@@ -164,6 +164,11 @@ public sealed class ShopOfferGenerator
                 continue;
             }
 
+            if (!RunPoolFilter.IsBallAllowed(def))
+            {
+                continue;
+            }
+
             pool.Add(new ShopOffer(def, combinedPriceMultiplier));
         }
 
@@ -178,6 +183,11 @@ public sealed class ShopOfferGenerator
 
             if (hasProgression
                 && !ProgressionService.Instance.IsComponentUnlocked(def.Id))
+            {
+                continue;
+            }
+
+            if (!RunPoolFilter.IsComponentAllowed(def))
             {
                 continue;
             }

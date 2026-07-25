@@ -17,8 +17,10 @@ MonoBehaviour:
   description: 'Active: Every 4th collision, creates 3 Holoballs that disappear on
     their 3rd collision.'
   rarity: 1
-  elementType: 4
+  elementType: 5
   secondaryElementType: 0
+  tags:
+  - Holoballs
   icon: {fileID: 21300000, guid: e33ce551098a8524f8527918a2b8520b, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 774265b200d64f29b97224ed5f901ebb, type: 3}
   price: 15

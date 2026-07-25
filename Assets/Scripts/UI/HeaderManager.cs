@@ -22,7 +22,7 @@ public sealed class TooltipHeaderManager : MonoBehaviour
     private TooltipHeaderUI _instance;
     private Canvas _overlayCanvas;
 
-    private const int tooltipSortOrder = 9999;
+    private const int tooltipSortOrder = 101;
     private const float panelWidth = 220f;
     private const float nameFontSize = 18f;
 
@@ -153,6 +153,39 @@ public sealed class TooltipHeaderManager : MonoBehaviour
         }
 
         mgr._instance.Hide();
+    }
+
+    public static void ApplyShopSkin()
+    {
+        var mgr = ServiceLocator.Get<TooltipHeaderManager>();
+        if (mgr == null || mgr._instance == null)
+        {
+            return;
+        }
+
+        mgr._instance.ApplyShopSkin();
+    }
+
+    public static void ApplyDefaultSkin()
+    {
+        var mgr = ServiceLocator.Get<TooltipHeaderManager>();
+        if (mgr == null || mgr._instance == null)
+        {
+            return;
+        }
+
+        mgr._instance.ApplyDefaultSkin();
+    }
+
+    public static void ApplyRaritySkin(BallRarity? rarity)
+    {
+        var mgr = ServiceLocator.Get<TooltipHeaderManager>();
+        if (mgr == null || mgr._instance == null)
+        {
+            return;
+        }
+
+        mgr._instance.ApplyRaritySkin(rarity);
     }
 
     public static bool IsVisible

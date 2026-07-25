@@ -17,8 +17,9 @@ MonoBehaviour:
   description: 'Active: Breaks on first collision. When it does, increase the effectiveness
     of the next ball in queue by 50%.'
   rarity: 1
-  elementType: 6
+  elementType: 4
   secondaryElementType: 0
+  tags: []
   icon: {fileID: 21300000, guid: 06725c670e142234b83517c00a4a1d3a, type: 3}
   prefab: {fileID: 5723297401256486482, guid: cae2458e520774848885f444f5ad32fe, type: 3}
   price: 15

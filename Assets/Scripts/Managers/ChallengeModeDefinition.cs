@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -41,6 +42,13 @@ public sealed class ChallengeModeDefinition : ScriptableObject
     [Tooltip("Pool of devil (debuff) modifiers to randomly select from.")]
     public RoundModifierPool devilPool;
 
+    [Header("Run Pool Restrictions")]
+    [Tooltip("If non-empty, ONLY these balls can appear in this mission's run pools (shop, mystery resolution, upgrades). Empty = all unlocked balls allowed. Combined with the ship's allow-list via intersection.")]
+    [SerializeField] private List<BallDefinition> ballPoolAllowList = new List<BallDefinition>();
+
+    [Tooltip("If non-empty, ONLY these board components can appear in this mission's run pools. Empty = all unlocked components allowed. Combined with the ship's allow-list via intersection.")]
+    [SerializeField] private List<BoardComponentDefinition> componentPoolAllowList = new List<BoardComponentDefinition>();
+
     [Header("Run Ranking Thresholds")]
     [Tooltip(
         "Score needed to reach C- rank. "
@@ -73,5 +81,27 @@ public sealed class ChallengeModeDefinition : ScriptableObject
     public bool HasModifierPools =>
         (devilPool != null
             && devilPool.ValidCount > 0);
+
+    /// <summary>
+    /// True if <paramref name="def"/> may appear in this mission's run pools. An
+    /// empty allow-list means no restriction (every unlocked ball is allowed).
+    /// </summary>
+    public bool AllowsBall(BallDefinition def)
+    {
+        return ballPoolAllowList == null
+            || ballPoolAllowList.Count == 0
+            || ballPoolAllowList.Contains(def);
+    }
+
+    /// <summary>
+    /// True if <paramref name="def"/> may appear in this mission's run pools. An
+    /// empty allow-list means no restriction (every unlocked component allowed).
+    /// </summary>
+    public bool AllowsComponent(BoardComponentDefinition def)
+    {
+        return componentPoolAllowList == null
+            || componentPoolAllowList.Count == 0
+            || componentPoolAllowList.Contains(def);
+    }
 }
 

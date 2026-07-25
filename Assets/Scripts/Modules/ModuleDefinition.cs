@@ -7,6 +7,8 @@ public sealed class ArtifactDefinition : ScriptableObject
     [SerializeField] private string displayName = "Artifact";
     [TextArea]
     [SerializeField] private string description = "";
+    [SerializeField] private ElementType elementType = ElementType.None;
+    [SerializeField] private ElementType secondaryElementType = ElementType.None;
     [SerializeField] private Sprite icon;
 
     [Header("Gameplay")]
@@ -15,6 +17,8 @@ public sealed class ArtifactDefinition : ScriptableObject
 
     public string DisplayName => LocalizedContent.Get("artifact", name, "name", displayName);
     public string Description => LocalizedContent.Get("artifact", name, "desc", description);
+    public ElementType ElementType => elementType;
+    public ElementType SecondaryElementType => secondaryElementType;
     public Sprite Icon => icon;
     public GameObject Prefab => prefab;
 

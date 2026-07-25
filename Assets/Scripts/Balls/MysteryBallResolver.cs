@@ -71,6 +71,9 @@ public static class MysteryBallResolver
             pool.Add(def);
         }
 
-        return pool;
+        // Narrow to the active ship/mission allow-lists, but fall back to the
+        // full unlocked pool if the restriction would leave nothing — a mystery
+        // ball must always resolve to a concrete ball.
+        return RunPoolFilter.FilterBallsWithFallback(pool);
     }
 }

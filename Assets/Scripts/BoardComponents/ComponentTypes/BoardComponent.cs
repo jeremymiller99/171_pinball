@@ -232,7 +232,7 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
 
     public void HighlightHover()
     {
-        if (!useSelectionOutline || isConfirmed)
+        if (!useSelectionOutline)
         {
             return;
         }
@@ -245,7 +245,7 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
 
     public void UnhighlightHover()
     {
-        if (!useSelectionOutline || isConfirmed)
+        if (!useSelectionOutline)
         {
             _isHoverHighlighted = false;
             return;
@@ -253,6 +253,12 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
 
         _isHoverHighlighted = false;
         EnsureSelectionOutline();
+        if (GetComponent<ShopOffer3DEntry>() != null)
+        {
+            ApplyHighlightOutlineSettings(selectionOutline, Color.white);
+            return;
+        }
+
         ApplyDefaultOutlineSettings(selectionOutline);
     }
 
@@ -316,6 +322,24 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
     {
         scoreManager.AddScore(
             amountToScore, typeOfScore, transform);
+    }
+
+    /// <summary>
+    /// Programmatic activation (fire ticks, detonations): replays the
+    /// hit bookkeeping and scores without a ball, so no ball
+    /// multipliers apply.
+    /// </summary>
+    virtual public void ActivateAsIfHit()
+    {
+        onBallHit?.Invoke();
+        ballHits++;
+        if (enableHitCountPopup)
+            SpawnBoardHitCountPopup(ballHits, 0);
+
+        if (amountToScore != 0)
+        {
+            AddScore();
+        }
     }
 
     protected void SpawnBoardHitCountPopup(

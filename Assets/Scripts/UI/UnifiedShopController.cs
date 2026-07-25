@@ -202,6 +202,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         PinballAnalytics.LogShopItemPurchased(_selectedOffer);
 
         _shelf.ConsumeOffer(_selectedOfferIndex);
+        SteamAchievements.UnlockFirstComponentPurchase();
         ExitPlacementMode();
 
         SetPrompt(LocalizedUI.Format("gameplay.shop.placed", "Placed {0}.", def.GetSafeDisplayName()));
@@ -630,6 +631,8 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
+        SteamAchievements.UnlockFirstBallPurchase();
+
         if (ballSpawner != null && ballToGrant.Prefab != null)
         {
             ballSpawner.AddBallAnimated(ballToGrant.Prefab, insertSlot);
@@ -696,8 +699,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         {
             SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughCoinsFor", "Not enough coins for {0}.", offer.DisplayName));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
-            if (confirmPanel != null) confirmPanel.Hide();
-            RefreshUI();
+            CancelDragDropBoard();
             return;
         }
 
@@ -708,6 +710,12 @@ public sealed class UnifiedShopController : MonoBehaviour
         _selectedOfferIndex = offerIndex;
         _targetComponent = target;
         ConfirmComponentPlacement();
+    }
+
+    public void CancelDragDropBoard()
+    {
+        if (confirmPanel != null) confirmPanel.Hide();
+        RefreshUI();
     }
 
     private void ShowDragDropBallReplaceConfirm(int offerIndex, int slotIndex)
@@ -769,6 +777,7 @@ public sealed class UnifiedShopController : MonoBehaviour
             coinController?.AddCoinsUnscaled(sellPrice);
         }
         loadoutCtrl.ReplaceBallInLoadout(slotIndex, newDef);
+        SteamAchievements.UnlockFirstBallPurchase();
 
         PinballAnalytics.LogShopItemPurchased(offer);
 

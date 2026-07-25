@@ -77,7 +77,6 @@ public class BoardFireFXController : MonoBehaviour
             if (_lastAppliedScalar != 0f)
             {
                 ApplySetActive(false);
-                ServiceLocator.Get<AudioManager>()?.StopBurningSound(true);
                 _lastAppliedScalar = 0f;
             }
             return;
@@ -87,8 +86,9 @@ public class BoardFireFXController : MonoBehaviour
         float scalar = Mathf.Lerp(minIntensity, 1f, t);
 
         if (_lastAppliedScalar <= 0f)
+        {
             ApplySetActive(true);
-            ServiceLocator.Get<AudioManager>()?.StartBurningSound();
+        }
 
         ApplyIntensity(scalar);
         _lastAppliedScalar = scalar;
@@ -114,6 +114,30 @@ public class BoardFireFXController : MonoBehaviour
         SetListActive(blueFires, lit && _frenzyActive);
     }
 
+    /// <summary>
+    /// Toggles a fire set and keeps each object's burning loop in sync with it, so every
+    /// lit fire is heard from its own position on the board instead of one flat loop.
+    /// </summary>
+    private static void SetListActive(List<GameObject> list, bool active)
+    {
+        AudioManager audio = ServiceLocator.Get<AudioManager>();
+
+        foreach (GameObject go in list)
+        {
+            if (go == null) continue;
+            if (go.activeSelf != active) go.SetActive(active);
+
+            if (active)
+            {
+                audio?.StartBurningSound(go);
+            }
+            else
+            {
+                audio?.StopBurningSound(go);
+            }
+        }
+    }
+
     private void ApplyIntensity(float scalar)
     {
         List<ParticleSystem> active = _frenzyActive ? _blueParticles : _redParticles;
@@ -129,15 +153,6 @@ public class BoardFireFXController : MonoBehaviour
 
             ParticleSystem.MainModule main = ps.main;
             main.startSizeMultiplier = sizeMul;
-        }
-    }
-
-    private static void SetListActive(List<GameObject> list, bool active)
-    {
-        foreach (GameObject go in list)
-        {
-            if (go == null) continue;
-            if (go.activeSelf != active) go.SetActive(active);
         }
     }
 

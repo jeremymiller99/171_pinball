@@ -45,6 +45,11 @@ gameplay.leaderboard.top,TOP {0},TOP {0}
 gameplay.leaderboard.back,BACK,VOLVER
 gameplay.leaderboard.continue,CONTINUE,CONTINUAR
 gameplay.leaderboard.levelShort,Lv {0},Nv {0}
+gameplay.leaderboard.fetching,(fetching scores...),(obteniendo puntuaciones...)
+gameplay.leaderboard.noEntries,(no entries yet),(aún no hay entradas)
+gameplay.leaderboard.steamUnavailable,(Steam unavailable),(Steam no disponible)
+gameplay.leaderboard.viewGlobal,VIEW: GLOBAL,VER: GLOBAL
+gameplay.leaderboard.viewFriends,VIEW: FRIENDS,VER: AMIGOS
 tutorial.firstPlay.title,CONTROLS,CONTROLES
 tutorial.firstPlay.button,START,EMPEZAR
 tutorial.firstPlay.body,"Flippers:  Left Arrow / Right Arrow,  A / D,  or Left / Right Mouse Button.

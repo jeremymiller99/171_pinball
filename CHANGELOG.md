@@ -10,6 +10,199 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.10.3 — Tooltip keyword panels resolve from the description text
+_2026-07-24 · Contributor: JJ_
+- Definition Panel 1/2 now populate from any keyword the item's description mentions,
+  not just from a ball's authored tags. Board components, modules, ships, shop offers and
+  the hub had no tags at all, so their keyword panels never appeared — Fire Bumper now
+  pops On Fire, Lighter pops Ignite + On Fire, Frozen Bumper pops Frozen, Gas Station pops
+  Fuel + On Fire, Engine Bumper pops Charge + Flammable.
+- Matching is whole-word and case-insensitive with the inflections the copy actually uses
+  (`Ignite` → "Ignited", `Fuel` → "Fueled", `Detonate` → "detonates"). Longer terms win an
+  overlap, so a future `Fire` term can't steal a match from `On Fire`. Panels are ordered
+  by where the term appears in the sentence.
+- Terms are now loaded from `Resources/TermDefinitions` at runtime instead of relying on
+  `Tooltip Panel.prefab`'s hand-wired `necessaryTermDefinitions`. That list was missing
+  Bouncy, Frozen and Shock, and `necessaryBallDefinitions` was empty — the same wiring gap
+  that already broke keyword panels once in 0.10.0. Ball tags resolve out of
+  `Resources/BallDefinitions` the same way. The prefab lists are still honored as overrides.
+- Stale-text fix: an unresolved tag used to leave its panel *active* showing the previous
+  item's keyword. A panel is now shown only once a definition actually resolved, so
+  Confetti (`Holoballs`) and Eye on The Prize (`Craft`, `Pinballs`) hide theirs rather than
+  lying. Content gaps behind those: `Holoballs` and `Craft` have no asset at all and need
+  term assets authored; `Pinballs` fails only because the tag is pluralized and the asset
+  is `Pinball` — tag matching is deliberately exact, so one of the two names has to change.
+- Tags are matched against the locale-invariant asset name first, and `DefinitionPanel`
+  null-guards its text refs, so the runtime-built fallback tooltip in `TooltipManager`
+  (which never assigns the panels) can no longer throw on `Show`.
+- Known limitation — English only. `TermDefinition` has no `LocalizedContent` route and
+  `content_localization.csv` has no `term.*` keys, so the scan builds its patterns from raw
+  English display names while `BallDefinition.Description` is translated. Under a non-English
+  locale the tag-driven panels still resolve (asset names are locale-invariant) but the
+  description scan matches nothing. Adding `term.*` keys and routing
+  `TermDefinition.DisplayName`/`Description` through `LocalizedContent` closes this.
+
+## 0.10.2 — Lighter reworked to two-hit fuse + PR cleanup
+_2026-07-23 · Contributor: Devin_
+- Lighter no longer self-destructs off its own burn tick half a second after catching
+  (playtest read it as the bumper just vanishing). It now explodes only when a ball hits
+  it while it burns; an untouched burn refills its innate fuel so it can be lit again.
+- Extra fire tracing: Lighter logs which trigger lit or popped it, Engine logs its charge
+  state on spawn, AddCharge gains, and stacks it holds while uncharged.
+- Playtest verified in-game: Matchstick launch strikes, cross-round stack banking,
+  Charcoal/Molotov queue fueling, Molotov break, Gas Station pay/surge/reset (surges
+  chain across launches via fires that survive the drain tally - flagged for balance
+  review), Lighter two-hit blast, Engine stack-to-score conversion.
+- Reverted all test-mode settings: Loric F1 hand and starting coins, Gas Station cost
+  back to 10, board scene test placements and the Matchstick test install on the shared
+  launcher prefab.
+
+## 0.10.1 — Gas Station credit popups, plunger-ball tooltip, fire console tracing
+_2026-07-23 · Contributor: Devin_
+- Gas Station now spawns a floating "-10" over itself when it takes credits and a red
+  "NEED 10" when the player can't pay, so a refused hit is no longer silent (it previously
+  only played the failed-purchase sound).
+- Hover tooltips now work on the promoted ball waiting at the plunger. Active balls are no
+  longer parked on hand-slot cubes, so the slot-based lookup missed them;
+  `RenderTextureRaycaster` gained a proximity fallback against `BallSpawner.ActiveBalls`
+  (skipping fast-moving balls so tooltips don't flicker mid-play).
+- New `FireDebug` console tracing for the whole fire system - filter the Console on
+  "[Fire]". Logs every Fuel (+amount and new total), Ignite (burn duration), burn-out,
+  stack banking to loadout slots, Charcoal/Molotov queue fueling, Matchstick strikes
+  (including "no stacks, no light"), Lighter explosions, Gas Station payments/refusals/
+  surges/resets, and Engine stack-to-score conversions. Flip `FireDebug.enabled` to
+  silence.
+- Loric F1 test loadout: hand reordered to Charcoal, Molotov, Fireball, Fireball, Pinball
+  (fuel carriers first, igniters after) and `startingCoins` set to 100 so the Gas Station
+  has credits to take. Reverted in 0.10.2.
+
+## 0.10.0 — Remaining fire items: Matchstick, Lighter, Gas Station, Engine, Unfinished Molotov
+_2026-07-23 · Contributor: Devin_
+- `MatchstickPlunger` (attach to the launcher): Ignites every ball as it launches, so
+  Flammable loadouts no longer depend on Fireball or board fire to get going.
+- `LighterComponent` + `LighterBumper` prefab/definition: hits Ignite it (innate
+  Flammable 5), and any activation while On Fire — a second hit or its own burn tick —
+  destroys it, Fueling everything in `blastRadius` twice and Igniting it. The burn tick
+  makes it a half-second fuse once lit, and blast-lit lighters chain.
+- `GasStationComponent` + `GasStationBumper` prefab/definition: ball hits cost 10 Credits
+  (via `CoinController.TrySpendCoins`) and Fuel the ball once. When five objects burn at
+  once it surges — Fuels the whole board 3x and stops charging — and resets on launch.
+- `EngineComponent` + `EngineBumper` prefab/definition: while Charged, Flammable stacks it
+  collects convert straight to score (5 per stack) off `StacksChanged` instead of burning.
+  No Shock system exists yet, so charge is inspector-seeded with `AddCharge` as the hook.
+- `MolotovBall` + `Unfinished Molotov` prefab/definition/CSV row, added as a shop starter:
+  contact with a component or ball Fuels both sides (other side via `fuelOtherOnContact`),
+  each pour has a 1-in-20 chance to break the bottle and retire the ball through the drain
+  flow, and while queued it Fuels every launched ball once (same pattern as Charcoal).
+- New `FireStatusUtility` helpers `CountObjectsOnFire` / `FuelAllObjectsOnBoard` back the
+  Gas Station surge; the fuel-all path routes through `CanCatchFire`, so flippers and
+  portals stay fireproof.
+- Tooltip fix: `Tooltip Panel.prefab`'s `necessaryTermDefinitions` only contained Odds, so
+  Fireball's and Charcoal's keyword panels (Flammable / Ignite / Fuel) rendered empty.
+  Wired in the Flammable, Ignite, Fuel, On Fire, Detonate, and Charge term definitions.
+
+## 0.9.6 — Fire VFX trim + flippers and portals are fireproof
+_2026-07-20 · Contributor: JJ_
+- `FireVfxLibrary` now owns spawning of its own prefabs and applies a per-prefab scale and
+  emission-rate trim, so the shared smoke and flames can be toned down without editing the
+  CFXR assets. Smoke defaults to 0.3 scale / 0.35 emission — it was eating far too much
+  screen space at full size. Per-object `fireVfxPrefab` / `fueledVfxPrefab` overrides spawn
+  untrimmed, so Charcoal and Fireball are unaffected.
+- Swapped the shared On Fire prefab from `CFXR Fire` to `CFXR2 Firewall A`.
+- New `FireStatusUtility.CanCatchFire`: components whose `componentType` is `Flipper` or
+  `Portal` never get a `ComponentFireStatus`, so they can no longer be Fueled or lit. Also
+  guarded in `BallFireStatus`'s contact-ignite loop so an editor-placed status on one of
+  those can't light either, and in its burn tick so a ball that is itself On Fire stops
+  re-triggering a flipper or portal it happens to be resting against.
+
+## 0.9.5 — Flame VFX for burning board components
+_2026-07-20 · Contributor: JJ_
+- `FireVfxLibrary` gained an `onFireVfxPrefab` slot, wired to `CFXR Fire`, and
+  `FireStatus.StartFireFeedback` now falls back to it when the object has no
+  `fireVfxPrefab` of its own. Board components — which are always given their
+  `ComponentFireStatus` at runtime and so can never be wired in the inspector — finally
+  show flames while On Fire. Charcoal and Fireball keep their own `OnFireVFX` prefab.
+
+## 0.9.4 — Smoke VFX for Fueled objects
+_2026-07-20 · Contributor: JJ_
+- `Assets/Scripts/StatusEffects/FireStatus.cs` now spawns a looping smoke effect on any
+  object carrying Fuel beyond its innate Flammable rating (new `IsFueled` property), so a
+  board component that Charcoal has fueled visibly smolders before it ever catches. The
+  smoke is parented to the object, refreshes off `StacksChanged`, and is torn down when the
+  object ignites (the fire VFX takes over), burns out, or is destroyed.
+- New `Assets/Scripts/StatusEffects/FireVfxLibrary.cs` + `Assets/Resources/FireVfxLibrary.asset`
+  — a Resources-loaded prefab library, needed because `ComponentFireStatus` is always added
+  at runtime and so can never have inspector-wired prefab fields. Points at
+  `CFXR Smoke Source 3D` by default; a per-object `fueledVfxPrefab` field on `FireStatus`
+  overrides it.
+
+## 0.9.3 — Breaking-news chyron crawl (Monitor 1b political-decay screen)
+_2026-07-19 · Contributor: JJ_
+- New `Assets/Scripts/UI/BreakingNewsCrawl.cs` — a MonoBehaviour that procedurally builds a
+  horizontal breaking-news chyron inside any RectTransform under a Canvas. A red "BREAKING"
+  tag pins to the left (cycling through configurable labels like BREAKING / LIVE / ALERT /
+  URGENT and pulsing between two colors on a flash timer), while a seamless two-copy
+  marquee scrolls political-decay headlines right-to-left across the remainder of the
+  container. Headlines, colors, scroll speed, tag width, cycle intervals, and font are all
+  inspector-tunable; the crawl area auto-adds a `RectMask2D` so text is hard-clipped to its
+  bounds. Meant to sit as a third slab on the Monitor 1b canvas alongside
+  `StockTickerDisplay` and `StockChartDisplay`.
+
+## 0.9.2 — Crashing single-stock line-chart display (Monitor 1b companion)
+_2026-07-19 · Contributor: JJ_
+- New `Assets/Scripts/UI/StockChartDisplay.cs` + `Assets/Scripts/UI/StockChartLineGraphic.cs`
+  — a MonoBehaviour that procedurally builds an animated single-stock line chart inside any
+  RectTransform, paired with a custom `MaskableGraphic` that draws the polyline, optional
+  area fill, and optional faint grid. A sliding sample window advances on a jittered timer
+  using a downward-biased random walk (with configurable plunge spikes and rare small
+  bounces), and the header label continuously updates with the current price and cumulative
+  window % change. All colors, thickness, grid divisions, background, and clipping are
+  inspector-tunable; a `RectMask2D` is auto-added by default so the chart stays inside its
+  container. Meant to sit next to `StockTickerDisplay` on the Monitor 1b canvas.
+
+## 0.9.1 — Crashing stock-ticker display (Monitor 1b main-menu ambient screen)
+_2026-07-19 · Contributor: JJ_
+- New `Assets/Scripts/UI/StockTickerDisplay.cs` — a self-contained MonoBehaviour that
+  procedurally builds a scrolling red stock ticker inside any RectTransform under a Canvas.
+  Rows animate upward, prices tick down on a jittered timer, and a configurable "big drop"
+  chance hammers a random row with a large percentage loss and pulses both the row and an
+  optional background image bright red. Rows recycle as they scroll off the top; symbols and
+  starting prices are randomized from serialized lists. Intended for the Monitor 1b canvas
+  on `Assets/Scenes/Core/MainMenu 1.unity` (attach in the editor — no prefab required; add
+  an optional `TMP_Text` header and background `Image` and assign in the inspector).
+
+## 0.9.0 — Fire status system (Flammable / Ignite / On Fire / Fuel) + Fireball & Charcoal
+_2026-07-14 · Contributor: Devin_
+- New keyword-driven fire status system in `Assets/Scripts/StatusEffects/`: `FireStatus`
+  (shared stacks/burn/tick core), `BallFireStatus` (contact spread both directions,
+  fuel-on-contact, 0.5s re-activation of the last component hit, loadout write-back),
+  `ComponentFireStatus` (added at runtime when a component is first Fueled; ticks its hit
+  effect while burning), `FireStatusUtility` (get-or-add helpers + tick gating during
+  shop/drain/no-run). Flammable X = X stacks = X seconds of burn once Ignited; Fuel adds a
+  stack and extends an active burn; burning consumes ~1 stack/second.
+- `BoardComponent.ActivateAsIfHit()`: new programmatic activation path (no ball, so no ball
+  multipliers) with overrides on `Bumper` (audio, no bounce/shake), `BombComponent`
+  (extracted `TryExplode()`, ticks count toward explosions), `CasinoComponent` (payout only
+  every Nth activation), `FrozenComponent` (extracted `HandleHitProgression()`, ticks chip
+  the freeze). `DuplicatingComponent` intentionally keeps base behavior (can't clone without
+  a source ball).
+- New balls: **Fireball** (`FireballBall`, Striker — launches On Fire via new
+  `PinballLauncher.BallLaunched` static event, cannot be Fueled, detonates like a bomb when
+  its burn ends, then retires through the drain flow) and **Charcoal** (`CharcoalBall`,
+  Catalyst — fuels everything it touches; while queued, every launched ball is Fueled twice).
+  CSV rows for both already existed in `Ball-Descriptions.csv`.
+- Fuel persists between launches: new `_extraFlammableStacksBySlot` parallel list in
+  `BallLoadoutController` (synced through all loadout mutators) +
+  `BallSpawner.SyncFireStacksFromLoadout()` on hand rebuild.
+- Fixed `TooltipUI` bug where the second definition panel was never populated (both tags
+  rendered into the first panel).
+- Known limitations: board-component definitions still have no tooltip term tags (only balls
+  surface keyword panels); legacy `FireComponent` heat-up bumper is untouched and unrelated
+  to the new system; prefabs/definitions for the two balls are set up in-editor (see below).
+- Note: the "bump version text in MainMenu.unity" step from AGENTS.md appears stale — the
+  menu label is CI-driven via `BuildVersionLabel`/`Application.version`; no `v0.x.y` scene
+  text exists to update.
+
 ## 0.8.7 — Spanish localization pass on MainMenu (continued)
 _2026-06-01 · Contributor: Devin_
 - Cleaned up 4 typo keys in `Menu Labels` that had leading whitespace (`␣mainMenu.settings.displayMode`, `␣mainMenu.settings.resolution`, `␣mainMenu.highscore`, `␣mainMenu.rank`). Stripped the leading space in-place via direct YAML edit so the key IDs and existing translations were preserved. Also fixed two wrong English source values in the same pass: `displayMode` was set to `Display`, now `Display Mode`; `highscore` was set to `Highscore` (no colon), now `Highscore:` to match the ChallengeCard source string.

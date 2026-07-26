@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1965a039b036c804e95a533e2df9861b, type: 3}
-  m_Name: LighterKicker
+  m_Name: ShadowLampBumper
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinition
-  id: Lighter
-  displayName: Lighter
-  description: 'On collision, Ignite. If this component is On Fire, it is destroyed,
-    fueling all nearby objects twice and Igniting them.'
-  componentType: 8
-  rarity: 0
+  id: Shadow Lamp
+  displayName: Shadow Lamp
+  description: 'On collision, if this component is On Fire, Project a Holoball that
+    lasts for 3 seconds.'
+  componentType: 0
+  rarity: 1
   elementType: 2
   icon: {fileID: 0}
-  prefab: {fileID: 4978443779249624864, guid: f04291eadd9a4f7989252729a4fc725a, type: 3}
-  price: 10
+  prefab: {fileID: 4773778546837097395, guid: a3d9f21e7c6b45089e14b2f0c8a5d637, type: 3}
+  price: 15

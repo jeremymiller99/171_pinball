@@ -125,3 +125,6 @@ fmod_editor.log
 /[Aa]ssets/_Dev
 /[Aa]ssets/_Dev.meta
 _Dev
+
+# Personal architecture notes — local only, not for collaborators
+/ARCHITECTURE.md

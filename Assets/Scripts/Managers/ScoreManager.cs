@@ -132,6 +132,27 @@ public class ScoreManager : MonoBehaviour
     public event Action MultReset;
     public event Action<int, int> CoinsAdded; // (appliedAmount, currentCoins)
 
+    /// <summary>
+    /// True while a score is being applied that should produce a reduced ("weak") camera
+    /// shake — e.g. a fire burn tick. Shake listeners (ScoreJuiceFeedback) read this while
+    /// handling the score events, which fire synchronously inside the scored action.
+    /// </summary>
+    public bool WeakShakePending { get; private set; }
+
+    /// <summary>
+    /// Runs <paramref name="scoringAction"/> with weak-shake mode active, so any score it
+    /// produces asks shake listeners for a reduced shake. Nestable and exception-safe.
+    /// </summary>
+    public void WithWeakShake(Action scoringAction)
+    {
+        if (scoringAction == null) return;
+
+        bool previous = WeakShakePending;
+        WeakShakePending = true;
+        try { scoringAction(); }
+        finally { WeakShakePending = previous; }
+    }
+
     // Properties
 
     public float Goal => _goal;

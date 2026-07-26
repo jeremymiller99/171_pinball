@@ -13,10 +13,6 @@ public class Bumper : BoardComponent
     [SerializeField] private float bounceForce = 10f;
     private float baseBounceForce;
 
-    [Header("FX")]
-    [SerializeField] private float shakeDuration = 0.22f;
-    [SerializeField] private float shakeMagnitude = 0.16f;
-
     protected override void Awake()
     {
         base.Awake();
@@ -41,12 +37,6 @@ public class Bumper : BoardComponent
 
         Vector3 forceDir = (collision.transform.position - bumperCenter).normalized;
         rb.AddForce(forceDir * baseBounceForce, ForceMode.Impulse);
-
-        CameraShake camShake = ServiceLocator.Get<CameraShake>();
-        if (camShake != null && camShake.isActiveAndEnabled)
-        {
-            camShake.Shake(shakeDuration, shakeMagnitude);
-        }
     }
 
     public override void ActivateAsIfHit()

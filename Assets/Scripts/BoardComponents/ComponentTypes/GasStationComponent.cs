@@ -1,25 +1,37 @@
 using UnityEngine;
 
 /// <summary>
-/// Catalyst bumper: each ball hit costs Credits and Fuels the ball. Once five
-/// objects burn at the same time, the station surges - Fueling everything on
-/// the board and going free - until the next launch resets it.
+/// Catalyst bumper: each ball hit costs 1 Credit and Fuels the ball. If the station is
+/// itself ignited (in any way), gasoline sprays across the board — every object is Fueled
+/// once — and from then on it Fuels balls for free. Fire-based activations (burn ticks)
+/// have no ball to Fuel, so they only score.
 /// </summary>
 public class GasStationComponent : Bumper
 {
     [Header("Gas Station")]
-    [SerializeField] private int creditCost = 10;
+    [SerializeField] private int creditCost = 1;
     [SerializeField] private int fuelPerHit = 1;
-    [SerializeField] private int onFireCountForSurge = 5;
-    [SerializeField] private int surgeFuelAmount = 3;
-    [SerializeField] private float surgeCheckInterval = 0.25f;
+    [Tooltip("Fuel applied to every object on the board when the station is ignited.")]
+    [SerializeField] private int sprayFuelAmount = 3;
 
     [Header("Credit Popups")]
     [SerializeField] private Color paidPopupColor = new Color(1f, 0.84f, 0.3f);
     [SerializeField] private Color brokePopupColor = new Color(1f, 0.35f, 0.3f);
 
-    private bool _surged;
-    private float _surgeCheckTimer;
+    private ComponentFireStatus _fireStatus;
+    private bool _sprayed;
+
+    new protected void Awake()
+    {
+        base.Awake();
+
+        // Ensure the station can catch fire and react the moment it does.
+        _fireStatus = FireStatusUtility.GetOrAddComponentStatus(this);
+        if (_fireStatus != null)
+        {
+            _fireStatus.Ignited += OnIgnited;
+        }
+    }
 
     private void OnEnable()
     {
@@ -29,6 +41,14 @@ public class GasStationComponent : Bumper
     private void OnDisable()
     {
         PinballLauncher.BallLaunched -= OnBallLaunched;
+    }
+
+    private void OnDestroy()
+    {
+        if (_fireStatus != null)
+        {
+            _fireStatus.Ignited -= OnIgnited;
+        }
     }
 
     new protected void OnCollisionEnter(Collision collision)
@@ -41,9 +61,9 @@ public class GasStationComponent : Bumper
             return;
         }
 
-        if (_surged)
+        if (_sprayed)
         {
-            FireDebug.Log($"{name}: free fuel for {ball.name} (surged)");
+            FireDebug.Log($"{name}: free fuel for {ball.name} (sprayed)");
             FireStatusUtility.GetOrAddBallStatus(ball)?.Fuel(fuelPerHit);
         }
         else if (PayForFuel())
@@ -59,31 +79,30 @@ public class GasStationComponent : Bumper
         }
     }
 
-    // The surge condition can be met by fire spreading anywhere on the
-    // board, so it is polled rather than checked only on hits here.
-    private void Update()
+    // The moment the station catches fire, gasoline sprays across the whole board and
+    // fueling goes free from then on.
+    private void OnIgnited()
     {
-        if (_surged || !FireStatusUtility.CanTickNow())
+        if (_sprayed)
         {
             return;
         }
+        _sprayed = true;
 
-        _surgeCheckTimer += Time.deltaTime;
-        if (_surgeCheckTimer < surgeCheckInterval)
-        {
-            return;
-        }
+        FireDebug.Log(
+            $"{name} ignited: spraying the board with fuel x{sprayFuelAmount}, fuel now free");
+        FireStatusUtility.FuelAllObjectsOnBoard(sprayFuelAmount);
+    }
 
-        _surgeCheckTimer = 0f;
-        int burning = FireStatusUtility.CountObjectsOnFire();
-        if (burning >= onFireCountForSurge)
+    // Launching the next ball resets the price of gas: the station charges Credits again
+    // (and can spray afresh if it is ignited once more).
+    private void OnBallLaunched(GameObject launched)
+    {
+        if (_sprayed)
         {
-            _surged = true;
-            FireDebug.Log(
-                $"{name} SURGE: {burning} objects burning, fueling whole board "
-                + $"x{surgeFuelAmount}, credits now free");
-            FireStatusUtility.FuelAllObjectsOnBoard(surgeFuelAmount);
+            FireDebug.Log($"{name}: reset on launch, charging credits again");
         }
+        _sprayed = false;
     }
 
     private bool PayForFuel()
@@ -106,15 +125,5 @@ public class GasStationComponent : Bumper
         floatingTextSpawner.SpawnText(
             transform.position, text, hitCountFontAsset,
             hitCountPopupScale, hitCountPopupOffset, color);
-    }
-
-    private void OnBallLaunched(GameObject launched)
-    {
-        if (_surged)
-        {
-            FireDebug.Log($"{name} reset on launch, charging credits again");
-        }
-        _surged = false;
-        _surgeCheckTimer = 0f;
     }
 }

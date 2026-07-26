@@ -342,6 +342,24 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
         }
     }
 
+    /// <summary>
+    /// Activation from a fire burn tick specifically. Scores like <see cref="ActivateAsIfHit"/>,
+    /// but runs the scoring inside ScoreManager's weak-shake scope so the score-driven camera
+    /// shake comes out reduced — continuous burning shouldn't shake as hard as real hits.
+    /// </summary>
+    virtual public void ActivateAsBurnTick()
+    {
+        ScoreManager sm = scoreManager != null ? scoreManager : ServiceLocator.Get<ScoreManager>();
+        if (sm != null)
+        {
+            sm.WithWeakShake(ActivateAsIfHit);
+        }
+        else
+        {
+            ActivateAsIfHit();
+        }
+    }
+
     protected void SpawnBoardHitCountPopup(
         int current, int total)
     {

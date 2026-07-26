@@ -21177,7 +21177,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StarMapGenerator
   _viewport: {fileID: 1963768291}
-  _circularViewport: 1
+  _circularViewport: 0
   _contentSize: {x: 828, y: 714}
   _padding: 14
   _starViewZoom: 1

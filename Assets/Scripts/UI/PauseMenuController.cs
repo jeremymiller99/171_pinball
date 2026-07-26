@@ -1,5 +1,7 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant for jjmil on 2026-02-24.
 // Modified with Claude Code (Opus 4.7) by JJ on 2026-04-20: added Settings Panel access.
+// Modified with Claude Code (Opus 5) by JJ on 2026-07-26: clean up run and audio state
+// before returning to the menu.
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -289,6 +291,17 @@ public sealed class PauseMenuController : MonoBehaviour
     private void QuitToMainMenu()
     {
         Close();
+
+        // Burning loops are attached to board GameObjects that the scene load is about to
+        // destroy. AudioManager survives the load and only reaps them on its next Update,
+        // which leaves FMOD holding freed emitters across the transition.
+        ServiceLocator.Get<AudioManager>()?.StopAllBurningSounds();
+
+        // The run ends here, same as quitting from the win screen.
+        if (GameSession.Instance != null)
+        {
+            GameSession.Instance.ResetSession();
+        }
 
         if (ProgressionService.Instance != null)
         {

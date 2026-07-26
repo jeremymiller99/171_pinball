@@ -10,6 +10,27 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.10.4 — Quit from the pause menu no longer throws during teardown
+_2026-07-26 · Contributor: JJ_
+- `BoardFireFXController.OnDisable` threw a NullReferenceException every time a board scene
+  was torn down. It resolved `FrenzyManager` a second time to unsubscribe, but nothing ever
+  registers `FrenzyManager` with the `ServiceLocator`, so the lookup fell through to a scene
+  search that returns null once the load has started. The existing guard checked
+  `scoringMode`, an unrelated field. It now holds the instance resolved in `OnEnable` and
+  unsubscribes from that. `OnEnable` no longer dereferences the lookup unguarded either.
+- Quitting to the main menu from the pause menu now stops burning-fire FMOD loops before
+  loading the scene. Those loops are attached to board GameObjects the load destroys, and
+  `AudioManager` survives the load and only reaped them on its next `Update`.
+- Quitting to the main menu from the pause menu now calls `GameSession.ResetSession()`,
+  matching the win screen's quit button. The finished run's board plan, seed, challenge and
+  ship no longer leak into the menu.
+- `SceneFader` clears its pending fade-in request when the caller holds the screen black.
+  The flag stayed set for the rest of the session, so the next scene load that bypassed the
+  fader opened on a black screen that faded in for no reason.
+- Note: a hard crash was reported on this button but has not been reproduced — the recorded
+  session survived the NRE and reached the menu. The FMOD cleanup above is preventative.
+  If it still crashes, reproduce with fires lit (multiplier at or above `multToIgnite`).
+
 ## 0.10.3 — Tooltip keyword panels resolve from the description text
 _2026-07-24 · Contributor: JJ_
 - Definition Panel 1/2 now populate from any keyword the item's description mentions,

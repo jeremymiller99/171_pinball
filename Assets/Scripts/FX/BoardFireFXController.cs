@@ -1,3 +1,5 @@
+// Modified with Claude Code (Opus 5) by JJ on 2026-07-26: hold the FrenzyManager
+// reference so teardown can unsubscribe without re-resolving it.
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -34,6 +36,7 @@ public class BoardFireFXController : MonoBehaviour
 
     private readonly List<ParticleSystem> _redParticles = new();
     private readonly List<ParticleSystem> _blueParticles = new();
+    private FrenzyManager _frenzyManager;
     private bool _frenzyActive;
     private float _lastAppliedScalar = -1f;
 
@@ -45,19 +48,30 @@ public class BoardFireFXController : MonoBehaviour
 
     private void OnEnable()
     {
-        ServiceLocator.Get<FrenzyManager>().OnFrenzyActivated += HandleFrenzyActivated;
-        ServiceLocator.Get<FrenzyManager>().OnFrenzyDeactivated += HandleFrenzyDeactivated;
+        _frenzyManager = ServiceLocator.Get<FrenzyManager>();
+
+        if (_frenzyManager != null)
+        {
+            _frenzyManager.OnFrenzyActivated += HandleFrenzyActivated;
+            _frenzyManager.OnFrenzyDeactivated += HandleFrenzyDeactivated;
+        }
 
         ApplySetActive(false);
     }
 
+    // FrenzyManager is never registered with the ServiceLocator, so a lookup here falls
+    // back to a scene search that returns null once teardown has started. Unsubscribe
+    // from the instance resolved in OnEnable instead of resolving it a second time.
     private void OnDisable()
     {
-        if (scoringMode != null)
+        if (_frenzyManager == null)
         {
-            ServiceLocator.Get<FrenzyManager>().OnFrenzyActivated -= HandleFrenzyActivated;
-            ServiceLocator.Get<FrenzyManager>().OnFrenzyDeactivated -= HandleFrenzyDeactivated;
+            return;
         }
+
+        _frenzyManager.OnFrenzyActivated -= HandleFrenzyActivated;
+        _frenzyManager.OnFrenzyDeactivated -= HandleFrenzyDeactivated;
+        _frenzyManager = null;
     }
 
     private void Start()

@@ -20,7 +20,7 @@ GameObject:
   - component: {fileID: 7102938475610283954}
   - component: {fileID: 7102938475610283961}
   m_Layer: 0
-  m_Name: ConfettiShard
+  m_Name: Holoball
   m_TagString: Ball
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -287,16 +287,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 7102938475610283945}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 35bfdff9ff334b098cbf56858812f663, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ConfettiShardBall
-  flatMultAddPerMultHit: 0
+  m_Script: {fileID: 11500000, guid: d35c9eb25df74317866324d9584cf517, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Holoball
+  componentHits: 0
+  ballPointMultiplier: 1
+  ballMultMultiplier: 1
+  ballCoinMultiplier: 1
+  lastObjectHit: {fileID: 0}
+  isAmpedUp: 0
   hitCountFontAsset: {fileID: 0}
   hitCountPopupScale: 0.7
   hitCountPopupOffset: {x: 0, y: 40}
   hitCountPopupColor: {r: 1, g: 0.45, b: 0.85, a: 1}
-  ballSpawner: {fileID: 0}
-  hitsToPop: 3
 --- !u!114 &7102938475610283953
 MonoBehaviour:
   m_ObjectHideFlags: 0

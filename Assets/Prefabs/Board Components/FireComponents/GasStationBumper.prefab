@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 844570569686653648}
   - component: {fileID: 9000000000000000005}
   - component: {fileID: 2423504538548351846}
+  - component: {fileID: 3000000000000000001}
   - component: {fileID: 8180557298239084306}
   m_Layer: 0
   m_Name: GasStationBumper
@@ -69,7 +70,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2c1f3a4d5e6f7091a2b3c4d5e6f7081, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentPopOnHit
   ballTag: Ball
   visualRoot: {fileID: 0}
@@ -83,7 +84,8 @@ MonoBehaviour:
       Data2: 0
       Data3: 0
       Data4: 0
-    Path:
+    Path: 
+  collisionVariant: 0
 --- !u!114 &2423504538548351846
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -94,7 +96,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9c5f3f4a044a4e48b07703998f5e5fc9, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GasStationComponent
   typeOfScore: 0
   amountToScore: 5
@@ -124,11 +126,30 @@ MonoBehaviour:
   bounceForce: 50
   shakeDuration: 0.22
   shakeMagnitude: 0.16
-  creditCost: 10
+  creditCost: 1
   fuelPerHit: 1
-  onFireCountForSurge: 5
-  surgeFuelAmount: 3
-  surgeCheckInterval: 0.25
+  sprayFuelAmount: 3
+  paidPopupColor: {r: 1, g: 0.84, b: 0.3, a: 1}
+  brokePopupColor: {r: 1, g: 0.35, b: 0.3, a: 1}
+--- !u!114 &3000000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4773778546837097395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e25a058ba674f63b0bc6d1ebe1a67b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ComponentFireStatus
+  baseFlammableStacks: 3
+  canBeFueled: 1
+  fireVfxPrefab: {fileID: 0}
+  fueledVfxPrefab: {fileID: 0}
+  stacks: 0
+  isOnFire: 0
+  burnSecondsRemaining: 0
 --- !u!114 &8180557298239084306
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -139,7 +160,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
   definition: {fileID: 11400000, guid: ffeb35ffc91f4bb98773c35d0ec56ce0, type: 2}
 --- !u!1001 &7693922074019785744
@@ -208,15 +229,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: a39a71055c11c3049bdecbef65cf669c, type: 2}
     - target: {fileID: -7511558181221131132, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: 'm_Materials.Array.data[2]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 28ff08ac17303c641a3b1e0bd348583f, type: 2}
     - target: {fileID: -5754084199372789682, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: m_Mesh
-      value:
+      value: 
       objectReference: {fileID: -1291267638880965496, guid: 29d6b12c18306eb4a868b6107f87d3d6, type: 3}
     - target: {fileID: 919132149155446097, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: m_Name

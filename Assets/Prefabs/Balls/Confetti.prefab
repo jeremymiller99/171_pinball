@@ -296,8 +296,6 @@ MonoBehaviour:
   hitCountPopupScale: 0.7
   hitCountPopupOffset: {x: 0, y: 40}
   hitCountPopupColor: {r: 1, g: 0.45, b: 0.85, a: 1}
-  shardPrefab: {fileID: 7102938475610283945, guid: e970ed581e364bf3a840e00abc2a0f46, type: 3}
-  ballSpawner: {fileID: 0}
   hitsPerBurst: 4
   shardsPerBurst: 3
   maxBursts: 4

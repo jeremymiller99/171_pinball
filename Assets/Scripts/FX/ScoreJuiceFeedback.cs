@@ -1,10 +1,14 @@
 // Updated with Cursor (Composer) by assistant on 2026-03-31.
-using System;
+// Camera shake stays here (scales with score), but honors ScoreManager.WeakShakePending
+// so fire burn-tick scores shake at a reduced fraction.
 using UnityEngine;
 
 [DisallowMultipleComponent]
 public class ScoreJuiceFeedback : MonoBehaviour
 {
+    // Weak (burn-tick) scores shake at this fraction of the normal computed magnitude.
+    private const float WeakShakeScale = 0.25f;
+
     [Header("Camera Shake on Score")]
     [Tooltip("Reference to CameraShake. Auto-resolved if not set.")]
     [SerializeField] private CameraShake cameraShake;
@@ -55,6 +59,8 @@ public class ScoreJuiceFeedback : MonoBehaviour
     [Tooltip("Maximum shake magnitude cap for multiplier.")]
     [SerializeField] private float multShakeMaxMagnitude = 0.85f;
 
+    private ScoreManager _scoreManager;
+
     private int compTriggered = 35;
     private int framesSinceLastScore = 0;
     private const int FramesToResetAudio = 200;
@@ -67,12 +73,12 @@ public class ScoreJuiceFeedback : MonoBehaviour
 
     private void OnEnable()
     {
-        ScoreManager sm = ServiceLocator.Get<ScoreManager>();
-        if (sm != null)
+        _scoreManager = ServiceLocator.Get<ScoreManager>();
+        if (_scoreManager != null)
         {
-            sm.PointsAdded += OnPointsAdded;
-            sm.MultAdded += OnMultAdded;
-            sm.BallBanked += OnBallBanked;
+            _scoreManager.PointsAdded += OnPointsAdded;
+            _scoreManager.MultAdded += OnMultAdded;
+            _scoreManager.BallBanked += OnBallBanked;
         }
 
         ScoreUIController ui = ServiceLocator.Get<ScoreUIController>();
@@ -84,12 +90,11 @@ public class ScoreJuiceFeedback : MonoBehaviour
 
     private void OnDisable()
     {
-        ScoreManager sm = ServiceLocator.TryGet<ScoreManager>(out var manager) ? manager : null;
-        if (sm != null)
+        if (_scoreManager != null)
         {
-            sm.PointsAdded -= OnPointsAdded;
-            sm.MultAdded -= OnMultAdded;
-            sm.BallBanked -= OnBallBanked;
+            _scoreManager.PointsAdded -= OnPointsAdded;
+            _scoreManager.MultAdded -= OnMultAdded;
+            _scoreManager.BallBanked -= OnBallBanked;
         }
 
         ScoreUIController ui = ServiceLocator.TryGet<ScoreUIController>(out var uiController) ? uiController : null;
@@ -165,6 +170,15 @@ public class ScoreJuiceFeedback : MonoBehaviour
         cameraShake = ServiceLocator.Get<CameraShake>();
     }
 
+    // True when the score currently being applied asked for a reduced (burn-tick) shake.
+    private bool ShouldShakeWeak()
+    {
+        if (_scoreManager == null)
+            _scoreManager = ServiceLocator.Get<ScoreManager>();
+
+        return _scoreManager != null && _scoreManager.WeakShakePending;
+    }
+
     private void TriggerScoreShake(float pointsEarned)
     {
         if (cameraShake == null || !cameraShake.isActiveAndEnabled)
@@ -180,6 +194,9 @@ public class ScoreJuiceFeedback : MonoBehaviour
 
         float magnitude = shakeBaseMagnitude + (shaped * shakeMagnitudePerPoint);
         magnitude = Mathf.Clamp(magnitude, shakeBaseMagnitude, shakeMaxMagnitude);
+
+        if (ShouldShakeWeak())
+            magnitude *= WeakShakeScale;
 
         cameraShake.Shake(duration, magnitude);
     }
@@ -199,6 +216,9 @@ public class ScoreJuiceFeedback : MonoBehaviour
 
         float magnitude = multShakeBaseMagnitude + (shaped * multShakeMagnitudePerMult);
         magnitude = Mathf.Clamp(magnitude, multShakeBaseMagnitude, multShakeMaxMagnitude);
+
+        if (ShouldShakeWeak())
+            magnitude *= WeakShakeScale;
 
         cameraShake.Shake(duration, magnitude);
     }

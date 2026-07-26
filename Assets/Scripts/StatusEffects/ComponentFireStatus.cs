@@ -22,7 +22,7 @@ public sealed class ComponentFireStatus : FireStatus
         {
             if (component != null)
             {
-                component.ActivateAsIfHit();
+                component.ActivateAsBurnTick();
             }
         }
     }

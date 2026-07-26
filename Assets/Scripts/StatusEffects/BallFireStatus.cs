@@ -48,7 +48,7 @@ public sealed class BallFireStatus : FireStatus
         {
             if (FireStatusUtility.CanCatchFire(component))
             {
-                component.ActivateAsIfHit();
+                component.ActivateAsBurnTick();
             }
         }
     }

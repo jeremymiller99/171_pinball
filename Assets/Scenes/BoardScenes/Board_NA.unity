@@ -26908,8 +26908,6 @@ MonoBehaviour:
   dragTargetOutlineColor: {r: 0.3, g: 1, b: 0.3, a: 1}
   bumperCollider: {fileID: 827738930}
   bounceForce: 10
-  shakeDuration: 0.22
-  shakeMagnitude: 0.16
 --- !u!1 &1637979622
 GameObject:
   m_ObjectHideFlags: 0

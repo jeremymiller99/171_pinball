@@ -171,6 +171,19 @@ public class ScoreManager : MonoBehaviour
     public float ModuleMultMultiplier = 1f;
     public float ModuleCoinMultiplier = 1f;
 
+    // Run-long point multiplier earned in play (e.g. Electric Floorboard triggers).
+    // Survives round resets; cleared only when a new run starts.
+    private float _permanentPointsMultiplier = 1f;
+
+    public float PermanentPointsMultiplier => _permanentPointsMultiplier;
+
+    /// <summary>Permanently raises point scoring for the rest of the run (0.05 = +5%).</summary>
+    public void AddPermanentPointsBonus(float fraction)
+    {
+        _permanentPointsMultiplier += Mathf.Max(0f, fraction);
+        ScoreChanged?.Invoke();
+    }
+
     public void SetExternalScoreAwardMultiplier(float multiplier)
     {
         externalScoreAwardMultiplier = Mathf.Max(0f, multiplier);
@@ -317,7 +330,7 @@ public class ScoreManager : MonoBehaviour
         switch(typeOfScore)
         {
             case TypeOfScore.points:
-                float appliedPts = amount * pointMultiplier * pointsModifierMultiplier * externalScoreAwardMultiplier * ModulePointMultiplier;
+                float appliedPts = amount * pointMultiplier * pointsModifierMultiplier * externalScoreAwardMultiplier * ModulePointMultiplier * _permanentPointsMultiplier;
                 AddPoints(appliedPts, pos, popupAnchorOffset);
                 break;
             case TypeOfScore.mult:
@@ -474,6 +487,7 @@ public class ScoreManager : MonoBehaviour
 
     public void ResetForNewRun()
     {
+        _permanentPointsMultiplier = 1f;
         ResetForNewRound();
     }
 

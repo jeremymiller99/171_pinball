@@ -10,6 +10,33 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.11.0 — Shock/Charge system plus Electric Floorboard, Plasma Launcher, Engine rework
+_2026-07-26 · Contributor: Devin_
+- New Shock/Charge status system mirroring the fire architecture: `ChargeStatus` base with
+  `BallChargeStatus`/`ComponentChargeStatus`, `ChargeStatusUtility` helpers, and `[Charge]`
+  console tracing via `ChargeDebug`. Shocking an object grants Charge; an object left
+  unshocked for 2 seconds bleeds 2 Charge per second (paused outside live play, same
+  gating as fire ticks). Balls are the carriers: shock sources charge the ball, and
+  consumer components drain the ball's whole Charge on contact.
+- Electric Floorboard (roll-over, Tech): slows the ball slightly and Shocks it each pass.
+  A ball that arrives already charged discharges into the board; at 1 Charge it triggers,
+  consuming its Charge and permanently raising point scoring by 5% for the rest of the
+  run (new `ScoreManager.AddPermanentPointsBonus`, survives round resets, cleared on a
+  new run).
+- Plasma Launcher (flipper upgrade, Tech): banks Charge from charged balls that strike
+  the flipper; at 5 it consumes all of it and fires a plasma ball up the board. The
+  projectile glides through geometry for 4 seconds activating each component it passes
+  (0.5s per-component cooldown, portals skipped, weak-shake scoring path). Falls back to
+  a code-built glowing sphere when no prefab is assigned.
+- Engine (bumper, Entropy/Tech) reworked to the current design doc: no more seeded
+  inspector charge or Flammable-to-score conversion. Charged balls discharge into it;
+  once Charged it consumes every stack and Ignites itself, gaining +25 base points per
+  activation while it burns and shedding all of the gained points at burn-out. Holds its
+  Charge (decay permitting) if it has no Flammable stacks yet, igniting when fueled.
+- Editor wiring still needed: board placements/prefabs for the two new components and
+  Flammable stacks on Engine's `ComponentFireStatus` — code-only PR, verified against the
+  compiler but not yet playtested.
+
 ## 0.10.4 — Quit from the pause menu no longer throws during teardown
 _2026-07-26 · Contributor: JJ_
 - `BoardFireFXController.OnDisable` threw a NullReferenceException every time a board scene

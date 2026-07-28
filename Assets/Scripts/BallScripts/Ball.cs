@@ -88,7 +88,10 @@ public class Ball : MonoBehaviour
             if (!ShouldScoreBoardComponent(component)) continue;
 
             scoredAny = true;
-            AddScore(component.amountToScore, component.typeOfScore, transform);
+            AddScore(
+                component.amountToScore * component.FireScoreMultiplier,
+                component.typeOfScore,
+                transform);
         }
 
         if (scoredAny)

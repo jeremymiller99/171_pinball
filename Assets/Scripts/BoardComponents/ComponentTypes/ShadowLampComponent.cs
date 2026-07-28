@@ -21,9 +21,9 @@ public class ShadowLampComponent : Bumper
     [Min(0f)]
     [SerializeField] private float holoballSpawnRadius = 2f;
 
-    private ComponentFireStatus _fireStatus;
+    private FireStatus _fireStatus;
 
-    new protected void OnCollisionEnter(Collision collision)
+    protected override void OnCollisionEnter(Collision collision)
     {
         base.OnCollisionEnter(collision);
 
@@ -52,13 +52,13 @@ public class ShadowLampComponent : Bumper
         }
     }
 
-    // The fire status is often added at runtime by whatever ignited this component, so
+    // The fire status is often added at runtime by whatever lit this component, so
     // resolve it lazily rather than assuming it exists at Awake.
     private bool IsOnFire()
     {
         if (_fireStatus == null)
         {
-            _fireStatus = GetComponent<ComponentFireStatus>();
+            _fireStatus = GetComponent<FireStatus>();
         }
 
         return _fireStatus != null && _fireStatus.IsOnFire;

@@ -10,6 +10,68 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.13.0 — Fire and Charge rebuilt on flat, shared keyword systems
+_2026-07-28 · Contributor: JJ_
+
+Phases 1 and 2 of the keyword refactor (see `FIRE_CHARGE_REFACTOR_PLAN.md`). Core systems
+plus every existing item migrated onto them; the 14 new items are phases 3-5 and are not in
+this entry. **Compile-checked only — not yet playtested.** `Detonation`, `KineticScoring`,
+`BoardComponentRegistry.GetRandom` and `FireStatusUtility.LightRandomComponents` are written
+and compiling but have no callers until phase 3.
+
+- **Fire is one component again.** `FireStatus` / `BallFireStatus` / `ComponentFireStatus`
+  collapse into a single non-abstract `FireStatus`. Flammable ratings, Fuel, burn stacks and
+  the whole per-slot stack persistence are gone. Lighting an object now starts a flat
+  4-second burn that re-activates it at a serialized rate (default 2/s, design range 1-4)
+  and raises its scoring by a compounding 25% per activation, resetting when it goes out.
+- **Real ball hits read the burn ramp.** A component six ticks into a burn scores its hits at
+  the same step its own activations do, so burning components are worth aiming at. Only fire
+  ticks advance the ramp. Replaces the Engine's old trick of mutating `amountToScore` and
+  unwinding the delta on burnout.
+- **Re-lighting refreshes instead of no-opping.** With Fuel gone this is the only way to
+  extend a burn: the timer resets to 4s and the ramp keeps climbing, which is what will make
+  Fireworks and Short Circuit worth their odds once they land. Because that means a
+  self-lighting item (Molotov, or a ball parked on a Lighter) never burns out, the ramp is
+  clamped by a serialized `maxScoreMultiplier`, default 10x — a number chosen during
+  implementation, not from the design doc, and flagged for review.
+- **Automatic contact spread deleted.** Fire is granted only by things that say they grant
+  it, so the per-item odds coming in phase 3 actually mean something.
+- **Charge is one component too.** `BallChargeStatus` / `ComponentChargeStatus` merge into
+  `ChargeStatus`. A ball holding N Charge rolls 50% on each collision to activate the N
+  nearest components without spending it; hitting a component that requires Charge deposits
+  instead, and never procs. Only components with a requirement hold Charge. The 2s-grace /
+  -2 per second decay is removed — it made Signal Beacon's 10-Charge bar unreachable.
+- **New shared systems.** `Detonation` (radius blast that activates rather than only scores,
+  guarded by a per-cascade visited set plus a depth backstop), `KineticScoring`
+  (`clamp((speed / 8)^2, 0.25, 8)`), `BoardComponentRegistry` (self-registering index, so
+  "N nearest" and "a random component" are not per-query scene sweeps), `StatusTargeting`
+  (the single Flipper/Portal exclusion, now shared by all three keywords) and
+  `StatusTickGate` (hoisted out of `FireStatusUtility`, which `ChargeStatus` had been
+  importing).
+- `ScoreManager.WithScoreMultiplier(float, Action)` added alongside `WithWeakShake`, so an
+  effect can scale a whole activation without touching a component's base score.
+- **Migrated:** Engine (now just Charge 1 → light itself), Capacitor, Generator, Shadow Lamp,
+  Moore's Launcher, Transistor, D-Battery, Pandora's Box.
+- **Re-spec'd:** Fireball is inverted — it lights the components it strikes 5 times, rolls
+  10% to reignite when spent, and no longer burns itself or detonates on burnout. Lighter and
+  Matchstick Plunger light any ball now that there is nothing to qualify for. Charcoal lights
+  what it touches at 50%, Molotov at 60% plus its 5% break chance; both lose their
+  fuel-the-queue passives, which had no equivalent.
+- **Deleted:** `FireComponent` (an older, unrelated "on fire" system on a Bumper) and
+  `GasStationComponent` (built entirely on spraying Fuel board-wide).
+- **Three components cut entirely**, each with its prefab, `BoardComponentDefinition` and
+  every pool reference: **Fire Bumper** and **Fire Target** (the `FireComponent` pair; also
+  removed from `ProgressionConfig.starterComponents` and from `content_localization.csv`) and
+  **Gas Station** (removed from `ProgressionConfig.starterComponents`, Silverwolf's
+  `componentPoolAllowList`, and Challenge_NA 1's `componentPoolAllowList`). No dangling GUID
+  references remain; the affected pools still hold 9, 3 and 3 entries respectively. Four
+  orphan `component.FireBumper.*` / `component.FireTarget.*` keys are still in the Unity
+  string tables — unused and harmless, removable from the Tables window.
+- Prefabs carrying the old status types were repointed at the unified `FireStatus` in YAML,
+  so no prefab lost its component: Charcoal, Fireball, Unfinished Molotov, ShadowLampBumper,
+  CapacitorBumper, GeneratorBumper, EngineBumper, GasStationBumper.
+- `BombComponent` normalised from `new void Awake/OnCollisionEnter` to proper `override`.
+
 ## 0.12.0 — Charge item set aligned to the reworked design vault
 _2026-07-27 · Contributor: Devin_
 - Moore's Launcher replaces the Plasma Launcher: same 5-Charge bank on the flipper, but

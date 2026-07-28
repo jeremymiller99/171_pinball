@@ -1,10 +1,11 @@
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-07-28.
+// Change: unified statuses; the fire half no longer has to Fuel before lighting.
+
 using UnityEngine;
 
 /// <summary>
-/// Standard ball: each component hit has a chance to open the box — an even
-/// split between Shocking itself and lighting the struck component on Fire.
-/// The fire half fuels the component first so the Ignite takes even on a
-/// target with no Flammable stacks.
+/// Standard ball: each component hit has a chance to open the box — an even split
+/// between giving itself a Charge and lighting the struck component on Fire.
 /// </summary>
 public class PandorasBall : Ball
 {
@@ -22,31 +23,11 @@ public class PandorasBall : Ball
 
         if (Random.value < 0.5f)
         {
-            ChargeStatusUtility.GetOrAddBallStatus(this)?.Shock();
+            ChargeStatusUtility.GiveCharge(this, 1);
         }
         else
         {
-            LightComponentOnFire(components[0]);
+            FireStatusUtility.LightComponent(components[0]);
         }
-    }
-
-    private void LightComponentOnFire(BoardComponent component)
-    {
-        if (!FireStatusUtility.CanCatchFire(component))
-        {
-            return;
-        }
-
-        ComponentFireStatus fireStatus = FireStatusUtility.GetOrAddComponentStatus(component);
-        if (fireStatus == null)
-        {
-            return;
-        }
-
-        if (!fireStatus.IsFlammable && fireStatus.CanBeFueled)
-        {
-            fireStatus.Fuel();
-        }
-        fireStatus.Ignite();
     }
 }

@@ -153,6 +153,28 @@ public class ScoreManager : MonoBehaviour
         finally { WeakShakePending = previous; }
     }
 
+    /// <summary>
+    /// Transient scale applied to every score produced inside a
+    /// <see cref="WithScoreMultiplier"/> scope. Lets effects that scale a whole
+    /// activation — a fire burn ramp, a detonation's payout — avoid mutating the
+    /// component's own base score and having to unwind it afterwards.
+    /// </summary>
+    private float _transientScoreMultiplier = 1f;
+
+    /// <summary>
+    /// Runs <paramref name="scoringAction"/> with every score it produces scaled by
+    /// <paramref name="multiplier"/>. Nestable (scopes compound) and exception-safe.
+    /// </summary>
+    public void WithScoreMultiplier(float multiplier, Action scoringAction)
+    {
+        if (scoringAction == null) return;
+
+        float previous = _transientScoreMultiplier;
+        _transientScoreMultiplier = previous * multiplier;
+        try { scoringAction(); }
+        finally { _transientScoreMultiplier = previous; }
+    }
+
     // Properties
 
     public float Goal => _goal;
@@ -312,7 +334,7 @@ public class ScoreManager : MonoBehaviour
     {
         RegisterComponentHit();
         float componentScoreMult = _hasCompletedLevelThisRound ? (1f + _componentHitScoreBonus) : 1f;
-        amount *= componentScoreMult;
+        amount *= componentScoreMult * _transientScoreMultiplier;
 
         switch(typeOfScore)
         {

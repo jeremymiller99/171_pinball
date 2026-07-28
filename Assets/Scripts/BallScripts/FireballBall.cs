@@ -1,119 +1,73 @@
-using System.Collections;
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-07-28.
+// Change: inverted. The ball no longer burns itself or detonates on burnout; it
+// lights the components it strikes, a limited number of times.
+
 using UnityEngine;
 
 /// <summary>
-/// Striker: launches already On Fire (Flammable 5, cannot be Fueled). While
-/// burning it re-activates the last component hit every tick; when the burn
-/// ends it detonates like a bomb and retires through the drain flow.
+/// Entropy striker: every component it touches is lit on Fire. It carries a fixed
+/// number of lightings; when the last one is spent it rolls once to reignite, which
+/// refills the charges. Failing that roll leaves it a plain ball until the ball
+/// itself is rebuilt — the count is set at Awake, not per launch.
 /// </summary>
-[RequireComponent(typeof(BallFireStatus))]
 public sealed class FireballBall : Ball
 {
     public const string DefinitionId = "Fireball";
 
-    [SerializeField] private GameObject explosionPrefab;
-    [SerializeField] private float explosionActiveTime = 1f;
-    [SerializeField] private float explosionShakeDuration = 0.3f;
-    [SerializeField] private float explosionShakeMagnitude = 0.25f;
+    [Header("Fireball")]
+    [Tooltip("How many components this ball can light before it is spent.")]
+    [SerializeField] private int usesPerLight = 5;
+    [Tooltip("Chance the ball reignites when its last use is spent.")]
+    [SerializeField, Range(0f, 1f)] private float chanceToReignite = 0.1f;
 
-    private BallFireStatus _fireStatus;
-    private bool _ignited;
-    private bool _detonating;
+    [SerializeField] private int usesRemaining;
+
+    public int UsesRemaining => usesRemaining;
 
     private void Awake()
     {
-        _fireStatus = GetComponent<BallFireStatus>();
-        _fireStatus.BurnedOut += OnBurnedOut;
-        PinballLauncher.BallLaunched += OnBallLaunched;
-    }
-
-    private void OnDestroy()
-    {
-        if (_fireStatus != null)
-        {
-            _fireStatus.BurnedOut -= OnBurnedOut;
-        }
-        PinballLauncher.BallLaunched -= OnBallLaunched;
+        usesRemaining = usesPerLight;
     }
 
     protected override void OnCollisionEnter(Collision collision)
     {
         base.OnCollisionEnter(collision);
 
-        // Split or duplicated fireballs never pass through the launcher, so
-        // fall back to igniting on their first component hit. Resting
-        // contact with lane or wall geometry must not start the fuse.
-        if (GetBoardComponentsForScoring(collision.collider).Length > 0)
-        {
-            IgniteOnce();
-        }
-    }
-
-    private void OnBallLaunched(GameObject launched)
-    {
-        if (launched == gameObject)
-        {
-            IgniteOnce();
-        }
-    }
-
-    private void IgniteOnce()
-    {
-        if (_ignited)
+        if (usesRemaining <= 0)
         {
             return;
         }
 
-        _ignited = true;
-        _fireStatus.Ignite();
-    }
-
-    private void OnBurnedOut()
-    {
-        if (_detonating)
+        BoardComponent[] components = GetBoardComponentsForScoring(collision.collider);
+        if (components.Length == 0)
         {
             return;
         }
 
-        _detonating = true;
-        StartCoroutine(Detonate());
+        if (!FireStatusUtility.LightComponent(components[0]))
+        {
+            return;
+        }
+
+        usesRemaining--;
+        FireDebug.Log(
+            $"{name} lights {components[0].name}, {usesRemaining} lights left");
+
+        if (usesRemaining <= 0)
+        {
+            RollReignite();
+        }
     }
 
-    private IEnumerator Detonate()
+    private void RollReignite()
     {
-        if (explosionPrefab != null)
+        if (Random.value < chanceToReignite)
         {
-            GameObject explosion = Instantiate(
-                explosionPrefab, transform.position, Quaternion.identity);
-            explosion.SetActive(true);
-
-            // The bomb's trigger needs physics steps to collect overlapping
-            // components before it can score them.
-            yield return new WaitForFixedUpdate();
-            yield return new WaitForFixedUpdate();
-
-            Bomb bomb = explosion.GetComponent<Bomb>();
-            if (bomb != null)
-            {
-                bomb.Explode();
-            }
-            Destroy(explosion, explosionActiveTime);
+            usesRemaining = usesPerLight;
+            FireDebug.Log($"{name} reignites, back to {usesRemaining} lights");
+            return;
         }
 
-        CameraShake camShake = ServiceLocator.Get<CameraShake>();
-        if (camShake != null && camShake.isActiveAndEnabled)
-        {
-            camShake.Shake(explosionShakeDuration, explosionShakeMagnitude);
-        }
-
-        DrainHandler drainHandler = ServiceLocator.Get<DrainHandler>();
-        if (drainHandler != null)
-        {
-            drainHandler.OnBallDrained(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        FireDebug.Log($"{name} is spent for this launch");
     }
 }

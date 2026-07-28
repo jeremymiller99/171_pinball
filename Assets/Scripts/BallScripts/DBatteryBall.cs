@@ -22,7 +22,7 @@ public class DBatteryBall : Ball
     {
         if (launched == gameObject)
         {
-            ChargeStatusUtility.GetOrAddBallStatus(this)?.Shock(chargeOnLaunch);
+            ChargeStatusUtility.GiveCharge(this, chargeOnLaunch);
         }
     }
 }

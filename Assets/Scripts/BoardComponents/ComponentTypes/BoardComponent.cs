@@ -94,6 +94,36 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
         }
     }
 
+    protected virtual void OnEnable()
+    {
+        BoardComponentRegistry.Register(this);
+    }
+
+    protected virtual void OnDisable()
+    {
+        BoardComponentRegistry.Unregister(this);
+    }
+
+    /// <summary>
+    /// This component's current Fire burn ramp, or 1 when it is not alight. Read by
+    /// the ball-hit scoring path so a real hit on a burning component is worth the
+    /// same step its own burn activations are.
+    /// </summary>
+    public float FireScoreMultiplier
+    {
+        get
+        {
+            if (_fireStatus == null)
+            {
+                _fireStatus = GetComponent<FireStatus>();
+            }
+
+            return _fireStatus != null ? _fireStatus.ScoreMultiplier : 1f;
+        }
+    }
+
+    private FireStatus _fireStatus;
+
     public void FixedUpdate()
     {
         if (!isConfirmed) return;
@@ -321,7 +351,7 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
     virtual public void AddScore()
     {
         scoreManager.AddScore(
-            amountToScore, typeOfScore, transform);
+            amountToScore * FireScoreMultiplier, typeOfScore, transform);
     }
 
     /// <summary>

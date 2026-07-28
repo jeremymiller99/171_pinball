@@ -29,12 +29,6 @@ public class BallLoadoutController : MonoBehaviour
     private readonly List<bool> _ampedUpBySlot = new List<bool>();
 
     /// <summary>
-    /// Parallel to <see cref="_ballLoadout"/>: Flammable stacks gained via Fuel
-    /// above the prefab's base, kept here so Fuel persists between launches.
-    /// </summary>
-    private readonly List<int> _extraFlammableStacksBySlot = new List<int>();
-
-    /// <summary>
     /// Parallel to <see cref="_ballLoadout"/>: extra coin payout for
     /// <see cref="PiggyBankBall"/> (added each round while in loadout).
     /// </summary>
@@ -109,7 +103,6 @@ public class BallLoadoutController : MonoBehaviour
         {
             _ballLoadout.Add(def);
             _ampedUpBySlot.Add(false);
-            _extraFlammableStacksBySlot.Add(0);
             _piggyBankExtraSellBySlot.Add(0);
             _piggyBankHandGrowthEligibleThisLevel.Add(true);
             return true;
@@ -126,7 +119,6 @@ public class BallLoadoutController : MonoBehaviour
         {
             _ballLoadout.Insert(index, def);
             _ampedUpBySlot.Insert(index, false);
-            _extraFlammableStacksBySlot.Insert(index, 0);
             _piggyBankExtraSellBySlot.Insert(index, 0);
             _piggyBankHandGrowthEligibleThisLevel.Insert(index, true);
             return true;
@@ -150,13 +142,6 @@ public class BallLoadoutController : MonoBehaviour
             bool amped = _ampedUpBySlot[fromIndex];
             _ampedUpBySlot.RemoveAt(fromIndex);
             _ampedUpBySlot.Insert(toIndex, amped);
-        }
-
-        if (fromIndex >= 0 && fromIndex < _extraFlammableStacksBySlot.Count)
-        {
-            int extraStacks = _extraFlammableStacksBySlot[fromIndex];
-            _extraFlammableStacksBySlot.RemoveAt(fromIndex);
-            _extraFlammableStacksBySlot.Insert(toIndex, extraStacks);
         }
 
         if (fromIndex >= 0 && fromIndex < _piggyBankExtraSellBySlot.Count)
@@ -186,11 +171,6 @@ public class BallLoadoutController : MonoBehaviour
         if (index >= 0 && index < _ampedUpBySlot.Count)
         {
             _ampedUpBySlot[index] = false;
-        }
-
-        if (index >= 0 && index < _extraFlammableStacksBySlot.Count)
-        {
-            _extraFlammableStacksBySlot[index] = 0;
         }
 
         if (index >= 0 && index < _piggyBankExtraSellBySlot.Count)
@@ -254,13 +234,6 @@ public class BallLoadoutController : MonoBehaviour
                 (_ampedUpBySlot[b], _ampedUpBySlot[a]);
         }
 
-        if (a < _extraFlammableStacksBySlot.Count
-            && b < _extraFlammableStacksBySlot.Count)
-        {
-            (_extraFlammableStacksBySlot[a], _extraFlammableStacksBySlot[b]) =
-                (_extraFlammableStacksBySlot[b], _extraFlammableStacksBySlot[a]);
-        }
-
         if (a < _piggyBankExtraSellBySlot.Count
             && b < _piggyBankExtraSellBySlot.Count)
         {
@@ -313,30 +286,6 @@ public class BallLoadoutController : MonoBehaviour
         }
 
         return _ampedUpBySlot[loadoutSlotIndex];
-    }
-
-    public int GetExtraFlammableStacksForSlot(int loadoutSlotIndex)
-    {
-        EnsureRuntimeSlotParallelListsMatchLoadout();
-        if (loadoutSlotIndex < 0
-            || loadoutSlotIndex >= _extraFlammableStacksBySlot.Count)
-        {
-            return 0;
-        }
-
-        return _extraFlammableStacksBySlot[loadoutSlotIndex];
-    }
-
-    public void SetExtraFlammableStacksForSlot(int loadoutSlotIndex, int value)
-    {
-        EnsureRuntimeSlotParallelListsMatchLoadout();
-        if (loadoutSlotIndex < 0
-            || loadoutSlotIndex >= _extraFlammableStacksBySlot.Count)
-        {
-            return;
-        }
-
-        _extraFlammableStacksBySlot[loadoutSlotIndex] = value;
     }
 
     /// <summary>
@@ -428,7 +377,6 @@ public class BallLoadoutController : MonoBehaviour
     {
         _ballLoadout.Clear();
         _ampedUpBySlot.Clear();
-        _extraFlammableStacksBySlot.Clear();
         _piggyBankExtraSellBySlot.Clear();
         _piggyBankHandGrowthEligibleThisLevel.Clear();
 
@@ -451,7 +399,6 @@ public class BallLoadoutController : MonoBehaviour
                     {
                         _ballLoadout.Add(def);
                         _ampedUpBySlot.Add(false);
-                        _extraFlammableStacksBySlot.Add(0);
                         _piggyBankExtraSellBySlot.Add(0);
                         _piggyBankHandGrowthEligibleThisLevel.Add(true);
                     }
@@ -471,7 +418,6 @@ public class BallLoadoutController : MonoBehaviour
                     {
                         _ballLoadout.Add(def);
                         _ampedUpBySlot.Add(false);
-                        _extraFlammableStacksBySlot.Add(0);
                         _piggyBankExtraSellBySlot.Add(0);
                         _piggyBankHandGrowthEligibleThisLevel.Add(true);
                     }
@@ -499,7 +445,6 @@ public class BallLoadoutController : MonoBehaviour
                     }
                     _ballLoadout.Add(def);
                     _ampedUpBySlot.Add(false);
-                    _extraFlammableStacksBySlot.Add(0);
                     _piggyBankExtraSellBySlot.Add(0);
                     _piggyBankHandGrowthEligibleThisLevel.Add(true);
                 }
@@ -543,7 +488,6 @@ public class BallLoadoutController : MonoBehaviour
             {
                 _ballLoadout.Add(def);
                 _ampedUpBySlot.Add(false);
-                _extraFlammableStacksBySlot.Add(0);
                 _piggyBankExtraSellBySlot.Add(0);
                 _piggyBankHandGrowthEligibleThisLevel.Add(true);
             }
@@ -562,12 +506,6 @@ public class BallLoadoutController : MonoBehaviour
             {
                 _ampedUpBySlot.RemoveAt(
                     _ampedUpBySlot.Count - 1);
-            }
-
-            if (_extraFlammableStacksBySlot.Count > 0)
-            {
-                _extraFlammableStacksBySlot.RemoveAt(
-                    _extraFlammableStacksBySlot.Count - 1);
             }
 
             if (_piggyBankExtraSellBySlot.Count > 0)
@@ -596,11 +534,6 @@ public class BallLoadoutController : MonoBehaviour
             _ampedUpBySlot.Add(false);
         }
 
-        while (_extraFlammableStacksBySlot.Count < _ballLoadout.Count)
-        {
-            _extraFlammableStacksBySlot.Add(0);
-        }
-
         while (_piggyBankExtraSellBySlot.Count < _ballLoadout.Count)
         {
             _piggyBankExtraSellBySlot.Add(0);
@@ -616,13 +549,6 @@ public class BallLoadoutController : MonoBehaviour
         {
             _ampedUpBySlot.RemoveAt(
                 _ampedUpBySlot.Count - 1);
-        }
-
-        while (_extraFlammableStacksBySlot.Count > _ballLoadout.Count
-               && _extraFlammableStacksBySlot.Count > 0)
-        {
-            _extraFlammableStacksBySlot.RemoveAt(
-                _extraFlammableStacksBySlot.Count - 1);
         }
 
         while (_piggyBankExtraSellBySlot.Count > _ballLoadout.Count
@@ -645,11 +571,6 @@ public class BallLoadoutController : MonoBehaviour
         if (index >= 0 && index < _ampedUpBySlot.Count)
         {
             _ampedUpBySlot.RemoveAt(index);
-        }
-
-        if (index >= 0 && index < _extraFlammableStacksBySlot.Count)
-        {
-            _extraFlammableStacksBySlot.RemoveAt(index);
         }
 
         if (index >= 0 && index < _piggyBankExtraSellBySlot.Count)

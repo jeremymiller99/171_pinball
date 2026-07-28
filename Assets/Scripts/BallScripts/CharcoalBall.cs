@@ -1,60 +1,35 @@
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-07-28.
+// Change: Fuel is gone, so this now lights what it touches on a roll. The queued
+// fuel-every-launch passive had no equivalent and is dropped.
+
 using UnityEngine;
 
 /// <summary>
-/// Catalyst: Flammable 5 and fuels whatever it touches (see
-/// BallFireStatus.fuelOtherOnContact on the prefab). Passive: while Charcoal
-/// waits in the queue, every ball that launches is Fueled twice.
+/// Catalyst: a lump of fuel that sets alight what it touches. Each component
+/// contact rolls to light that component on Fire. The chance sits above Flint's so
+/// Charcoal reads as the dedicated fire-spreader, without being the automatic
+/// contact spread the old system had.
 /// </summary>
-[RequireComponent(typeof(BallFireStatus))]
 public sealed class CharcoalBall : Ball
 {
     public const string DefinitionId = "Charcoal";
 
-    private const int fuelPerLaunch = 2;
+    [Header("Charcoal")]
+    [SerializeField, Range(0f, 1f)] private float chanceToLight = 0.5f;
 
-    [SerializeField] private BallSpawner ballSpawner;
-
-    private void Awake()
+    protected override void OnCollisionEnter(Collision collision)
     {
-        if (ballSpawner == null)
-        {
-            ballSpawner = ServiceLocator.Get<BallSpawner>();
-        }
+        base.OnCollisionEnter(collision);
 
-        if (ballSpawner != null)
-        {
-            ballSpawner.ActivateBall += OnBallActivated;
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if (ballSpawner != null)
-        {
-            ballSpawner.ActivateBall -= OnBallActivated;
-        }
-    }
-
-    private void OnBallActivated(GameObject launched)
-    {
-        if (launched == gameObject || ballSpawner == null)
+        BoardComponent[] components = GetBoardComponentsForScoring(collision.collider);
+        if (components.Length == 0 || Random.value > chanceToLight)
         {
             return;
         }
 
-        // The passive only applies while this Charcoal is still queued.
-        if (ballSpawner.GetSlotIndexForHandBall(gameObject) < 0)
+        if (FireStatusUtility.LightComponent(components[0]))
         {
-            return;
+            FireDebug.Log($"{name} lights {components[0].name}");
         }
-
-        Ball launchedBall = launched != null ? launched.GetComponent<Ball>() : null;
-        if (launchedBall == null)
-        {
-            return;
-        }
-
-        FireDebug.Log($"{name} (queued) fuels {launched.name} x{fuelPerLaunch} at launch");
-        FireStatusUtility.GetOrAddBallStatus(launchedBall)?.Fuel(fuelPerLaunch);
     }
 }

@@ -1,9 +1,12 @@
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-07-28.
+// Change: unified ChargeStatus and its FullyCharged event.
+
 using UnityEngine;
 
 /// <summary>
 /// Tech flipper upgrade: attach next to PinballFlipper. Charged balls that
-/// strike the flipper discharge into it; once it has banked enough Charge it
-/// consumes all of it and creates a Transistor ball on the board.
+/// strike the flipper deposit into it; once it has banked enough Charge it
+/// spends all of it and creates a Transistor ball on the board.
 /// </summary>
 [RequireComponent(typeof(PinballFlipper))]
 public sealed class MooresLauncherFlipper : MonoBehaviour
@@ -18,7 +21,7 @@ public sealed class MooresLauncherFlipper : MonoBehaviour
     [Tooltip("Floor between creations so a board full of Transistors cannot avalanche.")]
     [SerializeField] private float secondsBetweenCreations = 2f;
 
-    private ComponentChargeStatus _chargeStatus;
+    private ChargeStatus _chargeStatus;
     private GameRulesManager _gameRulesManager;
     private float _lastCreationTime = float.NegativeInfinity;
 
@@ -26,12 +29,9 @@ public sealed class MooresLauncherFlipper : MonoBehaviour
     {
         _gameRulesManager = ServiceLocator.Get<GameRulesManager>();
 
-        _chargeStatus = GetComponent<ComponentChargeStatus>();
-        if (_chargeStatus == null)
-        {
-            _chargeStatus = gameObject.AddComponent<ComponentChargeStatus>();
-        }
-        _chargeStatus.ChargeChanged += CreateTransistorIfCharged;
+        _chargeStatus = ChargeStatusUtility.GetOrAddConsumerStatus(
+            gameObject, chargesNeeded);
+        _chargeStatus.FullyCharged += CreateTransistorIfCharged;
 
         if (transistorDefinition == null)
         {
@@ -43,7 +43,7 @@ public sealed class MooresLauncherFlipper : MonoBehaviour
     {
         if (_chargeStatus != null)
         {
-            _chargeStatus.ChargeChanged -= CreateTransistorIfCharged;
+            _chargeStatus.FullyCharged -= CreateTransistorIfCharged;
         }
     }
 
@@ -65,8 +65,7 @@ public sealed class MooresLauncherFlipper : MonoBehaviour
 
     private void CreateTransistorIfCharged()
     {
-        if (_chargeStatus.Charge < chargesNeeded
-            || Time.time - _lastCreationTime < secondsBetweenCreations)
+        if (Time.time - _lastCreationTime < secondsBetweenCreations)
         {
             return;
         }
@@ -79,6 +78,7 @@ public sealed class MooresLauncherFlipper : MonoBehaviour
 
         _lastCreationTime = Time.time;
         int consumed = _chargeStatus.TakeAllCharge();
+        _gameRulesManager ??= ServiceLocator.Get<GameRulesManager>();
         Vector3 spawnPosition = transform.position + spawnOffset;
         GameObject newBall = Instantiate(
             transistorDefinition.Prefab, spawnPosition, Quaternion.identity);

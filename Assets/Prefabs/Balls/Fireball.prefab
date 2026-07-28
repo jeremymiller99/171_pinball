@@ -356,16 +356,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 5723297401256486482}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dbeb8afefc9143fcbfcd0634c451d4c7, type: 3}
+  m_Script: {fileID: 11500000, guid: 92deadaa7c414c75b78e17530ff052dc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BallFireStatus
-  baseFlammableStacks: 5
-  canBeFueled: 0
+  m_EditorClassIdentifier: Assembly-CSharp::FireStatus
+  burnSeconds: 4
+  activationsPerSecond: 2
+  scoreRampPerActivation: 0.25
+  maxScoreMultiplier: 10
+  scoreMultiplier: 1
   fireVfxPrefab: {fileID: 0}
-  stacks: 0
   isOnFire: 0
   burnSecondsRemaining: 0
-  fuelOtherOnContact: 0
 --- !u!114 &-5315873662017589915
 MonoBehaviour:
   m_ObjectHideFlags: 0

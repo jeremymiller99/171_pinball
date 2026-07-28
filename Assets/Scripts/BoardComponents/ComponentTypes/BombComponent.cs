@@ -10,14 +10,14 @@ public class BombComponent : Bumper
     [SerializeField] private GameObject explosion;
     [SerializeField] private float explosionActiveTime;
 
-    new void Awake()
+    protected override void Awake()
     {
         base.Awake();
         explosion = Instantiate(explosionPrefab, transform, false);
         explosion.SetActive(false);
     }
 
-    new void OnCollisionEnter(Collision collision)
+    protected override void OnCollisionEnter(Collision collision)
     {
         base.OnCollisionEnter(collision);
         if (collision.collider.GetComponent<Ball>())

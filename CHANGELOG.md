@@ -10,6 +10,35 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.12.0 — Charge item set aligned to the reworked design vault
+_2026-07-27 · Contributor: Devin_
+- Moore's Launcher replaces the Plasma Launcher: same 5-Charge bank on the flipper, but
+  per the updated design it now creates a Transistor ball on the board instead of firing
+  a projectile. `PlasmaLauncherFlipper`/`PlasmaBall` are deleted; prefab and definition
+  (`MooresLauncher`) added under the new `ChargeComponents` folder.
+- New Tech balls with prefabs and definitions: Transistor (on component hit, 20% chance
+  to Shock itself) and D-Battery (gains 2 Charge on every plunger launch). New Rare
+  Standard ball Pandora's Ball (on component hit, 20% chance to either Shock itself or
+  light the struck component on Fire, fueling first so the Ignite takes).
+- New Tech components with prefabs and definitions: Generator (bumper standing in for
+  the sling, 30% chance per hit to Shock the ball) and Capacitor (banks 2 Charge, then
+  consumes it to activate the 4 nearest components through the weak-shake path,
+  portals excluded).
+- Electric Floorboard cut entirely: the vault kept Electric Grounding in NOT IN
+  PRODUCTION through the rework, so the component script, its three Board_NA
+  placements, and the `ScoreManager` permanent-points API added for it are all
+  removed. The Shock/Charge system itself is unaffected.
+- Moore's Launcher gains a creation cooldown (default 2s between Transistors) after a
+  playtest avalanche: created Transistors self-charge and re-feed the launcher, and an
+  uncapped loop live-locked the editor at low thresholds.
+- Playtest findings for design review: Moore's Launcher is extremely difficult to
+  trigger as specced — its bank decays like any Charged object (2s grace, then
+  -2/sec), and balls rarely return to one flipper that fast, so 5 Charge was never
+  reached across several live games (best: 4/5). Verified end-to-end only via a
+  lowered test threshold. Relatedly, consumers compete for the same couriers: a
+  Capacitor placed upstream drains every ball to 0 before it reaches the flipper,
+  which reads as counter-intuitive in play and can starve the launcher entirely.
+
 ## 0.11.0 — Shock/Charge system plus Electric Floorboard, Plasma Launcher, Engine rework
 _2026-07-26 · Contributor: Devin_
 - New Shock/Charge status system mirroring the fire architecture: `ChargeStatus` base with

@@ -4,8 +4,8 @@ using UnityEngine;
 /// <summary>
 /// Shared Shock / Charge bookkeeping. Shocking an object gives it one Charge
 /// per shock. An object left unshocked for a grace period starts bleeding
-/// Charge until it is shocked again or runs dry. Consumers (Engine, Plasma
-/// Launcher, Electric Floorboard) decide what being Charged actually does.
+/// Charge until it is shocked again or runs dry. Consumers (Engine,
+/// Capacitor, Moore's Launcher) decide what being Charged actually does.
 /// </summary>
 public abstract class ChargeStatus : MonoBehaviour
 {

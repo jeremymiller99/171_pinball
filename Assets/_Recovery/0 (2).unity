@@ -8404,7 +8404,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Monitor2Controller
   availableShips:
   - {fileID: 11400000, guid: 39f57c8ee62a2354abfe20f520879a5a, type: 2}
-  - {fileID: 11400000, guid: 672581e447f11ad4995811d59ff8ba31, type: 2}
   availablePlayfields:
   - {fileID: 11400000, guid: 94aa8e7624e37f943a9d60f03d1c0ab7, type: 2}
   startText: {fileID: 416839050}
@@ -21176,7 +21175,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StarMapGenerator
   _viewport: {fileID: 1963768291}
-  _circularViewport: 0
+  _circularViewport: 1
   _contentSize: {x: 828, y: 714}
   _padding: 14
   _starViewZoom: 1

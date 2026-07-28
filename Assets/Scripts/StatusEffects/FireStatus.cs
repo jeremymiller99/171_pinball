@@ -12,11 +12,13 @@ using UnityEngine;
 ///
 /// There is no Flammable rating and no Fuel: anything can be lit, and only things
 /// that say they light objects do so. Re-lighting an object that is already burning
-/// refreshes the timer and keeps the ramp where it is, which is what makes stacking
-/// fire sources onto one component the payoff.
+/// <em>adds</em> another full burn onto the end of the remaining time and keeps the
+/// ramp where it is, so stacking fire sources onto one component is the payoff.
 /// </summary>
-public class FireStatus : MonoBehaviour
+public class FireStatus : MonoBehaviour, IStatusBadgeSource
 {
+    private const int fireBadgeSortOrder = 0;
+
     [Header("Burn")]
     [Tooltip("Seconds a fire lasts before it goes out.")]
     [SerializeField] private float burnSeconds = 4f;
@@ -29,8 +31,14 @@ public class FireStatus : MonoBehaviour
     [SerializeField] private float maxScoreMultiplier = 10f;
 
     [Header("VFX")]
-    [Tooltip("Overrides the flame prefab from FireVfxLibrary for this object.")]
+    [Tooltip("Overrides the flame prefab from FireVfxLibrary for this object. Only "
+        + "settable on objects whose prefab already carries a FireStatus; anything "
+        + "lit at runtime falls back to the library.")]
     [SerializeField] private GameObject fireVfxPrefab;
+    [Tooltip("Where the flames sit. Leave empty to use this object's origin, which "
+        + "is wrong for components whose mesh is on a child or whose pivot is off "
+        + "the visual centre — assign the visual there instead.")]
+    [SerializeField] private Transform vfxAnchor;
 
     [Header("Runtime")]
     [SerializeField] private bool isOnFire;
@@ -47,6 +55,28 @@ public class FireStatus : MonoBehaviour
 
     public bool IsOnFire => isOnFire;
 
+    public float BurnSecondsRemaining => isOnFire ? burnSecondsRemaining : 0f;
+
+    public float BurnSeconds => burnSeconds;
+
+    /// <summary>
+    /// Remaining burn expressed in whole 4-second stacks, which is what the status
+    /// badge shows. A component lit three times reads 3 and steps down to 2 as the
+    /// first stack's worth of time burns off.
+    /// </summary>
+    public int StackCount
+    {
+        get
+        {
+            if (!isOnFire || burnSeconds <= 0f)
+            {
+                return isOnFire ? 1 : 0;
+            }
+
+            return Mathf.Max(1, Mathf.CeilToInt(burnSecondsRemaining / burnSeconds));
+        }
+    }
+
     /// <summary>
     /// The burn's current scoring step. Real ball hits on a burning object read this
     /// too, so a well-fed component is worth aiming at; only the fire's own
@@ -54,10 +84,37 @@ public class FireStatus : MonoBehaviour
     /// </summary>
     public float ScoreMultiplier => isOnFire ? scoreMultiplier : 1f;
 
+    public bool TryGetStatusBadge(out StatusBadgeInfo info)
+    {
+        // Unlike a Charge requirement, Fire has nothing to advertise when it is not
+        // burning — everything on the board is flammable, so a permanent zero here
+        // would put an icon under every component at once.
+        if (!isOnFire)
+        {
+            info = default;
+            return false;
+        }
+
+        StatusBadgeLibrary library = StatusBadgeLibrary.Instance;
+        info = new StatusBadgeInfo(
+            library != null ? library.FireIcon : null,
+            StackCount.ToString(),
+            library != null ? library.FireTint : Color.white,
+            fireBadgeSortOrder);
+        return true;
+    }
+
     protected virtual void Awake()
     {
         _components = GetComponents<BoardComponent>();
         _ball = GetComponent<Ball>();
+
+        // Attached here rather than in FireStatusUtility because Ignite() is public
+        // and reachable through BoardComponent.FireStatus — Engine and Matchbox both
+        // light themselves that way, and prefabs that pre-carry a status never touch
+        // the utility at all. Owning it here means no path can light something and
+        // leave it without a readout.
+        StatusBadgeDisplay.EnsureOn(gameObject);
     }
 
     protected virtual void Update()
@@ -97,21 +154,27 @@ public class FireStatus : MonoBehaviour
     }
 
     /// <summary>
-    /// Lights the object. On something already burning this refreshes the timer and
-    /// leaves the ramp climbing rather than doing nothing.
+    /// Lights the object. On something already burning this stacks: another full
+    /// burn is added to the end of whatever time is left, and the ramp keeps
+    /// climbing. There is no ceiling on stacked time by design, so a component fed
+    /// by several sources can burn for a very long while.
     /// </summary>
     public void Ignite()
     {
-        burnSecondsRemaining = burnSeconds;
-        _tickAccumulator = 0f;
-
         if (isOnFire)
         {
-            FireDebug.Log($"{name} re-lit, burn refreshed to {burnSeconds}s "
-                + $"(ramp holds at {scoreMultiplier:0.00}x)");
+            // Deliberately does not touch _tickAccumulator. Zeroing it here would
+            // mean anything re-lit faster than one tick interval never reached the
+            // interval at all, and so never ticked.
+            burnSecondsRemaining += burnSeconds;
+            FireDebug.Log($"{name} re-lit, burn extended to "
+                + $"{burnSecondsRemaining:0.0}s ({StackCount} stacks, "
+                + $"ramp holds at {scoreMultiplier:0.00}x)");
             return;
         }
 
+        burnSecondsRemaining = burnSeconds;
+        _tickAccumulator = 0f;
         isOnFire = true;
         scoreMultiplier = 1f;
         FireDebug.Log($"{name} lit, burning for {burnSeconds}s");
@@ -206,13 +269,27 @@ public class FireStatus : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Where flames are parented. Deliberately has no automatic fallback: the VFX is
+    /// <em>parented</em> here and <see cref="FireVfxLibrary"/> then applies its scale
+    /// trim as a local scale, so anchoring to a child that carries a non-unit scale
+    /// would silently resize the flames. Picking a child by search would do that to
+    /// every existing fire-capable component at once. Assign it explicitly where the
+    /// origin is wrong.
+    /// </summary>
+    private Transform ResolveVfxAnchor()
+    {
+        return vfxAnchor != null ? vfxAnchor : transform;
+    }
+
     private void StartFireFeedback()
     {
         if (_fireVfxInstance == null)
         {
+            Transform anchor = ResolveVfxAnchor();
             _fireVfxInstance = fireVfxPrefab != null
-                ? Instantiate(fireVfxPrefab, transform)
-                : FireVfxLibrary.Instance?.InstantiateOnFireVfx(transform);
+                ? Instantiate(fireVfxPrefab, anchor)
+                : FireVfxLibrary.Instance?.InstantiateOnFireVfx(anchor);
         }
 
         ServiceLocator.Get<AudioManager>()?.StartBurningSound(gameObject);

@@ -15,8 +15,10 @@ using UnityEngine;
 /// Charge never fire at once. Only components that require Charge hold it;
 /// everything else is a pass-through.
 /// </summary>
-public class ChargeStatus : MonoBehaviour
+public class ChargeStatus : MonoBehaviour, IStatusBadgeSource
 {
+    private const int chargeBadgeSortOrder = 10;
+
     [Header("Requirement")]
     [Tooltip("Charge needed before FullyCharged fires. 0 marks a carrier "
         + "(a ball) rather than a consumer.")]
@@ -44,11 +46,39 @@ public class ChargeStatus : MonoBehaviour
     protected virtual void Awake()
     {
         _ball = GetComponent<Ball>();
+
+        // Owned here rather than in ChargeStatusUtility so a status placed on a
+        // prefab in the inspector gets its readout too, not just ones granted at
+        // runtime.
+        StatusBadgeDisplay.EnsureOn(gameObject);
     }
 
     public void SetChargeRequired(int value)
     {
         chargeRequired = Mathf.Max(0, value);
+    }
+
+    /// <summary>
+    /// A consumer shows its bank against its requirement from the moment it exists,
+    /// empty included, so the player can read what a component wants before ever
+    /// feeding it. A carrier — a ball — has no target to show against, so it only
+    /// appears once it is actually holding something.
+    /// </summary>
+    public bool TryGetStatusBadge(out StatusBadgeInfo info)
+    {
+        if (!IsConsumer && charge <= 0)
+        {
+            info = default;
+            return false;
+        }
+
+        StatusBadgeLibrary library = StatusBadgeLibrary.Instance;
+        info = new StatusBadgeInfo(
+            library != null ? library.ChargeIcon : null,
+            IsConsumer ? $"{charge}/{chargeRequired}" : charge.ToString(),
+            library != null ? library.ChargeTint : Color.white,
+            chargeBadgeSortOrder);
+        return true;
     }
 
     public void AddCharge(int amount = 1)

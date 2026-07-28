@@ -6,12 +6,14 @@ using UnityEngine;
 /// Entropy ball: a cheap, unlimited fire source. Each component it strikes has a
 /// chance to catch. Unlike Fireball it never runs out, which is what the low rate
 /// pays for. Resting contact with lane or wall geometry does not roll.
+///
+/// Named Flint through phase 3; renamed 2026-07-28.
 /// </summary>
-public sealed class FlintBall : Ball
+public sealed class FirestarterBall : Ball
 {
-    public const string DefinitionId = "Flint";
+    public const string DefinitionId = "Firestarter";
 
-    [Header("Flint")]
+    [Header("Firestarter")]
     [SerializeField, Range(0f, 1f)] private float chanceToLight = 0.25f;
 
     protected override void OnCollisionEnter(Collision collision)

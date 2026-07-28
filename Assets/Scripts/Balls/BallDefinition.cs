@@ -40,7 +40,19 @@ public class BallDefinition : ScriptableObject
     private static string termSOPath = "/Resources/TermDefinitions/";
 #endif
 
-    public string Id => id;
+    /// <summary>
+    /// Stable id used for progression unlocks; falls back to the asset name, the
+    /// same way <see cref="PlayerShipDefinition.Id"/> does.
+    ///
+    /// The fallback is load-bearing, not cosmetic. Every unlock check —
+    /// <see cref="ProgressionService.IsBallUnlocked"/>,
+    /// <see cref="ProgressionConfig.IsStarterBall"/> — early-returns false on an
+    /// empty id, so a newly authored definition with this field left blank is
+    /// silently dropped from every shop and draw pool no matter which starter list
+    /// or ship / mission allow-list it was added to.
+    /// </summary>
+    public string Id => string.IsNullOrEmpty(id) ? name : id;
+
     public string DisplayName => LocalizedContent.Get("ball", name, "name", displayName);
     public string Description => LocalizedContent.Get("ball", name, "desc", description);
     public BallRarity Rarity => rarity;

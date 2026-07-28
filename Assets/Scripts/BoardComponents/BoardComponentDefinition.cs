@@ -31,7 +31,19 @@ public sealed class BoardComponentDefinition : ScriptableObject
     [Min(0)]
     [SerializeField] private int price = 10;
 
-    public string Id => id;
+    /// <summary>
+    /// Stable id used for progression unlocks; falls back to the asset name, the
+    /// same way <see cref="PlayerShipDefinition.Id"/> does.
+    ///
+    /// The fallback is load-bearing, not cosmetic. Every unlock check —
+    /// <see cref="ProgressionService.IsComponentUnlocked"/>,
+    /// <see cref="ProgressionConfig.IsStarterComponent"/> — early-returns false on
+    /// an empty id, so a newly authored definition with this field left blank is
+    /// silently dropped from every shop and draw pool no matter which starter list
+    /// or ship / mission allow-list it was added to.
+    /// </summary>
+    public string Id => string.IsNullOrEmpty(id) ? name : id;
+
     public string DisplayName => LocalizedContent.Get("component", name, "name", displayName);
     public string Description => LocalizedContent.Get("component", name, "desc", description);
     public BoardComponentType ComponentType => componentType;

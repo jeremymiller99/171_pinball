@@ -52,7 +52,7 @@ the design doc.
 - All of Fuel / Flammable / stack persistence (see §1.1).
 - `GasStationComponent` — cut from this pass, re-spec separately.
 
-**Genuinely new (14 items)** — Balls: Flint, Bomb, MOAB, Cannonball. Components: Matchbox,
+**Genuinely new (14 items)** — Balls: Firestarter, Bomb, MOAB, Cannonball. Components: Matchbox,
 Fireworks, Cannon, Short Circuit, Signal Beacon, Tesla Coil, Propane Tank, Rubber Band,
 Spring, Big Red Button.
 
@@ -107,7 +107,7 @@ one component is the payoff, and it's what makes Fireworks' 50%×2 and Short Cir
 worth anything once the board is already alight.
 
 **Fire is granted only by things that say they grant it.** Automatic contact spread is
-deleted — with Flint at 25%, Matchbox 40%, Short Circuit 30% and Fireworks 50%×2, auto-spread
+deleted — with Firestarter at 25%, Matchbox 40%, Short Circuit 30% and Fireworks 50%×2, auto-spread
 would make every one of those numbers meaningless.
 
 **The five Fuel-based items are re-spec'd, not deleted:**
@@ -204,7 +204,7 @@ scales everything that ball hits.
 | Item | Kind | Behaviour |
 | --- | --- | --- |
 | Fireball | Ball | On collision: light component on Fire. 5 uses. When the 5th is spent, roll 10% → refill to 5, else spent for the launch. |
-| Flint | Ball | On collision: 25% light component on Fire. |
+| Firestarter | Ball | On collision: 25% light component on Fire. |
 | Bomb | Ball | Every 10s: Detonate, radius 6. |
 | MOAB | Ball | On collision: 2% → Detonate radius 12 at 500% scoring. |
 | Cannonball | Ball | Kinetic. Created by Cannon. |
@@ -260,7 +260,7 @@ polymorphic calls. Normalizing to `override` while these files are open.
   Shock; **delete** Flammable, Fuel, Ignite; **add** Kinetic, Reinforce. Includes fixing the
   `Outlink(s)` column on every touched row.
 - `Assets/Editor/SOPopulation/Ball-Descriptions.csv` — rewrite Fireball, Bomb, M.O.A.B.,
-  Charcoal, Unfinished Molotov; add Flint, Cannonball.
+  Charcoal, Unfinished Molotov; add Firestarter, Cannonball.
 - `CHANGELOG.md` + `m_text: version X.Y.Z` in `Assets/Scenes/Core/MainMenu.unity` — this is a
   **0.11.0**, up from 0.10.4, with a dated `Contributor:` line.
 
@@ -289,7 +289,7 @@ a single checklist at the end of each phase.
    Transistor, D-Battery, Pandora's Box, Fireball, Lighter, Matchstick, Charcoal, Molotov;
    delete Fuel, `FireComponent`, Gas Station. **The build compiles and the game is playable at
    the end of this step** — playtest checkpoint before anything new is added.
-3. **New Fire items** — Flint, Matchbox, Fireworks, Short Circuit, Cannon.
+3. **New Fire items** — Firestarter, Matchbox, Fireworks, Short Circuit, Cannon.
 4. **New Charge items** — Signal Beacon, Tesla Coil, Big Red Button.
 5. **New Detonate / Kinetic items** — Bomb, MOAB, Propane Tank, Cannonball, Rubber Band,
    Spring.
@@ -304,7 +304,7 @@ serialized field I'll expose in the inspector so you can change it without a cod
 
 1. **Cannon's "Fuse length: 15"** — 15 activations, or 15 seconds? Assuming **activations**.
 2. **Charcoal and Molotov rates** — both are now "on collision, light on Fire." At 100% they
-   badly outclass Flint (25%) and Matchbox (40%). Assuming **Charcoal 50%**, **Molotov 60%**
+   badly outclass Firestarter (25%) and Matchbox (40%). Assuming **Charcoal 50%**, **Molotov 60%**
    plus its existing 5% break chance.
 3. **Big Red Button's missile** — VFX only, or a real projectile that travels then detonates?
    Assuming **VFX only** for v1.
@@ -443,7 +443,7 @@ Compile-clean (0 errors, same 31 pre-existing warnings). Shipped as 0.14.0.
 
 | Item | Script | Behaviour |
 | --- | --- | --- |
-| Flint | `BallScripts/FlintBall.cs` | 25% per component hit to light it, unlimited |
+| Firestarter | `BallScripts/FirestarterBall.cs` | 25% per component hit to light it, unlimited |
 | Matchbox | `ComponentTypes/MatchboxComponent.cs` | 40% per activation to light itself |
 | Fireworks | `ComponentTypes/FireworksComponent.cs` | while alight, 50% per activation to light 2 random |
 | Short Circuit | `ComponentTypes/ShortCircuitComponent.cs` | 30% per activation to light 1 random |
@@ -485,7 +485,7 @@ Six items, each needing a prefab and a definition asset:
 
 | Item | Asset | Notes |
 | --- | --- | --- |
-| Flint | `BallDefinition` + prefab | Common / Entropy |
+| Firestarter | `BallDefinition` + prefab | Common / Entropy |
 | Cannonball | `BallDefinition` + prefab | **Must live at `Resources/BallDefinitions/Cannonball`** — `CannonComponent` falls back to `Resources.Load` on that exact path, same as Moore's Launcher does for Transistor. Prefab needs a `Rigidbody`. |
 | Matchbox | `BoardComponentDefinition` + prefab | sling form factor, `Bumper` in code |
 | Fireworks | `BoardComponentDefinition` + prefab | |
@@ -506,7 +506,7 @@ were removed from.
 | --- | --- | --- |
 | 1 | Core systems (`FireStatus`, `ChargeStatus`, `Detonation`, `KineticScoring`, registry, targeting, tick gate) | **Done**, committed |
 | 2 | Migrate/re-spec every existing item; delete Fuel, Fire Bumper, Fire Target, Gas Station | **Done**, committed |
-| 3 | Flint, Matchbox, Fireworks, Short Circuit, Cannon, Cannonball | **Done**, *uncommitted* |
+| 3 | Firestarter, Matchbox, Fireworks, Short Circuit, Cannon, Cannonball | **Done**, committed |
 | 4 | Signal Beacon, Tesla Coil, Big Red Button | **Not started** |
 | 5 | Bomb, MOAB, Propane Tank, Rubber Band, Spring | **Not started** |
 
@@ -515,9 +515,9 @@ the Cannon needed something to fire.
 
 ### Git state
 
-Branch `jj/new-items`. Phases 1-2 are in commit `bd4cae9`. **Phase 3 and the 0.14.1 shadowing
-fix are uncommitted** — 6 new scripts (untracked, with their `.meta` files) plus 9 modified
-files. Nothing is lost, but it is unstaged work sitting in the tree.
+Branch `jj/new-items`. Phases 1-2 are in commit `bd4cae9`; phase 3 and the 0.14.1 shadowing
+fix landed in `f075540`, two minutes after this section was first written. Both are pushed.
+The status badge system (0.15.0) followed on top.
 
 ### Two decisions waiting on you
 

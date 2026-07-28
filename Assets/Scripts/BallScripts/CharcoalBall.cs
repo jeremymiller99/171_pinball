@@ -6,7 +6,7 @@ using UnityEngine;
 
 /// <summary>
 /// Catalyst: a lump of fuel that sets alight what it touches. Each component
-/// contact rolls to light that component on Fire. The chance sits above Flint's so
+/// contact rolls to light that component on Fire. The chance sits above Firestarter's so
 /// Charcoal reads as the dedicated fire-spreader, without being the automatic
 /// contact spread the old system had.
 /// </summary>

@@ -15,7 +15,7 @@ Debt;Active: On launch, lose 50% of your credits (max 20). Upon level up, gain t
 Egg;Active: Breaks on first collision. When it does, increase the effectiveness of the next ball in queue by 50%.;Uncommon;Standard;
 Eye on the Prize;Active: Scores 300%. On first collision, Craft 10 Pinballs that score 10%.;Rare;Tech;Craft Pinballs
 Fireball;Active: On collision, lights the component on Fire. Extinguishes after 5 uses. 10% chance to reignite.;Common;Entropy;Fire
-Flint;Active: On collision, has a 25% chance to light the component on Fire.;Common;Entropy;Fire
+Firestarter;Active: On collision, has a 25% chance to light the component on Fire.;Common;Entropy;Fire
 Four Leaf Clover;Passive: Increases the Odds on all objects by 1.;Uncommon;Exchange;Odds
 Freeze Tag;Active: On 10th collision, becomes Frozen and stays in place. When this ball collides with another ball, it unfreezes and scores 200%.;Common;Void;Frozen
 Gear;Active: Scores 75% points on collision. Passive: Doubles the amount of points gained on other Gears.;Uncommon;Tech;

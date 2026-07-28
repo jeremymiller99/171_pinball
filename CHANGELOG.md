@@ -10,6 +10,102 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.15.2 — Flint renamed to Firestarter
+_2026-07-28 · Contributor: JJ_
+
+The Entropy fire-starter ball, added as **Flint** in 0.14.0, is now **Firestarter**. Same
+item, same 25% per-hit light chance — name only.
+
+- `FlintBall.cs` → `FirestarterBall.cs`, class `FlintBall` → `FirestarterBall`,
+  `DefinitionId` `"Flint"` → `"Firestarter"`. The `.cs.meta` was renamed alongside the
+  script so the GUID (`2610511d…`) is unchanged and `Firestarter.prefab` keeps its
+  script binding.
+- `Ball-Descriptions.csv` row and `FIRE_CHARGE_REFACTOR_PLAN.md` updated; the 0.14.0
+  entry below still says Flint, which is what it was called then.
+
+Note the definition asset's `displayName` is still `Flint`, so the in-game name has not
+changed yet — that field is inspector-only. With the 0.15.1 id fallback the asset's
+`Id` now derives from its name and is already `Firestarter`.
+
+## 0.15.1 — Fix: new items never reached the shop shelf
+_2026-07-28 · Contributor: JJ_
+
+The shop stopped offering the ship's and mission's allowed pool. With Silverwolf and
+`Challenge_NA 1` active the shelf collapsed to **DefaultBumper and Pinball** — the only
+two entries in those allow-lists that predated phase 3.
+
+Cause: `BallDefinition.Id` and `BoardComponentDefinition.Id` returned the serialized
+`id` field raw, with no fallback, unlike `PlayerShipDefinition.Id` which has always
+fallen back to the asset name. Every phase 3 definition was authored with that field
+blank. Both `ProgressionService.IsBallUnlocked` / `IsComponentUnlocked` and
+`ProgressionConfig.IsStarterBall` / `IsStarterComponent` early-return `false` on an
+empty id, so each new item was dropped from the pool **regardless** of being added to
+`starterComponents` and to both allow-lists. The wiring was right; the identity was
+empty.
+
+- Both `Id` properties now fall back to the asset name, matching the ship precedent.
+- No save-data risk: an empty id never matched anything, so no profile can hold one.
+  Unlock *writes* go through the same property (`ProgressionTier.RewardBallId =>
+  rewardBall.Id`), so reads and writes pick up the fallback together.
+- Tradeoff inherited from `PlayerShipDefinition`: a name-derived id means renaming the
+  asset later orphans its unlock progress. Setting an explicit `id` in the inspector
+  makes the fallback inert and restores rename-safety.
+- Also fixes `FrenzyModeDuplicator`, which had the same blank field.
+
+## 0.15.0 — Status badges under every component and ball; Fire stacks additively
+_2026-07-28 · Contributor: JJ_
+
+A readout of live statuses under each object, and the stacking change that makes Fire
+worth reading. Scripts only — **nothing appears on screen until three assets are built
+in the editor**, see `STATUS_BADGES_SETUP.md`. Compile-checked, not playtested.
+
+- **New badge system.** `StatusBadgeDisplay` draws every `IStatusBadgeSource` on an
+  object as a row of icon-and-number pairs beneath it. Fire shows its remaining 4s
+  stacks, Charge shows a consumer's bank against its requirement (`4/10`), and Cannon
+  and Bomb show their fuses (`7/15`, `3/8`). Balls carry the same statuses and so get
+  the same badges.
+- **Adding a keyword to the readout is one interface.** Signal Beacon's Charge-10 bar
+  and phase 5's Bomb fuses will implement `IStatusBadgeSource` and appear; the display
+  needs no edits.
+- **Charge requirements are always visible, Fire is not.** A Capacitor advertises
+  `0/10` sitting idle so the player can read what it wants. Fire has no requirement and
+  everything on the board is flammable, so a permanent `0` under all ~20 components
+  would bury the board — it appears only while alight.
+- **The row is not parented to its object.** `BoardComponent.FixedUpdate` pulses
+  `localScale` while a component is selected and flippers rotate under input; a
+  parented row would inherit both. It lives at the scene root, is driven to position
+  each frame and billboards to the camera, which this game's camera drift
+  (`CameraAliveMotion`) and point-to-point pans require anyway.
+- **`StatusBadgeLibrary`** holds the icons and prefabs, loaded from `Resources` for the
+  same reason `FireVfxLibrary` is: `FireStatus` and `ChargeStatus` are attached at
+  runtime and can never have inspector-wired sprites.
+- **Fire now stacks additively with no ceiling.** Re-lighting adds a full 4s onto the
+  end of the remaining burn instead of resetting the timer to 4s. The ramp still holds
+  across a re-light. Flagged for playtest: §10 already noted fire is self-propagating
+  after phase 3, and uncapped additive stacking makes a permanently-ablaze board easier
+  to reach, not harder. Bounded numerically by the existing 10x `maxScoreMultiplier`.
+- **Fixed: a re-lit object could stop ticking entirely.** `Ignite()` zeroed
+  `_tickAccumulator` on every call, so anything re-lit faster than one tick interval
+  (2/s default) had the accumulator reset before it ever reached the interval and never
+  activated. It is now reset only on a fresh light. Latent since 0.13.0 and made
+  reachable by phase 3's spreaders.
+- **Fire VFX placement.** The VFX itself already worked — it is parented to the
+  object's origin, so components whose mesh sits on a child burn in the wrong spot.
+  `FireStatus` gains a `vfxAnchor` to fix that per component. Deliberately with **no**
+  automatic fallback: the VFX is parented to the anchor and `FireVfxLibrary` applies
+  its trim as a local scale, so auto-anchoring to a child with a non-unit scale would
+  silently resize the flames on every fire-capable component at once.
+- **Status displays are owned by the statuses, not the utilities.** `EnsureOn` runs
+  from `FireStatus.Awake` / `ChargeStatus.Awake` rather than from
+  `FireStatusUtility` / `ChargeStatusUtility`. `Ignite()` is public and reachable via
+  `BoardComponent.FireStatus` — Engine and Matchbox both light themselves that way,
+  and prefabs that pre-carry a status never touch the utility — so hanging the display
+  off the utility left those paths burning with no readout.
+- **Shop merchandise is re-checked every frame, not once.** `ShopOfferShelfController`
+  adds `ShopOffer3DEntry` *after* instantiating the offer prefab, and Unity runs
+  `Awake` on disabled components, so a one-time check at `Awake` let shelf Cannons
+  advertise a live fuse.
+
 ## 0.14.1 — Fix duplicate `_fireStatus` serialization warning
 _2026-07-28 · Contributor: JJ_
 

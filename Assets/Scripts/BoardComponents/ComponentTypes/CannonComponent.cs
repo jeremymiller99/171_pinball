@@ -9,9 +9,10 @@ using UnityEngine;
 /// a Capacitor discharge, or the twice-a-second ticks of its own burn, which is
 /// what makes setting the Cannon alight worthwhile.
 /// </summary>
-public class CannonComponent : Bumper
+public class CannonComponent : Bumper, IStatusBadgeSource
 {
     private const string cannonballDefinitionPath = "BallDefinitions/Cannonball";
+    private const int fuseBadgeSortOrder = 20;
 
     [Header("Cannon")]
     [Tooltip("Activations needed before the Cannon fires.")]
@@ -36,6 +37,26 @@ public class CannonComponent : Bumper
         {
             cannonballDefinition = Resources.Load<BallDefinition>(cannonballDefinitionPath);
         }
+
+        // The fuse is not granted by anything the way Fire and Charge are, so it
+        // has no utility call to hang the display off — it exists from the start
+        // and is always worth showing.
+        StatusBadgeDisplay.EnsureOn(gameObject);
+    }
+
+    /// <summary>
+    /// The fuse always shows: it is the whole read on when this Cannon fires, and
+    /// unlike Fire it is never absent.
+    /// </summary>
+    public bool TryGetStatusBadge(out StatusBadgeInfo info)
+    {
+        StatusBadgeLibrary library = StatusBadgeLibrary.Instance;
+        info = new StatusBadgeInfo(
+            library != null ? library.FuseIcon : null,
+            $"{fuseProgress}/{fuseLength}",
+            library != null ? library.FuseTint : Color.white,
+            fuseBadgeSortOrder);
+        return true;
     }
 
     protected override void OnCollisionEnter(Collision collision)

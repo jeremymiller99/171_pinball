@@ -3,12 +3,18 @@
 _Drafted with Claude Code (claude-opus-5) for jjmil on 2026-07-27._
 _Revised 2026-07-28 with decisions from design review._
 
-**Status: phases 1 and 2 are complete and compiling (0 errors).** Shipped as 0.13.0. §9 has
-the editor checklist and what to watch for in the playtest; phases 3–5 (the 14 new items) are
-untouched and ready to start.
+> ## ▶ START HERE — paused 2026-07-28, resuming at phase 4
+>
+> **Done:** phases 1, 2 and 3. All code compiles (0 errors). Versions 0.13.0 → 0.14.1.
+> **Next:** phase 4 (Signal Beacon, Tesla Coil, Big Red Button), then phase 5.
+> **Read §11 for the resume checklist** — it has the git state, what needs doing in the
+> editor, and the open questions waiting on you.
+>
+> Two things need your decision before phase 4 is really finished, both in §11.
 
-§1–§6 are settled. §7 holds four per-item tuning values taken as defaults; §8 records what
-was verified against the codebase.
+§1–§6 are the settled design. §7 lists the per-item tuning values taken as defaults. §8
+records what was verified against the codebase. §9 and §10 hold the per-phase editor
+checklists and playtest watch-items.
 
 ---
 
@@ -428,3 +434,144 @@ been played. In particular:
   never hit because the bank decayed at 2/sec. Decay is gone, so it should trigger now — but
   the other note in that entry still stands: an upstream Capacitor drains couriers before they
   reach the flipper.
+
+---
+
+## 10. Phase 3: the new Fire items
+
+Compile-clean (0 errors, same 31 pre-existing warnings). Shipped as 0.14.0.
+
+| Item | Script | Behaviour |
+| --- | --- | --- |
+| Flint | `BallScripts/FlintBall.cs` | 25% per component hit to light it, unlimited |
+| Matchbox | `ComponentTypes/MatchboxComponent.cs` | 40% per activation to light itself |
+| Fireworks | `ComponentTypes/FireworksComponent.cs` | while alight, 50% per activation to light 2 random |
+| Short Circuit | `ComponentTypes/ShortCircuitComponent.cs` | 30% per activation to light 1 random |
+| Cannon | `ComponentTypes/CannonComponent.cs` | 15-activation fuse, then fires a Cannonball |
+| Cannonball | `BallScripts/CannonballBall.cs` | Kinetic; pulled forward from phase 5 as Cannon's payload |
+
+### Judgement calls
+
+- **"On activation" = ball hits *and* programmatic activations** (burn ticks, Capacitor
+  discharge, detonation), following Shadow Lamp. This is load-bearing: it is what makes a
+  burning Fireworks a continuous spreader and what makes lighting a Cannon worthwhile.
+- **Matchbox skips its roll while already alight; Short Circuit excludes itself from its own
+  draw.** Without this, each re-lights itself on its own twice-a-second ticks and burns
+  permanently.
+- `StatusTargeting` gained a `ShopOffer3DEntry` exclusion — latent before, live now that
+  `LightRandomComponents` has callers and no distance filter.
+
+### The one thing to watch: board saturation
+
+These items make fire **self-propagating**, which nothing before phase 3 did. A burning
+Fireworks lights ~2 components/sec; each of those burns 4s and activates twice a second; any
+of them that is itself a Fireworks or Short Circuit compounds it. On a 10-20 component board
+one lit Fireworks plausibly sets everything alight within seconds — and because re-lighting
+refreshes the timer, it may simply never stop.
+
+Per-component scoring is bounded by `maxScoreMultiplier` (10x), so this is not a numeric
+blowup, but a permanently-ablaze board is very likely not the intent behind "activates 1-4
+times per second for 4 seconds".
+
+If the playtest confirms it, the precise lever is to stop the spread rolls from firing on burn
+ticks — i.e. have Fireworks and Short Circuit roll only on real ball collisions. That is a
+one-line guard in each (`if (activation is a burn tick) return;`), and it turns both from
+self-sustaining engines into hit-driven ones without touching any other numbers. Not done
+pre-emptively because the spec says "on activation".
+
+### Editor work for phase 3
+
+Six items, each needing a prefab and a definition asset:
+
+| Item | Asset | Notes |
+| --- | --- | --- |
+| Flint | `BallDefinition` + prefab | Common / Entropy |
+| Cannonball | `BallDefinition` + prefab | **Must live at `Resources/BallDefinitions/Cannonball`** — `CannonComponent` falls back to `Resources.Load` on that exact path, same as Moore's Launcher does for Transistor. Prefab needs a `Rigidbody`. |
+| Matchbox | `BoardComponentDefinition` + prefab | sling form factor, `Bumper` in code |
+| Fireworks | `BoardComponentDefinition` + prefab | |
+| Short Circuit | `BoardComponentDefinition` + prefab | |
+| Cannon | `BoardComponentDefinition` + prefab | **Orientation matters** — it fires along the prefab's `transform.forward`. Check `spawnOffset` and `launchImpulse` point the Cannonball onto the playfield rather than into a wall. |
+
+Add each definition to whichever pools you want it in (`ProgressionConfig.starterComponents`,
+ship allowlists, challenge allowlists) — the same lists Fire Bumper / Fire Target / Gas Station
+were removed from.
+
+---
+
+## 11. Resume checklist — paused 2026-07-28
+
+### Where things stand
+
+| Phase | Scope | State |
+| --- | --- | --- |
+| 1 | Core systems (`FireStatus`, `ChargeStatus`, `Detonation`, `KineticScoring`, registry, targeting, tick gate) | **Done**, committed |
+| 2 | Migrate/re-spec every existing item; delete Fuel, Fire Bumper, Fire Target, Gas Station | **Done**, committed |
+| 3 | Flint, Matchbox, Fireworks, Short Circuit, Cannon, Cannonball | **Done**, *uncommitted* |
+| 4 | Signal Beacon, Tesla Coil, Big Red Button | **Not started** |
+| 5 | Bomb, MOAB, Propane Tank, Rubber Band, Spring | **Not started** |
+
+Five items remain after phase 4's three. Cannonball was pulled forward into phase 3 because
+the Cannon needed something to fire.
+
+### Git state
+
+Branch `jj/new-items`. Phases 1-2 are in commit `bd4cae9`. **Phase 3 and the 0.14.1 shadowing
+fix are uncommitted** — 6 new scripts (untracked, with their `.meta` files) plus 9 modified
+files. Nothing is lost, but it is unstaged work sitting in the tree.
+
+### Two decisions waiting on you
+
+1. **Reinforce is still undefined.** Signal Beacon (Charge 10 → Reinforce) is a phase 4 item
+   and cannot be finished without it. Current agreement: **implement it as a `Debug.Log`
+   stub**, which is what you asked for and what phase 4 will do unless you have a real
+   definition by then. Everything else about the Beacon is specified.
+2. **Board saturation from phase 3** (§10). Fire is now self-propagating; a lit Fireworks may
+   set the whole board alight and keep it that way. This needs a playtest to confirm, and the
+   fix — if it needs one — is a one-line guard in Fireworks and Short Circuit. Worth checking
+   *before* phase 5 piles detonations on top.
+
+### Editor work outstanding
+
+Unity has already generated the `.meta` files for every new script, so that part is handled.
+What remains is assets — **six items from phase 3 still need a prefab and a definition**
+(§10 has the table). Two carry constraints:
+
+- **Cannonball's definition must live at `Resources/BallDefinitions/Cannonball`** — the Cannon
+  falls back to `Resources.Load` on that exact path.
+- **Cannon's prefab orientation matters** — it fires along `transform.forward`; check
+  `spawnOffset` and `launchImpulse` send the ball onto the playfield.
+
+From phase 2, still optional and non-blocking: Fireball and Charcoal prefabs carry an inert
+`FireStatus` (neither lights itself any more), Fireball's prefab has stale explosion fields,
+and four orphan `component.FireBumper.*` / `component.FireTarget.*` keys sit unused in the
+Unity string tables.
+
+### What phase 4 will involve
+
+| Item | Behaviour | Notes |
+| --- | --- | --- |
+| Signal Beacon (Bumper) | Charge 10 → Reinforce | Blocked on decision 1; ships as a stub |
+| Tesla Coil (Bumper) | On collision: 20% → give 2 Charge to the ball | Straightforward; mirrors Generator |
+| Big Red Button (Bumper) | Charge 3 → Detonate the ball | First real caller of `Detonation`. Missile assumed VFX-only (§7). |
+
+Big Red Button is where `Detonation` gets exercised for the first time — worth knowing that
+its visited-set chain guard **is not yet wired**, because `ActivateAsIfHit()` takes no depth
+parameter. That is fine for a single blast and needs solving in phase 5, when Propane Tank
+introduces genuine chaining.
+
+### How to verify code changes without opening Unity
+
+Unity's generated `Assembly-CSharp.csproj` lists sources explicitly and goes stale the moment
+files are added or deleted. To compile-check, regenerate a copy with the current file list and
+build that:
+
+```
+python  # rewrite the <Compile Include> block from a walk of Assets/Scripts,
+        # dropping entries whose file no longer exists  ->  BuildCheck.csproj
+dotnet build BuildCheck.csproj -v q --nologo
+```
+
+Baseline is **0 errors / 31 warnings**; all 31 are pre-existing (TMP obsolescence, unused
+fields). Any new warning is worth reading — the `_fireStatus` shadowing bug in 0.14.1 was the
+kind of thing only Unity itself reports, so a clean `dotnet build` is necessary but not
+sufficient.

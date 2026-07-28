@@ -4,6 +4,10 @@
 /// Which board components status effects are allowed to act on. Flippers and
 /// Portals are never valid targets: the player needs them to stay readable, and
 /// re-activating them on their own would fire flips and teleports without input.
+/// Components sitting on the shop shelf are excluded too — they are display copies
+/// of things the player has not bought yet, and effects that reach for "a random
+/// component" would otherwise be able to set the merchandise alight.
+///
 /// Fire, Charge's activate-nearest, and Detonate's blast radius all share this
 /// filter so the rule cannot drift between them.
 /// </summary>
@@ -30,6 +34,6 @@ public static class StatusTargeting
             }
         }
 
-        return true;
+        return component.GetComponent<ShopOffer3DEntry>() == null;
     }
 }

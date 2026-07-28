@@ -15,7 +15,6 @@ public class EngineComponent : Bumper
     [SerializeField] private int chargeNeeded = 1;
 
     private ChargeStatus _chargeStatus;
-    private FireStatus _fireStatus;
 
     protected override void Awake()
     {
@@ -24,7 +23,9 @@ public class EngineComponent : Bumper
         _chargeStatus = ChargeStatusUtility.GetOrAddConsumerStatus(this, chargeNeeded);
         _chargeStatus.FullyCharged += IgniteSelf;
 
-        _fireStatus = FireStatusUtility.GetOrAddComponentStatus(this);
+        // Attach the status up front so the Engine can always light itself, and so
+        // its burn knobs are visible on the prefab.
+        FireStatusUtility.GetOrAddComponentStatus(this);
     }
 
     private void OnDestroy()
@@ -37,13 +38,13 @@ public class EngineComponent : Bumper
 
     private void IgniteSelf()
     {
-        if (_fireStatus == null)
+        if (FireStatus == null)
         {
             return;
         }
 
         int consumed = _chargeStatus.TakeAllCharge();
         ChargeDebug.Log($"{name} spends {consumed} Charge and lights itself");
-        _fireStatus.Ignite();
+        FireStatus.Ignite();
     }
 }

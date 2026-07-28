@@ -10,6 +10,63 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.14.1 — Fix duplicate `_fireStatus` serialization warning
+_2026-07-28 · Contributor: JJ_
+
+Unity: _"The same field name is serialized multiple times in the class or its parent class.
+This is not supported: Base(EngineComponent) _fireStatus"_.
+
+Introduced in 0.13.0, not 0.14.0: phase 1 added a `_fireStatus` field to `BoardComponent`
+while `EngineComponent` and `ShadowLampComponent` already declared their own, and phase 3's
+Matchbox and Fireworks copied the same pattern. Four subclasses shadowing a base field.
+
+- `BoardComponent` now exposes a `protected FireStatus` accessor that resolves lazily, plus a
+  `public bool IsOnFire`, and is the single owner of the backing field.
+- Engine, Shadow Lamp, Matchbox and Fireworks drop their own fields and read the base
+  accessor. Shadow Lamp and Fireworks also lose their duplicate lazy `IsOnFire()` helpers.
+- Swept every `BoardComponent` / `Bumper` subclass in the project for further field-name
+  collisions with the base — none remain across all 15.
+
+## 0.14.0 — Phase 3: the new Fire items
+_2026-07-28 · Contributor: JJ_
+
+Five new Fire items from the design doc, plus the one dependency they needed. Scripts only —
+every item still needs its prefab and definition wired in the editor (see
+`FIRE_CHARGE_REFACTOR_PLAN.md` §10). Compile-checked, not playtested.
+
+- **Flint** (ball): 25% on each component hit to light it. Unlimited, which is what the low
+  rate pays for — the counterweight to Fireball's five big lights.
+- **Matchbox** (sling): 40% per activation to light *itself*, making it the one component that
+  gets a fire going with no other source on the board.
+- **Fireworks** (bumper): purely a spreader. While it is burning, 50% per activation to light
+  2 random components anywhere.
+- **Short Circuit** (bumper): 30% per activation to light 1 random component. Unlike Fireworks
+  it does not need to be alight itself, so it is the reliable way to start a fire away from
+  wherever the ball is.
+- **Cannon** (sling): counts a 15-activation fuse, then fires a Cannonball and resets.
+- **Cannonball** (ball): the Cannon's payload and the first Kinetic item — everything it hits
+  scores on `KineticScoring`'s curve. Speed is sampled from the collision's relative velocity
+  at impact, not from the rigidbody afterwards, which the bounce response has already changed.
+  Listed under phase 5 in the plan but pulled forward, since a Cannon with nothing to fire is
+  not testable.
+
+Notes on two judgement calls the spec left open:
+
+- **"On activation" means ball hits and programmatic activations alike** — burn ticks, a
+  Capacitor discharge, a detonation — following the Shadow Lamp precedent. This is what makes
+  a burning Fireworks a continuous source rather than a one-off, and what makes lighting the
+  Cannon worthwhile.
+- **Matchbox does not roll while already alight, and Short Circuit excludes itself from its
+  own draw.** Both would otherwise re-light themselves on their own twice-a-second burn ticks
+  and never go out. Read literally, "light on Fire" has nothing to do to something already lit.
+
+- `StatusTargeting` now also excludes components carrying `ShopOffer3DEntry`. This was latent
+  before and became live with these items: `LightRandomComponents` has no distance filter, so
+  a burning Fireworks could otherwise have set the shop merchandise alight.
+- Term list rewritten: `Flammable`, `Fuel`, `Ignite` and `Shock` removed; `On Fire`, `Charge`
+  and `Detonate` rewritten to the new rules; `Kinetic` added; `Reinforce` added as a stub.
+  Ball list updated for Fireball, Charcoal and Molotov, with Flint and Cannonball added.
+
 ## 0.13.0 — Fire and Charge rebuilt on flat, shared keyword systems
 _2026-07-28 · Contributor: JJ_
 

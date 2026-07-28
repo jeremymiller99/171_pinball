@@ -6,14 +6,16 @@ Ball of Minor Inconvenience;Active: Collisions with this ball score 150%, but ev
 Blank Canvas;Passive: This ball gains the passive ability of the last launched ball. Active: This ball gains the active ability of the next ball in queue.;Uncommon;Alteration;
 Blue Two;Active: Every second collision with this ball scores double points.;Common;Standard;
 Bomb;Active: After 30 seconds, this ball Detonates, scoring at 200%.;Common;Entropy;Detonates
-Charcoal;Active: Flammable 5. On collision, Fuel the other object. Passive: On launch, Fuel the active ball twice.;Common;Entropy;Flammable Fuel Fuel
+Cannonball;Active: Kinetic. Created by the Cannon.;-;-;Kinetic
+Charcoal;Active: On collision, has a 50% chance to light the component on Fire.;Common;Entropy;Fire
 Chicken;Active: When you fulfill a quota, Crafts an Egg in the first open spot of your queue.;Uncommon;Alteration;Crafts Egg
 Confetti;Active: Every 4th collision, creates 3 Holoballs that disappear on their 3rd collision.;Uncommon;Tech;Holoballs
 Cross-Eyed;Active: Inverts paddle input. Doubles all multiplier scored.;Common;Standard;
 Debt;Active: On launch, lose 50% of your credits (max 20). Upon level up, gain twice as many credits as you lost.;Uncommon;Exchange;
 Egg;Active: Breaks on first collision. When it does, increase the effectiveness of the next ball in queue by 50%.;Uncommon;Standard;
 Eye on the Prize;Active: Scores 300%. On first collision, Craft 10 Pinballs that score 10%.;Rare;Tech;Craft Pinballs
-Fireball;Active: Flammable 5. On launch, Ignite this ball. Once this ball is no longer Flammable, it detonates. Cannot be Fueled.;Common;Entropy;Flammable Ignite Flammable detonates Fueled
+Fireball;Active: On collision, lights the component on Fire. Extinguishes after 5 uses. 10% chance to reignite.;Common;Entropy;Fire
+Flint;Active: On collision, has a 25% chance to light the component on Fire.;Common;Entropy;Fire
 Four Leaf Clover;Passive: Increases the Odds on all objects by 1.;Uncommon;Exchange;Odds
 Freeze Tag;Active: On 10th collision, becomes Frozen and stays in place. When this ball collides with another ball, it unfreezes and scores 200%.;Common;Void;Frozen
 Gear;Active: Scores 75% points on collision. Passive: Doubles the amount of points gained on other Gears.;Uncommon;Tech;
@@ -40,5 +42,5 @@ Snowball;Active: On collision, scores 1 point. Then, this value increases by 50%
 Speed;Active: Scores from 75% - 200% based on the ball's velocity.;Common;Standard;
 Steel Kilogram;Active: Heavy. Scores 150%.;Common;Standard;
 Suspense;Active: Gain increased scoring based on the length of time since a flipper was last active.;Rare;Standard;
-Unfinished Molotov;Active: On collision, Fuels both itself and the other object. This has a chance to destroy the ball. Passive: On launch, Fuel the balls ahead of this one in queue once.;Common;Entropy;Fuel Flammable
+Unfinished Molotov;Active: On collision, has a 60% chance to light both itself and the component on Fire. This has a chance to destroy the ball.;Common;Entropy;Fire
 Wall Ball;Active: On collision with a wall, score 5 points.;Common;Standard;

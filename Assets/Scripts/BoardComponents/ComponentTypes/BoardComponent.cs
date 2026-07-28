@@ -104,12 +104,18 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
         BoardComponentRegistry.Unregister(this);
     }
 
+    private FireStatus _fireStatus;
+
     /// <summary>
-    /// This component's current Fire burn ramp, or 1 when it is not alight. Read by
-    /// the ball-hit scoring path so a real hit on a burning component is worth the
-    /// same step its own burn activations are.
+    /// This component's Fire status, or null if it has never been lit. Whatever sets
+    /// a component alight attaches the status at runtime, so this resolves lazily
+    /// rather than assuming it exists at Awake.
+    ///
+    /// Subclasses must use this rather than caching their own field: Unity cannot
+    /// serialize the same field name twice in one hierarchy, and a shadowing
+    /// `_fireStatus` in a subclass trips that check.
     /// </summary>
-    public float FireScoreMultiplier
+    protected FireStatus FireStatus
     {
         get
         {
@@ -118,11 +124,19 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
                 _fireStatus = GetComponent<FireStatus>();
             }
 
-            return _fireStatus != null ? _fireStatus.ScoreMultiplier : 1f;
+            return _fireStatus;
         }
     }
 
-    private FireStatus _fireStatus;
+    /// <summary>
+    /// This component's current Fire burn ramp, or 1 when it is not alight. Read by
+    /// the ball-hit scoring path so a real hit on a burning component is worth the
+    /// same step its own burn activations are.
+    /// </summary>
+    public float FireScoreMultiplier =>
+        FireStatus != null ? FireStatus.ScoreMultiplier : 1f;
+
+    public bool IsOnFire => FireStatus != null && FireStatus.IsOnFire;
 
     public void FixedUpdate()
     {

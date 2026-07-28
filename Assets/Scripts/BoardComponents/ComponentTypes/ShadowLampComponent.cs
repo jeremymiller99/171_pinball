@@ -21,8 +21,6 @@ public class ShadowLampComponent : Bumper
     [Min(0f)]
     [SerializeField] private float holoballSpawnRadius = 2f;
 
-    private FireStatus _fireStatus;
-
     protected override void OnCollisionEnter(Collision collision)
     {
         base.OnCollisionEnter(collision);
@@ -45,22 +43,10 @@ public class ShadowLampComponent : Bumper
 
     private void TryProjectIfOnFire()
     {
-        if (IsOnFire())
+        if (IsOnFire)
         {
             Projector.Project(
                 gameObject, HoloballLifetime.Seconds(holoballSeconds), radius: holoballSpawnRadius);
         }
-    }
-
-    // The fire status is often added at runtime by whatever lit this component, so
-    // resolve it lazily rather than assuming it exists at Awake.
-    private bool IsOnFire()
-    {
-        if (_fireStatus == null)
-        {
-            _fireStatus = GetComponent<FireStatus>();
-        }
-
-        return _fireStatus != null && _fireStatus.IsOnFire;
     }
 }

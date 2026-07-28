@@ -1,27 +1,27 @@
 using UnityEngine;
 
 /// <summary>
-/// Striker bumper: while Charged, any Flammable stacks it collects are
-/// instantly converted into score instead of burning. There is no Shock
-/// system yet, so charge is seeded in the inspector and AddCharge is the
-/// hook for it later.
+/// Entropy/Tech bumper: charged balls that strike it discharge into it. Once
+/// Charged it consumes every stack and Ignites itself. While it burns, each
+/// activation raises its base points; every point gained this way is stripped
+/// when the burn ends.
 /// </summary>
 public class EngineComponent : Bumper
 {
     [Header("Engine")]
     [SerializeField] private int chargeNeeded = 1;
-    [Tooltip("Seed charge until Shock can grant it during play.")]
-    [SerializeField] private int charge = 1;
-    [SerializeField] private float scorePerFlammableStack = 5f;
+    [SerializeField] private float basePointsPerBurningHit = 25f;
 
+    private ComponentChargeStatus _chargeStatus;
     private ComponentFireStatus _fireStatus;
-    private bool _converting;
-
-    public bool IsCharged => charge >= chargeNeeded;
+    private float _burnBonusGained;
 
     new protected void Awake()
     {
         base.Awake();
+
+        _chargeStatus = ChargeStatusUtility.GetOrAddComponentStatus(this);
+        _chargeStatus.ChargeChanged += IgniteIfCharged;
 
         _fireStatus = GetComponent<ComponentFireStatus>();
         if (_fireStatus == null)
@@ -31,66 +31,84 @@ public class EngineComponent : Bumper
 
         if (_fireStatus != null)
         {
-            _fireStatus.StacksChanged += ConvertStacksToScore;
+            _fireStatus.StacksChanged += IgniteIfCharged;
+            _fireStatus.BurnedOut += RemoveBurnBonus;
         }
-    }
 
-    private void Start()
-    {
-        FireDebug.Log(IsCharged
-            ? $"{name} charged ({charge}/{chargeNeeded}), converting stacks to score"
-            : $"{name} uncharged ({charge}/{chargeNeeded}), stacks will accumulate");
-        ConvertStacksToScore();
+        onBallHit += RampWhileBurning;
     }
 
     private void OnDestroy()
     {
+        if (_chargeStatus != null)
+        {
+            _chargeStatus.ChargeChanged -= IgniteIfCharged;
+        }
+
         if (_fireStatus != null)
         {
-            _fireStatus.StacksChanged -= ConvertStacksToScore;
+            _fireStatus.StacksChanged -= IgniteIfCharged;
+            _fireStatus.BurnedOut -= RemoveBurnBonus;
+        }
+
+        onBallHit -= RampWhileBurning;
+    }
+
+    new protected void OnCollisionEnter(Collision collision)
+    {
+        base.OnCollisionEnter(collision);
+
+        Ball ball = collision.collider.GetComponent<Ball>();
+        if (ball != null)
+        {
+            ChargeStatusUtility.DrainBallInto(ball, _chargeStatus);
         }
     }
 
-    public void AddCharge(int amount)
+    private void IgniteIfCharged()
     {
-        charge += amount;
-        FireDebug.Log($"{name} gains {amount} Charge ({charge}/{chargeNeeded})");
-        ConvertStacksToScore();
+        if (_chargeStatus.Charge < chargeNeeded || _fireStatus == null
+            || _fireStatus.IsOnFire)
+        {
+            return;
+        }
+
+        if (!_fireStatus.IsFlammable)
+        {
+            ChargeDebug.Log(
+                $"{name} charged ({_chargeStatus.Charge}/{chargeNeeded}) "
+                + "but has no Flammable stacks to burn, holding");
+            return;
+        }
+
+        int consumed = _chargeStatus.TakeAllCharge();
+        ChargeDebug.Log($"{name} consumes {consumed} Charge and ignites itself");
+        _fireStatus.Ignite();
     }
 
-    private void ConvertStacksToScore()
+    private void RampWhileBurning()
     {
-        if (_converting || _fireStatus == null)
+        if (_fireStatus == null || !_fireStatus.IsOnFire)
         {
             return;
         }
 
-        int stacks = _fireStatus.Stacks;
-        if (stacks <= 0)
+        amountToScore += basePointsPerBurningHit;
+        _burnBonusGained += basePointsPerBurningHit;
+        ChargeDebug.Log($"{name} ramps to {amountToScore} base points while burning");
+    }
+
+    private void RemoveBurnBonus()
+    {
+        if (_burnBonusGained == 0f)
         {
             return;
         }
 
-        if (!IsCharged)
-        {
-            FireDebug.Log(
-                $"{name} uncharged ({charge}/{chargeNeeded}), holding {stacks} stacks");
-            return;
-        }
-
-        // SetStacks re-raises StacksChanged; the guard stops the loop.
-        _converting = true;
-        _fireStatus.SetStacks(0);
-        _converting = false;
-
-        FireDebug.Log(
-            $"{name} converts {stacks} stacks into {stacks * scorePerFlammableStack} score");
-
-        if (scoreManager == null)
-        {
-            scoreManager = ServiceLocator.Get<ScoreManager>();
-        }
-        scoreManager?.AddScore(
-            stacks * scorePerFlammableStack, typeOfScore, transform);
+        amountToScore -= _burnBonusGained;
+        ChargeDebug.Log(
+            $"{name} burn ends, sheds {_burnBonusGained} bonus base points "
+            + $"(back to {amountToScore})");
+        _burnBonusGained = 0f;
     }
 }

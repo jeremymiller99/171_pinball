@@ -10,6 +10,62 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.12.0 — Charge item set aligned to the reworked design vault
+_2026-07-27 · Contributor: Devin_
+- Moore's Launcher replaces the Plasma Launcher: same 5-Charge bank on the flipper, but
+  per the updated design it now creates a Transistor ball on the board instead of firing
+  a projectile. `PlasmaLauncherFlipper`/`PlasmaBall` are deleted; prefab and definition
+  (`MooresLauncher`) added under the new `ChargeComponents` folder.
+- New Tech balls with prefabs and definitions: Transistor (on component hit, 20% chance
+  to Shock itself) and D-Battery (gains 2 Charge on every plunger launch). New Rare
+  Standard ball Pandora's Ball (on component hit, 20% chance to either Shock itself or
+  light the struck component on Fire, fueling first so the Ignite takes).
+- New Tech components with prefabs and definitions: Generator (bumper standing in for
+  the sling, 30% chance per hit to Shock the ball) and Capacitor (banks 2 Charge, then
+  consumes it to activate the 4 nearest components through the weak-shake path,
+  portals excluded).
+- Electric Floorboard cut entirely: the vault kept Electric Grounding in NOT IN
+  PRODUCTION through the rework, so the component script, its three Board_NA
+  placements, and the `ScoreManager` permanent-points API added for it are all
+  removed. The Shock/Charge system itself is unaffected.
+- Moore's Launcher gains a creation cooldown (default 2s between Transistors) after a
+  playtest avalanche: created Transistors self-charge and re-feed the launcher, and an
+  uncapped loop live-locked the editor at low thresholds.
+- Playtest findings for design review: Moore's Launcher is extremely difficult to
+  trigger as specced — its bank decays like any Charged object (2s grace, then
+  -2/sec), and balls rarely return to one flipper that fast, so 5 Charge was never
+  reached across several live games (best: 4/5). Verified end-to-end only via a
+  lowered test threshold. Relatedly, consumers compete for the same couriers: a
+  Capacitor placed upstream drains every ball to 0 before it reaches the flipper,
+  which reads as counter-intuitive in play and can starve the launcher entirely.
+
+## 0.11.0 — Shock/Charge system plus Electric Floorboard, Plasma Launcher, Engine rework
+_2026-07-26 · Contributor: Devin_
+- New Shock/Charge status system mirroring the fire architecture: `ChargeStatus` base with
+  `BallChargeStatus`/`ComponentChargeStatus`, `ChargeStatusUtility` helpers, and `[Charge]`
+  console tracing via `ChargeDebug`. Shocking an object grants Charge; an object left
+  unshocked for 2 seconds bleeds 2 Charge per second (paused outside live play, same
+  gating as fire ticks). Balls are the carriers: shock sources charge the ball, and
+  consumer components drain the ball's whole Charge on contact.
+- Electric Floorboard (roll-over, Tech): slows the ball slightly and Shocks it each pass.
+  A ball that arrives already charged discharges into the board; at 1 Charge it triggers,
+  consuming its Charge and permanently raising point scoring by 5% for the rest of the
+  run (new `ScoreManager.AddPermanentPointsBonus`, survives round resets, cleared on a
+  new run).
+- Plasma Launcher (flipper upgrade, Tech): banks Charge from charged balls that strike
+  the flipper; at 5 it consumes all of it and fires a plasma ball up the board. The
+  projectile glides through geometry for 4 seconds activating each component it passes
+  (0.5s per-component cooldown, portals skipped, weak-shake scoring path). Falls back to
+  a code-built glowing sphere when no prefab is assigned.
+- Engine (bumper, Entropy/Tech) reworked to the current design doc: no more seeded
+  inspector charge or Flammable-to-score conversion. Charged balls discharge into it;
+  once Charged it consumes every stack and Ignites itself, gaining +25 base points per
+  activation while it burns and shedding all of the gained points at burn-out. Holds its
+  Charge (decay permitting) if it has no Flammable stacks yet, igniting when fueled.
+- Editor wiring still needed: board placements/prefabs for the two new components and
+  Flammable stacks on Engine's `ComponentFireStatus` — code-only PR, verified against the
+  compiler but not yet playtested.
+
 ## 0.10.4 — Quit from the pause menu no longer throws during teardown
 _2026-07-26 · Contributor: JJ_
 - `BoardFireFXController.OnDisable` threw a NullReferenceException every time a board scene

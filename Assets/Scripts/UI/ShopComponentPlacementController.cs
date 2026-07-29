@@ -5,9 +5,34 @@ using UnityEngine;
 [RequireComponent(typeof(UnifiedShopController))]
 public sealed class ShopComponentPlacementController : MonoBehaviour
 {
-    public readonly List<BoardComponent> Bumpers = new List<BoardComponent>();
-    public readonly List<BoardComponent> Targets = new List<BoardComponent>();
-    public readonly List<BoardComponent> Flippers = new List<BoardComponent>();
+    // In-scene placeable components bucketed by type. Any type the catalog marks
+    // shopPlaceable gets a bucket here automatically, so new placeable types need no
+    // code here — previously this was a hard-coded Bumper/Target/Flipper triad that
+    // silently locked Slings and Roll-overs out of placement.
+    private readonly Dictionary<BoardComponentType, List<BoardComponent>> _byType =
+        new Dictionary<BoardComponentType, List<BoardComponent>>();
+
+    private static readonly List<BoardComponent> EmptyComponents =
+        new List<BoardComponent>();
+
+    /// <summary>Placeable in-scene components of the given type (empty if none).</summary>
+    public IReadOnlyList<BoardComponent> GetComponents(BoardComponentType type)
+    {
+        return _byType.TryGetValue(type, out List<BoardComponent> list)
+            ? list
+            : EmptyComponents;
+    }
+
+    private List<BoardComponent> BucketFor(BoardComponentType type)
+    {
+        if (!_byType.TryGetValue(type, out List<BoardComponent> list))
+        {
+            list = new List<BoardComponent>();
+            _byType[type] = list;
+        }
+
+        return list;
+    }
 
     private BoardComponent _dragHoveredComponent;
     private BoardComponent _placementHoveredComponent;
@@ -28,58 +53,35 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
 
     private void DiscoverBoardComponents()
     {
-        Bumpers.Clear();
-        Targets.Clear();
-        Flippers.Clear();
+        foreach (List<BoardComponent> list in _byType.Values) list.Clear();
 
         BoardComponent[] all = Object.FindObjectsByType<BoardComponent>(FindObjectsSortMode.None);
         foreach (BoardComponent bc in all)
         {
             if (bc == null || bc.gameObject == null) continue;
+            if (!ComponentTypeCatalog.ShopPlaceable(bc.componentType)) continue;
 
-            if (bc.componentType == BoardComponentType.Bumper && !Bumpers.Contains(bc))
-                Bumpers.Add(bc);
-            else if (bc.componentType == BoardComponentType.Target && !Targets.Contains(bc))
-                Targets.Add(bc);
-            else if (bc.componentType == BoardComponentType.Flipper && !Flippers.Contains(bc))
-                Flippers.Add(bc);
+            List<BoardComponent> bucket = BucketFor(bc.componentType);
+            if (!bucket.Contains(bc)) bucket.Add(bc);
         }
 
-        Bumpers.Sort();
-        Targets.Sort();
-        Flippers.Sort();
-
-        PrewarmOutlines();
-    }
-
-    private void PrewarmOutlines()
-    {
-        foreach (BoardComponent bc in Bumpers) if (bc != null) bc.PrewarmSelectionOutline();
-        foreach (BoardComponent bc in Targets) if (bc != null) bc.PrewarmSelectionOutline();
-        foreach (BoardComponent bc in Flippers) if (bc != null) bc.PrewarmSelectionOutline();
+        foreach (List<BoardComponent> list in _byType.Values)
+        {
+            list.Sort();
+            foreach (BoardComponent bc in list) if (bc != null) bc.PrewarmSelectionOutline();
+        }
     }
 
     public void SetSelectionStateForPlacement(BoardComponentType type)
     {
-        if (type == BoardComponentType.Bumper)
-        {
-            foreach (BoardComponent bc in Bumpers) if (bc != null) bc.Select();
-        }
-        else if (type == BoardComponentType.Target)
-        {
-            foreach (BoardComponent bc in Targets) if (bc != null) bc.Select();
-        }
-        else if (type == BoardComponentType.Flipper)
-        {
-            foreach (BoardComponent bc in Flippers) if (bc != null) bc.Select();
-        }
+        if (!_byType.TryGetValue(type, out List<BoardComponent> list)) return;
+        foreach (BoardComponent bc in list) if (bc != null) bc.Select();
     }
 
     public void DeselectAll()
     {
-        foreach (BoardComponent bc in Bumpers) if (bc != null) bc.DeSelect();
-        foreach (BoardComponent bc in Targets) if (bc != null) bc.DeSelect();
-        foreach (BoardComponent bc in Flippers) if (bc != null) bc.DeSelect();
+        foreach (List<BoardComponent> list in _byType.Values)
+            foreach (BoardComponent bc in list) if (bc != null) bc.DeSelect();
     }
 
     /// <summary>
@@ -169,24 +171,21 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
             _transitionController.TrackAndDisable(newFlipper);
         }
 
-        if (newDef.ComponentType == BoardComponentType.Bumper)
-        {
-            Bumpers.Remove(targetComponent);
-            Bumpers.Add(newComp);
-            Bumpers.Sort();
-        }
-        else if (newDef.ComponentType == BoardComponentType.Target)
-        {
-            Targets.Remove(targetComponent);
-            Targets.Add(newComp);
-            Targets.Sort();
-        }
-        else if (newDef.ComponentType == BoardComponentType.Flipper)
-        {
-            Flippers.Remove(targetComponent);
-            Flippers.Add(newComp);
-            Flippers.Sort();
-        }
+        // Swap the replacement into its type bucket. Remove the old one from whatever
+        // bucket it sat in (its own type), then add the new one under the new type —
+        // the same-type placement rule keeps these equal, but removing by the old
+        // type is robust either way.
+        BucketFor(targetComponent.componentType).Remove(targetComponent);
+        List<BoardComponent> newBucket = BucketFor(newDef.ComponentType);
+        if (!newBucket.Contains(newComp)) newBucket.Add(newComp);
+        newBucket.Sort();
+
+        // Preserve the old part's stable identity and let scene managers that hold
+        // wiring to it (frenzy-gate bumper slots, the Abductor) re-point to the
+        // replacement. Must happen before Destroy so subscribers can still read the
+        // old component's references.
+        newComp.AdoptIdentity(targetComponent.ComponentGuid);
+        BoardComponent.NotifyReplaced(targetComponent, newComp);
 
         Destroy(targetComponent.gameObject);
         return true;

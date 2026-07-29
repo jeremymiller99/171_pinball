@@ -3,7 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// Ring of <see cref="BoardLight"/> bulbs around a drop target that visualise the
-/// reset countdown. When the <see cref="DropTarget"/> goes fully down all lights
+/// reset countdown. When the <see cref="Dropper"/> goes fully down all lights
 /// turn on, then snuff out one by one so they are all dark when the reset delay
 /// elapses. Lights stay off until the target is hit again.
 /// </summary>
@@ -11,7 +11,7 @@ using UnityEngine;
 public class DropTargetResetTimerLights : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private DropTarget dropTarget;
+    [SerializeField] private Dropper dropTarget;
 
     [Tooltip("Parent transform that holds the spline-instantiated bulbs. All BoardLights in its children are collected at Awake.")]
     [SerializeField] private Transform lightsContainer;
@@ -20,7 +20,7 @@ public class DropTargetResetTimerLights : MonoBehaviour
     [SerializeField] private List<BoardLight> lights = new List<BoardLight>();
 
     [Header("Timing")]
-    [Tooltip("Seconds over which the lights go out. Should match the DropTarget reset delay (default 15s).")]
+    [Tooltip("Seconds over which the lights go out. Should match the Dropper reset delay (default 15s).")]
     [SerializeField] private float duration = 15f;
 
     [Header("Frenzy")]
@@ -42,7 +42,7 @@ public class DropTargetResetTimerLights : MonoBehaviour
         frenzyManager = ServiceLocator.Get<FrenzyManager>();
         if (dropTarget == null)
         {
-            dropTarget = GetComponentInParent<DropTarget>();
+            dropTarget = GetComponentInParent<Dropper>();
         }
 
         CollectLightsFromContainer();

@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -8025225607555112495}
   - component: {fileID: 2633373387632847819}
   m_Layer: 0
-  m_Name: Drop Target
+  m_Name: Dropper
   m_TagString: Target
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -70,7 +70,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4bfcd65970b84e36939a9859ea91a36, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DropTarget
+  m_EditorClassIdentifier: Assembly-CSharp::Dropper
   hitsToDrop: 1
   amountOfHits: 0
   unitsDropped: 1.3

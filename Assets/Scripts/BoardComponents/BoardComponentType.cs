@@ -7,12 +7,13 @@ public enum BoardComponentType
 {
     Bumper,
     Target,
-    DropTarget,
+    Dropper,
     Spinner,
     Portal,
     Rollover,
     Launcher,
     Flipper,
     Kicker,
-    Other
+    Other,
+    Sling
 }

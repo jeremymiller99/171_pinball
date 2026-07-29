@@ -28,7 +28,7 @@ public class DropTargetsScoringMode : MonoBehaviour
     public event Action OnAnyTargetReturned;
 
     [Header("Drop Targets")]
-    [SerializeField] private DropTarget[] dropTargets = new DropTarget[3];
+    [SerializeField] private Dropper[] dropTargets = new Dropper[3];
 
     [Header("Board lights")]
     [Tooltip(
@@ -94,6 +94,12 @@ public class DropTargetsScoringMode : MonoBehaviour
 
     private void Awake()
     {
+        // Subscribe here, not in OnEnable: this manager may be disabled while the
+        // shop is open, which is exactly when a bumper gets replaced. An
+        // OnEnable/OnDisable subscription would be inactive at that moment and miss
+        // the swap, leaving a dead Transform in the frenzy-gate slots.
+        BoardComponent.Replaced += OnComponentReplaced;
+
         EnsureRefs();
         CacheBumperClosedPositions();
 
@@ -110,7 +116,7 @@ public class DropTargetsScoringMode : MonoBehaviour
     {
         if (dropTargets == null) return;
 
-        foreach (DropTarget dt in dropTargets)
+        foreach (Dropper dt in dropTargets)
         {
             if (dt != null)
             {
@@ -122,6 +128,11 @@ public class DropTargetsScoringMode : MonoBehaviour
         _allDownBonusAwardedThisCycle = false;
 
         RefreshDropTargetBulbVisuals();
+    }
+
+    private void OnDestroy()
+    {
+        BoardComponent.Replaced -= OnComponentReplaced;
     }
 
     private void OnDisable()
@@ -146,7 +157,7 @@ public class DropTargetsScoringMode : MonoBehaviour
 
         if (dropTargets != null)
         {
-            foreach (DropTarget dt in dropTargets)
+            foreach (Dropper dt in dropTargets)
             {
                 if (dt != null)
                 {
@@ -267,7 +278,7 @@ public class DropTargetsScoringMode : MonoBehaviour
         if (dropTargets == null || dropTargets.Length == 0)
             return false;
 
-        foreach (DropTarget dt in dropTargets)
+        foreach (Dropper dt in dropTargets)
         {
             if (dt == null || !dt.IsDown) return false;
         }
@@ -301,6 +312,39 @@ public class DropTargetsScoringMode : MonoBehaviour
     }
 
     // ── Bumper animation ──────────────────────────────────────
+
+    // When a frenzy-gate bumper is swapped out in the shop, the old instance is
+    // destroyed but this manager still holds a Transform slot to it. Re-point the
+    // slot to the replacement and refresh its cached closed position, so the
+    // open/close animation drives the new bumper instead of a dead reference.
+    private void OnComponentReplaced(
+        BoardComponent oldComponent, BoardComponent newComponent)
+    {
+        if (oldComponent == null || newComponent == null) return;
+
+        Transform oldTransform = oldComponent.transform;
+        Transform newTransform = newComponent.transform;
+
+        for (int i = 0; i < leftBumpers.Length; i++)
+        {
+            if (leftBumpers[i] == oldTransform)
+            {
+                leftBumpers[i] = newTransform;
+                if (_leftClosedPos != null && i < _leftClosedPos.Length)
+                    _leftClosedPos[i] = newTransform.localPosition;
+            }
+        }
+
+        for (int i = 0; i < rightBumpers.Length; i++)
+        {
+            if (rightBumpers[i] == oldTransform)
+            {
+                rightBumpers[i] = newTransform;
+                if (_rightClosedPos != null && i < _rightClosedPos.Length)
+                    _rightClosedPos[i] = newTransform.localPosition;
+            }
+        }
+    }
 
     private void CacheBumperClosedPositions()
     {

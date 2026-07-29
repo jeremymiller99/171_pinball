@@ -216,7 +216,7 @@ GameObject:
   - component: {fileID: 7374129119119500375}
   - component: {fileID: 8270898341964329840}
   m_Layer: 0
-  m_Name: Kicker
+  m_Name: Sling
   m_TagString: Bumper
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -253,7 +253,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bumper
   typeOfScore: 0
   amountToScore: 5
-  componentType: 8
+  componentType: 10
   isConfirmed: 0
   maxPulseScale: 1.25
   pulseAmount: 0.025

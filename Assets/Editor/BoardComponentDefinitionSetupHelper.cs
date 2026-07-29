@@ -165,7 +165,7 @@ public static class BoardComponentDefinitionSetupHelper
 
         if (lowerName.Contains("drop"))
         {
-            return BoardComponentType.DropTarget;
+            return BoardComponentType.Dropper;
         }
 
         if (lowerName.Contains("spinner"))

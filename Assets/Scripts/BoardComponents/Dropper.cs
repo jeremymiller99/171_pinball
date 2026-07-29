@@ -11,7 +11,7 @@ using UnityEngine;
 /// re-enabled at the start of the rise, not only when fully reset).
 /// Put this on the same GameObject that has the Collider the ball hits.
 /// </summary>
-public class DropTarget : MonoBehaviour
+public class Dropper : MonoBehaviour
 {
     /// <summary>Fired when the target has fully dropped down.</summary>
     public event Action OnFullyDown;
@@ -156,7 +156,7 @@ public class DropTarget : MonoBehaviour
                 _returnStartPos = GetCurrentPosition();
                 _returnTimer = 0f;
                 BeginReturnFromDown();
-                ServiceLocator.Get<AudioManager>()?.PlayDropTargetUp(transform.position);
+                ServiceLocator.Get<AudioManager>()?.PlayDropperUp(transform.position);
             }
         }
     }
@@ -225,7 +225,7 @@ public class DropTarget : MonoBehaviour
         _falling = true;
         _fallTimer = 0f;
         _fallFromPos = GetCurrentPosition();
-        ServiceLocator.Get<AudioManager>()?.PlayDropTargetDown(transform.position);
+        ServiceLocator.Get<AudioManager>()?.PlayDropperDown(transform.position);
         onStartDown?.Invoke();
     }
 
@@ -252,7 +252,7 @@ public class DropTarget : MonoBehaviour
         _falling = true;
         _fallTimer = 0f;
         onStartDown?.Invoke();
-        ServiceLocator.Get<AudioManager>()?.PlayDropTargetDown(transform.position);
+        ServiceLocator.Get<AudioManager>()?.PlayDropperDown(transform.position);
     }
 
     private void OnTriggerEnter(Collider col)
@@ -273,6 +273,6 @@ public class DropTarget : MonoBehaviour
         _falling = true;
         _fallTimer = 0f;
         onStartDown?.Invoke();
-        ServiceLocator.Get<AudioManager>()?.PlayDropTargetDown(transform.position);
+        ServiceLocator.Get<AudioManager>()?.PlayDropperDown(transform.position);
     }
 }

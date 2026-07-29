@@ -302,8 +302,8 @@ MonoBehaviour:
   amountToScore: 0
   componentType: 7
   isConfirmed: 0
-  maxPulseScale: 0
-  pulseAmount: 0
+  maxPulseScale: 1.25
+  pulseAmount: 0.025
   startingSize: {x: 0, y: 0, z: 0}
   directionOfPulse: 1
   ballHits: 0

@@ -1103,36 +1103,21 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     private void SetTargetComponent(BoardComponentType typeOfComponent)
     {
-        if (typeOfComponent == BoardComponentType.Bumper)
+        IReadOnlyList<BoardComponent> candidates = _placement.GetComponents(typeOfComponent);
+        if (candidates.Count == 0)
         {
-            int index = _targetComponentIndex % _placement.Bumpers.Count;
-            if (index < 0)
-            {
-                index = _placement.Bumpers.Count - 1;
-                _targetComponentIndex = index;
-            }
-            _targetComponent = _placement.Bumpers[index];
+            _targetComponent = null;
+            return;
         }
-        else if (typeOfComponent == BoardComponentType.Target)
+
+        int index = _targetComponentIndex % candidates.Count;
+        if (index < 0)
         {
-            int index = _targetComponentIndex % _placement.Targets.Count;
-            if (index < 0)
-            {
-                index = _placement.Targets.Count - 1;
-                _targetComponentIndex = index;
-            }
-            _targetComponent = _placement.Targets[index];
+            index = candidates.Count - 1;
+            _targetComponentIndex = index;
         }
-        else if (typeOfComponent == BoardComponentType.Flipper)
-        {
-            int index = _targetComponentIndex % _placement.Flippers.Count;
-            if (index < 0)
-            {
-                index = _placement.Flippers.Count - 1;
-                _targetComponentIndex = index;
-            }
-            _targetComponent = _placement.Flippers[index];
-        }
+
+        _targetComponent = candidates[index];
     }
 
     public void OnBack()

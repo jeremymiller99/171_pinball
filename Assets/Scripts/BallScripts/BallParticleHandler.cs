@@ -30,11 +30,7 @@ public class BallParticleHandler : MonoBehaviour
     {
         BoardComponent[] components = Ball.GetBoardComponentsForScoring(collision.collider);
         if (components.Length == 0) return;
-        if (components[0].componentType == BoardComponentType.Flipper) return;
-        if (components[0].componentType == BoardComponentType.Spinner) return;
-        if (components[0].componentType == BoardComponentType.Rollover) return;
-        if (components[0].componentType == BoardComponentType.Launcher) return;
-        if (components[0].componentType == BoardComponentType.Portal) return;
+        if (!ComponentTypeCatalog.EmitsBallParticles(components[0].componentType)) return;
         GameObject emitterObj = pool.Pop();
         ParticleSystem emitter = emitterObj.GetComponent<ParticleSystem>();
         emitter.transform.position = transform.position;

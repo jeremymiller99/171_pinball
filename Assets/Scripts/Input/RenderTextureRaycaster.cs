@@ -703,7 +703,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             && compLink.TryGetDefinition(
                 out BoardComponentDefinition compDef))
         {
-            title = compDef.GetSafeDisplayName();
+            title = ResolveComponentTitle(compLink, compDef);
             desc = compDef.Description;
             elementType = compDef.ElementType;
             rarity = compDef.Rarity;
@@ -727,6 +727,28 @@ public class RenderTextureRaycaster : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// Names a hovered component. Normally the linked definition's name (which can be
+    /// specific, e.g. "Engine Bumper"). But a scene instance can be re-typed away from
+    /// its prefab's definition — the back Kicker pads are Sling-prefab instances
+    /// re-typed to Kicker — and then the definition name lies. When the instance's
+    /// componentType no longer matches its definition, name it by its actual type via
+    /// the catalog instead.
+    /// </summary>
+    private static string ResolveComponentTitle(
+        BoardComponentDefinitionLink compLink, BoardComponentDefinition compDef)
+    {
+        BoardComponent bc = compLink != null
+            ? compLink.GetComponent<BoardComponent>()
+            : null;
+
+        if (bc != null && bc.componentType != compDef.ComponentType)
+        {
+            return ComponentTypeCatalog.DisplayName(bc.componentType);
+        }
+
+        return compDef.GetSafeDisplayName();
+    }
 
     public bool TryResolveHeaderTooltipFromObject(
         GameObject obj,
@@ -841,7 +863,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             && compLink.TryGetDefinition(
                 out BoardComponentDefinition compDef))
         {
-            title = compDef.GetSafeDisplayName();
+            title = ResolveComponentTitle(compLink, compDef);
             elementType = compDef.ElementType;
             rarity = compDef.Rarity;
             return true;

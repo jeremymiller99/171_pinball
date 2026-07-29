@@ -13,12 +13,6 @@
 /// </summary>
 public static class StatusTargeting
 {
-    private static readonly BoardComponentType[] untargetableTypes =
-    {
-        BoardComponentType.Flipper,
-        BoardComponentType.Portal
-    };
-
     public static bool CanBeTargeted(BoardComponent component)
     {
         if (component == null)
@@ -26,12 +20,12 @@ public static class StatusTargeting
             return false;
         }
 
-        foreach (BoardComponentType type in untargetableTypes)
+        // Flippers and Portals are marked non-targetable in the catalog; the
+        // shop-shelf exclusion stays here since it is about the individual instance
+        // (a display copy), not the type.
+        if (!ComponentTypeCatalog.StatusTargetable(component.componentType))
         {
-            if (component.componentType == type)
-            {
-                return false;
-            }
+            return false;
         }
 
         return component.GetComponent<ShopOffer3DEntry>() == null;

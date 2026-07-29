@@ -111,6 +111,44 @@ public class Abductor : MonoBehaviour
     {
         frenzyManager = FindAnyObjectByType<FrenzyManager>();
         CacheFlashRenderers();
+
+        // Subscribe here, not in OnEnable: the abductor spends most of the game
+        // inactive (it deactivates itself in Start), so an OnEnable/OnDisable pair
+        // would miss any replacement that happens while it's hidden — including a
+        // shop swap of the very object it abducts.
+        BoardComponent.Replaced += OnComponentReplaced;
+    }
+
+    private void OnDestroy()
+    {
+        BoardComponent.Replaced -= OnComponentReplaced;
+    }
+
+    // The abducted object can be swapped out in the shop. Re-point to the
+    // replacement and re-create its OnDropAbduction wiring, so the abduction
+    // sequence doesn't dereference the destroyed original (a NullReferenceException
+    // that would abort the sequence mid-way).
+    private void OnComponentReplaced(
+        BoardComponent oldComponent, BoardComponent newComponent)
+    {
+        if (oldComponent == null || newComponent == null) return;
+        if (objectToAbduct == null || oldComponent.gameObject != objectToAbduct)
+            return;
+
+        objectToAbduct = newComponent.gameObject;
+
+        // The OnDropAbduction satellite is a scene-only addition, so the fresh
+        // prefab instance won't carry one — read the old wiring, then rebuild it on
+        // the replacement pointing at the same dropper and this abductor.
+        OnDropAbduction oldWiring = oldComponent.GetComponent<OnDropAbduction>();
+        Dropper dropper = oldWiring != null ? oldWiring.DropTarget : null;
+
+        OnDropAbduction newWiring = newComponent.GetComponent<OnDropAbduction>();
+        if (newWiring == null)
+        {
+            newWiring = newComponent.gameObject.AddComponent<OnDropAbduction>();
+        }
+        newWiring.Configure(dropper, this);
     }
 
     private void OnEnable()

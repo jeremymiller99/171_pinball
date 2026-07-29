@@ -70,6 +70,35 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
 
     public string ComponentGuid => componentGuid;
 
+    /// <summary>
+    /// Raised when a component is swapped out for a replacement (e.g. a shop
+    /// placement). Fired *before* the old component is destroyed, so subscribers
+    /// can still read the old one's references while re-pointing to the new one.
+    /// Managers that hold scene wiring to a component (frenzy-gate bumper slots,
+    /// the Abductor's abducted object) listen here to survive replacement.
+    /// </summary>
+    public static event Action<BoardComponent, BoardComponent> Replaced;
+
+    /// <summary>
+    /// Copies another component's stable identity onto this one, so a replacement
+    /// keeps the GUID (and thus any identity-keyed state) of the part it replaced.
+    /// </summary>
+    public void AdoptIdentity(string guid)
+    {
+        componentGuid = guid;
+    }
+
+    /// <summary>
+    /// Announces that <paramref name="oldComponent"/> is being replaced by
+    /// <paramref name="newComponent"/>. Call this after the replacement is
+    /// positioned but before the old one is destroyed.
+    /// </summary>
+    public static void NotifyReplaced(
+        BoardComponent oldComponent, BoardComponent newComponent)
+    {
+        Replaced?.Invoke(oldComponent, newComponent);
+    }
+
     public Color ConfirmOutlineColor => confirmOutlineColor;
 
     public Color DefaultOutlineColor => defaultOutlineColor;

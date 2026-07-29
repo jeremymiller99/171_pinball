@@ -4,7 +4,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Connects a <see cref="DropTarget"/> to a <see cref="BoardLight"/>.
+/// Connects a <see cref="Dropper"/> to a <see cref="BoardLight"/>.
 /// Off/on colors come from <see cref="BoardLight"/> in the Inspector;
 /// this component supplies the frenzy lit color (Carolina blue by
 /// default) only when frenzy is active (ball entered the portal),
@@ -14,7 +14,7 @@ using UnityEngine;
 public class DropTargetLightBulb : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private DropTarget dropTarget;
+    [SerializeField] private Dropper dropTarget;
     [SerializeField] private FrenzyManager frenzyManager;
 
     [Tooltip("Board light for bulb mesh + optional point light. Defaults to GetComponent.")]
@@ -39,7 +39,7 @@ public class DropTargetLightBulb : MonoBehaviour
 
         if (dropTarget == null)
         {
-            dropTarget = GetComponentInParent<DropTarget>();
+            dropTarget = GetComponentInParent<Dropper>();
         }
     }
 

@@ -53,10 +53,16 @@ public class AudioManager : MonoBehaviour
     [Tooltip("Hit sound for rollovers.")]
     [FormerlySerializedAs("multHitSound")]
     [SerializeField] private EventReference rolloverHitSound;
-    [Tooltip("Hit sound for kickers, which are a separate component type from bumpers. " +
-             "Leave null to fall back to whatever event is assigned on the kicker " +
+    [Tooltip("Hit sound for slings, which are a separate component type from bumpers. " +
+             "Leave null to fall back to whatever event is assigned on the sling " +
              "prefab itself.")]
-    [SerializeField] private EventReference kickerHitSound;
+    [FormerlySerializedAs("kickerHitSound")]
+    [SerializeField] private EventReference slingHitSound;
+    [Tooltip("Per-type component hit sounds. Add a row to give a new component type " +
+             "its own hit event with no code change. Bumper/Rollover/Sling above are " +
+             "auto-seeded here for back-compat; a row for the same type overrides them.")]
+    [SerializeField] private List<ComponentHitSound> componentHitSounds =
+        new List<ComponentHitSound>();
     [SerializeField] private EventReference flipperUpSound;
     [SerializeField] private EventReference flipperDownSound;
     [SerializeField] private EventReference launchSound;
@@ -73,8 +79,10 @@ public class AudioManager : MonoBehaviour
     // Newly Added Gameplay Sounds
     [SerializeField] private EventReference fireworksSound;
     [SerializeField] private EventReference frenzyGateSound;
-    [SerializeField] private EventReference dropTargetDownSound;
-    [SerializeField] private EventReference dropTargetUpSound;
+    [FormerlySerializedAs("dropTargetDownSound")]
+    [SerializeField] private EventReference dropperDownSound;
+    [FormerlySerializedAs("dropTargetUpSound")]
+    [SerializeField] private EventReference dropperUpSound;
     [SerializeField] private EventReference frenzyActivatedSound;
 
     [Header("Scoring Sounds")]
@@ -556,6 +564,46 @@ public class AudioManager : MonoBehaviour
 
     // Gameplay Board - all diegetic, emitted from where the event happens on the table.
 
+    /// <summary>A component type paired with the hit event it should play.</summary>
+    [System.Serializable]
+    public struct ComponentHitSound
+    {
+        public BoardComponentType type;
+        public EventReference hitSound;
+    }
+
+    private Dictionary<BoardComponentType, EventReference> _hitSoundLookup;
+
+    // Built once, lazily. Legacy per-type fields are seeded first so existing
+    // inspector wiring keeps working with no re-assignment; explicit list rows then
+    // override them, and any new type is a one-row inspector addition.
+    private bool TryGetComponentHitSound(
+        BoardComponentType type, out EventReference soundEvent)
+    {
+        if (_hitSoundLookup == null)
+        {
+            _hitSoundLookup = new Dictionary<BoardComponentType, EventReference>();
+
+            if (!bumperHitSound.IsNull)
+                _hitSoundLookup[BoardComponentType.Bumper] = bumperHitSound;
+            if (!rolloverHitSound.IsNull)
+                _hitSoundLookup[BoardComponentType.Rollover] = rolloverHitSound;
+            if (!slingHitSound.IsNull)
+                _hitSoundLookup[BoardComponentType.Sling] = slingHitSound;
+
+            if (componentHitSounds != null)
+            {
+                foreach (ComponentHitSound row in componentHitSounds)
+                {
+                    if (!row.hitSound.IsNull)
+                        _hitSoundLookup[row.type] = row.hitSound;
+                }
+            }
+        }
+
+        return _hitSoundLookup.TryGetValue(type, out soundEvent) && !soundEvent.IsNull;
+    }
+
     public void PlayBumperHit(Vector3 position, int variant=0)
     {
         PlayOneShotWithParameter(bumperHitSound, "collision_variant", variant, position);
@@ -566,9 +614,9 @@ public class AudioManager : MonoBehaviour
         PlayOneShotWithParameter(rolloverHitSound, "collision_variant", variant, position);
     }
 
-    public void PlayKickerHit(Vector3 position, int variant=0)
+    public void PlaySlingHit(Vector3 position, int variant=0)
     {
-        PlayOneShotWithParameter(kickerHitSound, "collision_variant", variant, position);
+        PlayOneShotWithParameter(slingHitSound, "collision_variant", variant, position);
     }
 
     /// <summary>
@@ -586,32 +634,19 @@ public class AudioManager : MonoBehaviour
     /// <summary>
     /// Plays the shared hit sound owned by this manager for a board component type, so a
     /// type's sound lives in one place instead of being copied onto every prefab variant.
-    /// Returns false for types that don't have one yet, letting the caller fall back to
-    /// whatever event is assigned on the component itself. Add cases here as the
-    /// per-type sounds (drop target, kicker, ...) come in.
+    /// Returns false for types that have no sound assigned yet, letting the caller fall
+    /// back to whatever event is on the component itself. Give a type its sound by adding
+    /// a row to <c>componentHitSounds</c> in the inspector — no code change needed.
     /// </summary>
     public bool TryPlayComponentHit(BoardComponentType type, Vector3 position, int variant = 0)
     {
-        switch (type)
+        if (!TryGetComponentHitSound(type, out EventReference soundEvent))
         {
-            case BoardComponentType.Bumper:
-                if (bumperHitSound.IsNull) return false;
-                PlayBumperHit(position, variant);
-                return true;
-
-            case BoardComponentType.Rollover:
-                if (rolloverHitSound.IsNull) return false;
-                PlayRolloverHit(position, variant);
-                return true;
-
-            case BoardComponentType.Kicker:
-                if (kickerHitSound.IsNull) return false;
-                PlayKickerHit(position, variant);
-                return true;
-
-            default:
-                return false;
+            return false;
         }
+
+        PlayComponentHit(soundEvent, position, variant);
+        return true;
     }
 
     public void PlayFlipperUp(Vector3 position) => PlayOneShot(flipperUpSound, position);
@@ -626,8 +661,8 @@ public class AudioManager : MonoBehaviour
     public void PlayBallSplit(Vector3 position) => PlayOneShot(ballSplitSound, position);
     public void PlayFireworks(Vector3 position) => PlayOneShot(fireworksSound, position);
     public void PlayFrenzyGate(Vector3 position) => PlayOneShot(frenzyGateSound, position);
-    public void PlayDropTargetDown(Vector3 position) => PlayOneShot(dropTargetDownSound, position);
-    public void PlayDropTargetUp(Vector3 position) => PlayOneShot(dropTargetUpSound, position);
+    public void PlayDropperDown(Vector3 position) => PlayOneShot(dropperDownSound, position);
+    public void PlayDropperUp(Vector3 position) => PlayOneShot(dropperUpSound, position);
     public void PlayFrenzyActivated(Vector3 position) => PlayOneShot(frenzyActivatedSound, position);
 
     // Text whoosh belongs to the score popup, so it plays wherever that popup lives.

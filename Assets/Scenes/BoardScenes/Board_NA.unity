@@ -861,7 +861,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4bfcd65970b84e36939a9859ea91a36, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DropTarget
+  m_EditorClassIdentifier: Assembly-CSharp::Dropper
 --- !u!1 &30575251
 GameObject:
   m_ObjectHideFlags: 0
@@ -2621,7 +2621,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4bfcd65970b84e36939a9859ea91a36, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DropTarget
+  m_EditorClassIdentifier: Assembly-CSharp::Dropper
 --- !u!1001 &162880562
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4256,7 +4256,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4bfcd65970b84e36939a9859ea91a36, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DropTarget
+  m_EditorClassIdentifier: Assembly-CSharp::Dropper
 --- !u!1001 &284816868
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20377,7 +20377,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4bfcd65970b84e36939a9859ea91a36, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DropTarget
+  m_EditorClassIdentifier: Assembly-CSharp::Dropper
 --- !u!1 &1084460418
 GameObject:
   m_ObjectHideFlags: 0
@@ -36923,6 +36923,10 @@ PrefabInstance:
       propertyPath: targetAbductionPosition
       value: 
       objectReference: {fileID: 1367149987}
+    - target: {fileID: 2289945914847381007, guid: a0552d35fcb08c348815a72581abc0bf, type: 3}
+      propertyPath: abductionHologramMaterial
+      value: 
+      objectReference: {fileID: -876546973899608171, guid: 3b9958efa0d4c3541960b69bec4472e9, type: 3}
     - target: {fileID: 3489560990946580805, guid: a0552d35fcb08c348815a72581abc0bf, type: 3}
       propertyPath: m_Name
       value: Abductor

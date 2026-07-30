@@ -21,8 +21,8 @@ public sealed class BasicTutorialController : MonoBehaviour
         LocalizedUI.Get("tutorial.firstPlay.title", "CONTROLS");
     private static string firstPlayBody =>
         LocalizedUI.Get("tutorial.firstPlay.body",
-            "Flippers:  Left Arrow / Right Arrow,  A / D,  or Left / Right Mouse Button.\n\n"
-            + "Launcher:  Down Arrow / Middle Mouse Button\n\n"
+            "Flippers:  Left Shift / Right Shift,  A / D,  or Left / Right Mouse Button.\n\n"
+            + "Launcher:  Enter / Middle Mouse Button\n\n"
             + "Click START to begin.");
     private static string firstPlayButton =>
         LocalizedUI.Get("tutorial.firstPlay.button", "START");

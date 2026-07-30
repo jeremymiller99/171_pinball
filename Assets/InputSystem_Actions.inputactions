@@ -56,7 +56,7 @@
                 {
                     "name": "",
                     "id": "c9dd2b89-871a-439e-b89d-d9655bfb183e",
-                    "path": "<Keyboard>/rightArrow",
+                    "path": "<Keyboard>/rightShift",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
@@ -100,7 +100,7 @@
                 {
                     "name": "",
                     "id": "fc4ff677-ebea-4652-82d9-63b22f3672db",
-                    "path": "<Keyboard>/leftArrow",
+                    "path": "<Keyboard>/leftShift",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
@@ -166,7 +166,7 @@
                 {
                     "name": "",
                     "id": "c4ec1802-e57e-43dc-b4d2-fc4489f5f694",
-                    "path": "<Keyboard>/downArrow",
+                    "path": "<Keyboard>/enter",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",

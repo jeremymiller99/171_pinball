@@ -211,11 +211,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195264
-    m_Localized: 'Flippers:  Left Arrow / Right Arrow,  A / D,  or Left / Right Mouse
+    m_Localized: 'Flippers:  Left Shift / Right Shift,  A / D,  or Left / Right Mouse
       Button.
 
 
-      Launcher:  Down Arrow / Middle Mouse Button
+      Launcher:  Enter / Middle Mouse Button
 
 
       Click START to begin.'

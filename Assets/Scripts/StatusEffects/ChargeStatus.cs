@@ -35,6 +35,21 @@ public class ChargeStatus : MonoBehaviour, IStatusBadgeSource
 
     private Ball _ball;
 
+    /// <summary>
+    /// Number of active Chain Lightning modules. With none, a discharge chains to a
+    /// single nearby component; with one (or more), it chains to as many as the
+    /// carrier's stacks, capped at 3.
+    /// </summary>
+    public static int ChainLightningModules;
+
+    private const int ChainLightningStackCap = 3;
+
+    // How many nearby components a discharge activates: 1 by default, or up to the
+    // stack count (capped) once Chain Lightning is owned.
+    private int ChainTargetCount => ChainLightningModules > 0
+        ? Mathf.Clamp(charge, 1, ChainLightningStackCap)
+        : 1;
+
     public event Action ChargeChanged;
     public event Action FullyCharged;
 
@@ -202,7 +217,7 @@ public class ChargeStatus : MonoBehaviour, IStatusBadgeSource
         }
 
         var nearest = BoardComponentRegistry.GetNearest(
-            transform.position, charge, nearestSearchRadius);
+            transform.position, ChainTargetCount, nearestSearchRadius);
         if (nearest.Count == 0)
         {
             return;

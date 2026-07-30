@@ -19,6 +19,12 @@ public class FireStatus : MonoBehaviour, IStatusBadgeSource
 {
     private const int fireBadgeSortOrder = 0;
 
+    /// <summary>
+    /// Global multiplier on every fire's tick rate. Modules push this — e.g. Nitro
+    /// sets it to 2 so fire ticks twice as often. Reset by the module on removal.
+    /// </summary>
+    public static float TickRateMultiplier = 1f;
+
     [Header("Burn")]
     [Tooltip("Seconds a fire lasts before it goes out.")]
     [SerializeField] private float burnSeconds = 4f;
@@ -131,12 +137,13 @@ public class FireStatus : MonoBehaviour, IStatusBadgeSource
             return;
         }
 
-        if (activationsPerSecond <= 0f)
+        float effectiveRate = activationsPerSecond * Mathf.Max(0.01f, TickRateMultiplier);
+        if (effectiveRate <= 0f)
         {
             return;
         }
 
-        float tickInterval = 1f / activationsPerSecond;
+        float tickInterval = 1f / effectiveRate;
         _tickAccumulator += Time.deltaTime;
         while (_tickAccumulator >= tickInterval)
         {

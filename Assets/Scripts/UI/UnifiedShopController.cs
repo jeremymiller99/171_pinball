@@ -588,6 +588,30 @@ public sealed class UnifiedShopController : MonoBehaviour
         PlacementCancelled?.Invoke();
     }
 
+    /// <summary>
+    /// Pays for an offer, honoring the Punch Card module (every Nth purchase free).
+    /// Returns true if the purchase is covered (free or paid), false if it can't be
+    /// afforded. The purchase counter only advances on a committed purchase.
+    /// </summary>
+    private bool TryPayForOffer(ShopOffer offer)
+    {
+        if (offer == null) return false;
+
+        if (PunchCardModule.PeekNextPurchaseFree())
+        {
+            PunchCardModule.RegisterPurchase();
+            return true;
+        }
+
+        if (coinController != null && coinController.TrySpendCoins(offer.Price))
+        {
+            PunchCardModule.RegisterPurchase();
+            return true;
+        }
+
+        return false;
+    }
+
     private void AutoBuyBallOffer(int offerIndex, ShopOffer offer, int insertSlot)
     {
         var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
@@ -595,7 +619,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         insertSlot = Mathf.Clamp(insertSlot, 0, loadoutCtrl.BallLoadoutCount);
 
-        if (coinController == null || !coinController.TrySpendCoins(offer.Price))
+        if (!TryPayForOffer(offer))
         {
             SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughCoinsFor", "Not enough coins for {0}.", offer.DisplayName));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
@@ -695,7 +719,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         ShopOffer offer = _shelf.GetOffer(offerIndex);
         if (target == null || offer == null || !offer.IsValid) return;
 
-        if (coinController == null || !coinController.TrySpendCoins(offer.Price))
+        if (!TryPayForOffer(offer))
         {
             SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughCoinsFor", "Not enough coins for {0}.", offer.DisplayName));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
@@ -757,7 +781,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         var loadout = loadoutCtrl.GetBallLoadoutSnapshot();
         if (slotIndex < 0 || slotIndex >= loadout.Count) return;
 
-        if (coinController == null || !coinController.TrySpendCoins(offer.Price))
+        if (!TryPayForOffer(offer))
         {
             SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughCoinsFor", "Not enough coins for {0}.", offer.DisplayName));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();

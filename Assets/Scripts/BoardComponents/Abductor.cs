@@ -49,6 +49,12 @@ public class Abductor : MonoBehaviour
     [SerializeField] private Vector3 returningObjectPosition;
     [SerializeField] private Vector3 abductedObjectSize;
 
+    [Header("Abduction Hologram")]
+    [Tooltip("Material the abducted object wears while it is beamed up and put back " +
+        "(e.g. M_NavHologram). Its own materials are restored once it is fully returned. " +
+        "Leave empty to keep the object looking normal throughout.")]
+    [SerializeField] private Material abductionHologramMaterial;
+
     [Header("Movement Feel")]
     [Tooltip("How fast velocity turns toward the desired direction. " +
         "Lower = smoother, wider arcs. The speed fields above stay the top speed.")]
@@ -107,6 +113,14 @@ public class Abductor : MonoBehaviour
     private float flashTimer;
     private bool flashApplied;
 
+    // Abducted-object hologram state. The originals are held as the shared assets read
+    // off the renderers, so restoring writes back exactly what was authored.
+    private Renderer[] hologramRenderers;
+    private Material[][] hologramOriginalMaterials;
+    private Outline[] hologramOutlines;
+    private bool[] hologramOutlineWasEnabled;
+    private bool hologramApplied;
+
     private void Awake()
     {
         frenzyManager = FindAnyObjectByType<FrenzyManager>();
@@ -135,7 +149,18 @@ public class Abductor : MonoBehaviour
         if (objectToAbduct == null || oldComponent.gameObject != objectToAbduct)
             return;
 
+        // The cached renderers belong to the instance being destroyed, so restoring
+        // through them would be pointless at best. Forget them and re-skin the
+        // replacement instead, so a swap mid-abduction doesn't strand either object.
+        bool wasHolographic = hologramApplied;
+        ForgetHologramCache();
+
         objectToAbduct = newComponent.gameObject;
+
+        if (wasHolographic)
+        {
+            ApplyAbductionHologram();
+        }
 
         // The OnDropAbduction satellite is a scene-only addition, so the fresh
         // prefab instance won't carry one — read the old wiring, then rebuild it on
@@ -167,6 +192,10 @@ public class Abductor : MonoBehaviour
     {
         flashTimer = 0f;
         ClearFlash();
+
+        // An abduction cut short (drain, scene unload) would otherwise leave the object
+        // holographic for the rest of the run — the ship is what gets disabled, not it.
+        RestoreAbductedObjectMaterials();
     }
 
     private void Start()
@@ -193,6 +222,9 @@ public class Abductor : MonoBehaviour
                 {
                     abductedObjectSize = objectToAbduct.transform.localScale;
                     returningObjectPosition = objectToAbduct.transform.position;
+                    // Goes holographic for the whole trip: the beam-up here, and the
+                    // beam-down on the way out. In between its renderer is off anyway.
+                    ApplyAbductionHologram();
                     abductionState = AbductionState.Abducting;
                 }
                 break;
@@ -228,6 +260,8 @@ public class Abductor : MonoBehaviour
                 if (objectToAbduct.transform.position == returningObjectPosition)
                 {
                     objectToAbduct.transform.localScale = abductedObjectSize;
+                    // Fully back at its original spot and size — drop the hologram.
+                    RestoreAbductedObjectMaterials();
                     abductionState = AbductionState.Leaving;
                 }
                 break;
@@ -258,6 +292,7 @@ public class Abductor : MonoBehaviour
         health = maxHealth;
         flashTimer = 0f;
         ClearFlash();
+        RestoreAbductedObjectMaterials();
     }
 
     private void UpdateFighting()
@@ -394,6 +429,153 @@ public class Abductor : MonoBehaviour
         {
             abductionState = AbductionState.ReturningAbductedObject;
         }
+    }
+
+    // ── Abducted-object hologram ──────────────────────────────
+
+    /// <summary>
+    /// Swaps every material slot on the abducted object for the hologram material, keeping
+    /// the originals so <see cref="RestoreAbductedObjectMaterials"/> can put them back.
+    /// Writes through <c>materials</c> rather than <c>sharedMaterials</c> so the swap never
+    /// touches the shared assets — in the editor that would permanently convert the prefab.
+    /// </summary>
+    private void ApplyAbductionHologram()
+    {
+        if (hologramApplied || abductionHologramMaterial == null || objectToAbduct == null)
+        {
+            return;
+        }
+
+        // QuickOutline appends its mask/fill materials to every renderer while it is
+        // enabled, and BoardComponent turns one on for every component. Those extra slots
+        // must not be captured: the hologram would blanket them, and the restore would
+        // write them back after Outline.OnDisable had already let go of them, leaving the
+        // outline stuck on. Switching it off first makes it strip its own slots, so all we
+        // ever see is the object's own materials.
+        SuspendAbductedObjectOutlines();
+
+        Renderer[] all = objectToAbduct.GetComponentsInChildren<Renderer>(true);
+        List<Renderer> targets = new List<Renderer>(all.Length);
+
+        for (int i = 0; i < all.Length; i++)
+        {
+            // Particle and trail renderers own their own look; re-materialising them would
+            // replace the effect itself rather than skin the object.
+            if (all[i] == null || all[i] is ParticleSystemRenderer || all[i] is TrailRenderer)
+            {
+                continue;
+            }
+
+            Material[] shared = all[i].sharedMaterials;
+            if (shared == null || shared.Length == 0)
+            {
+                continue;
+            }
+
+            targets.Add(all[i]);
+        }
+
+        if (targets.Count == 0)
+        {
+            // Nothing to skin, so don't leave the outlines switched off behind us.
+            ResumeAbductedObjectOutlines();
+            return;
+        }
+
+        hologramRenderers = targets.ToArray();
+        hologramOriginalMaterials = new Material[hologramRenderers.Length][];
+
+        for (int i = 0; i < hologramRenderers.Length; i++)
+        {
+            Material[] shared = hologramRenderers[i].sharedMaterials;
+            hologramOriginalMaterials[i] = shared;
+
+            Material[] holo = new Material[shared.Length];
+            for (int slot = 0; slot < holo.Length; slot++)
+            {
+                holo[slot] = abductionHologramMaterial;
+            }
+
+            hologramRenderers[i].materials = holo;
+        }
+
+        hologramApplied = true;
+    }
+
+    /// <summary>
+    /// Puts the abducted object's own materials back. Safe to call when no hologram is
+    /// applied, so the abort paths can call it unconditionally.
+    /// </summary>
+    private void RestoreAbductedObjectMaterials()
+    {
+        if (!hologramApplied)
+        {
+            return;
+        }
+
+        for (int i = 0; i < hologramRenderers.Length; i++)
+        {
+            if (hologramRenderers[i] == null)
+            {
+                continue;
+            }
+
+            hologramRenderers[i].sharedMaterials = hologramOriginalMaterials[i];
+        }
+
+        // Materials first, outlines second: re-enabling appends the mask/fill slots on top
+        // of whatever the renderers hold, so the object's own materials have to be back.
+        ResumeAbductedObjectOutlines();
+        ForgetHologramCache();
+    }
+
+    /// <summary>
+    /// Turns off every Outline on the abducted object, remembering which were on so
+    /// <see cref="ResumeAbductedObjectOutlines"/> can put them back exactly as they were.
+    /// </summary>
+    private void SuspendAbductedObjectOutlines()
+    {
+        hologramOutlines = objectToAbduct.GetComponentsInChildren<Outline>(true);
+        hologramOutlineWasEnabled = new bool[hologramOutlines.Length];
+
+        for (int i = 0; i < hologramOutlines.Length; i++)
+        {
+            if (hologramOutlines[i] == null)
+            {
+                continue;
+            }
+
+            hologramOutlineWasEnabled[i] = hologramOutlines[i].enabled;
+            hologramOutlines[i].enabled = false;
+        }
+    }
+
+    private void ResumeAbductedObjectOutlines()
+    {
+        if (hologramOutlines == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < hologramOutlines.Length; i++)
+        {
+            if (hologramOutlines[i] != null && hologramOutlineWasEnabled[i])
+            {
+                hologramOutlines[i].enabled = true;
+            }
+        }
+
+        hologramOutlines = null;
+        hologramOutlineWasEnabled = null;
+    }
+
+    private void ForgetHologramCache()
+    {
+        hologramRenderers = null;
+        hologramOriginalMaterials = null;
+        hologramOutlines = null;
+        hologramOutlineWasEnabled = null;
+        hologramApplied = false;
     }
 
     private void ReactToHit(Vector3 hitPoint)

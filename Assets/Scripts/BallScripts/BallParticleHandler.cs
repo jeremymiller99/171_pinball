@@ -11,6 +11,12 @@ public class BallParticleHandler : MonoBehaviour
     [SerializeField] private int poolSize;
     [SerializeField] Rigidbody _rb;
 
+    // The emitter prefab's authored start size. The per-component marker size
+    // multiplies this rather than replacing it, so the prefab (HitParticles) stays the
+    // base — otherwise a marker size of 1 would overwrite the authored size and inflate
+    // every hit's particles.
+    private float _baseStartSize = 1f;
+
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
@@ -23,6 +29,14 @@ public class BallParticleHandler : MonoBehaviour
         for (int i = 0; i < poolSize; i++)
         {
             pool.Push(Instantiate(particleObject, Vector3.zero, quaternion.identity));
+        }
+
+        ParticleSystem prefabPs = particleObject != null
+            ? particleObject.GetComponent<ParticleSystem>()
+            : null;
+        if (prefabPs != null)
+        {
+            _baseStartSize = prefabPs.main.startSizeMultiplier;
         }
     }
 
@@ -47,7 +61,7 @@ public class BallParticleHandler : MonoBehaviour
         emitter.transform.position = emitPos;
 
         ParticleSystem.MainModule main = emitter.main;
-        main.startSizeMultiplier = size;
+        main.startSizeMultiplier = _baseStartSize * size;
 
         var emitterShape = emitter.shape;
         if (transform.position.x < collision.transform.position.x)

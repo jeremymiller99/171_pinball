@@ -22,6 +22,17 @@ public class Dropper : MonoBehaviour
     public event Action onStartDown;
     public event Action onStartUp;
 
+    /// <summary>
+    /// Fired on every ball collision that counts toward the drop, carrying the running
+    /// hit count (1..<see cref="HitsToDrop"/>). The full-count hit fires this too, just
+    /// before the target starts sinking. Multi-hit targets only: the trigger path drops
+    /// on first contact and never counts.
+    /// </summary>
+    public event Action<int> OnHit;
+
+    /// <summary>Ball hits needed to put this target down.</summary>
+    public int HitsToDrop => hitsToDrop;
+
     /// <summary>True when the target is fully down and not yet rising (collider disabled while down).</summary>
     public bool IsDown => _hasTriggered && !_returning && !_falling;
     public enum WhenFullyDownMode
@@ -234,6 +245,7 @@ public class Dropper : MonoBehaviour
         if (!collision.collider.CompareTag("Ball")) return;
 
         amountOfHits++;
+        OnHit?.Invoke(amountOfHits);
         if (amountOfHits < hitsToDrop) return;
 
         amountOfHits = 0;

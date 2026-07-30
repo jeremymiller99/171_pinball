@@ -81,6 +81,16 @@ public class Abductor : MonoBehaviour
     [SerializeField] private float swayAmplitude = 0.12f;
     [SerializeField] private float swayFrequency = 0.6f;
 
+    [Header("Drop Target Progress Lights")]
+    [Tooltip("Cylinders that light up one per hit on the abduction drop target, in order. " +
+        "They MUST live outside this ship: it is deactivated for most of the game (so " +
+        "children would be hidden with it) and the hit flash tints every renderer under it.")]
+    [SerializeField] private Renderer[] progressLights;
+    [Tooltip("Material worn before that light's hit lands — the grey/off look.")]
+    [SerializeField] private Material progressLightOffMaterial;
+    [Tooltip("Material swapped in once the hit lands — the lit look.")]
+    [SerializeField] private Material progressLightOnMaterial;
+
     [Header("Hit Reaction")]
     [SerializeField] private Color hitFlashColor = Color.red;
     [SerializeField] private float hitFlashDuration = 0.18f;
@@ -121,10 +131,18 @@ public class Abductor : MonoBehaviour
     private bool[] hologramOutlineWasEnabled;
     private bool hologramApplied;
 
+    // Progress-light state. Driven by Dropper events rather than polled in Update:
+    // the ship is inactive between abductions, so its Update doesn't run while the
+    // player is knocking the target down — but a delegate still reaches it.
+    private Dropper progressDropper;
+    private bool progressLatched;
+
     private void Awake()
     {
         frenzyManager = FindAnyObjectByType<FrenzyManager>();
         CacheFlashRenderers();
+        SubscribeProgressLights();
+        ResetProgressLights();
 
         // Subscribe here, not in OnEnable: the abductor spends most of the game
         // inactive (it deactivates itself in Start), so an OnEnable/OnDisable pair
@@ -136,6 +154,7 @@ public class Abductor : MonoBehaviour
     private void OnDestroy()
     {
         BoardComponent.Replaced -= OnComponentReplaced;
+        UnsubscribeProgressLights();
     }
 
     // The abducted object can be swapped out in the shop. Re-point to the
@@ -174,6 +193,12 @@ public class Abductor : MonoBehaviour
             newWiring = newComponent.gameObject.AddComponent<OnDropAbduction>();
         }
         newWiring.Configure(dropper, this);
+
+        // The dropper itself survives a swap of the abducted object, but re-point the
+        // lights through the new wiring anyway so they can't end up listening to a
+        // dropper the replacement no longer uses.
+        UnsubscribeProgressLights();
+        SubscribeProgressLights();
     }
 
     private void OnEnable()
@@ -576,6 +601,98 @@ public class Abductor : MonoBehaviour
         hologramOutlines = null;
         hologramOutlineWasEnabled = null;
         hologramApplied = false;
+    }
+
+    // ── Drop-target progress lights ───────────────────────────
+
+    /// <summary>
+    /// Finds the dropper that triggers this abduction — through the OnDropAbduction
+    /// satellite on the abducted object, the same wiring the abduction itself uses —
+    /// and listens for its hits.
+    /// </summary>
+    private void SubscribeProgressLights()
+    {
+        if (progressDropper != null)
+        {
+            return;
+        }
+
+        OnDropAbduction wiring = objectToAbduct != null
+            ? objectToAbduct.GetComponent<OnDropAbduction>()
+            : null;
+
+        progressDropper = wiring != null ? wiring.DropTarget : null;
+        if (progressDropper == null)
+        {
+            return;
+        }
+
+        progressDropper.OnHit += OnDropTargetHit;
+        // Clear on the rise, not on the drop: the lights should stay full for the whole
+        // abduction and go dark as the target comes back up ready for the next one.
+        progressDropper.onStartUp += ResetProgressLights;
+    }
+
+    private void UnsubscribeProgressLights()
+    {
+        if (progressDropper == null)
+        {
+            return;
+        }
+
+        progressDropper.OnHit -= OnDropTargetHit;
+        progressDropper.onStartUp -= ResetProgressLights;
+        progressDropper = null;
+    }
+
+    private void OnDropTargetHit(int hitCount)
+    {
+        // The target's collider stays live through its sink animation, so a ball can hit
+        // it again on the way down and restart the count at 1. Latch at the full count
+        // so that can't blink the lights back off mid-drop.
+        if (progressLatched)
+        {
+            return;
+        }
+
+        if (progressDropper != null && hitCount >= progressDropper.HitsToDrop)
+        {
+            progressLatched = true;
+        }
+
+        SetLitLightCount(hitCount);
+    }
+
+    private void ResetProgressLights()
+    {
+        progressLatched = false;
+        SetLitLightCount(0);
+    }
+
+    /// <summary>Lights the first <paramref name="litCount"/> cylinders and greys the rest.</summary>
+    private void SetLitLightCount(int litCount)
+    {
+        if (progressLights == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < progressLights.Length; i++)
+        {
+            Renderer light = progressLights[i];
+            if (light == null)
+            {
+                continue;
+            }
+
+            // sharedMaterial, not material: these are authored assets being pointed at,
+            // so there is nothing to instance and nothing to leak.
+            Material material = i < litCount ? progressLightOnMaterial : progressLightOffMaterial;
+            if (material != null)
+            {
+                light.sharedMaterial = material;
+            }
+        }
     }
 
     private void ReactToHit(Vector3 hitPoint)

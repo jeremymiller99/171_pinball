@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Lucky 7
   displayName: Lucky 7
-  description: 'Active: On collision, has 1 in 7 Odds to score 0.7 multiplier.'
+  description: 'On collision: 1 in 7 chance to score 0.7 multiplier'
   rarity: 0
   elementType: 3
   secondaryElementType: 0

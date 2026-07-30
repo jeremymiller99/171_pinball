@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: AmpUp
   displayName: Amp-up
-  description: 'Active: Breaks on first collision. The next ball in queue permanently
-    gains the active ability: "On collision, have 1 in 4 Odds to score 0.1 multiplier."'
+  description: Breaks on first collision. The next ball in queue will have 1 in 4
+    odds to score 0.1 multiplier
   rarity: 1
   elementType: 3
   secondaryElementType: 2

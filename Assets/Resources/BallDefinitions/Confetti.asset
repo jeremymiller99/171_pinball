@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Confetti
   displayName: Confetti
-  description: 'Active: Every 4th collision, creates 3 Holoballs that disappear on
-    their 3rd collision.'
+  description: Every 4th collision, creates 3 Holoballs that disappear on their 3rd
+    collision.
   rarity: 1
   elementType: 5
   secondaryElementType: 0

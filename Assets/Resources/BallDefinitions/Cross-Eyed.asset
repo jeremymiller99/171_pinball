@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: CrossEyed
   displayName: Cross-Eyed
-  description: 'Active: Inverts paddle input. Doubles all multiplier scored.'
+  description: Inverts paddle input. Doubles all multiplier scored.
   rarity: 0
   elementType: 4
   secondaryElementType: 0

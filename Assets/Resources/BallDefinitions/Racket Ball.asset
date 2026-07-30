@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Racket Ball
   displayName: Racket Ball
-  description: 'Active: On collision with a paddle, score multiplier. This cannot
-    be triggered consecutively on the same paddle.'
+  description: On collision with a paddle, earn 0.1 multiplier
   rarity: 0
   elementType: 4
   secondaryElementType: 0

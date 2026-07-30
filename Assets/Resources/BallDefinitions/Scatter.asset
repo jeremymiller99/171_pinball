@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Scatter
   displayName: Scatter
-  description: 'Active: On first collision, this ball splits in two.'
+  description: 'On collision: Splits into 2 balls'
   rarity: 0
   elementType: 4
   secondaryElementType: 0

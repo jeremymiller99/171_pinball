@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Red Two
   displayName: Red Two
-  description: 'Active: Every second collision with this ball scores double multiplier.'
+  description: Every second collision with this ball scores double multiplier.
   rarity: 0
   elementType: 4
   secondaryElementType: 0

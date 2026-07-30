@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Blue Two
   displayName: Blue Two
-  description: 'Active: Every second collision with this ball scores double points.'
+  description: Every second collision with this ball scores double points.
   rarity: 0
   elementType: 4
   secondaryElementType: 0

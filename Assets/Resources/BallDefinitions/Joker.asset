@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Joker Ball
   displayName: Joker
-  description: 'Active: Scores 150% on collision.'
+  description: Scores 150%
   rarity: 0
   elementType: 4
   secondaryElementType: 0

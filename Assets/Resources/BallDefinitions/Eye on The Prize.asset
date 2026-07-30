@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Eye on The Prize
   displayName: Eye on the Prize
-  description: 'Active: Scores 300%. On first collision, Craft 10 Pinballs that score
-    10%.'
+  description: 'On collision: Create 1 red ball that scores 300% and 10 white balls
+    that score 10%'
   rarity: 2
   elementType: 5
   secondaryElementType: 0

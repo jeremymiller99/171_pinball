@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: MatryoshkaDoll
   displayName: Matryoshka
-  description: 'Active: Every 10 collisions, splits into two smaller balls that can
-    also split. Balls get smaller for each split, up to 4 total balls.'
+  description: Every 10 collisions, splits into two smaller balls that can also split.
+    Up to 4 total balls.
   rarity: 1
   elementType: 4
   secondaryElementType: 0

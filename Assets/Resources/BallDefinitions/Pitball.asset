@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Pitball
   displayName: Pitball
-  description: 'Active: Every 100 units travelled, score 0.1 multiplier.'
+  description: Every 100 units travelled, score 0.1 multiplier.
   rarity: 1
   elementType: 4
   secondaryElementType: 0

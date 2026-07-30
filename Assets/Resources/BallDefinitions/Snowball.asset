@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Snowball
   displayName: Snowball
-  description: 'Active: On collision, scores 1 point. Then, this value increases
+  description: 'On collision: scores 1 point. Each collision this value increases
     by 50% rounded up.'
   rarity: 2
   elementType: 6

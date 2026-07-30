@@ -90,6 +90,9 @@ public class Abductor : MonoBehaviour
     [SerializeField] private Material progressLightOffMaterial;
     [Tooltip("Material swapped in once the hit lands — the lit look.")]
     [SerializeField] private Material progressLightOnMaterial;
+    [Tooltip("Once every light is lit and the ship is out, they blink between the on and off " +
+        "materials at this rate (full on-off cycles per second). 0 leaves them solid lit.")]
+    [SerializeField] private float progressLightFlashRate = 3f;
 
     [Header("Hit Reaction")]
     [SerializeField] private Color hitFlashColor = Color.red;
@@ -136,6 +139,9 @@ public class Abductor : MonoBehaviour
     // player is knocking the target down — but a delegate still reaches it.
     private Dropper progressDropper;
     private bool progressLatched;
+    private bool progressFlashing;
+    private float progressFlashTimer;
+    private bool progressFlashOn;
 
     private void Awake()
     {
@@ -218,6 +224,12 @@ public class Abductor : MonoBehaviour
         flashTimer = 0f;
         ClearFlash();
 
+        // Nothing ticks the blink while the ship is hidden, so park the lights solid lit
+        // rather than leaving them frozen on whichever half of the cycle we happened to
+        // be in. Guarded on progressFlashing, so the SetActive(false) in Start — which
+        // runs before anything is lit — doesn't switch them on.
+        StopProgressLightFlash(leaveLit: true);
+
         // An abduction cut short (drain, scene unload) would otherwise leave the object
         // holographic for the rest of the run — the ship is what gets disabled, not it.
         RestoreAbductedObjectMaterials();
@@ -237,6 +249,7 @@ public class Abductor : MonoBehaviour
     private void Update()
     {
         UpdateHitFlash();
+        UpdateProgressLightFlash();
 
         switch (abductionState)
         {
@@ -318,6 +331,11 @@ public class Abductor : MonoBehaviour
         flashTimer = 0f;
         ClearFlash();
         RestoreAbductedObjectMaterials();
+
+        // The target is down and the ship is out — every light is earned, so light them
+        // all and start blinking. Doing it here rather than off the last OnHit also covers
+        // trigger-style droppers, which drop on first contact and never fire OnHit at all.
+        ArmProgressLightFlash();
     }
 
     private void UpdateFighting()
@@ -666,7 +684,67 @@ public class Abductor : MonoBehaviour
     private void ResetProgressLights()
     {
         progressLatched = false;
+        progressFlashing = false;
         SetLitLightCount(0);
+    }
+
+    /// <summary>
+    /// Lights every cylinder and starts the blink. Called when the abduction begins, i.e.
+    /// the moment the target is fully down and the ship comes out.
+    /// </summary>
+    private void ArmProgressLightFlash()
+    {
+        if (progressLights == null || progressLights.Length == 0)
+        {
+            return;
+        }
+
+        progressLatched = true;
+        progressFlashing = true;
+        // Starts on the lit half so the ship's arrival doesn't coincide with the lights
+        // blinking off, which would read as them switching off rather than starting to flash.
+        progressFlashOn = true;
+        progressFlashTimer = 0f;
+        SetLitLightCount(progressLights.Length);
+    }
+
+    private void StopProgressLightFlash(bool leaveLit)
+    {
+        if (!progressFlashing)
+        {
+            return;
+        }
+
+        progressFlashing = false;
+
+        if (leaveLit && progressLights != null)
+        {
+            SetLitLightCount(progressLights.Length);
+        }
+    }
+
+    /// <summary>
+    /// Square-wave blink across the whole bank, driven from Update rather than a coroutine
+    /// so it dies with the ship's own lifetime. Materials are only written on a phase flip.
+    /// </summary>
+    private void UpdateProgressLightFlash()
+    {
+        if (!progressFlashing || progressLights == null || progressLightFlashRate <= 0f)
+        {
+            return;
+        }
+
+        float halfPeriod = 0.5f / progressLightFlashRate;
+        progressFlashTimer += Time.deltaTime;
+
+        bool shouldBeOn = (int)(progressFlashTimer / halfPeriod) % 2 == 0;
+        if (shouldBeOn == progressFlashOn)
+        {
+            return;
+        }
+
+        progressFlashOn = shouldBeOn;
+        SetLitLightCount(progressFlashOn ? progressLights.Length : 0);
     }
 
     /// <summary>Lights the first <paramref name="litCount"/> cylinders and greys the rest.</summary>

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: 8 Ball
   displayName: 8 Ball
-  description: 'Active: Every 8th hit scores 0.3 multiplier.'
+  description: Every 8th hit scores 0.3 multiplier.
   rarity: 0
   elementType: 4
   secondaryElementType: 0

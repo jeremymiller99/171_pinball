@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Egg
   displayName: Egg
-  description: 'Active: Breaks on first collision. When it does, increase the effectiveness
-    of the next ball in queue by 50%.'
+  description: Breaks on first collision, Next ball in queue will have double the
+    effects.
   rarity: 1
   elementType: 4
   secondaryElementType: 0

@@ -52,28 +52,24 @@ gameplay.leaderboard.viewGlobal,VIEW: GLOBAL,VER: GLOBAL
 gameplay.leaderboard.viewFriends,VIEW: FRIENDS,VER: AMIGOS
 tutorial.firstPlay.title,CONTROLS,CONTROLES
 tutorial.firstPlay.button,START,EMPEZAR
-tutorial.firstPlay.body,"Flippers:  Left Arrow / Right Arrow,  A / D,  or Left / Right Mouse Button.
+tutorial.firstPlay.body,"Flippers:  Left Shift / Right Shift
 
-Launcher:  Down Arrow / Middle Mouse Button
+Launcher:  Space
 
-Click START to begin.","Paletas:  Flecha izquierda / Flecha derecha,  A / D,  o botón izquierdo / derecho del ratón.
+Click START to begin.","Paletas:  Mayús izquierda / Mayús derecha
 
-Lanzador:  Flecha abajo / Botón central del ratón
+Lanzador:  Espacio
 
 Haz clic en EMPEZAR para comenzar."
 tutorial.levelUp.title,YOU LEVELED UP!,¡SUBISTE DE NIVEL!
-tutorial.levelUp.body,"Reaching the goal unlocks the SHOP for one visit.
-
-The SHOP button below the board has lit up. Press it now to spend coins on new balls and board upgrades before the next round.","Alcanzar el objetivo desbloquea la TIENDA para una visita.
-
-El botón de la TIENDA bajo el tablero se ha iluminado. Púlsalo ahora para gastar monedas en nuevas bolas y mejoras del tablero antes de la siguiente ronda."
+tutorial.levelUp.body,"Nice work! Click the SHOP button or press Enter whenever it is lit up. Your current ball will be saved.","¡Buen trabajo! Haz clic en el botón de la TIENDA o pulsa Intro cuando esté iluminado. Tu bola actual se guardará."
 tutorial.shop.title,WELCOME TO THE SHOP,BIENVENIDO A LA TIENDA
 tutorial.shop.button,GOT IT,ENTENDIDO
-tutorial.shop.body,"Drag offers from the shelf onto your hand or onto the board to buy them.
+tutorial.shop.body,"Drag items from the right side to the board to purchase.
 
-Drag a hand ball onto a shop hub to sell it back for coins.","Arrastra las ofertas del estante a tu mano o al tablero para comprarlas.
+Change the order of balls by clicking and dragging them in the board.","Arrastra objetos desde el lado derecho al tablero para comprarlos.
 
-Arrastra una bola de la mano a un punto de venta para venderla por monedas."
+Cambia el orden de las bolas arrastrándolas en el tablero."
 gameplay.shop.dragToBuy,Drag {0} onto a hand slot to buy it.,Arrastra {0} a una ranura de la mano para comprarlo.
 gameplay.shop.notEnoughCoinsFor,Not enough coins for {0}.,No tienes suficientes monedas para {0}.
 gameplay.shop.canOnlyReplace,{0} can only replace a {1}.,{0} solo puede reemplazar a un {1}.

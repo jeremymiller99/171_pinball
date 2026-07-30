@@ -153,7 +153,7 @@ public class BoidShipSpawner : MonoBehaviour
         }
     }
 
-    private static Vector3 RandomPointInBounds(Bounds bounds)
+    public static Vector3 RandomPointInBounds(Bounds bounds)
     {
         return new Vector3(
             Random.Range(bounds.min.x, bounds.max.x),

@@ -724,6 +724,15 @@ public class RenderTextureRaycaster : MonoBehaviour
             return true;
         }
 
+        DroneDefinitionLink droneLink =
+            obj.GetComponentInParent<DroneDefinitionLink>();
+
+        if (droneLink != null && droneLink.TryGetDefinition(out DroneDefinition droneDef))
+        {
+            title = droneDef.GetSafeDisplayName();
+            desc = droneDef.Description;
+        }
+
         return false;
     }
 
@@ -858,6 +867,14 @@ public class RenderTextureRaycaster : MonoBehaviour
             elementType = moduleDef.ElementType;
             secondaryElementType = moduleDef.SecondaryElementType;
             return true;
+        }
+
+        DroneDefinitionLink droneLink =
+            obj.GetComponentInParent<DroneDefinitionLink>();
+
+        if ( droneLink != null && droneLink.TryGetDefinition(out DroneDefinition droneDef))
+        {
+            title = droneDef.GetSafeDisplayName();
         }
 
         return false;

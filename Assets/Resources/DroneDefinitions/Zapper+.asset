@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DroneDefinition
   id: 
   displayName: Zapper+
-  description: Fires a burst of three consecutive beams (one after the other, not
-    all at once) that each activate a random component. 1.5 second cooldown.
+  description: Fires a burst of three consecutive beams that each activate a random
+    component. 7.5 second cooldown.
   tags: []
   icon: {fileID: 0}
-  prefab: {fileID: 0}
+  prefab: {fileID: 4801584918079797653, guid: b3433e607896484489d65e9344cda405, type: 3}
   upgrade: {fileID: 0}

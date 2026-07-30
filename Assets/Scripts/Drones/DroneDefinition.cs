@@ -26,11 +26,12 @@ public class DroneDefinition : ScriptableObject
     [Tooltip("Prefab that will be spawned/used for this drone.")]
     [SerializeField] private GameObject prefab;
     [Tooltip("Prefab for the upgraded version of this drone.")]
-    [SerializeField] private GameObject upgrade;
+    [SerializeField] private DroneDefinition upgrade;
 #if UNITY_EDITOR
     private static string tooltipPrefabPath = "/Prefabs/UI/Tooltips/Tooltip Panel";
     private static string ballSOPath = "/Resources/BallDefinitions/";
     private static string termSOPath = "/Resources/TermDefinitions/";
+    private static string droneSOPath = "/Resources/DroneDefinitions/";
 #endif
 
     public string Id => id;
@@ -38,7 +39,7 @@ public class DroneDefinition : ScriptableObject
     public string Description => LocalizedContent.Get("drone", name, "desc", description);
     public Sprite Icon => icon;
     public GameObject Prefab => prefab;
-    public GameObject Upgrade => upgrade;
+    public DroneDefinition Upgrade => upgrade;
     public List<string> Tags => tags;
 
     public static DroneDefinition CreateRuntime(
@@ -47,7 +48,7 @@ public class DroneDefinition : ScriptableObject
         string runtimeDescription,
         Sprite runtimeIcon,
         GameObject runtimePrefab,
-        GameObject runtimeUpgrade)
+        DroneDefinition runtimeUpgrade)
     {
         var def = CreateInstance<DroneDefinition>();
         def.id = runtimeId ?? "";
@@ -96,26 +97,35 @@ public class DroneDefinition : ScriptableObject
         }
 
 #if UNITY_EDITOR
+        if (AssetDatabase.AssetPathExists("Assets" + droneSOPath + displayName + "+.asset"))
+        {
+            upgrade = AssetDatabase.LoadAssetAtPath<DroneDefinition>("Assets" + droneSOPath + displayName + "+.asset");
+        }
         TooltipUI tooltipPrefab = AssetDatabase.LoadAssetAtPath<TooltipUI>("Assets" + tooltipPrefabPath + ".prefab");
         for (int i = 0; i < tags.Count; i++)
         {
-            if (AssetDatabase.AssetPathExists("Assets" + ballSOPath + tags[i] + ".asset"))
+            string newWord = "";
+            for (int j = 0; j < tags[i].Length; j++)
             {
-                BallDefinition ballDef = AssetDatabase.LoadAssetAtPath<BallDefinition>("Assets" + ballSOPath + tags[i] + ".asset");
-                if (tooltipPrefab.necessaryBallDefinitions.Contains(ballDef))
+                newWord += char.ToLower(tags[i][j]);
+                if (AssetDatabase.AssetPathExists("Assets" + ballSOPath + newWord + ".asset"))
                 {
-                    continue;
+                    BallDefinition ballDef = AssetDatabase.LoadAssetAtPath<BallDefinition>("Assets" + ballSOPath + newWord + ".asset");
+                    if (tooltipPrefab.necessaryBallDefinitions.Contains(ballDef))
+                    {
+                        break;
+                    }
+                    tooltipPrefab.necessaryBallDefinitions.Add(ballDef);
                 }
-                tooltipPrefab.necessaryBallDefinitions.Add(ballDef);
-            }
-            else if (AssetDatabase.AssetPathExists("Assets" + termSOPath + tags[i] + ".asset"))
-            {
-                TermDefinition termDef = AssetDatabase.LoadAssetAtPath<TermDefinition>("Assets" + termSOPath + tags[i] + ".asset");
-                if (tooltipPrefab.necessaryTermDefinitions.Contains(termDef))
+                else if (AssetDatabase.AssetPathExists("Assets" + termSOPath + newWord + ".asset"))
                 {
-                    continue;
+                    TermDefinition termDef = AssetDatabase.LoadAssetAtPath<TermDefinition>("Assets" + termSOPath + newWord + ".asset");
+                    if (tooltipPrefab.necessaryTermDefinitions.Contains(termDef))
+                    {
+                        break;
+                    }
+                    tooltipPrefab.necessaryTermDefinitions.Add(termDef);
                 }
-                tooltipPrefab.necessaryTermDefinitions.Add(termDef);
             }
         }
         EditorUtility.SetDirty(tooltipPrefab);

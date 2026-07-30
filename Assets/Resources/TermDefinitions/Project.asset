@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9ed9113abf6e7834a80e27dd622e2af7, type: 3}
-  m_Name: Detonate
+  m_Name: Project
   m_EditorClassIdentifier: Assembly-CSharp::TermDefinition
   id: 
-  displayName: Detonate
-  description: Creates an explosion that collides with all objects in the radius.
+  displayName: Project
+  description: Creates temporary Holoball(s).

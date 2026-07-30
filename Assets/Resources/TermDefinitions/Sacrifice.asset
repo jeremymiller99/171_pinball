@@ -10,9 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9ed9113abf6e7834a80e27dd622e2af7, type: 3}
-  m_Name: Bouncy
+  m_Name: Sacrifice
   m_EditorClassIdentifier: Assembly-CSharp::TermDefinition
   id: 
-  displayName: Bouncy
-  description: Bouncy objects have more knockback and give extra score based on the
-    velocity of the colliding ball(s).
+  displayName: Sacrifice
+  description: Destroys items in exchange for rewards.

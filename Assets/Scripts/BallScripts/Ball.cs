@@ -157,6 +157,17 @@ public class Ball : MonoBehaviour
         return parentComponent != null ? new[] { parentComponent } : System.Array.Empty<BoardComponent>();
     }
 
+    /// <summary>
+    /// True when the most recent board hit was on a Portal. Splitter/projector balls
+    /// check this so they don't spawn their split on a portal — the new balls would be
+    /// dropped straight into a teleport.
+    /// </summary>
+    protected bool LastHitWasPortal()
+    {
+        return lastObjectHit != null
+            && lastObjectHit.GetComponentInParent<Portal>() != null;
+    }
+
     
 
     /// <summary>

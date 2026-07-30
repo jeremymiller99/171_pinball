@@ -3,8 +3,10 @@
 using UnityEngine;
 
 /// <summary>
-/// Fission: a ball that splits produces one extra ball — splitting into three
-/// instead of two. Applied to each ball as it activates.
+/// Fission: a ball that splits into copies of itself produces one extra — splitting
+/// into three instead of two. Only affects true splitters (Scatter, Matryoshka), not
+/// projector balls (Confetti, Eye on the Prize) that spawn other balls. Applied to
+/// each ball as it activates.
 /// </summary>
 public sealed class FissionModule : MonoBehaviour
 {
@@ -23,7 +25,7 @@ public sealed class FissionModule : MonoBehaviour
 
     private void AddSplitBall(GameObject ball)
     {
-        ISplitter splitter = ball.GetComponent<ISplitter>();
+        IFissionable splitter = ball.GetComponent<IFissionable>();
         if (splitter != null) splitter.BallsOnSplit++;
     }
 }

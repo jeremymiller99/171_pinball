@@ -2,7 +2,7 @@
 using System;
 using UnityEngine;
 
-public class MultiBall : Ball, ISplitter
+public class MultiBall : Ball, ISplitter, IFissionable
 {
     [SerializeField] private GameObject prefab;
     [SerializeField] private BallSpawner ballSpawner;
@@ -62,7 +62,9 @@ public class MultiBall : Ball, ISplitter
 
     override protected void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)
     {
-        if (componentHits >= componentHitsToSplit && !hasSplit)
+        // Don't split on a portal (the new balls would teleport). Leaving componentHits
+        // as-is defers the split to the next non-portal hit.
+        if (componentHits >= componentHitsToSplit && !hasSplit && !LastHitWasPortal())
         {
             SplitNow();
             componentHits = 0;

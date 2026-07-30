@@ -71,13 +71,19 @@ public sealed class CoinController : MonoBehaviour
         return true;
     }
 
-    public void AddCoinsUnscaled(int amount)
+    /// <summary>
+    /// Adds coins with no modifier scaling. <paramref name="applyModuleBonus"/> is true
+    /// for genuine gains (e.g. PiggyBank) so Hustle's flat bonus applies; shop
+    /// refunds/sells pass false so returning money doesn't grant the bonus.
+    /// </summary>
+    public void AddCoinsUnscaled(int amount, bool applyModuleBonus = true)
     {
         if (amount <= 0) return;
-        coins += amount;
+        int applied = applyModuleBonus ? WithFlatBonus(amount) : amount;
+        coins += applied;
         displayCoins = coins;
         ServiceLocator.Get<ScoreUIController>()?.SetCoins(displayCoins);
-        ServiceLocator.Get<AudioManager>()?.PlayStaggeredCoinSounds(amount);
+        ServiceLocator.Get<AudioManager>()?.PlayStaggeredCoinSounds(applied);
         RaiseCoinsChanged();
     }
 

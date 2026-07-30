@@ -191,7 +191,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (!_placement.ReplaceComponent(_targetComponent, def))
         {
-            coinController?.AddCoinsUnscaled(price);
+            coinController?.AddCoinsUnscaled(price, false);
             SetPrompt(LocalizedUI.Format("gameplay.shop.couldNotPlace", "Could not place {0}. Coins refunded.", def.GetSafeDisplayName()));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             ExitPlacementMode();
@@ -249,7 +249,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (CurrentState == ShopState.PlacingComponent && _selectedOffer != null)
         {
-            coinController?.AddCoinsUnscaled(_selectedOffer.Price);
+            coinController?.AddCoinsUnscaled(_selectedOffer.Price, false);
             Debug.Log($"[UnifiedShopController] Refunded in-flight placement for {_selectedOffer.DisplayName} on shop close.");
         }
 
@@ -481,7 +481,7 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
-        if (refund > 0) coinController?.AddCoinsUnscaled(refund);
+        if (refund > 0) coinController?.AddCoinsUnscaled(refund, false);
 
         if (ballSpawner != null)
         {
@@ -637,7 +637,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
             if (ballToGrant == null)
             {
-                coinController?.AddCoinsUnscaled(offer.Price);
+                coinController?.AddCoinsUnscaled(offer.Price, false);
                 SetPrompt(LocalizedUI.Format("gameplay.shop.noRarityBalls", "No {0} balls available -- purchase refunded.", RarityWord(mystery.TargetRarity)));
                 ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
                 RefreshUI();
@@ -649,7 +649,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (!loadoutCtrl.InsertBallIntoLoadout(insertSlot, ballToGrant))
         {
-            coinController?.AddCoinsUnscaled(offer.Price);
+            coinController?.AddCoinsUnscaled(offer.Price, false);
             SetPrompt(LocalizedUI.Get("gameplay.shop.loadoutFull", "Loadout full -- could not add ball."));
             RefreshUI();
             return;

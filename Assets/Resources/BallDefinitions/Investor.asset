@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Investor
   displayName: Investor
-  description: 'Active: Gives $1 every 12th collision.'
+  description: Gives $1 every 12th collision.
   rarity: 0
   elementType: 3
   secondaryElementType: 0

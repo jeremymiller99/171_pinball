@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Core/GameplayCore.unity
     guid: b90619d192d7811478a2655f358ed811
   - enabled: 1
+    path: Assets/Scenes/BoardScenes/Board_Tutorial.unity
+    guid: ca6c79d361946194aa0334dcba0be349
+  - enabled: 1
     path: Assets/Scenes/BoardScenes/Board_Alpha.unity
     guid: 715f05bd1f5e0b749b17e3c313b1b099
   - enabled: 1

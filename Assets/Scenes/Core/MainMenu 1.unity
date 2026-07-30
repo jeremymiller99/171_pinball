@@ -3414,13 +3414,14 @@ MonoBehaviour:
       Data3: -157741152
       Data4: 1337080504
     Path: event:/ingame/comp_generic/comp_target_param
-  kickerHitSound:
+  slingHitSound:
     Guid:
       Data1: -637490646
       Data2: 1157163110
       Data3: 1195741366
       Data4: 1679904213
     Path: event:/ingame/comp_generic/comp_kicker
+  componentHitSounds: []
   flipperUpSound:
     Guid:
       Data1: -1860561248
@@ -3512,14 +3513,14 @@ MonoBehaviour:
       Data3: -797266242
       Data4: -847394481
     Path: event:/ingame/special/spec_frenzy_gate
-  dropTargetDownSound:
+  dropperDownSound:
     Guid:
       Data1: -800675365
       Data2: 1139403564
       Data3: -1036019013
       Data4: -996737294
     Path: event:/ingame/comp_generic/comp_drop_down
-  dropTargetUpSound:
+  dropperUpSound:
     Guid:
       Data1: 1142996374
       Data2: 1088531185
@@ -8407,6 +8408,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 672581e447f11ad4995811d59ff8ba31, type: 2}
   availablePlayfields:
   - {fileID: 11400000, guid: 94aa8e7624e37f943a9d60f03d1c0ab7, type: 2}
+  - {fileID: 11400000, guid: 7a51b71d87f95a64f86bd524cb99d5df, type: 2}
   startText: {fileID: 416839050}
   playfieldSummaryText: {fileID: 736017344}
   missionSummaryText: {fileID: 173645752}

@@ -15,4 +15,4 @@ MonoBehaviour:
   id: 
   displayName: Fire
   description: Activates components 1-4 times per second, increasing score by 25%
-    each time.  Fire stacks up to 4 times, increasing the frequency per second
+    each time.

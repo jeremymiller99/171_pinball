@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02ded05bc56b1f14d93977fb730b5202, type: 3}
+  m_Name: Zapper+
+  m_EditorClassIdentifier: Assembly-CSharp::DroneDefinition
+  id: 
+  displayName: Zapper+
+  description: Fires a burst of three consecutive beams that each activate a random
+    component. 7.5 second cooldown.
+  tags: []
+  icon: {fileID: 0}
+  prefab: {fileID: 4801584918079797653, guid: b3433e607896484489d65e9344cda405, type: 3}
+  upgrade: {fileID: 0}

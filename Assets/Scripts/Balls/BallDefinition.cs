@@ -137,22 +137,28 @@ public class BallDefinition : ScriptableObject
         TooltipUI tooltipPrefab = AssetDatabase.LoadAssetAtPath<TooltipUI>("Assets" + tooltipPrefabPath + ".prefab");
         for (int i = 0; i < tags.Count; i++)
         {
-            if (AssetDatabase.AssetPathExists("Assets" + ballSOPath + tags[i] + ".asset"))
+            string newWord = "";
+            for (int j = 0; j < tags[i].Length; j++)
             {
-                BallDefinition ballDef = AssetDatabase.LoadAssetAtPath<BallDefinition>("Assets" + ballSOPath + tags[i] + ".asset");
-                if (tooltipPrefab.necessaryBallDefinitions.Contains(ballDef))
+                newWord += char.ToLower(tags[i][j]);
+                if (AssetDatabase.AssetPathExists("Assets" + ballSOPath + newWord + ".asset"))
                 {
-                    continue;
+                    BallDefinition ballDef = AssetDatabase.LoadAssetAtPath<BallDefinition>("Assets" + ballSOPath + newWord + ".asset");
+                    if (tooltipPrefab.necessaryBallDefinitions.Contains(ballDef))
+                    {
+                        break;
+                    }
+                    tooltipPrefab.necessaryBallDefinitions.Add(ballDef);
                 }
-                tooltipPrefab.necessaryBallDefinitions.Add(ballDef);
-            } else if (AssetDatabase.AssetPathExists("Assets" + termSOPath + tags[i] + ".asset"))
-            {
-                TermDefinition termDef = AssetDatabase.LoadAssetAtPath<TermDefinition>("Assets" + termSOPath + tags[i] + ".asset");
-                if (tooltipPrefab.necessaryTermDefinitions.Contains(termDef))
+                else if (AssetDatabase.AssetPathExists("Assets" + termSOPath + newWord + ".asset"))
                 {
-                    continue;
+                    TermDefinition termDef = AssetDatabase.LoadAssetAtPath<TermDefinition>("Assets" + termSOPath + newWord + ".asset");
+                    if (tooltipPrefab.necessaryTermDefinitions.Contains(termDef))
+                    {
+                        break;
+                    }
+                    tooltipPrefab.necessaryTermDefinitions.Add(termDef);
                 }
-                tooltipPrefab.necessaryTermDefinitions.Add(termDef);
             }
         }
         EditorUtility.SetDirty(tooltipPrefab);

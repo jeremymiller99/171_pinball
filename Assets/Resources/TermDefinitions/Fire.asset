@@ -10,8 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9ed9113abf6e7834a80e27dd622e2af7, type: 3}
-  m_Name: Flammable
+  m_Name: Fire
   m_EditorClassIdentifier: Assembly-CSharp::TermDefinition
   id: 
-  displayName: Flammable
-  description: When Ignited, a Flammable object will be On Fire for X seconds.
+  displayName: Fire
+  description: Activates components 1-4 times per second, increasing score by 25%
+    each time.  Fire stacks up to 4 times, increasing the frequency per second

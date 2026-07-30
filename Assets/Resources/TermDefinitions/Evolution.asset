@@ -10,9 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9ed9113abf6e7834a80e27dd622e2af7, type: 3}
-  m_Name: Frozen
+  m_Name: Evolution
   m_EditorClassIdentifier: Assembly-CSharp::TermDefinition
   id: 
-  displayName: Frozen
-  description: Frozen objects shatter when they collide, doubling the scoring of
-    that collision and applying increased knockback. They then lose the Frozen effect.
+  displayName: Evolution
+  description: Changes and becomes more powerful after certain requirements are met.

@@ -34,6 +34,7 @@ Transform:
   m_LocalScale: {x: 3, y: 1, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 3369948592055872558}
   - {fileID: 7875938274320124923}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -70,7 +71,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2c1f3a4d5e6f7091a2b3c4d5e6f7081, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentPopOnHit
   ballTag: Ball
   visualRoot: {fileID: 0}
@@ -84,7 +85,8 @@ MonoBehaviour:
       Data2: 0
       Data3: 0
       Data4: 0
-    Path:
+    Path: 
+  collisionVariant: 0
 --- !u!114 &2423504538548351846
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -95,7 +97,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f2a7c4e9b1d8436a95e0c3f7d2b6a184, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShadowLampComponent
   typeOfScore: 0
   amountToScore: 5
@@ -123,10 +125,8 @@ MonoBehaviour:
   dragTargetOutlineColor: {r: 0.3, g: 1, b: 0.3, a: 1}
   bumperCollider: {fileID: 0}
   bounceForce: 50
-  shakeDuration: 0.22
-  shakeMagnitude: 0.16
-  blastRadius: 6
-  blastFuelAmount: 2
+  holoballSeconds: 3
+  holoballSpawnRadius: 2
 --- !u!114 &3000000000000000001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137,16 +137,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 92deadaa7c414c75b78e17530ff052dc, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FireStatus
   burnSeconds: 4
   activationsPerSecond: 2
   scoreRampPerActivation: 0.25
   maxScoreMultiplier: 10
-  scoreMultiplier: 1
   fireVfxPrefab: {fileID: 0}
+  vfxAnchor: {fileID: 0}
   isOnFire: 0
   burnSecondsRemaining: 0
+  scoreMultiplier: 1
 --- !u!114 &8180557298239084306
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157,9 +158,55 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e088ea564efa874eae966d0a484adf8, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
   definition: {fileID: 11400000, guid: 13103615723ca1c458afc10068ea537e, type: 2}
+--- !u!1 &6160301408722237944
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3369948592055872558}
+  - component: {fileID: 8659801461108801068}
+  m_Layer: 0
+  m_Name: HitParticleOrigin
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3369948592055872558
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6160301408722237944}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 2.741, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6714476454855297192}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8659801461108801068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6160301408722237944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfc737203e0649518c0755c89010b286, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  size: 1
+  emitAmount: 0
 --- !u!1001 &7693922074019785744
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -226,15 +273,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: a39a71055c11c3049bdecbef65cf669c, type: 2}
     - target: {fileID: -7511558181221131132, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: 'm_Materials.Array.data[2]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 28ff08ac17303c641a3b1e0bd348583f, type: 2}
     - target: {fileID: -5754084199372789682, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: m_Mesh
-      value:
+      value: 
       objectReference: {fileID: -1291267638880965496, guid: 29d6b12c18306eb4a868b6107f87d3d6, type: 3}
     - target: {fileID: 919132149155446097, guid: 56a0921bb1bb6534fb57a970aff84d7d, type: 3}
       propertyPath: m_Name

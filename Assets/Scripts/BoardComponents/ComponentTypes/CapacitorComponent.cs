@@ -42,9 +42,38 @@ public class CapacitorComponent : Bumper
         ChargeDebug.Log(
             $"{name} spends {consumed} Charge and activates {nearest.Count} components");
 
+        ChargeVfxLibrary vfx = ChargeVfxLibrary.Instance;
+        ScoreManager scoreManager = ServiceLocator.Get<ScoreManager>();
+        Vector3 source = bumperCollider != null
+            ? bumperCollider.bounds.center
+            : transform.position;
+
         foreach (BoardComponent component in nearest)
         {
-            component.ActivateAsBurnTick();
+            // Only score-able components — never flippers/portals.
+            if (!StatusTargeting.CanBeTargeted(component))
+            {
+                continue;
+            }
+
+            // Same chain-lightning arc and blue, half-size activation scoring as a
+            // charged ball's discharge — the capacitor is just a different trigger.
+            if (vfx != null)
+            {
+                vfx.SpawnChainLightning(source, component.transform.position);
+            }
+
+            BoardComponent target = component;
+            if (scoreManager != null)
+            {
+                scoreManager.WithActivationStyle(
+                    ScoreManager.ScoreActivationStyle.Charge,
+                    () => target.ActivateAsBurnTick());
+            }
+            else
+            {
+                target.ActivateAsBurnTick();
+            }
         }
     }
 }

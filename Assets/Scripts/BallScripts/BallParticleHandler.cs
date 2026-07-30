@@ -30,10 +30,25 @@ public class BallParticleHandler : MonoBehaviour
     {
         BoardComponent[] components = Ball.GetBoardComponentsForScoring(collision.collider);
         if (components.Length == 0) return;
-        if (!ComponentTypeCatalog.EmitsBallParticles(components[0].componentType)) return;
+
+        BoardComponent component = components[0];
+        if (!ComponentTypeCatalog.EmitsBallParticles(component.componentType)) return;
+
+        // Per-prefab tuning lives on the component's HitParticleOrigin marker (position,
+        // size, amount), so each variant adjusts independently. No marker → emit from
+        // the component origin at the ball's own defaults.
+        HitParticleOrigin marker = component.GetComponentInChildren<HitParticleOrigin>();
+        Vector3 emitPos = marker != null ? marker.transform.position : component.transform.position;
+        float size = marker != null && marker.size > 0f ? marker.size : 1f;
+        int baseAmount = marker != null && marker.emitAmount > 0 ? marker.emitAmount : startingEmitAmount;
+
         GameObject emitterObj = pool.Pop();
         ParticleSystem emitter = emitterObj.GetComponent<ParticleSystem>();
-        emitter.transform.position = transform.position;
+        emitter.transform.position = emitPos;
+
+        ParticleSystem.MainModule main = emitter.main;
+        main.startSizeMultiplier = size;
+
         var emitterShape = emitter.shape;
         if (transform.position.x < collision.transform.position.x)
         {
@@ -45,7 +60,7 @@ public class BallParticleHandler : MonoBehaviour
         }
 
         int emitMult = Mathf.FloorToInt(speedMultiplier * _rb.linearVelocity.magnitude);
-        emitter.Emit(startingEmitAmount * emitMult);
+        emitter.Emit(Mathf.Max(0, baseAmount * emitMult));
         pool.Push(emitterObj);
     }
 

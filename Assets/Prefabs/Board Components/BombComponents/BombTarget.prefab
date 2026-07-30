@@ -1,5 +1,51 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5080157908451490392
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6159253851980898621}
+  - component: {fileID: 7617636827787163566}
+  m_Layer: 0
+  m_Name: HitParticleOrigin
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6159253851980898621
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5080157908451490392}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.677, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7346497609318563937}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7617636827787163566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5080157908451490392}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfc737203e0649518c0755c89010b286, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  size: 1
+  emitAmount: 0
 --- !u!1 &8767137395333737936
 GameObject:
   m_ObjectHideFlags: 0
@@ -34,6 +80,7 @@ Transform:
   m_LocalScale: {x: 4.5, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 6159253851980898621}
   - {fileID: 5504964311507558337}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
@@ -83,6 +130,7 @@ MonoBehaviour:
       Data3: 0
       Data4: 0
     Path: 
+  collisionVariant: 0
 --- !u!114 &-6409459589425246890
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,8 +169,6 @@ MonoBehaviour:
   dragTargetOutlineColor: {r: 0.3, g: 1, b: 0.3, a: 1}
   bumperCollider: {fileID: 0}
   bounceForce: 25
-  shakeDuration: 0.22
-  shakeMagnitude: 0.16
   ballHitsToExplode: 15
   explosionPrefab: {fileID: 1551915222172123564, guid: 0e2644a071948c94897caa314bb364f9, type: 3}
   explosion: {fileID: 0}

@@ -175,6 +175,53 @@ public class ScoreManager : MonoBehaviour
         finally { _transientScoreMultiplier = previous; }
     }
 
+    /// <summary>
+    /// Where a score came from, for presentation. An activation (a fire burn tick, a
+    /// charge/chain-lightning discharge) shows a smaller, tinted popup than a normal
+    /// ball hit so the two read differently.
+    /// </summary>
+    public enum ScoreActivationStyle { Normal, Fire, Charge }
+
+    [Header("Activation Score Presentation")]
+    [Tooltip("Popup scale for activation scores (fire / charge), relative to a normal hit.")]
+    [SerializeField, Range(0.1f, 1f)] private float activationScoreScale = 0.5f;
+    [Tooltip("Popup text colour for fire-activation scores.")]
+    [SerializeField] private Color fireActivationColor = new Color(1f, 0.5f, 0.12f);
+    [Tooltip("Popup text colour for charge / chain-lightning activation scores.")]
+    [SerializeField] private Color chargeActivationColor = new Color(0.32f, 0.66f, 1f);
+
+    private ScoreActivationStyle _activationStyle = ScoreActivationStyle.Normal;
+
+    /// <summary>
+    /// Runs <paramref name="scoringAction"/> so every score it produces is presented in
+    /// the given activation style (smaller, tinted). Nestable and exception-safe.
+    /// </summary>
+    public void WithActivationStyle(ScoreActivationStyle style, Action scoringAction)
+    {
+        if (scoringAction == null) return;
+
+        ScoreActivationStyle previous = _activationStyle;
+        _activationStyle = style;
+        try { scoringAction(); }
+        finally { _activationStyle = previous; }
+    }
+
+    private float ActivationTextScale =>
+        _activationStyle == ScoreActivationStyle.Normal ? 1f : activationScoreScale;
+
+    private Color? ActivationTextColor
+    {
+        get
+        {
+            switch (_activationStyle)
+            {
+                case ScoreActivationStyle.Fire: return fireActivationColor;
+                case ScoreActivationStyle.Charge: return chargeActivationColor;
+                default: return null;
+            }
+        }
+    }
+
     // Properties
 
     public float Goal => _goal;
@@ -366,7 +413,7 @@ public class ScoreManager : MonoBehaviour
             {
                 displayPoints += scaled;
                 ScoreChanged?.Invoke();
-            }, popupAnchorOffset);
+            }, popupAnchorOffset, ActivationTextScale, ActivationTextColor);
         }
         else
         {
@@ -390,11 +437,11 @@ public class ScoreManager : MonoBehaviour
 
         if (floatingTextSpawner != null)
         {
-            floatingTextSpawner.SpawnMultText(pos.position, "+x" + (Mathf.Round(applied * 100f) / 100f).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture), applied, () => 
+            floatingTextSpawner.SpawnMultText(pos.position, "+x" + (Mathf.Round(applied * 100f) / 100f).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture), applied, () =>
             {
                 displayMult += applied;
                 ScoreChanged?.Invoke();
-            });
+            }, ActivationTextScale, ActivationTextColor);
         }
         else
         {
@@ -415,7 +462,7 @@ public class ScoreManager : MonoBehaviour
 
         if (floatingTextSpawner != null && actual > 0)
             floatingTextSpawner.SpawnGoldText(pos.position, "+$" + actual, actual,
-                () => cc?.ApplyDeferredCoinsUi(actual));
+                () => cc?.ApplyDeferredCoinsUi(actual), ActivationTextScale, ActivationTextColor);
 
         int totalCoins = cc?.Coins ?? 0;
         CoinsAdded?.Invoke(actual, totalCoins);

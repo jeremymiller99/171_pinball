@@ -223,12 +223,13 @@ public class FloatingTextSpawner : MonoBehaviour
     /// <summary>
     /// Spawns points text with optional canvas offset.
     /// </summary>
-    public void SpawnPointsText(Vector3 worldPosition, string text, float pointsValue, Action onArrive, Vector2 anchorOffset)
+    public void SpawnPointsText(Vector3 worldPosition, string text, float pointsValue, Action onArrive, Vector2 anchorOffset,
+        float scaleMultiplier = 1f, Color? colorOverride = null)
     {
         string display = BuildCompactFromTemplate(text, pointsValue);
         float t = Mathf.Sqrt(Mathf.Clamp01(pointsValue / pointsMaxValue));
         float scale = Mathf.Lerp(pointsScaleMin, pointsScaleMax, t);
-        SpawnTextInternal(worldPosition, display, pointsFontAsset, scale, FlyToTarget.Points, onArrive, anchorOffset);
+        SpawnTextInternal(worldPosition, display, pointsFontAsset, scale * scaleMultiplier, FlyToTarget.Points, onArrive, anchorOffset, colorOverride);
     }
 
     /// <summary>
@@ -242,11 +243,12 @@ public class FloatingTextSpawner : MonoBehaviour
     /// <summary>
     /// Spawns mult text and invokes <paramref name="onArrive"/> when the text finishes flying (or immediately if it can't fly).
     /// </summary>
-    public void SpawnMultText(Vector3 worldPosition, string text, float multValue, Action onArrive)
+    public void SpawnMultText(Vector3 worldPosition, string text, float multValue, Action onArrive,
+        float scaleMultiplier = 1f, Color? colorOverride = null)
     {
         float t = Mathf.Sqrt(Mathf.Clamp01(multValue / multMaxValue));
         float scale = Mathf.Lerp(multScaleMin, multScaleMax, t);
-        SpawnTextInternal(worldPosition, MaybeCompact(text), multFontAsset, scale, FlyToTarget.Mult, onArrive);
+        SpawnTextInternal(worldPosition, MaybeCompact(text), multFontAsset, scale * scaleMultiplier, FlyToTarget.Mult, onArrive, default, colorOverride);
     }
 
     /// <summary>
@@ -264,12 +266,13 @@ public class FloatingTextSpawner : MonoBehaviour
     /// Spawns gold/coins text and invokes <paramref name="onArrive"/> when the text finishes flying
     /// (or immediately if it can't fly).
     /// </summary>
-    public void SpawnGoldText(Vector3 worldPosition, string text, float goldValue, Action onArrive)
+    public void SpawnGoldText(Vector3 worldPosition, string text, float goldValue, Action onArrive,
+        float scaleMultiplier = 1f, Color? colorOverride = null)
     {
         float t = Mathf.Sqrt(Mathf.Clamp01(goldValue / goldMaxValue));
         float scale = Mathf.Lerp(goldScaleMin, goldScaleMax, t);
         string display = BuildCompactFromTemplate(text, goldValue);
-        SpawnTextInternal(worldPosition, display, goldFontAsset, scale, FlyToTarget.Coins, onArrive);
+        SpawnTextInternal(worldPosition, display, goldFontAsset, scale * scaleMultiplier, FlyToTarget.Coins, onArrive, default, colorOverride);
     }
 
     public void SpawnGoalTierMultPopup(int multiplierNumber)

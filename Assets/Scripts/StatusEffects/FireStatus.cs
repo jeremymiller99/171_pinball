@@ -203,8 +203,22 @@ public class FireStatus : MonoBehaviour, IStatusBadgeSource
     /// </summary>
     private void ActivateTick()
     {
-        ActivateOwnComponents();
-        ActivateLastComponentHitByBall();
+        ScoreManager scoreManager = ServiceLocator.Get<ScoreManager>();
+        if (scoreManager != null)
+        {
+            scoreManager.WithActivationStyle(
+                ScoreManager.ScoreActivationStyle.Fire,
+                () =>
+                {
+                    ActivateOwnComponents();
+                    ActivateLastComponentHitByBall();
+                });
+        }
+        else
+        {
+            ActivateOwnComponents();
+            ActivateLastComponentHitByBall();
+        }
 
         // Re-lighting refreshes the timer and keeps the ramp, so anything that can
         // light itself repeatedly (Molotov, a ball living on a Lighter kicker) would

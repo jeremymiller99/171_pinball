@@ -118,7 +118,7 @@ public class ChargeStatus : MonoBehaviour, IStatusBadgeSource
 
     private void OnCollisionEnter(Collision collision)
     {
-        HandleCarrierContact(collision.collider);
+        HandleCarrierContact(collision);
     }
 
     /// <summary>
@@ -126,19 +126,45 @@ public class ChargeStatus : MonoBehaviour, IStatusBadgeSource
     /// consumer if that is what was struck, otherwise roll the activate-nearest proc.
     /// Never both — a hit on a consumer is unambiguously a deposit.
     /// </summary>
-    private void HandleCarrierContact(Collider other)
+    private void HandleCarrierContact(Collision collision)
     {
         if (_ball == null || IsConsumer || charge <= 0)
         {
             return;
         }
 
-        if (TryDeposit(other))
+        if (TryDeposit(collision.collider))
         {
             return;
         }
 
-        TryActivateNearest();
+        // Chain lightning only fires when the ball actually struck a scoring component
+        // — not a wall, and not a flipper (a charged ball can still deposit into a
+        // flipper consumer like Moore's Launcher above; that just won't reach here).
+        if (!StruckScoringComponent(collision.collider))
+        {
+            return;
+        }
+
+        // The struck point is where the bolt fans out from — "the collided-with
+        // component" — falling back to the ball if the contact set is empty.
+        Vector3 source = collision.contactCount > 0
+            ? collision.GetContact(0).point
+            : transform.position;
+        TryActivateNearest(source);
+    }
+
+    private static bool StruckScoringComponent(Collider other)
+    {
+        foreach (BoardComponent component in Ball.GetBoardComponentsForScoring(other))
+        {
+            if (StatusTargeting.CanBeTargeted(component))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -168,7 +194,7 @@ public class ChargeStatus : MonoBehaviour, IStatusBadgeSource
         return false;
     }
 
-    private void TryActivateNearest()
+    private void TryActivateNearest(Vector3 source)
     {
         if (UnityEngine.Random.value > chanceToActivateNearest)
         {
@@ -185,9 +211,36 @@ public class ChargeStatus : MonoBehaviour, IStatusBadgeSource
         ChargeDebug.Log(
             $"{name} discharges: {charge} Charge activates {nearest.Count} nearby");
 
+        ChargeVfxLibrary vfx = ChargeVfxLibrary.Instance;
+        ScoreManager scoreManager = ServiceLocator.Get<ScoreManager>();
+
         foreach (BoardComponent component in nearest)
         {
-            component.ActivateAsBurnTick();
+            // Only score-able components are activated — never flippers/portals, so a
+            // discharge can't fire a launcher or teleport a ball.
+            if (!StatusTargeting.CanBeTargeted(component))
+            {
+                continue;
+            }
+
+            // Chain lightning arcs from the struck point to each component the
+            // discharge activates.
+            if (vfx != null)
+            {
+                vfx.SpawnChainLightning(source, component.transform.position);
+            }
+
+            BoardComponent target = component;
+            if (scoreManager != null)
+            {
+                scoreManager.WithActivationStyle(
+                    ScoreManager.ScoreActivationStyle.Charge,
+                    () => target.ActivateAsBurnTick());
+            }
+            else
+            {
+                target.ActivateAsBurnTick();
+            }
         }
     }
 }

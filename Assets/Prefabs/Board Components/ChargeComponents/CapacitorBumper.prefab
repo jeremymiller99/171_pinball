@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3000000000000000001}
   - component: {fileID: 8180557298239084306}
   m_Layer: 0
-  m_Name: Capacitor
+  m_Name: CapacitorBumper
   m_TagString: Bumper
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34,6 +34,7 @@ Transform:
   m_LocalScale: {x: 3, y: 1, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 4910321995887648216}
   - {fileID: 7875938274320124923}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -143,10 +144,11 @@ MonoBehaviour:
   activationsPerSecond: 2
   scoreRampPerActivation: 0.25
   maxScoreMultiplier: 10
-  scoreMultiplier: 1
   fireVfxPrefab: {fileID: 0}
+  vfxAnchor: {fileID: 0}
   isOnFire: 0
   burnSecondsRemaining: 0
+  scoreMultiplier: 1
 --- !u!114 &8180557298239084306
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160,6 +162,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
   definition: {fileID: 11400000, guid: c3c6f39cf8124f14b315786d2fb61393, type: 2}
+--- !u!1 &4866186657409142460
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4910321995887648216}
+  - component: {fileID: 6886304176900308543}
+  m_Layer: 0
+  m_Name: HitParticleOrigin
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4910321995887648216
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4866186657409142460}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 2.54, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6714476454855297192}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6886304176900308543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4866186657409142460}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfc737203e0649518c0755c89010b286, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  size: 1
+  emitAmount: 0
 --- !u!1001 &7693922074019785744
 PrefabInstance:
   m_ObjectHideFlags: 0

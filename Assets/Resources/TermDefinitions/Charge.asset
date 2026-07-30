@@ -14,6 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TermDefinition
   id: 
   displayName: Charge
-  description: On collision, has a 50% chance to activate the nearest component. 
-    passes charge to components on collision. balls can hold more than one charge,
-    all charges are passed to a component if that component can take them.
+  description: On collision, has a 50% chance to activate the nearest component.

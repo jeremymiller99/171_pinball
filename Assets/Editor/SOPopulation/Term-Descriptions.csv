@@ -1,11 +1,11 @@
 Name13;Desc;Outlink(s)
-Charge;On collision, has a 50% chance to activate the nearest component.  passes charge to components on collision. balls can hold more than one charge, all charges are passed to a component if that component can take them.;
+Charge;On collision, has a 50% chance to activate the nearest component.;
 Detonate;Creates an explosion that collides with all objects in the radius.;
 Evolution;Changes and becomes more powerful after certain requirements are met.;
-Fire;Activates components 1-4 times per second, increasing score by 25% each time.  Fire stacks up to 4 times, increasing the frequency per second;
+Fire;Activates components 1-4 times per second, increasing score by 25% each time.;
 Freeze;Shatters on next collision, doubling the scoring of that collision and applying increased knockback.;
 Gravity;Pulls balls in with either weak or strong force.;
-Kinetic;Increased knockback, increased score based on the velocity of the colliding ball  Scoring scales from 75-200%;
+Kinetic;Increased knockback, increased score based on the velocity of the colliding ball;
 Odds;Any object that has "X in Y" chances has Odds. Increasing odds means lowering Y by that amount.;
 Paired;When any component with Paired is activated, all components with Paired are activated.;
 Project;Creates temporary Holoball(s).;Holoball(s)

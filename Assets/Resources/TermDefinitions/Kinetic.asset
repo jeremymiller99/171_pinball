@@ -15,4 +15,4 @@ MonoBehaviour:
   id: 
   displayName: Kinetic
   description: Increased knockback, increased score based on the velocity of the
-    colliding ball  Scoring scales from 75-200%
+    colliding ball

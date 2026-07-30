@@ -7,7 +7,7 @@ using UnityEngine;
 /// until <see cref="terminalSplitGeneration"/> (exclusive) — default yields two split
 /// waves and up to four smallest balls.
 /// </summary>
-public sealed class MatryoshkaBall : Ball, ISplitter
+public sealed class MatryoshkaBall : Ball, ISplitter, IFissionable
 {
     public const string DefinitionId = "MatryoshkaDoll";
 
@@ -108,6 +108,13 @@ public sealed class MatryoshkaBall : Ball, ISplitter
             return;
         }
 
+        // Don't split on a portal; the split children would be teleported. Retry on a
+        // later frame once the ball is off the portal.
+        if (LastHitWasPortal())
+        {
+            return;
+        }
+
         _lastSplitMilestone = componentHits;
         PerformSplit();
     }
@@ -160,6 +167,9 @@ public sealed class MatryoshkaBall : Ball, ISplitter
             if (mb != null)
             {
                 mb.InitializeFromSplit(childGeneration);
+                // Children inherit the split count so a modifier like Fission cascades:
+                // 3 splits at every generation gives 1 -> 3 -> 9 instead of 1 -> 2 -> 4.
+                mb.BallsOnSplit = BallsOnSplit;
             }
 
             Rigidbody rb = child.GetComponent<Rigidbody>();

@@ -11,9 +11,13 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9071b5615920698478912bb6e62a6c1c, type: 3}
   m_Name: Default Module Pool
-  m_EditorClassIdentifier: Assembly-CSharp::ArtifactPool
+  m_EditorClassIdentifier: 
   modules:
-  - {fileID: 11400000, guid: 53bb1799daadbb6468048feb0d839f16, type: 2}
-  - {fileID: 11400000, guid: 4031097ccdc95d74cad6a77375a8a696, type: 2}
-  - {fileID: 11400000, guid: 8487ba08f52d84547aaf56a3061aedcb, type: 2}
-  - {fileID: 11400000, guid: 034a0cc831b322b4c92518784e365da3, type: 2}
+  - {fileID: 11400000, guid: bf235b3f21cb47b69b4de29124bebb8c, type: 2}
+  - {fileID: 11400000, guid: 76dc35a7be2644eda6445e17563d3730, type: 2}
+  - {fileID: 11400000, guid: d55e855c62474c3fbcf37cb686b61759, type: 2}
+  - {fileID: 11400000, guid: 78edcd841cdd4b82801c36513c06de8c, type: 2}
+  - {fileID: 11400000, guid: 29b756731b2b4a6983ef40dc6c75e81e, type: 2}
+  - {fileID: 11400000, guid: 084f5cbfbb7e4d188453c4f15df8a78f, type: 2}
+  - {fileID: 11400000, guid: 0708bcac19be43bdb35b1f3d9359b978, type: 2}
+  - {fileID: 11400000, guid: 5ab1890dac124b71895b78fa9176f16e, type: 2}

@@ -155,6 +155,12 @@ public sealed class ShopOfferShelfController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Module-driven multiplier on all shop offer prices (1 = normal). Loyalty Program
+    /// sets it to 0.8 for a 20% discount. Read when offers are generated.
+    /// </summary>
+    public static float ModulePriceMultiplier = 1f;
+
     public void RebuildOffers()
     {
         ClearOfferDisplays();
@@ -167,11 +173,9 @@ public sealed class ShopOfferShelfController : MonoBehaviour
         ShopShipController ship =
             Object.FindFirstObjectByType<ShopShipController>();
 
-        // Shop price multipliers are standardized to 1x for now. The player-ship
-        // (PlayerShipDefinition.ShopPriceMultiplier) and visitor-merchant
-        // (ShopShipController) multiplier features remain in place but are
-        // intentionally bypassed here.
-        float combined = 1f;
+        // Player-ship / visitor-merchant multipliers stay bypassed (1x); the only
+        // price modifier applied is the module discount (e.g. Loyalty Program).
+        float combined = Mathf.Max(0f, ModulePriceMultiplier);
 
         int minO = ship != null ? ship.MinOffers : 3;
         int maxO = ship != null ? ship.MaxOffers : 6;

@@ -46,6 +46,13 @@ public sealed class Holoball : Ball
     /// <summary>Default activation count when none is supplied (matches the old shard's HitsToPop).</summary>
     public const int DefaultActivations = 3;
 
+    /// <summary>
+    /// Global multiplier on every Holoball's longevity (duration or activation count).
+    /// Modules push this — e.g. Astral Projection sets it to 2. Read live at the expiry
+    /// check so it applies to Holoballs already in flight.
+    /// </summary>
+    public static float LifetimeMultiplier = 1f;
+
     private BallSpawner _ballSpawner;
     private HoloballLifetime _lifetime = HoloballLifetime.Activations(DefaultActivations);
     private float _elapsed;
@@ -81,7 +88,7 @@ public sealed class Holoball : Ball
         }
 
         _elapsed += Time.deltaTime;
-        if (_elapsed >= _lifetime.Value)
+        if (_elapsed >= _lifetime.Value * Mathf.Max(0.01f, LifetimeMultiplier))
         {
             Despawn();
         }
@@ -96,7 +103,7 @@ public sealed class Holoball : Ball
             return;
         }
 
-        if (componentHits >= Mathf.RoundToInt(_lifetime.Value))
+        if (componentHits >= Mathf.RoundToInt(_lifetime.Value * Mathf.Max(0.01f, LifetimeMultiplier)))
         {
             Despawn();
         }

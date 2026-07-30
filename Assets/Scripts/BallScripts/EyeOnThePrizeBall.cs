@@ -24,7 +24,9 @@ public class EyeOnThePrizeBall : Ball, ISplitter
 
     override protected void AddScore(float amount, TypeOfScore typeOfScore, Transform pos)
     {
-        if (!_hasSpawned)
+        // Don't spawn the chaos balls on a portal; they'd be teleported. Defers to the
+        // next non-portal score.
+        if (!_hasSpawned && !LastHitWasPortal())
             TryStartChaosRound();
 
         if (_isRed)

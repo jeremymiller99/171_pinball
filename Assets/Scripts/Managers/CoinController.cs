@@ -18,6 +18,15 @@ public sealed class CoinController : MonoBehaviour
     public int Coins => coins;
     public int DisplayCoins => displayCoins;
 
+    /// <summary>
+    /// Flat bonus added to every earned coin award (not refunds). Modules push this —
+    /// e.g. Hustle adds 1, so any gain gives one extra credit.
+    /// </summary>
+    public int ModuleFlatCoinBonus { get; set; }
+
+    private int WithFlatBonus(int applied) =>
+        applied > 0 ? applied + ModuleFlatCoinBonus : applied;
+
     public event Action<int> CoinsChanged;
 
     private void Awake()
@@ -62,13 +71,19 @@ public sealed class CoinController : MonoBehaviour
         return true;
     }
 
-    public void AddCoinsUnscaled(int amount)
+    /// <summary>
+    /// Adds coins with no modifier scaling. <paramref name="applyModuleBonus"/> is true
+    /// for genuine gains (e.g. PiggyBank) so Hustle's flat bonus applies; shop
+    /// refunds/sells pass false so returning money doesn't grant the bonus.
+    /// </summary>
+    public void AddCoinsUnscaled(int amount, bool applyModuleBonus = true)
     {
         if (amount <= 0) return;
-        coins += amount;
+        int applied = applyModuleBonus ? WithFlatBonus(amount) : amount;
+        coins += applied;
         displayCoins = coins;
         ServiceLocator.Get<ScoreUIController>()?.SetCoins(displayCoins);
-        ServiceLocator.Get<AudioManager>()?.PlayStaggeredCoinSounds(amount);
+        ServiceLocator.Get<AudioManager>()?.PlayStaggeredCoinSounds(applied);
         RaiseCoinsChanged();
     }
 
@@ -85,6 +100,8 @@ public sealed class CoinController : MonoBehaviour
             if (!Mathf.Approximately(coinMultiplier, 1f))
                 applied = Mathf.FloorToInt(applied * coinMultiplier);
         }
+
+        applied = WithFlatBonus(applied);
 
         coins += applied;
         displayCoins += applied;
@@ -106,6 +123,8 @@ public sealed class CoinController : MonoBehaviour
                 applied = Mathf.FloorToInt(applied * coinMultiplier);
         }
 
+        applied = WithFlatBonus(applied);
+
         coins += applied;
         RaiseCoinsChanged();
         return applied;
@@ -114,9 +133,10 @@ public sealed class CoinController : MonoBehaviour
     public int AddCoinsUnscaledDeferredUi(int amount)
     {
         if (amount <= 0) return 0;
-        coins += amount;
+        int applied = WithFlatBonus(amount);
+        coins += applied;
         RaiseCoinsChanged();
-        return amount;
+        return applied;
     }
 
     /// <summary>

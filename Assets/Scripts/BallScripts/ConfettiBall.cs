@@ -86,6 +86,13 @@ public sealed class ConfettiBall : Ball, ISplitter
             return;
         }
 
+        // Don't burst on a portal; the projected Holoballs would be teleported. Retry
+        // on a later frame once the ball is off the portal.
+        if (LastHitWasPortal())
+        {
+            return;
+        }
+
         _lastBurstMilestone = componentHits;
         ProjectHoloballBurst();
         _burstsRemaining--;

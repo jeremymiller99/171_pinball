@@ -209,6 +209,49 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
     }
 
     /// <summary>
+    /// Spawns one firework explosion — a random entry from <see cref="fireworkPrefabs"/>,
+    /// the same burst used on level-up — at a world position, with the level-up scale
+    /// range and firework SFX. Lets other systems reuse the level-up firework as a
+    /// one-off impact effect (e.g. a Fireworks bumper's projectile landing). Returns
+    /// the spawned instance, or null if none was spawned.
+    ///
+    /// <paramref name="scaleOverride"/> sets a fixed uniform scale; leave it at 0 (or
+    /// negative) to use the level-up random scale range, which is too large for small
+    /// impact effects.
+    /// </summary>
+    public GameObject SpawnFireworkExplosion(Vector3 position, float scaleOverride = 0f)
+    {
+        if (fireworkPrefabs == null || fireworkPrefabs.Count == 0)
+        {
+            return null;
+        }
+
+        GameObject prefab =
+            fireworkPrefabs[Random.Range(0, fireworkPrefabs.Count)];
+
+        if (prefab == null) return null;
+
+        GameObject fx = Instantiate(
+            prefab,
+            position,
+            Quaternion.identity
+        );
+
+        fx.transform.localScale = Vector3.one * (scaleOverride > 0f
+            ? scaleOverride
+            : Random.Range(minScale, maxScale));
+
+        ServiceLocator.Get<AudioManager>()?.PlayFireworks(position);
+
+        if (fireworkLifetime > 0f)
+        {
+            Destroy(fx, fireworkLifetime);
+        }
+
+        return fx;
+    }
+
+    /// <summary>
     /// Spawns exactly one banner prefab, chosen at random from the
     /// available variations, at the center of the spawn volume.
     /// </summary>

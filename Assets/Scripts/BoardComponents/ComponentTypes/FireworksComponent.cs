@@ -17,6 +17,24 @@ public class FireworksComponent : Bumper
     [SerializeField, Range(0f, 1f)] private float chanceToScatter = 0.5f;
     [SerializeField] private int componentsToLight = 2;
 
+    [Header("Firework Projectile")]
+    [Tooltip("Trail VFX carried by each firework projectile (no model needed). " +
+        "A CFXR spark/trail reads well. Leave empty for an invisible projectile.")]
+    [SerializeField] private GameObject fireworkTrailPrefab;
+    [Tooltip("Projectile travel speed, in units per second.")]
+    [SerializeField] private float projectileSpeed = 25f;
+    [Tooltip("Distance from the target at which the firework detonates.")]
+    [SerializeField] private float projectileArriveDistance = 0.4f;
+    [Tooltip("Seconds the trail lingers after impact so it can fade out " +
+        "instead of being cut off.")]
+    [SerializeField] private float trailFadeAfterArrive = 1.5f;
+    [Tooltip("Multiplies the trail's particle size to make the sparks easier to " +
+        "read, without editing the shared VFX asset. 1 = unchanged.")]
+    [SerializeField] private float trailSizeMultiplier = 3f;
+    [Tooltip("Uniform scale of the impact explosion. The level-up firework is large " +
+        "by default; keep this small for a per-component pop.")]
+    [SerializeField] private float explosionScale = 1f;
+
     protected override void OnCollisionEnter(Collision collision)
     {
         base.OnCollisionEnter(collision);
@@ -33,6 +51,8 @@ public class FireworksComponent : Bumper
         TryScatter();
     }
 
+    // Instead of lighting targets instantly, launch a firework at each: the
+    // component catches fire when its firework lands (see OnFireworkArrived).
     private void TryScatter()
     {
         if (!IsOnFire || Random.value > chanceToScatter)
@@ -40,10 +60,52 @@ public class FireworksComponent : Bumper
             return;
         }
 
-        int lit = FireStatusUtility.LightRandomComponents(componentsToLight, this);
-        if (lit > 0)
+        foreach (BoardComponent target in
+            BoardComponentRegistry.GetRandom(componentsToLight, this))
         {
-            FireDebug.Log($"{name} scatters, lighting {lit} components");
+            // Only launch at valid fire targets, matching what LightComponent would
+            // accept — no wasted fireworks at flippers, portals, or shop shelf copies.
+            if (!StatusTargeting.CanBeTargeted(target))
+            {
+                continue;
+            }
+
+            LaunchFireworkAt(target);
         }
+    }
+
+    private void LaunchFireworkAt(BoardComponent target)
+    {
+        Vector3 origin = bumperCollider != null
+            ? bumperCollider.bounds.center
+            : transform.position;
+
+        var projectileObject = new GameObject("FireworkProjectile");
+        var projectile = projectileObject.AddComponent<FireworkProjectile>();
+        projectile.Launch(
+            origin,
+            target.transform,
+            fireworkTrailPrefab,
+            projectileSpeed,
+            projectileArriveDistance,
+            trailFadeAfterArrive,
+            trailSizeMultiplier,
+            () => OnFireworkArrived(target));
+    }
+
+    private void OnFireworkArrived(BoardComponent target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        if (FireStatusUtility.LightComponent(target))
+        {
+            FireDebug.Log($"{name} firework lights {target.name}");
+        }
+
+        ServiceLocator.Get<LevelUpVFXTrigger>()
+            ?.SpawnFireworkExplosion(target.transform.position, explosionScale);
     }
 }

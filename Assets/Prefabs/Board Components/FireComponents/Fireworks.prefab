@@ -258,6 +258,12 @@ MonoBehaviour:
   bounceForce: 10
   chanceToScatter: 0.5
   componentsToLight: 2
+  fireworkTrailPrefab: {fileID: 763799897560185588, guid: 798157bad7358b04499c9d71cd3c0d9b, type: 3}
+  projectileSpeed: 25
+  projectileArriveDistance: 0.4
+  trailFadeAfterArrive: 1.5
+  trailSizeMultiplier: 8
+  explosionScale: 2
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0

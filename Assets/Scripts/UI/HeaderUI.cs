@@ -93,6 +93,7 @@ public sealed class TooltipHeaderUI : MonoBehaviour
         _canvasGroup.blocksRaycasts = false;
         CacheCanvas();
         gameObject.SetActive(false);
+        SkinAllPanels(defaultMaterial);
     }
 
     private void LateUpdate()

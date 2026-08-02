@@ -249,7 +249,7 @@ public sealed class TooltipHeaderManager : MonoBehaviour
         }
 
         var canvasGo = new GameObject(
-            "TooltipCanvas",
+            "HeaderCanvas",
             typeof(RectTransform),
             typeof(Canvas),
             typeof(CanvasScaler),

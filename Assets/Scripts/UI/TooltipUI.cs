@@ -182,6 +182,7 @@ public sealed class TooltipUI : MonoBehaviour
         _canvasGroup.blocksRaycasts = false;
         CacheCanvas();
         EnsureDefinitionLookups();
+        SkinAllPanels(staticDefaultMaterial, staticDefaultMaterial);
         gameObject.SetActive(false);
     }
 

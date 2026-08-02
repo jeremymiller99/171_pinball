@@ -19,6 +19,8 @@ public class DrainHandler : MonoBehaviour
 
     private bool _drainProcessing;
 
+    public bool goingToShop;
+
     public bool IsDrainProcessing => _drainProcessing;
 
     public event Action DrainBankCompleted;
@@ -72,6 +74,11 @@ public class DrainHandler : MonoBehaviour
         GameObject ball,
         bool showHomeRunPopup)
     {
+        if (goingToShop == true)
+        {
+            goingToShop = false;
+        }
+
         List<GameObject> activeBalls = ballSpawner != null ? ballSpawner.ActiveBalls : null;
 
         if (activeBalls != null && activeBalls.Count > 1)
@@ -125,6 +132,12 @@ public class DrainHandler : MonoBehaviour
             roundTotal = scoreManager != null
                 ? scoreManager.RoundTotal : 0d;
             bankedPoints = roundTotal;
+        }
+
+        if (goingToShop == true)
+        {
+            goingToShop = false;
+            yield break;
         }
 
         rules.SyncRoundTotal(roundTotal);

@@ -18,6 +18,9 @@ using UnityEngine.EventSystems;
 [DisallowMultipleComponent]
 public sealed class ShopTransitionController : MonoBehaviour
 {
+    [Header("References")]
+    [SerializeField] private DrainHandler drainHandler;
+
     [Header("Camera pan")]
     [Tooltip("Parent transform of the Main Camera. This object is moved during the pan so camera-local effects (shake/alive motion) can keep working.")]
     [SerializeField] private Transform cameraRig;
@@ -185,6 +188,8 @@ public sealed class ShopTransitionController : MonoBehaviour
             Debug.LogWarning("[ShopTransition] OpenShop skipped -- already open");
             return;
         }
+
+        drainHandler.goingToShop = true;
 
         _isOpen = true;
         _inputLocked = true;
@@ -535,6 +540,11 @@ public sealed class ShopTransitionController : MonoBehaviour
 
     private void AutoResolveRefs()
     {
+        if (drainHandler == null)
+        {
+            drainHandler = ServiceLocator.Get<DrainHandler>();
+        }
+
         if (shopCanvasRoot == null)
         {
             var unified = FindFirstObjectByTypeCompat<UnifiedShopController>(includeInactive: true);

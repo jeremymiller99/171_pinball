@@ -190,6 +190,13 @@ public class Portal : MonoBehaviour
             r.enabled = false;
         }
 
+        // Disable colliders while ball is "inside" the portal
+        Collider[] colliders = other.GetComponentsInChildren<Collider>();
+        foreach (Collider collider in colliders)
+        {
+            collider.enabled = false;
+        }
+
         bool wasKinematic = rb.isKinematic;
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
@@ -219,6 +226,11 @@ public class Portal : MonoBehaviour
                 {
                     r.enabled = true;
                 }
+            }
+
+            foreach (Collider collider in colliders)
+            {
+                collider.enabled = true;
             }
 
             rb.isKinematic = wasKinematic;

@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1965a039b036c804e95a533e2df9861b, type: 3}
   m_Name: DefaultSling
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinition
-  id: Sling
-  displayName: Sling
+  id: Default Sling
+  displayName: Default Sling
   description: Scores 5 points when hit.
   componentType: 10
+  rarity: 0
   elementType: 1
   icon: {fileID: 0}
   prefab: {fileID: 4978443779249624864, guid: 567341139d138074e8b63fcd7a783886, type: 3}

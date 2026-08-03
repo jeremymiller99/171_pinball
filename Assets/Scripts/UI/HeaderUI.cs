@@ -92,6 +92,7 @@ public sealed class TooltipHeaderUI : MonoBehaviour
         _canvasGroup = GetComponent<CanvasGroup>();
         _canvasGroup.blocksRaycasts = false;
         CacheCanvas();
+        SkinAllPanels(defaultMaterial);
         gameObject.SetActive(false);
     }
 
@@ -109,10 +110,9 @@ public sealed class TooltipHeaderUI : MonoBehaviour
 
     public void Show(
         string title,
-        ElementType elementType = ElementType.None,
-        ElementType secondaryElementType = ElementType.None)
+        string type)
     {
-        ApplyContent(title, elementType, secondaryElementType);
+        ApplyContent(title, type);
         SetDescPanel(PriceMode.None, 0);
 
         gameObject.SetActive(true);
@@ -126,27 +126,25 @@ public sealed class TooltipHeaderUI : MonoBehaviour
 
     public void ShowBuy(
         string title,
-        ElementType elementType = ElementType.None,
-        ElementType secondaryElementType = ElementType.None,
+        string type,
         int price = 0)
     {
-        Show(title, elementType, secondaryElementType);
+        Show(title, type);
         SetDescPanel(PriceMode.Buy, price);
     }
 
     public void ShowSell(
         string title,
-        ElementType elementType = ElementType.None,
-        ElementType secondaryElementType = ElementType.None,
+        string type,
         int price = 0)
     {
-        Show(title, elementType, secondaryElementType);
+        Show(title, type);
         SetDescPanel(PriceMode.Sell, price);
     }
 
-    public void ShowAtPosition(string title, Vector2 position, ElementType elementType = ElementType.None, ElementType secondaryElementType = ElementType.None)
+    public void ShowAtPosition(string title, Vector2 position, string type)
     {
-        ApplyContent(title, elementType, secondaryElementType);
+        ApplyContent(title, type);
         SetDescPanel(PriceMode.None, 0);
 
         gameObject.SetActive(true);
@@ -195,22 +193,20 @@ public sealed class TooltipHeaderUI : MonoBehaviour
     public void ShowBuyAtPosition(
         string title,
         Vector2 position,
-        ElementType elementType = ElementType.None,
-        ElementType secondaryElementType = ElementType.None,
+        string type,
         int price = 0)
     {
-        ShowAtPosition(title, position, elementType, secondaryElementType);
+        ShowAtPosition(title, position, type);
         SetDescPanel(PriceMode.Buy, price);
     }
 
     public void ShowSellAtPosition(
         string title,
         Vector2 position,
-        ElementType elementType = ElementType.None,
-        ElementType secondaryElementType = ElementType.None,
+        string type,
         int price = 0)
     {
-        ShowAtPosition(title, position, elementType, secondaryElementType);
+        ShowAtPosition(title, position, type);
         SetDescPanel(PriceMode.Sell, price);
     }
 
@@ -433,8 +429,7 @@ public sealed class TooltipHeaderUI : MonoBehaviour
 
     private void ApplyContent(
         string title,
-        ElementType elementType = ElementType.None,
-        ElementType secondaryElementType = ElementType.None)
+        string type)
     {
         // Reset to the visit material so a previous item's rarity color
         // never lingers; callers with a rarity re-skin right after.
@@ -449,17 +444,9 @@ public sealed class TooltipHeaderUI : MonoBehaviour
 
         if (typeText != null)
         {
-            string typeName = ElementTypeColors.GetDisplayName(elementType);
-            Color typeColor =
-                ElementTypeColors.GetColor(elementType);
-            typeText.text = $"<color=#{ColorUtility.ToHtmlStringRGB(typeColor)}><u>" + typeName + "</u></color>";
-            if (secondaryElementType != ElementType.None)
-            {
-                string secondaryTypeName = ElementTypeColors.GetDisplayName(secondaryElementType);
-                Color secondaryTypeColor =
-                    ElementTypeColors.GetColor(secondaryElementType);
-                typeText.text += $" <color=#{ColorUtility.ToHtmlStringRGB(secondaryTypeColor)}><u>" + secondaryTypeName + "</u></color>";
-            }
+            typeText.text = string.IsNullOrWhiteSpace(type)
+                ? "N/A"
+                : type;
         }
     }
 

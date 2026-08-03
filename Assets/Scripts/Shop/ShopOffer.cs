@@ -62,6 +62,8 @@ public sealed class ShopOffer
         ? (BallDef != null)
         : (ComponentDef != null);
 
+    private static string ballTypeText = "Ball";
+
     public ShopOffer(BallDefinition ball, float combinedPriceMultiplier)
     {
         Type = OfferType.Ball;
@@ -83,5 +85,16 @@ public sealed class ShopOffer
         float m = Mathf.Max(0f, combinedPriceMultiplier);
 
         return Mathf.RoundToInt(Mathf.Max(0f, basePrice * m));
+    }
+
+    public string GetTypeString()
+    {
+        if (Type == OfferType.Ball)
+        {
+            return ballTypeText;
+        } else
+        {
+            return BoardComponentDefinition.GetTypeText(ComponentDef.ComponentType);
+        }
     }
 }

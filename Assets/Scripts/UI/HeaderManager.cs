@@ -50,8 +50,7 @@ public sealed class TooltipHeaderManager : MonoBehaviour
 
     public static void Show(
         string title,
-        ElementType elementType = ElementType.None,
-        ElementType secondaryElementType = ElementType.None)
+        string type)
     {
         var mgr = ServiceLocator.Get<TooltipHeaderManager>();
         if (mgr == null || mgr._instance == null)
@@ -60,13 +59,12 @@ public sealed class TooltipHeaderManager : MonoBehaviour
         }
 
         mgr._instance.Show(
-            title, elementType, secondaryElementType);
+            title, type);
     }
 
     public static void ShowAtPosition(
         string title, Vector2 position,
-        ElementType elementType = ElementType.None,
-        ElementType secondaryElementType = ElementType.None)
+        string type)
     {
         var mgr = ServiceLocator.Get<TooltipHeaderManager>();
         if (mgr == null || mgr._instance == null)
@@ -75,13 +73,12 @@ public sealed class TooltipHeaderManager : MonoBehaviour
         }
 
         mgr._instance.ShowAtPosition(
-            title, position, elementType, secondaryElementType);
+            title, position, type);
     }
 
     public static void ShowBuy(
         string title,
-        ElementType elementType = ElementType.None,
-        ElementType secondaryElementType = ElementType.None,
+        string type,
         int price = 0)
     {
         var mgr = ServiceLocator.Get<TooltipHeaderManager>();
@@ -91,13 +88,12 @@ public sealed class TooltipHeaderManager : MonoBehaviour
         }
 
         mgr._instance.ShowBuy(
-            title, elementType, secondaryElementType, price);
+            title, type, price);
     }
 
     public static void ShowSell(
         string title,
-        ElementType elementType = ElementType.None,
-        ElementType secondaryElementType = ElementType.None,
+        string type,
         int price = 0)
     {
         var mgr = ServiceLocator.Get<TooltipHeaderManager>();
@@ -107,14 +103,13 @@ public sealed class TooltipHeaderManager : MonoBehaviour
         }
 
         mgr._instance.ShowSell(
-            title, elementType, secondaryElementType, price);
+            title, type, price);
     }
 
     public static void ShowBuyAtPosition(
         string title,
         Vector2 position,
-        ElementType elementType = ElementType.None,
-        ElementType secondaryElementType = ElementType.None,
+        string type,
         int price = 0)
     {
         var mgr = ServiceLocator.Get<TooltipHeaderManager>();
@@ -124,14 +119,13 @@ public sealed class TooltipHeaderManager : MonoBehaviour
         }
 
         mgr._instance.ShowBuyAtPosition(
-            title, position, elementType, secondaryElementType, price);
+            title, position, type, price);
     }
 
     public static void ShowSellAtPosition(
         string title,
         Vector2 position,
-        ElementType elementType = ElementType.None,
-        ElementType secondaryElementType = ElementType.None,
+        string type,
         int price = 0)
     {
         var mgr = ServiceLocator.Get<TooltipHeaderManager>();
@@ -141,7 +135,7 @@ public sealed class TooltipHeaderManager : MonoBehaviour
         }
 
         mgr._instance.ShowSellAtPosition(
-            title, position, elementType, secondaryElementType, price);
+            title, position, type, price);
     }
 
     public static void Hide()

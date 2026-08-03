@@ -366,6 +366,7 @@ public sealed class ShopMerchantTooltipHover : MonoBehaviour,
     IPointerExitHandler
 {
     private ShopShipController _ship;
+    [SerializeField] private static string tooltipType = "Merchant";
 
     public void Bind(ShopShipController ship)
     {
@@ -386,14 +387,13 @@ public sealed class ShopMerchantTooltipHover : MonoBehaviour,
             title = "Visiting merchant";
         }
 
-        ElementType catalog = _ship.CurrentCatalogElement;
-        string desc = BuildDescription(_ship, catalog);
+        string desc = BuildDescription(_ship);
 
         TooltipManager.Show(
             title,
             desc,
             null,
-            catalog);
+            tooltipType);
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -407,8 +407,7 @@ public sealed class ShopMerchantTooltipHover : MonoBehaviour,
     }
 
     public static string BuildDescription(
-        ShopShipController ship,
-        ElementType catalog)
+        ShopShipController ship)
     {
         var inv = CultureInfo.InvariantCulture;
         return $"Shop Multiplier: {ship.CurrentVisitorPriceMultiplier.ToString("0.##", inv)}x";

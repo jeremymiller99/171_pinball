@@ -23,7 +23,7 @@ public sealed class TooltipManager : MonoBehaviour
     private TooltipUI _instance;
     private Canvas _overlayCanvas;
 
-    private const int tooltipSortOrder = 101;
+    private const int tooltipSortOrder = 9999;
     private const float panelWidth = 220f;
     private const float nameFontSize = 18f;
     private const float descFontSize = 14f;
@@ -54,8 +54,7 @@ public sealed class TooltipManager : MonoBehaviour
         string title,
         string description,
         List<string> tags,
-        ElementType elementType = ElementType.None,
-        ElementType secondaryElementType = ElementType.None)
+        string type)
     {
         var mgr = ServiceLocator.Get<TooltipManager>();
         if (mgr == null || mgr._instance == null)
@@ -63,14 +62,13 @@ public sealed class TooltipManager : MonoBehaviour
             return;
         }
 
-        mgr._instance.Show(title, description, tags, elementType, secondaryElementType);
+        mgr._instance.Show(title, description, tags, type);
     }
 
     public static void ShowAtPosition(
         string title,
         string description, List<string> tags, Vector2 position,
-        ElementType elementType = ElementType.None,
-        ElementType secondaryElementType = ElementType.None)
+        string type)
     {
         var mgr = ServiceLocator.Get<TooltipManager>();
         if (mgr == null || mgr._instance == null)
@@ -79,15 +77,14 @@ public sealed class TooltipManager : MonoBehaviour
         }
 
         mgr._instance.ShowAtPosition(
-            title, description, tags, position, elementType, secondaryElementType);
+            title, description, tags, position, type);
     }
 
     public static void ShowBuy(
         string title,
         string description,
         List<string> tags,
-        ElementType elementType,
-        ElementType secondaryElementType,
+        string type,
         int price)
     {
         var mgr = ServiceLocator.Get<TooltipManager>();
@@ -97,15 +94,14 @@ public sealed class TooltipManager : MonoBehaviour
         }
 
         mgr._instance.ShowBuy(
-            title, description, tags, elementType, secondaryElementType, price);
+            title, description, tags, type, price);
     }
 
     public static void ShowSell(
         string title,
         string description,
         List<string> tags,
-        ElementType elementType,
-        ElementType secondaryElementType,
+        string type,
         int price)
     {
         var mgr = ServiceLocator.Get<TooltipManager>();
@@ -115,7 +111,7 @@ public sealed class TooltipManager : MonoBehaviour
         }
 
         mgr._instance.ShowSell(
-            title, description, tags, elementType, secondaryElementType, price);
+            title, description, tags, type, price);
     }
 
     public static void ShowBuyAtPosition(
@@ -123,8 +119,7 @@ public sealed class TooltipManager : MonoBehaviour
         string description,
         List<string> tags,
         Vector2 position,
-        ElementType elementType,
-        ElementType secondaryElementType,
+        string type,
         int price)
     {
         var mgr = ServiceLocator.Get<TooltipManager>();
@@ -134,7 +129,7 @@ public sealed class TooltipManager : MonoBehaviour
         }
 
         mgr._instance.ShowBuyAtPosition(
-            title, description, tags, position, elementType, secondaryElementType, price);
+            title, description, tags, position, type, price);
     }
 
     public static void ShowSellAtPosition(
@@ -142,8 +137,7 @@ public sealed class TooltipManager : MonoBehaviour
         string description,
         List<string> tags,
         Vector2 position,
-        ElementType elementType,
-        ElementType secondaryElementType,
+        string type,
         int price)
     {
         var mgr = ServiceLocator.Get<TooltipManager>();
@@ -153,7 +147,7 @@ public sealed class TooltipManager : MonoBehaviour
         }
 
         mgr._instance.ShowSellAtPosition(
-            title, description, tags, position, elementType, secondaryElementType, price);
+            title, description, tags, position, type, price);
     }
 
     public static void Hide()

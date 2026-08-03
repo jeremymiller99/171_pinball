@@ -1303,30 +1303,27 @@ public sealed class ProgressionScreenController
         string title = null;
         string desc = null;
         List<string> tags = null;
-        ElementType elementType = ElementType.None;
-        ElementType secondaryElementType = ElementType.None;
+        string type = null;
 
         if (node.ball != null)
         {
             title = node.ball.GetSafeDisplayName();
             desc = node.ball.Description;
             tags = node.ball.Tags;
-            elementType = node.ball.ElementType;
-            secondaryElementType = node.ball.SecondaryElementType;
+            type = "Ball";
         }
         else if (node.component != null)
         {
             title =
                 node.component.GetSafeDisplayName();
             desc = node.component.Description;
-            elementType =
-                node.component.ElementType;
+            type = BoardComponentDefinition.GetTypeText(node.component.ComponentType);
         }
         else if (node.ship != null)
         {
             title = node.ship.GetSafeDisplayName();
             desc = node.ship.description;
-            elementType = node.ship.ElementType;
+            type = "Ship";
         }
 
         if (title == null)
@@ -1335,7 +1332,7 @@ public sealed class ProgressionScreenController
         }
 
         TooltipManager.Show(
-            title, desc, tags, elementType, secondaryElementType);
+            title, desc, tags, type);
     }
 
     private void HideTooltip()

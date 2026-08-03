@@ -92,6 +92,25 @@ public sealed class BoardComponentDefinition : ScriptableObject
         return string.IsNullOrWhiteSpace(localized) ? "Component" : localized;
     }
 
+    public static string GetTypeText(BoardComponentType type)
+    {
+        return type switch
+        {
+            BoardComponentType.Bumper => "Bumper",
+            BoardComponentType.Target => "Target",
+            BoardComponentType.Dropper => "Dropper",
+            BoardComponentType.Spinner => "Spinner",
+            BoardComponentType.Portal => "Portal",
+            BoardComponentType.Rollover => "Rollover",
+            BoardComponentType.Launcher => "Launcher",
+            BoardComponentType.Flipper => "Flipper",
+            BoardComponentType.Kicker => "Kicker",
+            BoardComponentType.Sling => "Sling",
+            BoardComponentType.Other => "Other",
+            _ => "Component"
+        };
+    }
+
     private void OnValidate()
     {
         if (string.IsNullOrWhiteSpace(displayName))

@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Dropper
   description: When hit, score 0.2x mult and drop for 15 seconds.
   componentType: 2
+  rarity: 0
   elementType: 2
   icon: {fileID: 0}
   prefab: {fileID: 0}

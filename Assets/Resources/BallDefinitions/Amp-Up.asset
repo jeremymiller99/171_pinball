@@ -23,4 +23,4 @@ MonoBehaviour:
   - Odds
   icon: {fileID: 21300000, guid: e681d574556e4974e9a4c5a6ac0c74ab, type: 3}
   prefab: {fileID: 5723297401256486482, guid: e7d6c8b0a2941d3e4f50608192a3b4c5, type: 3}
-  price: 15
+  price: 7

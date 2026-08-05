@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Firestarter
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: 
-  displayName: Flint
+  displayName: Firestarter
   description: 'On collision: 25% chance to light component on Fire'
   rarity: 0
   elementType: 0
@@ -22,4 +22,4 @@ MonoBehaviour:
   - Fire
   icon: {fileID: 0}
   prefab: {fileID: 5723297401256486482, guid: b3ad089838d5be44b86229c68ae4425f, type: 3}
-  price: 10
+  price: 6

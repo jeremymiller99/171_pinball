@@ -22,4 +22,4 @@ MonoBehaviour:
   - Kinetic
   icon: {fileID: 0}
   prefab: {fileID: 5723297401256486482, guid: a5ac45bae8356b944a75b3a205242262, type: 3}
-  price: 10
+  price: 8

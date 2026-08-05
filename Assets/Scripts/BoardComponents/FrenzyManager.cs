@@ -35,7 +35,7 @@ public class FrenzyManager : MonoBehaviour
         }
 
         isFrenzyActive = true;
-        OnFrenzyActivated.Invoke();
+        OnFrenzyActivated?.Invoke();
         SteamAchievements.UnlockFirstFrenzy();
         frenzyLastsUntil = time > 0 ? time : defaultTimeForFrenzy;
         scoreManager.AddFrenzyMult(mult != -1 ? mult : scoreManager.Mult);
@@ -87,7 +87,7 @@ public class FrenzyManager : MonoBehaviour
         // callers (e.g. the drop-target gate closing) don't go through it.
         currentFrenzyTime = 0f;
         frenzyLastsUntil = 0f;
-        OnFrenzyDeactivated.Invoke();
+        OnFrenzyDeactivated?.Invoke();
         scoreManager.RemoveFrenzyMult();
     }
 }

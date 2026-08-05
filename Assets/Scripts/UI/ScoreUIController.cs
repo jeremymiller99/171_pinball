@@ -213,8 +213,12 @@ public class ScoreUIController : MonoBehaviour
         if (multText != null)
         {
             multQueue.Clear();
-            multUiDisplayed = 1f;
-            multText.text = FormatMultiplier(1f);
+            // A "reset" no longer always lands on 1x — a ball loss keeps a
+            // fraction of the earned mult — so snap to whatever it actually is.
+            float resetTo = ServiceLocator.TryGet<ScoreManager>(out var sm)
+                ? sm.DisplayMult : 1f;
+            multUiDisplayed = resetTo;
+            multText.text = FormatMultiplier(resetTo);
             PlayMultResetFlash();
         }
     }

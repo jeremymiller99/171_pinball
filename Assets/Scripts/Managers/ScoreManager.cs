@@ -28,6 +28,13 @@ public class ScoreManager : MonoBehaviour
     // Frenzy bonus sits on top of the cap — not subject to it
     private float _frenzyMult;
 
+    [Header("Mult Decay")]
+    [Tooltip("Fraction of the earned board mult kept when a ball ends (drain or shop entry).\n" +
+             "0.25 = drop to 25% of what you had. Never falls below 1x.\n" +
+             "Any active frenzy bonus is cancelled outright and is not part of this carry-over.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float multCarryOverOnDecay = 0.25f;
+
     public float MultCap => _multCap;
     public float FrenzyMult => _frenzyMult;
     /// <summary>Effective multiplier used for scoring: capped earned mult + uncapped frenzy bonus.</summary>
@@ -474,11 +481,25 @@ public class ScoreManager : MonoBehaviour
         scoringLocked = locked;
     }
 
-    public void ResetMultiplier()
+    /// <summary>
+    /// End of a ball — drained, or banked on the way into the shop. Cancels any active
+    /// frenzy (that bonus is forfeited entirely, it is never carried over) and knocks the
+    /// earned board mult down to <see cref="multCarryOverOnDecay"/> of what it was,
+    /// instead of wiping it back to 1x. Never drops below 1x.
+    /// </summary>
+    public void DecayMultiplier()
     {
-        mult = 1f;
-        displayMult = 1f;
+        // Route through FrenzyManager so its visual subscribers unwind with it; the
+        // direct zeroing below covers a missing manager or a stale _frenzyMult.
+        ServiceLocator.Get<FrenzyManager>()?.DeactivateFrenzy();
         _frenzyMult = 0f;
+
+        float carried = Mathf.Max(1f, mult * multCarryOverOnDecay);
+        if (_multCap > 0f && _multCap < float.MaxValue)
+            carried = Mathf.Min(carried, _multCap);
+
+        mult = carried;
+        displayMult = mult;
         MultReset?.Invoke();
         ScoreChanged?.Invoke();
     }

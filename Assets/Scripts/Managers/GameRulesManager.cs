@@ -532,7 +532,10 @@ public class GameRulesManager : MonoBehaviour
 
         SteamAchievements.UnlockFirstShopVisit();
 
-        scoreManager?.ResetMultiplier();
+        // Shop entry ends the current ball, so it decays the mult the same way a drain
+        // does (down to a fraction, not all the way to 1x) rather than wiping it.
+        // The drain routine's IsShopOpen guard keeps this from double-applying.
+        scoreManager?.DecayMultiplier();
         ServiceLocator.Get<AudioManager>()?.SetMusicState(3f);
 
         if (shopTransitionController != null)

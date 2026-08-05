@@ -134,6 +134,11 @@ public class DrainHandler : MonoBehaviour
             bankedPoints = roundTotal;
         }
 
+        // Ball lost: cancel frenzy and decay the board mult toward 1x. Sits after the
+        // bank (so the drained ball still scores at its full mult) and before the
+        // shop bail-out, so a drain that ends the round decays as well.
+        scoreManager?.DecayMultiplier();
+
         if (goingToShop == true)
         {
             goingToShop = false;

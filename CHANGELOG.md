@@ -10,6 +10,50 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.16.4 — Tooltips use the custom dollar sign
+_2026-08-05 · Contributor: JJ_
+
+Tooltip text now renders `$` with the same custom glyph the coins readout on the board canvas
+uses, instead of the stock one.
+
+- The board canvas Coins label uses `Bacteria12_Pinballistic SDF`; every text in
+  `Tooltip Panel.prefab` and `Header Panel.prefab` was on plain `Bacteria 12 SDF`. Both prefabs
+  now point at the Pinballistic asset and its default material — the material has to move with
+  the font asset or TMP samples the new glyph rects out of the old atlas.
+- The two font assets are the same typeface: all 96 characters have identical em-normalized
+  width, height, bearing and advance except `$`, which is wider in Pinballistic (0.8125 em vs
+  0.75 em) at the same advance. Their materials match on the shader and all 51 float and colour
+  properties; only the atlas texture differs. So the swap changes the dollar sign and nothing
+  else.
+- Applied to every text in both prefabs rather than just the price fields, because item
+  descriptions carry dollar amounts too (`Earn +$1 for every 12 components hit.`), as does the
+  header's "Drag to Buy for: $5".
+- Nothing overrides these at the instance level — `TooltipManager` and `TooltipHeaderManager`
+  instantiate the prefabs at runtime from a prefab reference, and no code assigns `font` or
+  `fontSharedMaterial` on tooltip text.
+
+---
+
+## 0.16.3 — Shop items you can't afford are still inspectable
+_2026-08-05 · Contributor: JJ_
+
+Clicking a shop offer the player cannot afford now opens its inspect tooltip. Only the purchase
+is blocked; reading the item is not.
+
+- `RenderTextureRaycaster.HandleClick` bailed out of the whole method on a failed affordability
+  check. That `return` sat above the tooltip resolution block, so the click both played the
+  failed-purchase sound and — via the `ClearHover()` at the top of the method — actively hid any
+  tooltip already open. The affordability check now only guards the drag that starts a purchase;
+  execution falls through to the tooltip as it does for any other clickable object.
+- The early return was also skipping hand-ball drag setup, `ShopButton3D.OnClick()`, the outline
+  and pulse highlight, and the `onObjectClicked` event whenever the raycast happened to land on
+  an unaffordable offer. Those all run again now.
+- Hover and controller-navigation tooltips were never gated on price, so this only changes the
+  mouse-click inspect path. Purchase remains guarded at the transaction by
+  `UnifiedShopController.TryPayForOffer` / `CoinController.TrySpendCoins`.
+
+---
+
 ## 0.16.2 — Ball saved VFX pops at the lamp
 _2026-08-05 · Contributor: JJ_
 

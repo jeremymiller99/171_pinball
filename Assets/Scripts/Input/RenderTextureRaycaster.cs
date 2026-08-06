@@ -8,6 +8,8 @@
 // Updated 2026-03-27: hand ball drag-to-swap (click+threshold → visual drag, drop on another ball).
 // Updated 2026-04-06 by Antigravity (claude-4.6-opus):
 // hover tooltips now display ElementType with colored label.
+// Updated 2026-08-05 by Claude Code (claude-opus-5) for jjmil:
+// unaffordable shop offers can be clicked to inspect; only the buy drag is blocked.
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Events;
@@ -176,15 +178,19 @@ public class RenderTextureRaycaster : MonoBehaviour
             ShopOffer3DEntry offerEntry = offerHitGo.GetComponentInParent<ShopOffer3DEntry>();
             if (offerEntry != null)
             {
-                if (!CanAffordOffer(offerEntry.Offer))
+                // An offer the player cannot afford is still inspectable: the drag
+                // that would buy it never starts, but the click falls through to the
+                // tooltip resolution below so the item can be read before saving up.
+                if (CanAffordOffer(offerEntry.Offer))
+                {
+                    _offerDragEntry = offerEntry;
+                    _offerDragStartScreenPos = mouseScreenPos;
+                    offerEntry.SetDragVisual(true);
+                }
+                else
                 {
                     ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
-                    return;
                 }
-
-                _offerDragEntry = offerEntry;
-                _offerDragStartScreenPos = mouseScreenPos;
-                offerEntry.SetDragVisual(true);
             }
         }
 

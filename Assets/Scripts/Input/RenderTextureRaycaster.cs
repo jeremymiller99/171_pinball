@@ -49,6 +49,13 @@ public class RenderTextureRaycaster : MonoBehaviour
 
     [SerializeField] private GameObject _lastHoveredObject;
     [SerializeField] private bool _tooltipShownByHover;
+
+    // Tracks the inspect tooltip so any button press can dismiss it (see
+    // DismissTooltipOnAnyInput). Controller-driven tooltips are exempt: there the
+    // tooltip is the selection readout and UnifiedShopController re-shows it every
+    // frame, so dismissing it would only flicker.
+    private bool _tooltipShownByController;
+    private int _tooltipShownAtFrame = -1;
     [SerializeField] private BallSpawner _cachedSpawner;
     [SerializeField] private BoardComponent _highlightedComponent;
     [SerializeField] private Outline _highlightedOutline;
@@ -98,6 +105,8 @@ public class RenderTextureRaycaster : MonoBehaviour
             return;
         }
 
+        DismissTooltipOnAnyInput();
+
         Vector2 mouseScreenPos = GetMouseScreenPos();
         HandleDragProgress(mouseScreenPos);
         HandleHandBallDragProgress(mouseScreenPos);
@@ -112,6 +121,36 @@ public class RenderTextureRaycaster : MonoBehaviour
     {
         ClearOfferDragState();
         ClearHandBallDragState();
+        ClearHover();
+    }
+
+    /// <summary>
+    /// An open inspect tooltip closes on any input, not just a click somewhere else:
+    /// a flipper press, a menu key or a pad button all put it away. Runs first in
+    /// Update so a click that opens a different tooltip still shows it afterwards,
+    /// and the frame guard keeps the press that opened one from closing it again.
+    /// Only the inspect panel is dismissed — the header hover strip is left alone,
+    /// which is what <see cref="TooltipManager.IsVisible"/> discriminates here.
+    /// </summary>
+    private void DismissTooltipOnAnyInput()
+    {
+        if (!_tooltipShownByHover
+            || _tooltipShownByController
+            || !TooltipManager.IsVisible)
+        {
+            return;
+        }
+
+        if (Time.frameCount == _tooltipShownAtFrame)
+        {
+            return;
+        }
+
+        if (!InputPressUtility.WasAnyInputPressedThisFrame())
+        {
+            return;
+        }
+
         ClearHover();
     }
 
@@ -499,6 +538,8 @@ public class RenderTextureRaycaster : MonoBehaviour
                 type,
                 priceMode, price, rarity);
             _tooltipShownByHover = true;
+            _tooltipShownByController = true;
+            _tooltipShownAtFrame = Time.frameCount;
         }
     }
 
@@ -534,6 +575,8 @@ public class RenderTextureRaycaster : MonoBehaviour
                 type,
                 priceMode, price, rarity);
             _tooltipShownByHover = true;
+            _tooltipShownByController = false;
+            _tooltipShownAtFrame = Time.frameCount;
         }
     }
 
@@ -1415,6 +1458,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             _tooltipShownByHover = false;
         }
 
+        _tooltipShownByController = false;
         _lastHoveredObject = null;
     }
 

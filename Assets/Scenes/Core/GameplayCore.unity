@@ -1347,6 +1347,7 @@ MonoBehaviour:
   points: 0
   mult: 0
   roundTotal: 0
+  multCarryOverOnDecay: 0.25
   levelProgressOffset: 0
   floatingTextSpawner: {fileID: 0}
   scoringLocked: 0
@@ -1364,6 +1365,9 @@ MonoBehaviour:
   componentHitScoreIncrement: 0
   totalComponentHits: 0
   _goalTier: 0
+  activationScoreScale: 0.5
+  fireActivationColor: {r: 1, g: 0.5, b: 0.12, a: 1}
+  chargeActivationColor: {r: 0.32, g: 0.66, b: 1, a: 1}
   ModulePointMultiplier: 1
   ModuleMultMultiplier: 1
   ModuleCoinMultiplier: 1
@@ -4119,6 +4123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5f0a3d2d34d4bf4a81c6a1e0ec9e16b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  drainHandler: {fileID: 0}
   cameraRig: {fileID: 987650002}
   panLocalX: 22.5
   panDuration: 0.8
@@ -4709,6 +4714,8 @@ MonoBehaviour:
   scoreManager: {fileID: 349540274}
   scoreTallyAnimator: {fileID: 0}
   ballSpawner: {fileID: 0}
+  ballSaveSeconds: 8
+  goingToShop: 0
 --- !u!4 &1237907100
 Transform:
   m_ObjectHideFlags: 0
@@ -5225,11 +5232,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4a545707c84690409e8fc29f35a8648, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FrenzyManager
-  defaultTimeForFrenzy: 15
-  currentFrenzyTime: 0
-  frenzyLastsUntil: 0
+  defaultTimeForPowerSurge: 15
+  currentPowerSurgeTime: 0
+  powerSurgeLastsUntil: 0
   scoreManager: {fileID: 0}
-  isFrenzyActive: 0
+  coinRewardMin: 1
+  coinRewardMax: 3
+  isPowerSurgeActive: 0
 --- !u!4 &1436735511
 Transform:
   m_ObjectHideFlags: 0
@@ -5799,7 +5808,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1751713435
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7373,7 +7382,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1986897615
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7652,6 +7661,11 @@ MonoBehaviour:
   juiceScaleDuration: 0.12
   juiceRotationDegreesMax: 10
   juiceRotationDuration: 0.1
+  useRelativeScaling: 1
+  relativeSampleWindow: 25
+  relativeMinSamples: 5
+  relativeOctavesBelow: 2
+  relativeOctavesAbove: 3
   pointsFontAsset: {fileID: 11400000, guid: bd2ac5bb4861eb84e8f25a51fc8197e3, type: 2}
   pointsScaleMin: 0.6
   pointsScaleMax: 1.2

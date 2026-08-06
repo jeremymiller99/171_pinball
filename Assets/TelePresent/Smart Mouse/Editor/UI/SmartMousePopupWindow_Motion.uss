@@ -1,0 +1,35 @@
+/* Motion for SmartMousePopupWindow. Kept separate because transition-* is UI Toolkit 2021.2+:
+   on older editors the whole stylesheet fails to import, and every rule in it is lost. */
+
+.sm-switch {
+    transition-property: background-color;
+    transition-duration: 0.12s;
+    transition-timing-function: ease-out;
+}
+
+.sm-switch-knob {
+    transition-property: left;
+    transition-duration: 0.12s;
+    transition-timing-function: ease-out;
+}
+
+.sm-seg-item {
+    transition-property: background-color;
+    transition-duration: 0.1s;
+}
+
+.sm-tb-button {
+    transition-property: background-color;
+    transition-duration: 0.1s;
+    transition-timing-function: ease-out;
+}
+
+.sm-axis-main {
+    transition-property: background-color;
+    transition-duration: 0.1s;
+}
+
+.sm-axis-caret {
+    transition-property: background-color;
+    transition-duration: 0.1s;
+}

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 9cfa9e4e184c44b3abd4bb09055cc07a
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 387158
+  packageName: Smart Mouse 2 - Selection & Placement
+  packageVersion: 2.1
+  assetPath: Assets/TelePresent/Smart Mouse/Shaders/SmartMouseOutlineMask.shader
+  uploadId: 966664

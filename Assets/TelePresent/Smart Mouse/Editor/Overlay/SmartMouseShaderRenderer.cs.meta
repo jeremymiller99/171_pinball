@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: fb33c6c6f5ec59c4d9111db56d33cda6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 387158
+  packageName: Smart Mouse 2 - Selection & Placement
+  packageVersion: 2.1
+  assetPath: Assets/TelePresent/Smart Mouse/Editor/Overlay/SmartMouseShaderRenderer.cs
+  uploadId: 966664

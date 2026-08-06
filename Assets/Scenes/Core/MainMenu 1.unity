@@ -3677,7 +3677,7 @@ MonoBehaviour:
       Data3: 1835367359
       Data4: -1674099114
     Path: event:/environment/env_firework
-  frenzyGateSound:
+  powerSurgeGateSound:
     Guid:
       Data1: -931508970
       Data2: 1335308406
@@ -3698,7 +3698,7 @@ MonoBehaviour:
       Data3: 646550162
       Data4: -1244978873
     Path: event:/ingame/comp_generic/comp_drop_up
-  frenzyActivatedSound:
+  powerSurgeActivatedSound:
     Guid:
       Data1: -563308715
       Data2: 1280991478
@@ -8635,6 +8635,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 39f57c8ee62a2354abfe20f520879a5a, type: 2}
   availablePlayfields:
   - {fileID: 11400000, guid: 94aa8e7624e37f943a9d60f03d1c0ab7, type: 2}
+  - {fileID: 11400000, guid: 34ac1f30fcbc17647bff0d0cded0d84b, type: 2}
   startText: {fileID: 416839050}
   playfieldSummaryText: {fileID: 736017344}
   missionSummaryText: {fileID: 173645752}
@@ -14857,8 +14858,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 94aa8e7624e37f943a9d60f03d1c0ab7, type: 2}
   challengeModes:
   - {fileID: 11400000, guid: c6c36835797ddde498dc8b023c3108df, type: 2}
+  - {fileID: 11400000, guid: 6b4d4f7bf5db12547a7b6903696dffe7, type: 2}
   challengeBoards:
   - {fileID: 11400000, guid: 94aa8e7624e37f943a9d60f03d1c0ab7, type: 2}
+  - {fileID: 11400000, guid: 34ac1f30fcbc17647bff0d0cded0d84b, type: 2}
   mainMenuPanel: {fileID: 622060392}
   runSelectorPanel: {fileID: 1147841084}
   settingsPanel: {fileID: 273842394}

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 660a0b34f1882d54a8a0dc9962508fd0
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 387158
+  packageName: Smart Mouse 2 - Selection & Placement
+  packageVersion: 2.1
+  assetPath: Assets/TelePresent/Smart Mouse/Editor/Resources/SmartMouse_EditorStartupHelper.asset
+  uploadId: 966664

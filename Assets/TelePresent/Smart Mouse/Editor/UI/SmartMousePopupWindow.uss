@@ -1,0 +1,499 @@
+.sm-root {
+    padding: 10px 12px 8px 12px;
+    min-width: 296px;
+    flex-shrink: 0;
+}
+
+.sm-title {
+    -unity-font-style: bold;
+    font-size: 14px;
+    color: rgb(235, 235, 235);
+    margin-bottom: 8px;
+}
+
+.sm-section {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.25);
+    padding: 5px 8px 7px 8px;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+}
+
+.sm-section-title {
+    -unity-font-style: bold;
+    font-size: 11px;
+    color: rgb(158, 163, 170);
+    margin-bottom: 2px;
+}
+
+.sm-row {
+    flex-direction: row;
+    align-items: center;
+    min-height: 26px;
+    padding-left: 4px;
+    padding-right: 4px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.sm-row:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.sm-header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.sm-header .sm-title {
+    flex-grow: 1;
+    margin-bottom: 0;
+}
+
+.sm-row-label {
+    flex-grow: 1;
+    color: rgb(210, 212, 216);
+    font-size: 12px;
+}
+
+.sm-switch {
+    width: 34px;
+    height: 18px;
+    border-radius: 9px;
+    background-color: rgb(70, 70, 74);
+    flex-shrink: 0;
+}
+
+.sm-switch:hover {
+    background-color: rgb(86, 86, 90);
+}
+
+.sm-switch--on {
+    background-color: rgb(58, 120, 222);
+}
+
+.sm-switch--on:hover {
+    background-color: rgb(74, 134, 236);
+}
+
+.sm-switch-knob {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    left: 2px;
+    top: 2px;
+    border-radius: 7px;
+    background-color: rgb(230, 230, 232);
+}
+
+.sm-switch--on .sm-switch-knob {
+    left: 18px;
+}
+
+.sm-dropdown {
+    width: 150px;
+    margin-left: 0;
+    margin-right: 0;
+    flex-shrink: 0;
+}
+
+.sm-layer-panel {
+    position: absolute;
+    background-color: rgb(56, 56, 56);
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.sm-layer-quick {
+    flex-direction: row;
+    margin-bottom: 2px;
+}
+
+.sm-layer-quick > .unity-button {
+    font-size: 11px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-right: 4px;
+}
+
+.sm-layer-toggle {
+    font-size: 12px;
+    min-height: 18px;
+}
+
+.sm-layer-toggle .unity-base-field__label {
+    color: rgb(210, 212, 216);
+}
+
+.sm-sublabel {
+    flex-grow: 1;
+    color: rgb(150, 152, 158);
+    font-size: 11px;
+    padding-left: 12px;
+}
+
+.sm-seg {
+    flex-direction: row;
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.30);
+    border-radius: 9px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.sm-seg-item {
+    font-size: 11px;
+    padding: 2px 5px;
+    color: rgb(190, 192, 196);
+    background-color: rgba(255, 255, 255, 0.04);
+    border-left-width: 1px;
+    border-left-color: rgba(0, 0, 0, 0.30);
+    -unity-text-align: middle-center;
+}
+
+.sm-seg-item:hover {
+    background-color: rgba(255, 255, 255, 0.09);
+}
+
+.sm-seg-item--on {
+    background-color: rgb(58, 120, 222);
+    color: rgb(245, 245, 245);
+}
+
+.sm-seg-item--on:hover {
+    background-color: rgb(74, 134, 236);
+}
+
+.sm-foldout {
+    margin-top: 4px;
+    margin-left: 2px;
+}
+
+.sm-diagram {
+    height: 120px;
+    margin-top: 6px;
+    margin-bottom: 2px;
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.18);
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.30);
+    overflow: hidden;
+}
+
+.sm-diagram-tall {
+    height: 130px;
+}
+
+.sm-diagram-slider {
+    margin-left: 8px;
+    margin-right: 8px;
+    margin-bottom: 4px;
+    min-width: 0;
+}
+
+.sm-tabs {
+    flex-direction: row;
+    margin-top: 4px;
+    margin-bottom: 6px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(0, 0, 0, 0.30);
+}
+
+.sm-tab {
+    flex-grow: 1;
+    -unity-text-align: middle-center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    font-size: 12px;
+    color: rgb(150, 152, 158);
+    border-bottom-width: 2px;
+    border-bottom-color: rgba(0, 0, 0, 0);
+}
+
+.sm-tab:hover {
+    color: rgb(200, 202, 206);
+}
+
+.sm-tab--on {
+    color: rgb(235, 235, 235);
+    border-bottom-color: rgb(58, 120, 222);
+}
+
+.sm-footer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+}
+
+.sm-muted {
+    color: rgb(120, 122, 128);
+    font-size: 11px;
+}
+
+.sm-link {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    color: rgb(96, 156, 238);
+    font-size: 11px;
+    margin-left: 8px;
+    padding: 0;
+}
+
+.sm-link:hover {
+    color: rgb(126, 180, 248);
+}
+
+.sm-tb-button {
+    width: 28px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+}
+
+.sm-tb-button > Image {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+}
+
+/* The dropdown is just a chevron, so it is narrower than the action buttons and its icon is smaller. It
+   reads as a small split-button affordance, not a full action button. */
+.sm-tb-dropdown {
+    width: 26px;
+    min-width: 26px;
+    max-width: 26px;
+    margin-left: 4px;
+}
+
+.sm-tb-button:hover {
+    background-color: rgba(255, 255, 255, 0.10);
+}
+
+.sm-tb-button--active {
+    background-color: rgba(60, 120, 220, 0.40);
+}
+
+.sm-tb-button--active:hover {
+    background-color: rgba(74, 134, 236, 0.55);
+}
+
+/* Floating Surface Snap drag-options panel (Scene View). A dark card echoing the setup popup's sections. */
+.sm-snap-panel {
+    position: absolute;
+    min-width: 236px;
+    background-color: rgba(48, 48, 48, 0.97);
+    border-radius: 7px;
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+}
+
+.sm-snap-bodywrap {
+    padding: 11px 15px 13px 15px;
+}
+
+/* Toggles (left, stacked) and the offset slider (right) share one row. */
+.sm-snap-body {
+    flex-direction: row;
+    align-items: center;
+}
+
+.sm-snap-toggles {
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.sm-snap-offset-col {
+    flex-direction: column;
+    align-items: center;
+    margin-left: 10px;
+    padding-left: 14px;
+    border-left-width: 1px;
+    border-left-color: rgba(0, 0, 0, 0.28);
+}
+
+.sm-vslider-cap {
+    font-size: 11px;
+    color: rgb(150, 152, 158);
+    margin-bottom: 8px;
+}
+
+.sm-vslider-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+/* Custom continuous vertical drag for the Surface Offset (a groove track with an accent thumb). */
+.sm-vdrag {
+    height: 92px;
+    width: 16px;
+    margin: 0 8px 0 0;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.30);
+}
+
+.sm-vdrag-thumb {
+    position: absolute;
+    left: 1px;
+    right: 1px;
+    height: 14px;
+    border-radius: 6px;
+    background-color: rgb(58, 120, 222);
+}
+
+.sm-vdrag:hover .sm-vdrag-thumb {
+    background-color: rgb(74, 134, 236);
+}
+
+.sm-vslider-scale {
+    height: 92px;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.sm-vslider-tick {
+    font-size: 11px;
+    color: rgb(150, 152, 158);
+}
+
+/* Draggable floating Scene-View popups (Paste, Variate, Replace). Same dark card as the Surface Snap panel. */
+.sm-scene-panel {
+    position: absolute;
+    min-width: 200px;
+    background-color: rgba(48, 48, 48, 0.97);
+    border-radius: 7px;
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+}
+
+.sm-scene-body {
+    padding: 7px 11px 8px 11px;
+}
+
+/* Compact spacing for the scene popups (scoped so the toolbar popup keeps its roomier rows). */
+.sm-scene-body .sm-section {
+    padding: 3px 7px 4px 7px;
+    margin-bottom: 4px;
+}
+
+.sm-scene-body .sm-row {
+    min-height: 22px;
+}
+
+.sm-scene-body .unity-base-field {
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+/* Full-width title strip that doubles as the drag handle (clearly a header, spans the whole top). */
+.sm-titlebar {
+    flex-direction: row;
+    align-items: center;
+    padding: 5px 10px 5px 12px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(0, 0, 0, 0.30);
+}
+
+.sm-titlebar .sm-title {
+    flex-grow: 1;
+    margin-bottom: 0;
+}
+
+.sm-grip {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 8px;
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+.sm-grip-dot {
+    width: 2px;
+    height: 2px;
+    border-radius: 1px;
+    margin: 1px;
+    background-color: rgba(255, 255, 255, 0.30);
+}
+
+.sm-help {
+    font-size: 11px;
+    color: rgb(150, 152, 158);
+    white-space: normal;
+    margin-bottom: 5px;
+}
+
+.sm-accent-button {
+    background-color: rgb(58, 120, 222);
+    color: rgb(245, 245, 245);
+    border-width: 0;
+    border-radius: 4px;
+    padding: 4px 10px;
+    margin-top: 5px;
+    -unity-text-align: middle-center;
+}
+
+.sm-accent-button:hover {
+    background-color: rgb(74, 134, 236);
+}
+
+.sm-accent-button:active {
+    background-color: rgb(48, 104, 198);
+}
+
+.sm-axis-button {
+    flex-direction: row;
+    flex-shrink: 0;
+    margin: 4px 4px 2px 4px;
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.30);
+    background-color: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+}
+
+.sm-axis-main {
+    flex-direction: row;
+    flex-grow: 1;
+    align-items: center;
+    padding: 7px 10px;
+}
+
+.sm-axis-main:hover {
+    background-color: rgba(255, 255, 255, 0.09);
+}
+
+.sm-axis-caption {
+    color: rgb(210, 212, 216);
+    font-size: 12px;
+}
+
+.sm-axis-value {
+    color: rgb(240, 241, 243);
+    font-size: 12px;
+    -unity-font-style: bold;
+    margin-left: 8px;
+}
+
+.sm-axis-caret {
+    border-left-width: 1px;
+    border-left-color: rgba(0, 0, 0, 0.30);
+    padding: 7px 12px;
+    color: rgb(190, 192, 196);
+    font-size: 10px;
+    -unity-text-align: middle-center;
+}
+
+.sm-axis-caret:hover {
+    background-color: rgba(255, 255, 255, 0.09);
+}

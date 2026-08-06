@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82d0d182ddbe25a41967d0f099516017, type: 3}
   m_Name: Challenge_NA 1
   m_EditorClassIdentifier: Assembly-CSharp::ChallengeModeDefinition
-  displayNameSource: Fire Test
+  displayNameSource: New Art Test
   icon: {fileID: 0}
   descriptionSource: Fire stuff
   winConditionDescriptionSource: 3 Stars
   boards:
-  - {fileID: 11400000, guid: 94aa8e7624e37f943a9d60f03d1c0ab7, type: 2}
+  - {fileID: 11400000, guid: 34ac1f30fcbc17647bff0d0cded0d84b, type: 2}
   totalRounds: 7
   devilPool: {fileID: 11400000, guid: 42267a49eda47a44ab4f4df6daca2f7d, type: 2}
   ballPoolAllowList:

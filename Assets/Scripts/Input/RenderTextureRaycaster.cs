@@ -107,6 +107,17 @@ public class RenderTextureRaycaster : MonoBehaviour
             return;
         }
 
+        // A pause or round-failed panel covers the board, but this raycast does not know that:
+        // it would keep hovering tooltips and starting drags on components the player can only
+        // see behind the panel. Any drag in flight is put back the same way OnDisable does.
+        if (GameplayInputGate.IsBlocked)
+        {
+            ClearOfferDragState();
+            ClearHandBallDragState();
+            ClearHover();
+            return;
+        }
+
         DismissTooltipOnAnyInput();
 
         Vector2 mouseScreenPos = GetMouseScreenPos();

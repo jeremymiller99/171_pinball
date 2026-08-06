@@ -120,6 +120,13 @@ public class PinballFlipper : MonoBehaviour
             _pressed = false;
         }
 
+        // Held down when a pause or round-failed panel opened: read as released so the flipper
+        // drops and its down SFX plays once, rather than staying up for the whole panel.
+        if (_pressed && GameplayInputGate.IsBlocked)
+        {
+            _pressed = false;
+        }
+
         if (_pressed && !_previousPressed)
         {
             amountOfFlips++;

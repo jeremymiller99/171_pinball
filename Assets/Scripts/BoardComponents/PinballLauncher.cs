@@ -83,6 +83,20 @@ public sealed class PinballLauncher : MonoBehaviour
 
     private void Update()
     {
+        // No charging or firing through a pause / round-failed panel. The charge is dumped rather
+        // than held: the release that would have fired it happens behind the panel, where
+        // WasReleasedThisFrame is never read, so a kept charge would fire on the next release.
+        if (GameplayInputGate.IsBlocked)
+        {
+            if (_charge > 0f)
+            {
+                _charge = 0f;
+                UpdateVisual(0f);
+            }
+
+            return;
+        }
+
         if (launchAction.action.IsPressed())
         {
             _charge = Mathf.Min(maxLaunchForce, _charge + chargePerSecond * Time.deltaTime);

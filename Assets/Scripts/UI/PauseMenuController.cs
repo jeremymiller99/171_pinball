@@ -92,6 +92,9 @@ public sealed class PauseMenuController : MonoBehaviour
         {
             Close();
         }
+
+        // Belt and braces: a block left behind here would follow the player into the next scene.
+        GameplayInputGate.Unblock(this);
     }
 
     private void Update()
@@ -154,6 +157,8 @@ public sealed class PauseMenuController : MonoBehaviour
 
         isOpen = true;
         pauseMenuPanel.SetActive(true);
+        ModalUiLayer.Elevate(pauseMenuPanel, ModalUiLayer.PauseSortingOrder);
+        GameplayInputGate.Block(this);
         ServiceLocator.Get<AudioManager>()?.SetMusicMuffled(true);
 
         DisableWhileOpen();
@@ -173,6 +178,7 @@ public sealed class PauseMenuController : MonoBehaviour
     private void Close()
     {
         isOpen = false;
+        GameplayInputGate.Unblock(this);
 
         if (_settingsInstance != null)
         {
@@ -372,6 +378,9 @@ public sealed class PauseMenuController : MonoBehaviour
 
         _settingsInstance = Instantiate(settingsPanelPrefab, parent, false);
         _settingsInstance.SetActive(true);
+
+        // Parented beside the pause panel rather than under it, so it needs lifting of its own.
+        ModalUiLayer.Elevate(_settingsInstance, ModalUiLayer.PauseSortingOrder);
 
         if (pauseMenuPanel != null)
         {

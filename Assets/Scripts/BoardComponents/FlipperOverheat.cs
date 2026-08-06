@@ -124,7 +124,9 @@ public sealed class FlipperOverheat : MonoBehaviour
             return;
         }
 
-        bool pressed = ReadPressed();
+        // The flipper itself ignores the press while a panel is up, so it must not be charged
+        // heat for it either.
+        bool pressed = ReadPressed() && !GameplayInputGate.IsBlocked;
         if (pressed && !_prevPressed)
         {
             _heat += heatPerFlip;

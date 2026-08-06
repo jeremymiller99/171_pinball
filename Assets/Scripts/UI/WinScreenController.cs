@@ -50,6 +50,12 @@ public sealed class WinScreenController : MonoBehaviour
     private void OnDestroy()
     {
         RestorePauseAndInput();
+        GameplayInputGate.Unblock(this);
+    }
+
+    private void OnDisable()
+    {
+        GameplayInputGate.Unblock(this);
     }
 
     private void ShowInternal(int levelReached, long totalPoints)
@@ -160,6 +166,10 @@ public sealed class WinScreenController : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
+        // Covers what disabling the flipper/launcher behaviours below does not: board hover
+        // tooltips, clicks on components, and the shop hotkey.
+        GameplayInputGate.Block(this);
+
         DisableGameplayInputBehaviours();
     }
 
@@ -182,6 +192,7 @@ public sealed class WinScreenController : MonoBehaviour
         Cursor.lockState = _cursorLockBefore;
         Cursor.visible = _cursorVisibleBefore;
 
+        GameplayInputGate.Unblock(this);
         RestoreDisabledGameplayInputBehaviours();
 
         _pausedByThis = false;

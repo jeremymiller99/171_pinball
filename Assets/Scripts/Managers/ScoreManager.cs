@@ -565,6 +565,13 @@ public class ScoreManager : MonoBehaviour
     public void ResetForNewRun()
     {
         ResetForNewRound();
+
+        // Popup sizes are relative to the recent average, so a new run starts from a clean window.
+        // Deliberately not in ResetForNewRound: cross-round growth is exactly what should be absorbed.
+        if (floatingTextSpawner == null)
+            floatingTextSpawner = ServiceLocator.Get<FloatingTextSpawner>();
+
+        floatingTextSpawner?.ResetPopupScaleHistory();
     }
 
     public void SetGoal(float goal)

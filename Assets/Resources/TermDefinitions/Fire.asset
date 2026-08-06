@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TermDefinition
   id: 
   displayName: Fire
-  description: Activates components 1-4 times per second, increasing score by 25%
+  description: Activates components 1-4 times per second, increasing score by 10%
     each time.

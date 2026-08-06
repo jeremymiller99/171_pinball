@@ -31,9 +31,9 @@ public class FireStatus : MonoBehaviour, IStatusBadgeSource
     [Tooltip("Activations per second while burning. Design range is 1 to 4.")]
     [SerializeField] private float activationsPerSecond = 2f;
     [Tooltip("Compounding score increase applied per activation within one burn.")]
-    [SerializeField] private float scoreRampPerActivation = 0.25f;
+    [SerializeField] private float scoreRampPerActivation = 0.1f;
     [Tooltip("Ceiling on the burn ramp. A burn that is never refreshed tops out near "
-        + "4.8x on its own; this bounds objects that are re-lit indefinitely.")]
+        + "1.9x on its own; this bounds objects that are re-lit indefinitely.")]
     [SerializeField] private float maxScoreMultiplier = 10f;
 
     [Header("VFX")]

@@ -361,7 +361,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FireStatus
   burnSeconds: 4
   activationsPerSecond: 2
-  scoreRampPerActivation: 0.25
+  scoreRampPerActivation: 0.1
   maxScoreMultiplier: 10
   scoreMultiplier: 1
   fireVfxPrefab: {fileID: 0}

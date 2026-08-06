@@ -4,6 +4,7 @@
 // Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (IsBallSaveArmed for board light).
 // Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (ball saved VFX pop).
 // Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (save window 15s -> 12s).
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (save window 12s -> 8s).
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ public class DrainHandler : MonoBehaviour
     [Header("Ball Save")]
     [Tooltip("A ball drained this many seconds or less after it was launched is returned to " +
              "the launcher instead of the next ball in the hand.")]
-    [SerializeField] private float ballSaveSeconds = 12f;
+    [SerializeField] private float ballSaveSeconds = 8f;
 
     private bool _drainProcessing;
 

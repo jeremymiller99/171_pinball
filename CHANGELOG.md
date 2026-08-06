@@ -10,6 +10,28 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.15.4 — Power Surge pays out $1–$3
+_2026-08-05 · Contributor: JJ_
+
+Triggering a Power Surge now awards a random **1 to 3 coins** (inclusive) on top of the
+multiplier, with the usual gold floating text flying to the coin HUD.
+
+- `PowerSurgeManager.AwardCoins` is called at the top of `ActivatePowerSurge`, so all
+  three trigger sites — `PowerSurgePortal`, `PowerSurgeModeDuplicator` and `Abductor` —
+  are covered by the one hook.
+- The call sits **before** the already-active early-return, so it pays **per portal
+  entry**, not per surge: re-entering while a surge is already running extends the timer
+  *and* pays again. SFX, VFX, the multiplier bump and the Steam achievement are untouched
+  — those still fire only on the state transition into Power Surge.
+- Range is inspector-tunable via `coinRewardMin` / `coinRewardMax` on the
+  `PowerSurgeManager` GameObject in `GameplayCore.unity` (defaults 1 and 3). Both are new
+  serialized fields absent from the scene YAML, so the existing instance picks up the C#
+  initializers — no scene edit needed to get 1–3.
+- Uses `AddCoinsScaledDeferredUi` + `SpawnGoldText`, matching `CoinAdder`, so round
+  modifiers that scale coin gain and Hustle's flat bonus both apply. When no
+  `FloatingTextSpawner` is registered the deferred HUD sync is applied directly, since
+  nothing would otherwise arrive to trigger it.
+
 ## 0.15.3 — Frenzy renamed to Power Surge (code only)
 _2026-08-05 · Contributor: JJ_
 

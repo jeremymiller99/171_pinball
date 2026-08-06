@@ -12,6 +12,12 @@ public class PowerSurgeManager : MonoBehaviour
     [SerializeField] private float powerSurgeLastsUntil = 0f;
     [SerializeField] private ScoreManager scoreManager;
 
+    [Header("Coin Reward")]
+    [Tooltip("Smallest payout when a Power Surge starts. Inclusive.")]
+    [SerializeField] private int coinRewardMin = 1;
+    [Tooltip("Largest payout when a Power Surge starts. Inclusive.")]
+    [SerializeField] private int coinRewardMax = 3;
+
     public event Action OnPowerSurgeActivated;
     public event Action OnPowerSurgeDeactivated;
     [FormerlySerializedAs("isFrenzyActive")]
@@ -34,6 +40,10 @@ public class PowerSurgeManager : MonoBehaviour
     // abducted object); the particle is raised on Z so it sits above it.
     public void ActivatePowerSurge(Vector3 position, float time = 0, int mult = -1)
     {
+        // Paid before the early-return so every trigger earns, including re-entries that
+        // only extend a running surge. The SFX/VFX below stay on the state transition.
+        AwardCoins(position);
+
         if (isPowerSurgeActive) {
             powerSurgeLastsUntil += time > 0 ? time : defaultTimeForPowerSurge;
             return;
@@ -48,6 +58,42 @@ public class PowerSurgeManager : MonoBehaviour
         // Power Surge particle is configured alongside the level-up effects.
         ServiceLocator.Get<LevelUpVFXTrigger>()?.SpawnPowerSurgeVFX(position);
         ServiceLocator.Get<AudioManager>()?.PlayPowerSurgeActivated(position);
+    }
+
+    // Pays out a small random purse on every Power Surge trigger — one per portal entry,
+    // not one per surge, so re-entering while a surge is already running pays again.
+    private void AwardCoins(Vector3 position)
+    {
+        int min = Mathf.Max(0, Mathf.Min(coinRewardMin, coinRewardMax));
+        int max = Mathf.Max(coinRewardMin, coinRewardMax);
+        if (max <= 0) return;
+
+        // Random.Range's int overload has an exclusive upper bound, so max is inclusive.
+        // System is imported here too, hence the explicit UnityEngine qualifier.
+        int reward = UnityEngine.Random.Range(min, max + 1);
+        if (reward <= 0) return;
+
+        var coinController = ServiceLocator.Get<CoinController>();
+        if (coinController == null) return;
+
+        // Scaled, so round modifiers that boost coin gain apply — matching CoinAdder.
+        int applied = coinController.AddCoinsScaledDeferredUi(reward);
+        if (applied <= 0) return;
+
+        // The balance moved but the HUD hasn't; the floating text drives that on arrival.
+        // Without a spawner nothing would ever land, so sync it straight away instead.
+        var floatingTextSpawner = ServiceLocator.Get<FloatingTextSpawner>();
+        if (floatingTextSpawner == null)
+        {
+            coinController.ApplyDeferredCoinsUi(applied);
+            return;
+        }
+
+        floatingTextSpawner.SpawnGoldText(
+            position,
+            "+$" + applied,
+            applied,
+            () => coinController.ApplyDeferredCoinsUi(applied));
     }
 
     // Freeze/unfreeze the Power Surge countdown. Calls must be balanced; use the

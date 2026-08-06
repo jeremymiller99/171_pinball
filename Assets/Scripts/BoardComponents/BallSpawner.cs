@@ -1,4 +1,5 @@
 // Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (ball save re-serve hook).
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (public hand slot marker resync).
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -988,6 +989,16 @@ public sealed class BallSpawner : MonoBehaviour
 
         SyncAllHandSlotMarkers();
         AnimateLayoutTransition();
+    }
+
+    /// <summary>
+    /// Re-stamps every hand ball's <see cref="BallHandSlotMarker"/> with its current index.
+    /// Call after the loadout has shifted underneath the hand (e.g. the active ball's slot was
+    /// consumed) so each ball's marker again names its real loadout slot.
+    /// </summary>
+    public void SyncHandSlotMarkers()
+    {
+        SyncAllHandSlotMarkers();
     }
 
     private void SyncAllHandSlotMarkers()

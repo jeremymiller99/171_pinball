@@ -1,4 +1,5 @@
 // from the hand during that level (tracked until next StartRound).
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (resync hand slot markers on consume).
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -212,12 +213,30 @@ public class BallLoadoutController : MonoBehaviour
         {
             _ballLoadout.RemoveAt(slotHint);
             RemoveRuntimeSlotParallelDataAt(slotHint);
+            ResyncHandSlotMarkersToLoadout();
             return;
         }
 
         // Just pop the top one if slot missing
         _ballLoadout.RemoveAt(0);
         RemoveRuntimeSlotParallelDataAt(0);
+        ResyncHandSlotMarkersToLoadout();
+    }
+
+    /// <summary>
+    /// The balls still waiting in the hand carry a <see cref="BallHandSlotMarker"/> naming their
+    /// loadout slot, stamped when the hand was built. Consuming a slot shifts every later entry
+    /// down one, so without this the markers drift: the next ball to drain hands back a stale
+    /// index and pops somebody else's slot, leaving the loadout describing balls the player never
+    /// launched. With no ball active, the hand is 1:1 with the loadout, so the hand index is the
+    /// slot index.
+    /// </summary>
+    private void ResyncHandSlotMarkersToLoadout()
+    {
+        if (ServiceLocator.TryGet<BallSpawner>(out var spawner))
+        {
+            spawner.SyncHandSlotMarkers();
+        }
     }
 
     public bool SwapBallLoadoutSlots(int a, int b)

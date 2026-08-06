@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinition
   id: Shadow Lamp
   displayName: Shadow Lamp
-  description: 'On collision, if this component is On Fire, Project a Holoball that
-    lasts for 3 seconds.'
+  description: On collision, if this component is On Fire, Project a Holoball that
+    lasts for 3 seconds.
   componentType: 0
   rarity: 1
   elementType: 2
   icon: {fileID: 0}
   prefab: {fileID: 4773778546837097395, guid: a3d9f21e7c6b45089e14b2f0c8a5d637, type: 3}
-  price: 15
+  price: 7

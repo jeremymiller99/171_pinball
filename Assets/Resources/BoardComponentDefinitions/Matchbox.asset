@@ -20,4 +20,4 @@ MonoBehaviour:
   elementType: 0
   icon: {fileID: 0}
   prefab: {fileID: 4773778546837097395, guid: c32ee00716a925c46b8b0ac851a55827, type: 3}
-  price: 10
+  price: 8

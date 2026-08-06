@@ -24,4 +24,4 @@ MonoBehaviour:
   - Pinballs
   icon: {fileID: 21300000, guid: c249f17688530c4479e19dc7b62e0d1f, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 1c5c28d68e2bc445baaf3f95ce58cbf4, type: 3}
-  price: 30
+  price: 8

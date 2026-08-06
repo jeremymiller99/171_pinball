@@ -14,11 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: PandorasBall
   displayName: Pandora's Ball
-  description: 'On collision: 20% chance to either gain Charge or light the component on Fire.'
+  description: 'On collision: 20% chance to either gain Charge or light the component
+    on Fire.'
   rarity: 2
   elementType: 4
   secondaryElementType: 0
   tags: []
   icon: {fileID: 0}
   prefab: {fileID: 5723297401256486482, guid: 8956a322bf9b4e7c900e5d91a2412e7c, type: 3}
-  price: 20
+  price: 7

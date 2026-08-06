@@ -10,6 +10,88 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.16.2 — Ball saved VFX pops at the lamp
+_2026-08-05 · Contributor: JJ_
+
+Saving a ball now pops a particle effect at the board's ball save lamp, wired the same way as
+the Power Surge VFX.
+
+- The prefab list lives on `LevelUpVFXTrigger` as `ballSavePrefabs` / `ballSaveScale` /
+  `ballSaveLifetime`, next to `powerSurgePrefabs`, keeping to that script's stated rule that all
+  board VFX is configured in one place. New `SpawnBallSaveVFX(Vector3)` mirrors
+  `SpawnPowerSurgeVFX` exactly — random pick from the list, uniform scale, auto-destroy.
+- `BallSaveLight` now registers in the `ServiceLocator` and exposes `VfxPosition`, so
+  `DrainHandler` (a different scene) can ask the board where its lamp is. Optional `vfxPoint`
+  child transform nudges the pop off the cylinder; empty uses the lamp's own position.
+- The pop fires at the **commit point**, once the ball has actually been returned to the hand —
+  not where the save is first decided. `goingToShop` can flip during the score tally (the player
+  hitting the shop button mid-drain), and the routine bails out there without saving or
+  consuming; popping early would show a save that never landed. The tally is only ~0.5s
+  (`moveToRoundTotalDuration` 0.45 + `endHoldDuration` 0.05), so the delay is not perceptible,
+  and the effect lands as the ball arrives back at the launcher rather than on top of the score
+  fly-up.
+- Both halves are board-scene-owned, so a board with no lamp or no prefabs assigned just gets no
+  effect rather than an error.
+- Gear-menu debug entry `Debug/Spawn Ball Save VFX` on `LevelUpVFXTrigger` pops one at the lamp
+  without draining a ball, matching the existing Power Surge debug entry.
+
+---
+
+## 0.16.1 — Ball save board lamp
+_2026-08-05 · Contributor: JJ_
+
+New `BallSaveLight` component drives a board lamp on/off with the ball save window, using the
+same authored-material swap as the Abductor's progress lights (`sharedMaterial`, not
+`material`, so nothing is instanced or leaked) rather than `BoardLight`'s color tinting.
+
+- `DrainHandler.IsBallSaveArmed` is the source of truth: exactly one ball in play **and** that
+  ball still inside its window. Multiball reads as unarmed on purpose — a drain with other balls
+  still out never reaches the save logic, it just despawns, so lighting the lamp then would be
+  lying at the moment the player is most likely to lose a ball.
+- The lamp polls that property from `Update` and only writes materials on a state flip, matching
+  `Abductor.UpdateProgressLightFlash`. No event was added to `DrainHandler` — it has no `Update`
+  of its own and would need one purely to fire the window-expired edge.
+- `lightRenderers` left empty falls back to the first renderer on the object or its children, so
+  a bare cylinder works with only the two materials assigned.
+- Scene wiring is manual: attach `BallSaveLight` to the lamp object in `Board_NA.unity` and set
+  on/off to `Blue 1.mat` / `Bluesteel.mat` to match the abductor bank.
+
+---
+
+## 0.16.0 — Ball save: drain within 15s of launch and you keep the ball
+_2026-08-05 · Contributor: JJ_
+
+A ball lost **15 seconds or less after it was launched** is now handed straight back to the
+launcher, instead of being consumed and replaced by the next ball in the hand.
+
+- The window is timed from the plunger, not from the ball reaching the launcher: `DrainHandler`
+  subscribes to the static `PinballLauncher.BallLaunched` event and stamps `Time.time` per ball
+  instance. Scaled time, so a pause does not burn the window. A ball that never passed through a
+  launcher (multiball splits, board-spawned balls) has no timestamp and is never savable.
+- Only a genuine loss can trigger it. `OnBallDrained` gained a third `eligibleForBallSave`
+  parameter that defaults to false; `ResetZone` passes true on both its branches (normal drain
+  and the out-of-bounds "home run"). Balls that route through the drain flow because they
+  consumed themselves by design — Molotov breaking, Holoball expiring, `DuplicatingComponent` —
+  keep the default and are still spent.
+- The save changes exactly one thing: which ball arrives at the launcher. The drain still runs
+  its normal course — score tally, bank into round total, `DecayMultiplier`, level-up
+  reconciliation. What is skipped is `ConsumeActiveBallFromLoadout`, so the loadout (and with it
+  `BallsRemaining`) is untouched, and a fresh copy of the drained ball's own definition is
+  pushed to the front of the hand via the new `BallSpawner.InsertHandBallAtFront`. The existing
+  spawn at the end of the drain routine then serves that ball.
+- `InsertHandBallAtFront` is deliberately non-animated: `AddBallAnimated` starts a layout
+  coroutine that would fight `MoveBallToSpawnPointCoroutine` over the same transform.
+- A saved ball re-reads its amped-up flag from `GetAmpedUpForSlot`, which otherwise only gets
+  applied during `BuildHandFromPrefabs`, so an AmpUp'd ball does not silently lose it.
+- Window is inspector-tunable via `ballSaveSeconds` on the `DrainHandler` GameObject in
+  `GameplayCore.unity` (default 15). New serialized field absent from the scene YAML, so the
+  existing instance picks up the C# initializer — no scene edit needed.
+- Saves are **unlimited** and each re-serve earns a fresh 15s window on its next launch, so an
+  unlucky board can in principle save the same ball repeatedly. No per-round cap was added.
+- No UI or audio cue fires on a save yet — the only feedback is the same ball returning.
+
+---
+
 ## 0.15.4 — Power Surge pays out $1–$3
 _2026-08-05 · Contributor: JJ_
 

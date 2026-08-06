@@ -791,9 +791,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DropTargetLightBulb
   dropTarget: {fileID: 147568548}
-  frenzyManager: {fileID: 0}
+  powerSurgeManager: {fileID: 0}
   boardLight: {fileID: 19441321}
-  frenzyLitColor: {r: 0.337, g: 0.627, b: 0.827, a: 1}
+  powerSurgeLitColor: {r: 0.337, g: 0.627, b: 0.827, a: 1}
 --- !u!4 &19441323 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6264842630057539951, guid: 87d94ba8f10d3e34d85a151f79aa15a5, type: 3}
@@ -1936,8 +1936,8 @@ MonoBehaviour:
   lightsContainer: {fileID: 166589282}
   lights: []
   duration: 15
-  frenzyManager: {fileID: 0}
-  frenzyAlternativeIndex: 0
+  powerSurgeManager: {fileID: 0}
+  powerSurgeAlternativeIndex: 0
 --- !u!1 &82440843
 GameObject:
   m_ObjectHideFlags: 0
@@ -6373,6 +6373,7 @@ Transform:
   - {fileID: 1526110153}
   - {fileID: 461386096}
   - {fileID: 2061633763}
+  - {fileID: 1878056788}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &410063031
@@ -13406,9 +13407,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DropTargetLightBulb
   dropTarget: {fileID: 21606382}
-  frenzyManager: {fileID: 0}
+  powerSurgeManager: {fileID: 0}
   boardLight: {fileID: 532217848}
-  frenzyLitColor: {r: 0.337, g: 0.627, b: 0.827, a: 1}
+  powerSurgeLitColor: {r: 0.337, g: 0.627, b: 0.827, a: 1}
 --- !u!4 &532217850 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6264842630057539951, guid: 87d94ba8f10d3e34d85a151f79aa15a5, type: 3}
@@ -13466,10 +13467,14 @@ MonoBehaviour:
   maxScale: 5
   maxLaunchDelay: 1
   fireworkLifetime: 5
-  frenzyPrefabs:
+  powerSurgePrefabs:
   - {fileID: 2883797502249945402, guid: ce05f9bbc81a1d440a7dbb539710514d, type: 3}
-  frenzyScale: 25
-  frenzyLifetime: 0
+  powerSurgeScale: 25
+  powerSurgeLifetime: 0
+  ballSavePrefabs:
+  - {fileID: 2883797502249945402, guid: 8ae04c7adb767f64b8c32b8ea8958d2f, type: 3}
+  ballSaveScale: 25
+  ballSaveLifetime: 3
 --- !u!65 &538407019
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -17933,8 +17938,8 @@ MonoBehaviour:
   lightsContainer: {fileID: 2141198692}
   lights: []
   duration: 15
-  frenzyManager: {fileID: 0}
-  frenzyAlternativeIndex: 0
+  powerSurgeManager: {fileID: 0}
+  powerSurgeAlternativeIndex: 0
 --- !u!1001 &845898146
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18112,9 +18117,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DropTargetLightBulb
   dropTarget: {fileID: 1074465608}
-  frenzyManager: {fileID: 0}
+  powerSurgeManager: {fileID: 0}
   boardLight: {fileID: 845898148}
-  frenzyLitColor: {r: 0.337, g: 0.627, b: 0.827, a: 1}
+  powerSurgeLitColor: {r: 0.337, g: 0.627, b: 0.827, a: 1}
 --- !u!4 &845898150 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6264842630057539951, guid: 87d94ba8f10d3e34d85a151f79aa15a5, type: 3}
@@ -18234,7 +18239,7 @@ MonoBehaviour:
   gameRules: {fileID: 0}
   ballSpawner: {fileID: 392524816}
   scoreManager: {fileID: 0}
-  frenzyManager: {fileID: 0}
+  powerSurgeManager: {fileID: 0}
   freezeWhileKinematic: 1
   decimals: 1
   showUnits: 1
@@ -18254,7 +18259,7 @@ MonoBehaviour:
   meterColorMid: {r: 1, g: 0.5019608, b: 0, a: 1}
   meterColorFull: {r: 1, g: 0.052272934, b: 0, a: 1}
   meterColorMidPoint: 0.5
-  frenzyMeterColor: {r: 0, g: 0.85, b: 1, a: 1}
+  powerSurgeMeterColor: {r: 0, g: 0.85, b: 1, a: 1}
   forceMaterialColorUpdates: 1
   debugInText: 0
 --- !u!4 &855862844
@@ -24990,6 +24995,37 @@ Transform:
   - {fileID: 1843765860}
   m_Father: {fileID: 114427342}
   m_LocalEulerAnglesHint: {x: 10.779, y: -87.502, z: 14.312}
+--- !u!1 &1483018355
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1483018356}
+  m_Layer: 0
+  m_Name: VFX point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1483018356
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1483018355}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 5.73, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1878056788}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1514411466
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -25203,11 +25239,11 @@ MonoBehaviour:
   leftOpenOffsetX: -3
   rightOpenOffsetX: 3
   bumperAnimDuration: 1
-  frenzyPortalEntrance: {fileID: 1991100338}
-  frenzyPortalExit: {fileID: 1637362842}
-  frenzyManager: {fileID: 0}
+  powerSurgePortalEntrance: {fileID: 1991100338}
+  powerSurgePortalExit: {fileID: 1637362842}
+  powerSurgeManager: {fileID: 0}
   scoreManager: {fileID: 0}
-  frenzyHudColor: {r: 0, g: 0.85, b: 1, a: 1}
+  powerSurgeHudColor: {r: 0, g: 0.85, b: 1, a: 1}
 --- !u!4 &1517553305
 Transform:
   m_ObjectHideFlags: 0
@@ -25235,7 +25271,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db65991f16cde334782ccc6a481b4056, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FrenzyBoardLightController
-  frenzyManager: {fileID: 0}
+  powerSurgeManager: {fileID: 0}
 --- !u!4 &1521149803 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9052217241026934646, guid: c5f2cf3d69fa0934aada2afaffc4c120, type: 3}
@@ -27110,8 +27146,8 @@ MonoBehaviour:
   lightsContainer: {fileID: 1524596365}
   lights: []
   duration: 15
-  frenzyManager: {fileID: 0}
-  frenzyAlternativeIndex: 0
+  powerSurgeManager: {fileID: 0}
+  powerSurgeAlternativeIndex: 0
 --- !u!1001 &1637362840
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -29751,6 +29787,112 @@ Transform:
   - {fileID: 686978496}
   m_Father: {fileID: 114427342}
   m_LocalEulerAnglesHint: {x: 10.779, y: -87.502, z: 14.312}
+--- !u!1 &1878056787
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1878056788}
+  - component: {fileID: 1878056791}
+  - component: {fileID: 1878056790}
+  - component: {fileID: 1878056789}
+  m_Layer: 0
+  m_Name: Ball Save Light
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1878056788
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1878056787}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.12716554, y: -0, z: -0, w: 0.9918815}
+  m_LocalPosition: {x: -0.75, y: -8.96, z: -14.39}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1483018356}
+  m_Father: {fileID: 410063030}
+  m_LocalEulerAnglesHint: {x: -14.612, y: 0, z: 0}
+--- !u!114 &1878056789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1878056787}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8e2fa37794aab346b80ebe830136010, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BallSaveLight
+  lightRenderers: []
+  offMaterial: {fileID: 2100000, guid: 432c2758e21861547aef6d99877bc684, type: 2}
+  onMaterial: {fileID: 2100000, guid: 7738f09aff30d8840961a1deb28e0d41, type: 2}
+--- !u!23 &1878056790
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1878056787}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1878056791
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1878056787}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1883500486
 GameObject:
   m_ObjectHideFlags: 0
@@ -31458,9 +31600,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FrenzyPortal
   bonusMult: 0.5
-  frenzyManager: {fileID: 0}
+  powerSurgeManager: {fileID: 0}
   scoreManager: {fileID: 0}
-  frenzyVFXPoint: {fileID: 196242190}
+  powerSurgeVFXPoint: {fileID: 196242190}
 --- !u!1001 &2027645671
 PrefabInstance:
   m_ObjectHideFlags: 0

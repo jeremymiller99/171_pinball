@@ -1,6 +1,9 @@
 // Generated with Antigravity by jjmil on 2026-04-09.
 // Firework SFX hook added by Claude Code (Opus 4.7) for jjmil on 2026-04-21.
 // Level-up banner spawn added by Claude Code (Opus 4.8) for jjmil on 2026-06-04.
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (ball saved VFX spawn).
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (ball saved VFX pops at the
+// spawn volume center, like the banner and Power Surge, instead of at the ball save lamp).
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -77,6 +80,24 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
     )]
     [FormerlySerializedAs("frenzyLifetime")]
     [SerializeField] private float powerSurgeLifetime = 3f;
+
+    [Header("Ball Save VFX")]
+    [Tooltip(
+        "Ball saved VFX variations. Exactly one (chosen at random) is spawned " +
+        "by DrainHandler at the center of this spawn volume when a drained ball " +
+        "is returned to the launcher. Mirrors the level-up banner spawn; lives " +
+        "here so all board VFX is configured in one place."
+    )]
+    [SerializeField] private List<GameObject> ballSavePrefabs = new();
+
+    [Tooltip("Uniform scale applied to the spawned ball saved VFX.")]
+    [SerializeField] private float ballSaveScale = 1f;
+
+    [Tooltip(
+        "Seconds before the spawned ball saved VFX is destroyed. " +
+        "Set to 0 to disable auto-destroy."
+    )]
+    [SerializeField] private float ballSaveLifetime = 3f;
 
     private Collider _spawnVolume;
     private GameRulesManager _rules;
@@ -190,18 +211,71 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
         return fx;
     }
 
+    /// <summary>
+    /// Spawns exactly one ball saved VFX prefab, chosen at random from the
+    /// available variations, at the center of the spawn volume — the same place
+    /// the level-up banner pops, rather than at the board's ball save lamp.
+    /// Mirrors <see cref="SpawnBanner"/>; called by <see cref="DrainHandler"/>,
+    /// which lives in another scene, so all board VFX is owned by this one
+    /// script. Returns the spawned instance, or null if none was spawned.
+    /// </summary>
+    public GameObject SpawnBallSaveVFX()
+    {
+        if (ballSavePrefabs == null || ballSavePrefabs.Count == 0)
+        {
+            return null;
+        }
+
+        GameObject prefab =
+            ballSavePrefabs[Random.Range(0, ballSavePrefabs.Count)];
+
+        if (prefab == null) return null;
+
+        GameObject fx = Instantiate(
+            prefab,
+            SpawnVolumeCenter(),
+            Quaternion.identity
+        );
+
+        fx.transform.localScale = Vector3.one * ballSaveScale;
+
+        if (ballSaveLifetime > 0f)
+        {
+            Destroy(fx, ballSaveLifetime);
+        }
+
+        return fx;
+    }
+
+    // Inspector debug button (component gear menu): spawns one ball saved VFX
+    // at the center of the spawn volume so you can confirm it appears without
+    // draining a ball. Best used in Play mode.
+    [ContextMenu("Debug/Spawn Ball Save VFX")]
+    private void DebugSpawnBallSaveVFX()
+    {
+        GameObject fx = SpawnBallSaveVFX();
+
+        if (fx == null)
+        {
+            Debug.LogWarning(
+                "[LevelUpVFXTrigger] No ball saved VFX spawned — Ball Save Prefabs " +
+                "is empty or its entry is missing on this instance.", this);
+            return;
+        }
+
+        Debug.Log(
+            $"[LevelUpVFXTrigger] Spawned ball saved VFX '{fx.name}' at " +
+            $"{fx.transform.position} (scale {fx.transform.localScale.x:0.##}).",
+            fx);
+    }
+
     // Inspector debug button (component gear menu): spawns one Power Surge
     // VFX at the center of the spawn volume so you can confirm it appears
     // without triggering Power Surge. Best used in Play mode.
     [ContextMenu("Debug/Spawn Power Surge VFX")]
     private void DebugSpawnPowerSurgeVFX()
     {
-        Collider vol = _spawnVolume != null
-            ? _spawnVolume
-            : GetComponent<Collider>();
-
-        Vector3 origin = vol != null ? vol.bounds.center : transform.position;
-        GameObject fx = SpawnPowerSurgeVFX(origin);
+        GameObject fx = SpawnPowerSurgeVFX(SpawnVolumeCenter());
 
         if (fx != null)
         {
@@ -253,6 +327,20 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
         }
 
         return fx;
+    }
+
+    /// <summary>
+    /// Center of the spawn volume — where the banner and the ball saved VFX pop.
+    /// Resolves the collider on demand so the context-menu debug spawns work even
+    /// when <see cref="Awake"/> has not run (edit mode).
+    /// </summary>
+    private Vector3 SpawnVolumeCenter()
+    {
+        Collider vol = _spawnVolume != null
+            ? _spawnVolume
+            : GetComponent<Collider>();
+
+        return vol != null ? vol.bounds.center : transform.position;
     }
 
     /// <summary>

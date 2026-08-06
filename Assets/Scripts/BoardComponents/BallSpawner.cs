@@ -1,3 +1,4 @@
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (ball save re-serve hook).
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -357,6 +358,34 @@ public sealed class BallSpawner : MonoBehaviour
 
         _moveCoroutine = StartCoroutine(MoveBallToSpawnPointCoroutine(next));
         return next;
+    }
+
+    /// <summary>
+    /// Spawns a ball straight into the front of the hand, without any layout animation, so the
+    /// next <see cref="ActivateNextBall"/> serves it. Used by the ball save to hand the player
+    /// back the ball they just drained instead of the one queued behind it.
+    /// </summary>
+    public GameObject InsertHandBallAtFront(GameObject prefab)
+    {
+        if (prefab == null)
+        {
+            return null;
+        }
+
+        EnsureHandSlotsResolved();
+        CancelLayoutAnimation();
+        _isGapPreviewActive = false;
+        _previewGapIndex = -1;
+
+        GameObject ball = Instantiate(prefab, GetHandBallWorldPos(0), GetHandBallWorldRot());
+        ball.name = $"{prefab.name}_HandBall_1";
+        CacheAndConfigureAsHandBall(ball);
+
+        _handBalls.Insert(0, ball);
+        SyncAllHandSlotMarkers();
+        LayoutHandImmediate();
+
+        return ball;
     }
 
     /// <summary>

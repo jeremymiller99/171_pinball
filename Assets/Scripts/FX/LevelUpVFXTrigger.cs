@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Listens for level-up events and spawns a random number (3-5) of
@@ -56,23 +57,26 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
     )]
     [SerializeField] private float fireworkLifetime = 5f;
 
-    [Header("Frenzy VFX")]
+    [Header("Power Surge VFX")]
     [Tooltip(
-        "Frenzy VFX variations. Exactly one (chosen at random) is spawned " +
-        "by FrenzyManager at a referenced point when frenzy mode starts. " +
+        "Power Surge VFX variations. Exactly one (chosen at random) is spawned " +
+        "by PowerSurgeManager at a referenced point when Power Surge mode starts. " +
         "Mirrors the level-up banner spawn; lives here so all board VFX " +
         "is configured in one place."
     )]
-    [SerializeField] private List<GameObject> frenzyPrefabs = new();
+    [FormerlySerializedAs("frenzyPrefabs")]
+    [SerializeField] private List<GameObject> powerSurgePrefabs = new();
 
-    [Tooltip("Uniform scale applied to the spawned frenzy VFX.")]
-    [SerializeField] private float frenzyScale = 1f;
+    [Tooltip("Uniform scale applied to the spawned Power Surge VFX.")]
+    [FormerlySerializedAs("frenzyScale")]
+    [SerializeField] private float powerSurgeScale = 1f;
 
     [Tooltip(
-        "Seconds before the spawned frenzy VFX is destroyed. " +
+        "Seconds before the spawned Power Surge VFX is destroyed. " +
         "Set to 0 to disable auto-destroy."
     )]
-    [SerializeField] private float frenzyLifetime = 3f;
+    [FormerlySerializedAs("frenzyLifetime")]
+    [SerializeField] private float powerSurgeLifetime = 3f;
 
     private Collider _spawnVolume;
     private GameRulesManager _rules;
@@ -150,23 +154,23 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
     }
 
     /// <summary>
-    /// Spawns exactly one frenzy VFX prefab, chosen at random from the
+    /// Spawns exactly one Power Surge VFX prefab, chosen at random from the
     /// available variations, at the given world position. Mirrors
     /// <see cref="SpawnBanner"/> except the location is supplied by the
     /// caller (e.g. the portal or abduction point) rather than the spawn
-    /// volume center. Called by <see cref="FrenzyManager"/> (which lives
+    /// volume center. Called by <see cref="PowerSurgeManager"/> (which lives
     /// in another scene) so all board VFX is owned by this one script.
     /// Returns the spawned instance, or null if none was spawned.
     /// </summary>
-    public GameObject SpawnFrenzyVFX(Vector3 position)
+    public GameObject SpawnPowerSurgeVFX(Vector3 position)
     {
-        if (frenzyPrefabs == null || frenzyPrefabs.Count == 0)
+        if (powerSurgePrefabs == null || powerSurgePrefabs.Count == 0)
         {
             return null;
         }
 
         GameObject prefab =
-            frenzyPrefabs[Random.Range(0, frenzyPrefabs.Count)];
+            powerSurgePrefabs[Random.Range(0, powerSurgePrefabs.Count)];
 
         if (prefab == null) return null;
 
@@ -176,33 +180,33 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
             Quaternion.identity
         );
 
-        fx.transform.localScale = Vector3.one * frenzyScale;
+        fx.transform.localScale = Vector3.one * powerSurgeScale;
 
-        if (frenzyLifetime > 0f)
+        if (powerSurgeLifetime > 0f)
         {
-            Destroy(fx, frenzyLifetime);
+            Destroy(fx, powerSurgeLifetime);
         }
 
         return fx;
     }
 
-    // Inspector debug button (component gear menu): spawns one frenzy
+    // Inspector debug button (component gear menu): spawns one Power Surge
     // VFX at the center of the spawn volume so you can confirm it appears
-    // without triggering frenzy. Best used in Play mode.
-    [ContextMenu("Debug/Spawn Frenzy VFX")]
-    private void DebugSpawnFrenzyVFX()
+    // without triggering Power Surge. Best used in Play mode.
+    [ContextMenu("Debug/Spawn Power Surge VFX")]
+    private void DebugSpawnPowerSurgeVFX()
     {
         Collider vol = _spawnVolume != null
             ? _spawnVolume
             : GetComponent<Collider>();
 
         Vector3 origin = vol != null ? vol.bounds.center : transform.position;
-        GameObject fx = SpawnFrenzyVFX(origin);
+        GameObject fx = SpawnPowerSurgeVFX(origin);
 
         if (fx != null)
         {
             Debug.Log(
-                $"[LevelUpVFXTrigger] Spawned frenzy VFX '{fx.name}' at " +
+                $"[LevelUpVFXTrigger] Spawned Power Surge VFX '{fx.name}' at " +
                 $"{fx.transform.position} (scale {fx.transform.localScale.x:0.##}).",
                 fx);
         }

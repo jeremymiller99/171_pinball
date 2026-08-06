@@ -68,9 +68,9 @@ public class ScoreUIController : MonoBehaviour
     private int coinsUiDisplayed;
     private double _goalUiLast = -1d;
 
-    // True while the mult text is showing the frenzy-boosted value, so we
-    // know to force it back to the real value when frenzy ends.
-    private bool _frenzyDisplayActive;
+    // True while the mult text is showing the Power Surge-boosted value, so we
+    // know to force it back to the real value when Power Surge ends.
+    private bool _powerSurgeDisplayActive;
 
     private readonly Queue<float> multQueue =
         new Queue<float>();
@@ -84,10 +84,10 @@ public class ScoreUIController : MonoBehaviour
     private Coroutine _roundIndexPopRoutine;
 
     [Header("Mult Text Pulse Animation")]
-    [Tooltip("Peak pulse speed (cycles/sec) at full strength (meter full / frenzy active).")]
+    [Tooltip("Peak pulse speed (cycles/sec) at full strength (meter full / Power Surge active).")]
     [Min(0.1f)]
     [SerializeField] private float multPulseSpeed = 3.5f;
-    [Tooltip("Peak scale amplitude at full strength (meter full / frenzy active).")]
+    [Tooltip("Peak scale amplitude at full strength (meter full / Power Surge active).")]
     [Range(0f, 0.5f)]
     [SerializeField] private float multPulseScaleAmp = 0.18f;
     [Tooltip("Fill fraction below which no pulse is applied (keeps the x1 display calm).")]
@@ -575,9 +575,9 @@ public class ScoreUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// Single unified pulse: same shape as the old frenzy pulse, but its
+    /// Single unified pulse: same shape as the old Power Surge pulse, but its
     /// strength is driven by the multiplier fill fraction (or forced to
-    /// max while frenzy is active). Text stays white — no color lerp.
+    /// max while Power Surge is active). Text stays white — no color lerp.
     /// </summary>
     private System.Collections.IEnumerator MultPulseRoutine()
     {
@@ -609,7 +609,7 @@ public class ScoreUIController : MonoBehaviour
             }
 
             float strength = 0f;
-            bool frenzyActive = false;
+            bool powerSurgeActive = false;
             float realDisplayMult = 1f;
             float effectiveDisplayMult = 1f;
             if (ServiceLocator.TryGet<ScoreManager>(out var sm))
@@ -617,9 +617,9 @@ public class ScoreUIController : MonoBehaviour
                 realDisplayMult = sm.DisplayMult;
                 effectiveDisplayMult = sm.DisplayEffectiveMult;
 
-                if (sm.IsFrenzyActive)
+                if (sm.IsPowerSurgeActive)
                 {
-                    frenzyActive = true;
+                    powerSurgeActive = true;
                     strength = 1f;
                 }
                 else
@@ -634,18 +634,18 @@ public class ScoreUIController : MonoBehaviour
                 }
             }
 
-            text.color = frenzyActive ? new Color(0f, 0.85f, 1f, 1f) : Color.white;
+            text.color = powerSurgeActive ? new Color(0f, 0.85f, 1f, 1f) : Color.white;
 
-            // While frenzy is active, temporarily show the boosted effective
+            // While Power Surge is active, temporarily show the boosted effective
             // multiplier; snap back to the real value the moment it ends.
-            if (frenzyActive)
+            if (powerSurgeActive)
             {
-                _frenzyDisplayActive = true;
+                _powerSurgeDisplayActive = true;
                 text.text = FormatMultiplier(effectiveDisplayMult);
             }
-            else if (_frenzyDisplayActive)
+            else if (_powerSurgeDisplayActive)
             {
-                _frenzyDisplayActive = false;
+                _powerSurgeDisplayActive = false;
                 multUiDisplayed = realDisplayMult;
                 text.text = FormatMultiplier(realDisplayMult);
             }

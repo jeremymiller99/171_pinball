@@ -1,23 +1,26 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class FrenzyModeDuplicator : Bumper
+public class PowerSurgeModeDuplicator : Bumper
 {
     [SerializeField] private bool isAsleep;
     [SerializeField] private float timeToSleep;
     [SerializeField] private GameRulesManager gameRulesManager;
-    [SerializeField] private FrenzyManager frenzyManager;
-    [SerializeField] private Transform frenzyTextTransform;
+    [FormerlySerializedAs("frenzyManager")]
+    [SerializeField] private PowerSurgeManager powerSurgeManager;
+    [FormerlySerializedAs("frenzyTextTransform")]
+    [SerializeField] private Transform powerSurgeTextTransform;
 
     override protected void Awake()
     {
         base.Awake();
         gameRulesManager = ServiceLocator.Get<GameRulesManager>();
-        frenzyManager = ServiceLocator.Get<FrenzyManager>();
+        powerSurgeManager = ServiceLocator.Get<PowerSurgeManager>();
 
-        if (frenzyTextTransform == null)
+        if (powerSurgeTextTransform == null)
         {
-            frenzyTextTransform = transform;
+            powerSurgeTextTransform = transform;
         }
     }
 
@@ -34,7 +37,7 @@ public class FrenzyModeDuplicator : Bumper
             gameRulesManager?.ActiveBalls?.Add(newBall);
             isAsleep = true;
             StartCoroutine(StayAsleep());
-            frenzyManager.ActivateFrenzy(frenzyTextTransform.position);
+            powerSurgeManager.ActivatePowerSurge(powerSurgeTextTransform.position);
         }
     }
 

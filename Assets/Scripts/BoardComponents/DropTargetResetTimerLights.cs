@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Ring of <see cref="BoardLight"/> bulbs around a drop target that visualise the
@@ -23,13 +24,15 @@ public class DropTargetResetTimerLights : MonoBehaviour
     [Tooltip("Seconds over which the lights go out. Should match the Dropper reset delay (default 15s).")]
     [SerializeField] private float duration = 15f;
 
-    [Header("Frenzy")]
-    [Tooltip("Scoring mode that drives frenzy activation. When frenzy is active, lit bulbs switch to their alternative color.")]
-    [SerializeField] private FrenzyManager frenzyManager;
+    [Header("Power Surge")]
+    [Tooltip("Scoring mode that drives Power Surge activation. When Power Surge is active, lit bulbs switch to their alternative color.")]
+    [FormerlySerializedAs("frenzyManager")]
+    [SerializeField] private PowerSurgeManager powerSurgeManager;
 
-    [Tooltip("Index into each BoardLight's alternativeLitColors to use during frenzy.")]
+    [Tooltip("Index into each BoardLight's alternativeLitColors to use during Power Surge.")]
     [Min(0)]
-    [SerializeField] private int frenzyAlternativeIndex;
+    [FormerlySerializedAs("frenzyAlternativeIndex")]
+    [SerializeField] private int powerSurgeAlternativeIndex;
 
     private GameRulesManager _gameRulesManager;
     private float _elapsed;
@@ -39,7 +42,7 @@ public class DropTargetResetTimerLights : MonoBehaviour
     private void Awake()
     {
         _gameRulesManager = ServiceLocator.Get<GameRulesManager>();
-        frenzyManager = ServiceLocator.Get<FrenzyManager>();
+        powerSurgeManager = ServiceLocator.Get<PowerSurgeManager>();
         if (dropTarget == null)
         {
             dropTarget = GetComponentInParent<Dropper>();
@@ -69,14 +72,14 @@ public class DropTargetResetTimerLights : MonoBehaviour
             dropTarget.OnReturnedUp += HandleReturnedUp;
         }
 
-        if (frenzyManager != null)
+        if (powerSurgeManager != null)
         {
-            frenzyManager.OnFrenzyActivated += HandleFrenzyActivated;
-            frenzyManager.OnFrenzyDeactivated += HandleFrenzyDeactivated;
+            powerSurgeManager.OnPowerSurgeActivated += HandlePowerSurgeActivated;
+            powerSurgeManager.OnPowerSurgeDeactivated += HandlePowerSurgeDeactivated;
         }
 
         SetAllLights(false);
-        ApplyFrenzyColorToAll(frenzyManager != null && frenzyManager.isFrenzyActive);
+        ApplyPowerSurgeColorToAll(powerSurgeManager != null && powerSurgeManager.isPowerSurgeActive);
         _running = false;
         _elapsed = 0f;
         _nextToExtinguish = 0;
@@ -90,24 +93,24 @@ public class DropTargetResetTimerLights : MonoBehaviour
             dropTarget.OnReturnedUp -= HandleReturnedUp;
         }
 
-        if (frenzyManager != null)
+        if (powerSurgeManager != null)
         {
-            frenzyManager.OnFrenzyActivated -= HandleFrenzyActivated;
-            frenzyManager.OnFrenzyDeactivated -= HandleFrenzyDeactivated;
+            powerSurgeManager.OnPowerSurgeActivated -= HandlePowerSurgeActivated;
+            powerSurgeManager.OnPowerSurgeDeactivated -= HandlePowerSurgeDeactivated;
         }
     }
 
-    private void HandleFrenzyActivated()
+    private void HandlePowerSurgeActivated()
     {
-        ApplyFrenzyColorToAll(true);
+        ApplyPowerSurgeColorToAll(true);
     }
 
-    private void HandleFrenzyDeactivated()
+    private void HandlePowerSurgeDeactivated()
     {
-        ApplyFrenzyColorToAll(false);
+        ApplyPowerSurgeColorToAll(false);
     }
 
-    private void ApplyFrenzyColorToAll(bool frenzy)
+    private void ApplyPowerSurgeColorToAll(bool powerSurgeOn)
     {
         for (int i = 0; i < lights.Count; i++)
         {
@@ -117,9 +120,9 @@ public class DropTargetResetTimerLights : MonoBehaviour
                 continue;
             }
 
-            if (frenzy)
+            if (powerSurgeOn)
             {
-                bulb.SetLitAlternativeIndex(frenzyAlternativeIndex);
+                bulb.SetLitAlternativeIndex(powerSurgeAlternativeIndex);
             }
             else
             {
@@ -136,7 +139,7 @@ public class DropTargetResetTimerLights : MonoBehaviour
         }
 
         SetAllLights(true);
-        ApplyFrenzyColorToAll(frenzyManager != null && frenzyManager.isFrenzyActive);
+        ApplyPowerSurgeColorToAll(powerSurgeManager != null && powerSurgeManager.isPowerSurgeActive);
         _elapsed = 0f;
         _nextToExtinguish = 0;
         _running = true;

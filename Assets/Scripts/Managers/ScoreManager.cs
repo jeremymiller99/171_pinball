@@ -25,29 +25,29 @@ public class ScoreManager : MonoBehaviour
 
     // Mult cap (set per-ship; default = uncapped)
     private float _multCap = float.MaxValue;
-    // Frenzy bonus sits on top of the cap — not subject to it
-    private float _frenzyMult;
+    // Power Surge bonus sits on top of the cap — not subject to it
+    private float _powerSurgeMult;
 
     [Header("Mult Decay")]
     [Tooltip("Fraction of the earned board mult kept when a ball ends (drain or shop entry).\n" +
              "0.25 = drop to 25% of what you had. Never falls below 1x.\n" +
-             "Any active frenzy bonus is cancelled outright and is not part of this carry-over.")]
+             "Any active Power Surge bonus is cancelled outright and is not part of this carry-over.")]
     [Range(0f, 1f)]
     [SerializeField] private float multCarryOverOnDecay = 0.25f;
 
     public float MultCap => _multCap;
-    public float FrenzyMult => _frenzyMult;
-    /// <summary>Effective multiplier used for scoring: capped earned mult + uncapped frenzy bonus.</summary>
-    public float EffectiveMult => mult + _frenzyMult;
-    public bool IsFrenzyActive => _frenzyMult > 0f;
+    public float PowerSurgeMult => _powerSurgeMult;
+    /// <summary>Effective multiplier used for scoring: capped earned mult + uncapped Power Surge bonus.</summary>
+    public float EffectiveMult => mult + _powerSurgeMult;
+    public bool IsPowerSurgeActive => _powerSurgeMult > 0f;
 
     private double displayPoints;
     private float displayMult = 1f;
 
     public double DisplayPoints => displayPoints;
     public float DisplayMult => displayMult;
-    /// <summary>Animated display mult including the frenzy bonus — what the HUD shows while frenzy is active.</summary>
-    public float DisplayEffectiveMult => displayMult + _frenzyMult;
+    /// <summary>Animated display mult including the Power Surge bonus — what the HUD shows while Power Surge is active.</summary>
+    public float DisplayEffectiveMult => displayMult + _powerSurgeMult;
     public double DisplayRoundTotal => roundTotal + displayPoints;
 
 
@@ -89,13 +89,13 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private float externalTimeScaleMultiplier = 1f;
 
     [Tooltip("Additional multiplier applied to POSITIVE point awards (after tier + round modifier scaling).\n" +
-             "Used by Frenzy mode to boost scoring globally.")]
+             "Used by Power Surge mode to boost scoring globally.")]
     [Min(0f)]
     [SerializeField] private float externalScoreAwardMultiplier = 1f;
 
     [Header("TimeScale Safety Caps")]
     [Tooltip("Unity (in-editor) requires Time.timeScale <= 100.\n" +
-             "This cap prevents runaway goal-tier scaling (especially during Frenzy).")]
+             "This cap prevents runaway goal-tier scaling (especially during Power Surge).")]
     [Min(0f)]
     [SerializeField] private float maxTimeScale = 100f;
 
@@ -301,7 +301,7 @@ public class ScoreManager : MonoBehaviour
         ScoreChanged?.Invoke();
     }
 
-    /// <summary>Sets the maximum mult the player can earn (from their ship). Does not affect frenzy bonus.</summary>
+    /// <summary>Sets the maximum mult the player can earn (from their ship). Does not affect Power Surge bonus.</summary>
     public void SetMultCap(float cap)
     {
         _multCap = Mathf.Max(1f, cap);
@@ -314,19 +314,19 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    /// <summary>Adds a frenzy multiplier bonus that bypasses the cap. Call from frenzy systems only.</summary>
-    public void AddFrenzyMult(float amount)
+    /// <summary>Adds a Power Surge multiplier bonus that bypasses the cap. Call from Power Surge systems only.</summary>
+    public void AddPowerSurgeMult(float amount)
     {
-        _frenzyMult += amount;
-        if (_frenzyMult < 0f) _frenzyMult = 0f;
+        _powerSurgeMult += amount;
+        if (_powerSurgeMult < 0f) _powerSurgeMult = 0f;
         SteamAchievements.CheckMultMilestone(EffectiveMult);
         ScoreChanged?.Invoke();
     }
 
-    /// <summary>Removes the frenzy multiplier bonus entirely.</summary>
-    public void RemoveFrenzyMult()
+    /// <summary>Removes the Power Surge multiplier bonus entirely.</summary>
+    public void RemovePowerSurgeMult()
     {
-        _frenzyMult = 0f;
+        _powerSurgeMult = 0f;
         ScoreChanged?.Invoke();
     }
 
@@ -483,16 +483,16 @@ public class ScoreManager : MonoBehaviour
 
     /// <summary>
     /// End of a ball — drained, or banked on the way into the shop. Cancels any active
-    /// frenzy (that bonus is forfeited entirely, it is never carried over) and knocks the
+    /// Power Surge (that bonus is forfeited entirely, it is never carried over) and knocks the
     /// earned board mult down to <see cref="multCarryOverOnDecay"/> of what it was,
     /// instead of wiping it back to 1x. Never drops below 1x.
     /// </summary>
     public void DecayMultiplier()
     {
-        // Route through FrenzyManager so its visual subscribers unwind with it; the
-        // direct zeroing below covers a missing manager or a stale _frenzyMult.
-        ServiceLocator.Get<FrenzyManager>()?.DeactivateFrenzy();
-        _frenzyMult = 0f;
+        // Route through PowerSurgeManager so its visual subscribers unwind with it; the
+        // direct zeroing below covers a missing manager or a stale _powerSurgeMult.
+        ServiceLocator.Get<PowerSurgeManager>()?.DeactivatePowerSurge();
+        _powerSurgeMult = 0f;
 
         float carried = Mathf.Max(1f, mult * multCarryOverOnDecay);
         if (_multCap > 0f && _multCap < float.MaxValue)
@@ -529,7 +529,7 @@ public class ScoreManager : MonoBehaviour
         points = 0d;
         BallBanked?.Invoke();
         mult = 1f;
-        _frenzyMult = 0f;
+        _powerSurgeMult = 0f;
         displayPoints = 0d;
         displayMult = 1f;
         _goalTier = 0;

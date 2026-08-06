@@ -78,12 +78,14 @@ public class AudioManager : MonoBehaviour
     
     // Newly Added Gameplay Sounds
     [SerializeField] private EventReference fireworksSound;
-    [SerializeField] private EventReference frenzyGateSound;
+    [FormerlySerializedAs("frenzyGateSound")]
+    [SerializeField] private EventReference powerSurgeGateSound;
     [FormerlySerializedAs("dropTargetDownSound")]
     [SerializeField] private EventReference dropperDownSound;
     [FormerlySerializedAs("dropTargetUpSound")]
     [SerializeField] private EventReference dropperUpSound;
-    [SerializeField] private EventReference frenzyActivatedSound;
+    [FormerlySerializedAs("frenzyActivatedSound")]
+    [SerializeField] private EventReference powerSurgeActivatedSound;
 
     [Header("Scoring Sounds")]
     [SerializeField] private EventReference pointsAddEvent;
@@ -660,10 +662,10 @@ public class AudioManager : MonoBehaviour
     public void PlayExplosion(Vector3 position) => PlayOneShot(explosionSound, position);
     public void PlayBallSplit(Vector3 position) => PlayOneShot(ballSplitSound, position);
     public void PlayFireworks(Vector3 position) => PlayOneShot(fireworksSound, position);
-    public void PlayFrenzyGate(Vector3 position) => PlayOneShot(frenzyGateSound, position);
+    public void PlayPowerSurgeGate(Vector3 position) => PlayOneShot(powerSurgeGateSound, position);
     public void PlayDropperDown(Vector3 position) => PlayOneShot(dropperDownSound, position);
     public void PlayDropperUp(Vector3 position) => PlayOneShot(dropperUpSound, position);
-    public void PlayFrenzyActivated(Vector3 position) => PlayOneShot(frenzyActivatedSound, position);
+    public void PlayPowerSurgeActivated(Vector3 position) => PlayOneShot(powerSurgeActivatedSound, position);
 
     // Text whoosh belongs to the score popup, so it plays wherever that popup lives.
     public void PlayWhoosh(Vector3 position) => PlayOneShot(textWhooshSound, position);

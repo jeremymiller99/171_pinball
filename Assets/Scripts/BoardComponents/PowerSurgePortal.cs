@@ -1,28 +1,31 @@
 // Generated with Antigravity by jjmil on 2026-04-09.
-// Frenzy portal: awards bonus + activates frenzy via
+// Power Surge portal: awards bonus + activates Power Surge via
 // DropTargetsScoringMode when the ball enters.
-// Frenzy-activation SFX hook added by Claude Code (Opus 4.7) for jjmil on 2026-04-21.
+// Power Surge activation SFX hook added by Claude Code (Opus 4.7) for jjmil on 2026-04-21.
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Place on the portal GameObject hidden behind the 4 bumpers.
 /// When the ball enters, awards configurable bonus points and
-/// multiplier, then activates frenzy mode via the linked
+/// multiplier, then activates Power Surge mode via the linked
 /// <see cref="DropTargetsScoringMode"/>.
 /// Teleportation is handled by the existing <see cref="Portal"/>
 /// component on the same GameObject.
 /// </summary>
-public class FrenzyPortal : MonoBehaviour
+public class PowerSurgePortal : MonoBehaviour
 {
     [Header("Portal Rewards")]
     [Tooltip("Bonus multiplier added on portal entry.")]
     [SerializeField] private float bonusMult = 0.5f;
 
     [Header("References")]
-    [SerializeField] private FrenzyManager frenzyManager;
+    [FormerlySerializedAs("frenzyManager")]
+    [SerializeField] private PowerSurgeManager powerSurgeManager;
     [SerializeField] private ScoreManager scoreManager;
-    [Tooltip("Point where the frenzy VFX spawns. Falls back to this object's position.")]
-    [SerializeField] private Transform frenzyVFXPoint;
+    [Tooltip("Point where the Power Surge VFX spawns. Falls back to this object's position.")]
+    [FormerlySerializedAs("frenzyVFXPoint")]
+    [SerializeField] private Transform powerSurgeVFXPoint;
 
     private void Awake()
     {
@@ -43,12 +46,12 @@ public class FrenzyPortal : MonoBehaviour
                 transform);
         }
 
-        if (frenzyManager != null)
+        if (powerSurgeManager != null)
         {
-            Vector3 frenzyVFXPos = frenzyVFXPoint != null
-                ? frenzyVFXPoint.position
+            Vector3 powerSurgeVFXPos = powerSurgeVFXPoint != null
+                ? powerSurgeVFXPoint.position
                 : transform.position;
-            frenzyManager.ActivateFrenzy(frenzyVFXPos);
+            powerSurgeManager.ActivatePowerSurge(powerSurgeVFXPos);
         }
     }
 
@@ -60,10 +63,10 @@ public class FrenzyPortal : MonoBehaviour
                 ServiceLocator.Get<ScoreManager>();
         }
 
-        if (frenzyManager == null)
+        if (powerSurgeManager == null)
         {
-            frenzyManager =
-                ServiceLocator.Get<FrenzyManager>();
+            powerSurgeManager =
+                ServiceLocator.Get<PowerSurgeManager>();
         }
     }
 }

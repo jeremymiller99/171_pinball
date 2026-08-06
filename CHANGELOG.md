@@ -10,6 +10,33 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.15.3 — Frenzy renamed to Power Surge (code only)
+_2026-08-05 · Contributor: JJ_
+
+Frenzy mode is now **Power Surge** throughout the C# sources — classes, fields, methods,
+events, inspector `[Header]`/`[Tooltip]` text and comments. Behaviour is unchanged.
+
+- Four scripts renamed, each with its `.cs.meta` moved alongside so the GUID is
+  untouched and every scene/prefab keeps its script binding:
+  `FrenzyManager` → `PowerSurgeManager`, `FrenzyPortal` → `PowerSurgePortal`,
+  `FrenzyModeDuplicator` → `PowerSurgeModeDuplicator`,
+  `FrenzyBoardLightController` → `PowerSurgeBoardLightController`.
+- 20 files touched in total; `ActivateFrenzy` → `ActivatePowerSurge`,
+  `isFrenzyActive` → `isPowerSurgeActive`, `OnFrenzyActivated`/`OnFrenzyDeactivated` →
+  `OnPowerSurge…`, and so on.
+- Every renamed **serialized** field carries `[FormerlySerializedAs("oldName")]` (26 of
+  them) so existing scene values survive. Unity has to open **and resave** each affected
+  scene/prefab before those attributes can be removed — `GameplayCore`, `Board_NA`,
+  `Board_Alpha`, `Board_Spinners`, `MainMenu`, `MainMenu 1`, `Abductor.prefab`.
+
+Deliberately still "Frenzy": the Steam achievement API name `"ACH_FIRST_FRENZY"` and the
+FMOD event paths `spec_frenzy_gate` / `value_frenzy_start` (both external contracts); the
+`FrenzyModeDuplicator.asset` definition, whose file name *is* its localization key
+(`component.FrenzyModeDuplicator.name`) — so the shop still shows **Frenzy Mode
+Duplicator** to players; the `FrenzyManager` GameObject name in `GameplayCore.unity`; and
+`CFXR3 _FRENZY.prefab`. Entries below this one still say Frenzy, which is what it was
+called then.
+
 ## 0.15.2 — Flint renamed to Firestarter
 _2026-07-28 · Contributor: JJ_
 

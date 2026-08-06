@@ -1,4 +1,4 @@
-// Modified with Claude Code (Opus 5) by JJ on 2026-07-26: hold the FrenzyManager
+// Modified with Claude Code (Opus 5) by JJ on 2026-07-26: hold the PowerSurgeManager
 // reference so teardown can unsubscribe without re-resolving it.
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +6,7 @@ using UnityEngine;
 /// <summary>
 /// Toggles pre-placed red/blue fire VFX around the board and scales their
 /// intensity with the current score multiplier. Red set is the default;
-/// blue set takes over while drop-target frenzy is active.
+/// blue set takes over while drop-target Power Surge is active.
 /// </summary>
 public class BoardFireFXController : MonoBehaviour
 {
@@ -15,9 +15,9 @@ public class BoardFireFXController : MonoBehaviour
     [SerializeField] private ScoreManager scoreManager;
 
     [Header("Fire Sets (pre-placed in scene)")]
-    [Tooltip("Red fire GameObjects — active when not in frenzy.")]
+    [Tooltip("Red fire GameObjects — active when not in Power Surge.")]
     [SerializeField] private List<GameObject> redFires = new();
-    [Tooltip("Blue fire GameObjects — active while frenzy is running.")]
+    [Tooltip("Blue fire GameObjects — active while Power Surge is running.")]
     [SerializeField] private List<GameObject> blueFires = new();
 
     [Header("Activation")]
@@ -36,8 +36,8 @@ public class BoardFireFXController : MonoBehaviour
 
     private readonly List<ParticleSystem> _redParticles = new();
     private readonly List<ParticleSystem> _blueParticles = new();
-    private FrenzyManager _frenzyManager;
-    private bool _frenzyActive;
+    private PowerSurgeManager _powerSurgeManager;
+    private bool _powerSurgeActive;
     private float _lastAppliedScalar = -1f;
 
     private void Awake()
@@ -48,30 +48,30 @@ public class BoardFireFXController : MonoBehaviour
 
     private void OnEnable()
     {
-        _frenzyManager = ServiceLocator.Get<FrenzyManager>();
+        _powerSurgeManager = ServiceLocator.Get<PowerSurgeManager>();
 
-        if (_frenzyManager != null)
+        if (_powerSurgeManager != null)
         {
-            _frenzyManager.OnFrenzyActivated += HandleFrenzyActivated;
-            _frenzyManager.OnFrenzyDeactivated += HandleFrenzyDeactivated;
+            _powerSurgeManager.OnPowerSurgeActivated += HandlePowerSurgeActivated;
+            _powerSurgeManager.OnPowerSurgeDeactivated += HandlePowerSurgeDeactivated;
         }
 
         ApplySetActive(false);
     }
 
-    // FrenzyManager is never registered with the ServiceLocator, so a lookup here falls
+    // PowerSurgeManager is never registered with the ServiceLocator, so a lookup here falls
     // back to a scene search that returns null once teardown has started. Unsubscribe
     // from the instance resolved in OnEnable instead of resolving it a second time.
     private void OnDisable()
     {
-        if (_frenzyManager == null)
+        if (_powerSurgeManager == null)
         {
             return;
         }
 
-        _frenzyManager.OnFrenzyActivated -= HandleFrenzyActivated;
-        _frenzyManager.OnFrenzyDeactivated -= HandleFrenzyDeactivated;
-        _frenzyManager = null;
+        _powerSurgeManager.OnPowerSurgeActivated -= HandlePowerSurgeActivated;
+        _powerSurgeManager.OnPowerSurgeDeactivated -= HandlePowerSurgeDeactivated;
+        _powerSurgeManager = null;
     }
 
     private void Start()
@@ -108,24 +108,24 @@ public class BoardFireFXController : MonoBehaviour
         _lastAppliedScalar = scalar;
     }
 
-    private void HandleFrenzyActivated()
+    private void HandlePowerSurgeActivated()
     {
-        _frenzyActive = true;
+        _powerSurgeActive = true;
         if (_lastAppliedScalar > 0f)
             ApplySetActive(true);
     }
 
-    private void HandleFrenzyDeactivated()
+    private void HandlePowerSurgeDeactivated()
     {
-        _frenzyActive = false;
+        _powerSurgeActive = false;
         if (_lastAppliedScalar > 0f)
             ApplySetActive(true);
     }
 
     private void ApplySetActive(bool lit)
     {
-        SetListActive(redFires, lit && !_frenzyActive);
-        SetListActive(blueFires, lit && _frenzyActive);
+        SetListActive(redFires, lit && !_powerSurgeActive);
+        SetListActive(blueFires, lit && _powerSurgeActive);
     }
 
     /// <summary>
@@ -154,7 +154,7 @@ public class BoardFireFXController : MonoBehaviour
 
     private void ApplyIntensity(float scalar)
     {
-        List<ParticleSystem> active = _frenzyActive ? _blueParticles : _redParticles;
+        List<ParticleSystem> active = _powerSurgeActive ? _blueParticles : _redParticles;
         float emissionMul = Mathf.Lerp(1f, maxEmissionMultiplier, scalar);
         float sizeMul = Mathf.Lerp(1f, maxSizeMultiplier, scalar);
 

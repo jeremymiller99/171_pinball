@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Put this on a HUD/UI object (not the ball). It finds the active ball and displays its speed on a TMP label.
@@ -32,7 +33,8 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     [SerializeField] private GameRulesManager gameRules;
     [SerializeField] private BallSpawner ballSpawner;
     [SerializeField] private ScoreManager scoreManager;
-    [SerializeField] private FrenzyManager frenzyManager;
+    [FormerlySerializedAs("frenzyManager")]
+    [SerializeField] private PowerSurgeManager powerSurgeManager;
 
     [Header("Behavior")]
     [Tooltip("If true, shows 0 until the active ball is non-kinematic.")]
@@ -79,9 +81,10 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField] private float meterColorMidPoint = 0.5f;
 
-    [Header("Frenzy Color")]
-    [Tooltip("Color of the meter when frenzy (drop-target 2x) mode is active. Should match frenzy lights in the scene.")]
-    [SerializeField] private Color frenzyMeterColor = new Color(0f, 0.85f, 1f, 1f);
+    [Header("Power Surge Color")]
+    [Tooltip("Color of the meter when Power Surge (drop-target 2x) mode is active. Should match Power Surge lights in the scene.")]
+    [FormerlySerializedAs("frenzyMeterColor")]
+    [SerializeField] private Color powerSurgeMeterColor = new Color(0f, 0.85f, 1f, 1f);
 
     [Header("Color Application (debug / compatibility)")]
     [Tooltip("If enabled, also writes colors directly to Renderer.material. Use if your shader ignores MaterialPropertyBlock.")]
@@ -133,8 +136,8 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         if (!scoreManager)
             scoreManager = ServiceLocator.Get<ScoreManager>();
 
-        if (!frenzyManager)
-            frenzyManager = FindAnyObjectByType<FrenzyManager>();
+        if (!powerSurgeManager)
+            powerSurgeManager = FindAnyObjectByType<PowerSurgeManager>();
 
         if (!meterFill)
         {
@@ -316,9 +319,9 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
 
         _meterMPB ??= new MaterialPropertyBlock();
 
-        bool frenzyActive = scoreManager != null ? scoreManager.IsFrenzyActive :
-                            (frenzyManager != null && frenzyManager.isFrenzyActive);
-        Color c = frenzyActive ? frenzyMeterColor : EvaluateMeterColor(fill01);
+        bool powerSurgeActive = scoreManager != null ? scoreManager.IsPowerSurgeActive :
+                            (powerSurgeManager != null && powerSurgeManager.isPowerSurgeActive);
+        Color c = powerSurgeActive ? powerSurgeMeterColor : EvaluateMeterColor(fill01);
         c.a = _meterBaseAlpha;
 
         _meterRenderer.GetPropertyBlock(_meterMPB);

@@ -134,7 +134,7 @@ public class DrainHandler : MonoBehaviour
             bankedPoints = roundTotal;
         }
 
-        // Ball lost: cancel frenzy and decay the board mult toward 1x. Sits after the
+        // Ball lost: cancel Power Surge and decay the board mult toward 1x. Sits after the
         // bank (so the drained ball still scores at its full mult) and before the
         // shop bail-out, so a drain that ends the round decays as well.
         scoreManager?.DecayMultiplier();
@@ -161,7 +161,7 @@ public class DrainHandler : MonoBehaviour
             {
                 _drainProcessing = false;
                 // Reconcile any level-ups that ScoreChanged events tried to trigger
-                // while _drainProcessing was true (e.g. frenzy scoring right before drain).
+                // while _drainProcessing was true (e.g. Power Surge scoring right before drain).
                 rules.ForceReconcileLevelUps();
                 yield break;
             }

@@ -74,7 +74,7 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
     /// Raised when a component is swapped out for a replacement (e.g. a shop
     /// placement). Fired *before* the old component is destroyed, so subscribers
     /// can still read the old one's references while re-pointing to the new one.
-    /// Managers that hold scene wiring to a component (frenzy-gate bumper slots,
+    /// Managers that hold scene wiring to a component (Power Surge gate bumper slots,
     /// the Abductor's abducted object) listen here to survive replacement.
     /// </summary>
     public static event Action<BoardComponent, BoardComponent> Replaced;

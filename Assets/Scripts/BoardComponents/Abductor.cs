@@ -3,6 +3,7 @@
 // when the ball connects.
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 public class Abductor : MonoBehaviour
 {
@@ -22,10 +23,13 @@ public class Abductor : MonoBehaviour
 
     [SerializeField] private AbductionState abductionState;
     [SerializeField] private Vector3 startingPosition;
-    [SerializeField] private FrenzyManager frenzyManager;
-    [SerializeField] private bool activatedFrenzy;
-    [Tooltip("Point where the frenzy VFX spawns. Falls back to the abducted object's position.")]
-    [SerializeField] private Transform frenzyVFXPoint;
+    [FormerlySerializedAs("frenzyManager")]
+    [SerializeField] private PowerSurgeManager powerSurgeManager;
+    [FormerlySerializedAs("activatedFrenzy")]
+    [SerializeField] private bool activatedPowerSurge;
+    [Tooltip("Point where the Power Surge VFX spawns. Falls back to the abducted object's position.")]
+    [FormerlySerializedAs("frenzyVFXPoint")]
+    [SerializeField] private Transform powerSurgeVFXPoint;
 
     [Header("Going To Abduction")]
     [SerializeField] private Transform abductionPosition;
@@ -145,7 +149,7 @@ public class Abductor : MonoBehaviour
 
     private void Awake()
     {
-        frenzyManager = FindAnyObjectByType<FrenzyManager>();
+        powerSurgeManager = FindAnyObjectByType<PowerSurgeManager>();
         CacheFlashRenderers();
         SubscribeProgressLights();
         ResetProgressLights();
@@ -304,13 +308,13 @@ public class Abductor : MonoBehaviour
                 }
                 break;
             case AbductionState.Leaving:
-                if (!activatedFrenzy)
+                if (!activatedPowerSurge)
                 {
-                    Vector3 frenzyVFXPos = frenzyVFXPoint != null
-                        ? frenzyVFXPoint.position
+                    Vector3 powerSurgeVFXPos = powerSurgeVFXPoint != null
+                        ? powerSurgeVFXPoint.position
                         : objectToAbduct.transform.position;
-                    frenzyManager.ActivateFrenzy(frenzyVFXPos);
-                    activatedFrenzy = true;
+                    powerSurgeManager.ActivatePowerSurge(powerSurgeVFXPos);
+                    activatedPowerSurge = true;
                 }
 
                 SteerToward(startingPosition, abductionSpeed, true);
@@ -326,7 +330,7 @@ public class Abductor : MonoBehaviour
     {
         gameObject.SetActive(true);
         abductionState = AbductionState.GoingToAbduction;
-        activatedFrenzy = false;
+        activatedPowerSurge = false;
         health = maxHealth;
         flashTimer = 0f;
         ClearFlash();

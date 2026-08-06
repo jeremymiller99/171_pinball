@@ -181,7 +181,7 @@ public sealed class ShopComponentPlacementController : MonoBehaviour
         newBucket.Sort();
 
         // Preserve the old part's stable identity and let scene managers that hold
-        // wiring to it (frenzy-gate bumper slots, the Abductor) re-point to the
+        // wiring to it (Power Surge gate bumper slots, the Abductor) re-point to the
         // replacement. Must happen before Destroy so subscribers can still read the
         // old component's references.
         newComp.AdoptIdentity(targetComponent.ComponentGuid);

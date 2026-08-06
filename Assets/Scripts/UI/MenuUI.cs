@@ -1319,6 +1319,16 @@ public class MainMenuUI : MonoBehaviour
 
     public void QuitGame()
     {
+        // The click that re-activates the player window is delivered to the
+        // window, so tabbing back in with the cursor over the Quit button would
+        // otherwise exit the game. Ignore quits inside the post-focus grace.
+        if (ApplicationFocusGuard.IsSettlingAfterFocus())
+        {
+            Debug.Log("[MenuUI] Quit ignored — click arrived as the window regained focus.");
+            return;
+        }
+
+        Debug.Log("[MenuUI] Quit selected — exiting game.");
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else

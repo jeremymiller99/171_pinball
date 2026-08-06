@@ -4,18 +4,21 @@ using UnityEngine;
 
 /// <summary>
 /// The Kinetic keyword: scoring that scales with the square of the ball's speed.
-/// Board speeds run roughly 0.5 to 20 m/s, so 8 m/s is treated as an ordinary hit
-/// at 1x, a slow roll bottoms out at 0.25x and a hard slam reaches the 8x cap.
+/// The curve is anchored at its top: 30 m/s of impact speed is the 4x cap, which with
+/// a squared falloff puts the 1x reference at 15 m/s and floors 0.25x at 7.5 m/s.
+/// Impact speed is not ball speed — collisions score on relative velocity, so a
+/// flipper caught mid-swing or a head-on ball-vs-ball reads higher than either body
+/// is travelling, and 30 m/s is reachable even though balls roll at 0.5 to 20 m/s.
 ///
 /// Kinetic on a component scales by the speed of the ball that hit it; Kinetic on a
 /// ball scales everything that ball hits.
 /// </summary>
 public static class KineticScoring
 {
-    private const float referenceSpeed = 8f;
+    private const float referenceSpeed = 15f;
     private const float exponent = 2f;
     private const float minMultiplier = 0.25f;
-    private const float maxMultiplier = 8f;
+    private const float maxMultiplier = 4f;
 
     public static float Multiplier(float speed)
     {

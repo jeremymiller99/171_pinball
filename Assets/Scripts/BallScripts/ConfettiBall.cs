@@ -4,16 +4,12 @@ using UnityEngine;
 /// <summary>
 /// Splitter-class ball: every <see cref="hitsPerBurst"/> scoring component hits,
 /// Projects <see cref="BallsOnSplit"/> colorful Holoballs that pop after
-/// <see cref="holoballHitsToPop"/> activations. Fires
-/// <see cref="BurstsPerBallDefault"/> bursts per main ball by default
-/// (<see cref="maxBursts"/>).
+/// <see cref="holoballHitsToPop"/> activations. Bursts are unlimited — the ball keeps
+/// projecting for as long as it stays in play.
 /// </summary>
 public sealed class ConfettiBall : Ball, ISplitter
 {
     public const string DefinitionId = "Confetti";
-
-    /// <summary>Design default: how many shard-spawn bursts each Confetti ball performs.</summary>
-    public const int BurstsPerBallDefault = 10;
 
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
     private static readonly int ColorId = Shader.PropertyToID("_Color");
@@ -21,7 +17,7 @@ public sealed class ConfettiBall : Ball, ISplitter
 
     [Header("Burst")]
     [Min(1)]
-    [SerializeField] private int hitsPerBurst = 4;
+    [SerializeField] private int hitsPerBurst = 7;
 
     [Min(1)]
     [Tooltip("Activations (scoring hits) each projected Holoball lasts before it pops.")]
@@ -30,10 +26,6 @@ public sealed class ConfettiBall : Ball, ISplitter
     [Min(1)]
     public int BallsOnSplit { get; set; } = 3;
 
-    [Min(1)]
-    [Tooltip("How many times this ball spawns a shard burst (default matches BurstsPerBallDefault).")]
-    [SerializeField] private int maxBursts = BurstsPerBallDefault;
-
     [Tooltip("Extra outward speed added to each shard (world units/sec).")]
     [SerializeField] private float spawnBurstImpulse = 5f;
 
@@ -41,20 +33,13 @@ public sealed class ConfettiBall : Ball, ISplitter
     [Min(0.01f)]
     [SerializeField] private float shardSpawnUniformScale = 1.2f;
 
-    private int _burstsRemaining;
     private int _lastBurstMilestone;
-
-    private void Awake()
-    {
-        _burstsRemaining = maxBursts;
-        _lastBurstMilestone = 0;
-    }
 
     private void OnValidate()
     {
         hitsPerBurst = Mathf.Max(1, hitsPerBurst);
+        holoballHitsToPop = Mathf.Max(1, holoballHitsToPop);
         BallsOnSplit = Mathf.Max(1, BallsOnSplit);
-        maxBursts = Mathf.Max(1, maxBursts);
         shardSpawnUniformScale = Mathf.Max(0.01f, shardSpawnUniformScale);
     }
 
@@ -66,11 +51,6 @@ public sealed class ConfettiBall : Ball, ISplitter
 
     private void LateUpdate()
     {
-        if (_burstsRemaining <= 0)
-        {
-            return;
-        }
-
         if (componentHits <= 0)
         {
             return;
@@ -95,7 +75,6 @@ public sealed class ConfettiBall : Ball, ISplitter
 
         _lastBurstMilestone = componentHits;
         ProjectHoloballBurst();
-        _burstsRemaining--;
     }
 
     private void ProjectHoloballBurst()

@@ -296,9 +296,9 @@ MonoBehaviour:
   hitCountPopupScale: 0.7
   hitCountPopupOffset: {x: 0, y: 40}
   hitCountPopupColor: {r: 1, g: 0.45, b: 0.85, a: 1}
-  hitsPerBurst: 4
+  hitsPerBurst: 7
+  holoballHitsToPop: 10
   shardsPerBurst: 3
-  maxBursts: 4
   spawnBurstImpulse: 5
   shardSpawnUniformScale: 1.2
 --- !u!114 &7213457856092857174

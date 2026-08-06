@@ -43,8 +43,8 @@ public readonly struct HoloballLifetime
 /// </summary>
 public sealed class Holoball : Ball
 {
-    /// <summary>Default activation count when none is supplied (matches the old shard's HitsToPop).</summary>
-    public const int DefaultActivations = 3;
+    /// <summary>Default activation count when none is supplied.</summary>
+    public const int DefaultActivations = 10;
 
     /// <summary>
     /// Global multiplier on every Holoball's longevity (duration or activation count).

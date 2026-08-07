@@ -2,6 +2,8 @@
 // Collider restore moved to rise start: Cursor AI assistant, 2026-03-27.
 // Ball hit during rise restarts fall from current pos: Cursor AI assistant, 2026-03-27.
 // Drop/up SFX hooks added by Claude Code (Opus 4.7) for jjmil on 2026-04-21.
+// Updated by Claude (Opus 5), for jjmil, on 2026-08-06 (countdown restart + forced rise so a
+// bank of targets can be held and raised together).
 using System;
 using UnityEngine;
 
@@ -30,8 +32,18 @@ public class Dropper : MonoBehaviour
     /// </summary>
     public event Action<int> OnHit;
 
+    /// <summary>
+    /// Fired when the down countdown is restarted from the top while the target is
+    /// already down (see <see cref="RestartResetCountdown"/>), so countdown visuals
+    /// can restart with it.
+    /// </summary>
+    public event Action OnResetCountdownRestarted;
+
     /// <summary>Ball hits needed to put this target down.</summary>
     public int HitsToDrop => hitsToDrop;
+
+    /// <summary>Seconds the target stays down before rising on its own. 0 = never resets.</summary>
+    public float ResetDelay => resetDelay;
 
     /// <summary>True when the target is fully down and not yet rising (collider disabled while down).</summary>
     public bool IsDown => _hasTriggered && !_returning && !_falling;
@@ -162,14 +174,39 @@ public class Dropper : MonoBehaviour
         {
             resetTimer -= Time.deltaTime;
             if (resetTimer <= 0f)
-            {
-                _returning = true;
-                _returnStartPos = GetCurrentPosition();
-                _returnTimer = 0f;
-                BeginReturnFromDown();
-                ServiceLocator.Get<AudioManager>()?.PlayDropperUp(transform.position);
-            }
+                ForceReturnUp();
         }
+    }
+
+    /// <summary>
+    /// Restarts the down countdown from the top, keeping the target down for another
+    /// full <see cref="ResetDelay"/>. No-op unless the target is fully down: one that is
+    /// still sinking gets its timer set when the fall completes anyway.
+    /// </summary>
+    public void RestartResetCountdown()
+    {
+        if (!IsDown || resetDelay <= 0f) return;
+
+        resetTimer = resetDelay;
+        OnResetCountdownRestarted?.Invoke();
+    }
+
+    /// <summary>
+    /// Sends the target back up now, ignoring whatever is left of the down countdown.
+    /// Lets a bank of targets rise in the same frame. No-op if the target is already up
+    /// or already rising; a target caught mid-fall rises from where it is.
+    /// </summary>
+    public void ForceReturnUp()
+    {
+        if (!_hasTriggered || _returning) return;
+
+        _falling = false;
+        resetTimer = 0f;
+        _returning = true;
+        _returnStartPos = GetCurrentPosition();
+        _returnTimer = 0f;
+        BeginReturnFromDown();
+        ServiceLocator.Get<AudioManager>()?.PlayDropperUp(transform.position);
     }
 
     private void ApplyWhenFullyDown()

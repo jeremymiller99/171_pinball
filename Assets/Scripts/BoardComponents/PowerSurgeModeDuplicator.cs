@@ -37,7 +37,8 @@ public class PowerSurgeModeDuplicator : Bumper
             gameRulesManager?.ActiveBalls?.Add(newBall);
             isAsleep = true;
             StartCoroutine(StayAsleep());
-            powerSurgeManager.ActivatePowerSurge(powerSurgeTextTransform.position);
+            powerSurgeManager.ActivatePowerSurge(
+                PowerSurgeSource.ModeDuplicator, powerSurgeTextTransform.position);
         }
     }
 

@@ -5,6 +5,8 @@
 // portal is holding a ball in its teleport delay, so the held ball isn't stranded).
 // Updated by Claude (Opus 4.8), for jjmil, on 2026-06-05 (deactivate Power Surge directly when the gate
 // closes, so a portal-started Power Surge ends on target-return even while the countdown is paused).
+// Updated by Claude (Opus 5), for jjmil, on 2026-08-06 (restart the targets' down countdown whenever the
+// Power Surge timer is filled, and raise all three in the same frame when the gate closes).
 using System;
 using System.Collections;
 using TMPro;
@@ -15,9 +17,12 @@ using UnityEngine.Serialization;
 /// <summary>
 /// Scoring mode tied to 3 drop targets. When all 3 are down, 4 bumpers
 /// split open on the X‑axis to reveal a Power Surge portal behind them.
-/// Entering the portal doubles the current multiplier. Power Surge ends when
-/// any drop target resets back up, at which point bumpers close and the
-/// multiplier bonus is removed.
+/// Entering the portal doubles the current multiplier and restarts all 3 targets'
+/// down countdowns together, so they hold the gate open for the surge and then rise as
+/// one. The bumpers close whenever a target comes back up; that also ends the Power
+/// Surge and removes the multiplier bonus, but only for a surge this portal granted —
+/// one handed out elsewhere on the board (the alien ship, the duplicator bumper) runs
+/// its own course and leaves these targets alone.
 /// </summary>
 public class DropTargetsScoringMode : MonoBehaviour
 {
@@ -87,6 +92,12 @@ public class DropTargetsScoringMode : MonoBehaviour
     private bool _wasAllDown;
     private Coroutine _deferredCheckRoutine;
 
+    // Guards RaiseAllTargetsTogether against re-entering itself: the targets it raises
+    // fire onStartUp, which is the very handler that calls it.
+    private bool _syncingRise;
+
+    private bool _powerSurgeSubscribed;
+
     // Cached Portal on the entrance so we can tell when a ball is mid-teleport
     // (held inside the delay) and defer tearing the portals down until it exits.
     private Portal _powerSurgeEntrancePortalComponent;
@@ -119,6 +130,8 @@ public class DropTargetsScoringMode : MonoBehaviour
 
     private void OnEnable()
     {
+        SubscribePowerSurge();
+
         if (dropTargets == null) return;
 
         foreach (Dropper dt in dropTargets)
@@ -126,6 +139,7 @@ public class DropTargetsScoringMode : MonoBehaviour
             if (dt != null)
             {
                 dt.OnFullyDown += OnTargetFullyDown;
+                dt.onStartUp += OnTargetStartedRising;
                 dt.OnReturnedUp += OnTargetReturnedUp;
             }
         }
@@ -160,6 +174,13 @@ public class DropTargetsScoringMode : MonoBehaviour
             _pendingPortalDeactivateRoutine = null;
         }
 
+        if (_powerSurgeSubscribed && powerSurgeManager != null)
+        {
+            powerSurgeManager.OnPowerSurgeTimerRefreshed -= OnPowerSurgeTimerRefreshed;
+            powerSurgeManager.OnPowerSurgeDeactivated -= OnPowerSurgeDeactivated;
+        }
+        _powerSurgeSubscribed = false;
+
         if (dropTargets != null)
         {
             foreach (Dropper dt in dropTargets)
@@ -167,6 +188,7 @@ public class DropTargetsScoringMode : MonoBehaviour
                 if (dt != null)
                 {
                     dt.OnFullyDown -= OnTargetFullyDown;
+                    dt.onStartUp -= OnTargetStartedRising;
                     dt.OnReturnedUp -= OnTargetReturnedUp;
                 }
             }
@@ -182,6 +204,71 @@ public class DropTargetsScoringMode : MonoBehaviour
 
         _deferredCheckRoutine =
             StartCoroutine(DeferredCheckAllDown());
+    }
+
+    // Until the ball reaches the gate portal the targets run their countdowns
+    // individually, exactly as before. Every fill of the Power Surge countdown from that
+    // portal — the activating entry and any re-entry that extends it — restarts all three
+    // in the same frame, so they hold the gate open for the whole surge and then expire
+    // together. A surge granted elsewhere on the board (the alien ship, the duplicator
+    // bumper) leaves the targets alone.
+    private void OnPowerSurgeTimerRefreshed(PowerSurgeSource source)
+    {
+        if (source != PowerSurgeSource.DropTargetPortal) return;
+        if (dropTargets == null) return;
+
+        foreach (Dropper dt in dropTargets)
+        {
+            if (dt != null)
+            {
+                dt.RestartResetCountdown();
+            }
+        }
+    }
+
+    // Our own Power Surge ran out: the targets go up as a bank rather than one at a time.
+    // A surge the ship or the duplicator started isn't ours to end targets over.
+    private void OnPowerSurgeDeactivated()
+    {
+        if (!OwnsPowerSurge) return;
+
+        RaiseAllTargetsTogether();
+    }
+
+    // A target's own countdown can still run out mid-surge — the two are the same length
+    // and the surge clock pauses for portal holds while the target clocks don't. When it
+    // does, the other two join it in the same frame rather than trailing it by a rise, so
+    // the surge always ends with the bank moving as one. Outside our own surge the targets
+    // keep rising independently, as before.
+    private void OnTargetStartedRising()
+    {
+        if (_wasAllDown && OwnsPowerSurge && powerSurgeManager.isPowerSurgeActive)
+        {
+            RaiseAllTargetsTogether();
+        }
+    }
+
+    // Whether the surge in play — or the one that just ended, which is the state the
+    // deactivation handler sees — is the one this gate's portal granted. Pair it with
+    // isPowerSurgeActive anywhere the surge must still be running: the source lingers after
+    // the surge ends so deactivation can be attributed.
+    private bool OwnsPowerSurge =>
+        powerSurgeManager != null
+        && powerSurgeManager.ActiveSource == PowerSurgeSource.DropTargetPortal;
+
+    private void RaiseAllTargetsTogether()
+    {
+        if (_syncingRise || dropTargets == null) return;
+
+        _syncingRise = true;
+        foreach (Dropper dt in dropTargets)
+        {
+            if (dt != null)
+            {
+                dt.ForceReturnUp();
+            }
+        }
+        _syncingRise = false;
     }
 
     private void OnTargetReturnedUp()
@@ -200,11 +287,29 @@ public class DropTargetsScoringMode : MonoBehaviour
         _allDownBonusAwardedThisCycle = false;
     }
 
+    // The manager lives in another scene, so ServiceLocator may not have it yet when this
+    // component enables. The gate cannot open — and so no surge can be granted here —
+    // without a target going down first, which makes DeferredCheckAllDown a reliable
+    // second chance to hook up.
+    private void SubscribePowerSurge()
+    {
+        if (_powerSurgeSubscribed) return;
+
+        EnsureRefs();
+        if (powerSurgeManager == null) return;
+
+        powerSurgeManager.OnPowerSurgeTimerRefreshed += OnPowerSurgeTimerRefreshed;
+        powerSurgeManager.OnPowerSurgeDeactivated += OnPowerSurgeDeactivated;
+        _powerSurgeSubscribed = true;
+    }
+
     private IEnumerator DeferredCheckAllDown()
     {
         yield return null;
 
         _deferredCheckRoutine = null;
+
+        SubscribePowerSurge();
 
         bool allDown = AllTargetsDown();
 
@@ -241,11 +346,12 @@ public class DropTargetsScoringMode : MonoBehaviour
     }
 
     // Closes the Power Surge gate after all-down ends: retracts the bumpers, hides
-    // the portals (deferred if a ball is mid-teleport), ends the Power Surge
-    // multiplier, and plays the gate SFX. DeactivatePowerSurge is called directly
+    // the portals (deferred if a ball is mid-teleport), ends a Power Surge this gate
+    // granted, and plays the gate SFX. DeactivatePowerSurge is called directly
     // (not via the PowerSurgeManager countdown) so a portal-started Power Surge ends the
     // instant a target returns up — even while the countdown is paused because a
-    // ball is held inside the portal's teleport delay.
+    // ball is held inside the portal's teleport delay. A surge from another source is
+    // left running: the targets don't own it, so closing their gate can't cancel it.
     private void ClosePowerSurgeGate()
     {
         _wasAllDown = false;
@@ -253,7 +359,12 @@ public class DropTargetsScoringMode : MonoBehaviour
         SetPowerSurgePortalsActive(false);
 
         EnsureRefs();
-        powerSurgeManager?.DeactivatePowerSurge();
+        // Only end a surge this gate granted. A surge the alien ship or the duplicator
+        // bumper handed out runs on its own clock and isn't the targets' to cancel.
+        if (OwnsPowerSurge)
+        {
+            powerSurgeManager.DeactivatePowerSurge();
+        }
 
         ServiceLocator.Get<AudioManager>()?.PlayPowerSurgeGate(
             bonusSpawnPosition != null

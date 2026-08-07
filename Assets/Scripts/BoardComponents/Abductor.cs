@@ -313,7 +313,8 @@ public class Abductor : MonoBehaviour
                     Vector3 powerSurgeVFXPos = powerSurgeVFXPoint != null
                         ? powerSurgeVFXPoint.position
                         : objectToAbduct.transform.position;
-                    powerSurgeManager.ActivatePowerSurge(powerSurgeVFXPos);
+                    powerSurgeManager.ActivatePowerSurge(
+                        PowerSurgeSource.Abductor, powerSurgeVFXPos);
                     activatedPowerSurge = true;
                 }
 

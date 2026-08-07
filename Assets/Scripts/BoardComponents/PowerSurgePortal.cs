@@ -51,7 +51,8 @@ public class PowerSurgePortal : MonoBehaviour
             Vector3 powerSurgeVFXPos = powerSurgeVFXPoint != null
                 ? powerSurgeVFXPoint.position
                 : transform.position;
-            powerSurgeManager.ActivatePowerSurge(powerSurgeVFXPos);
+            powerSurgeManager.ActivatePowerSurge(
+                PowerSurgeSource.DropTargetPortal, powerSurgeVFXPos);
         }
     }
 

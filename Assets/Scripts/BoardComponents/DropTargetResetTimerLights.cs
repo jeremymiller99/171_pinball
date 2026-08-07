@@ -1,3 +1,5 @@
+// Updated by Claude (Opus 5), for jjmil, on 2026-08-06 (follow the dropper's countdown restart
+// and its early rise, and sweep over the dropper's own reset delay).
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -21,7 +23,7 @@ public class DropTargetResetTimerLights : MonoBehaviour
     [SerializeField] private List<BoardLight> lights = new List<BoardLight>();
 
     [Header("Timing")]
-    [Tooltip("Seconds over which the lights go out. Should match the Dropper reset delay (default 15s).")]
+    [Tooltip("Fallback seconds over which the lights go out. The assigned Dropper's own reset delay wins when it has one, so the ring can't drift out of step with the target.")]
     [SerializeField] private float duration = 15f;
 
     [Header("Power Surge")]
@@ -38,6 +40,13 @@ public class DropTargetResetTimerLights : MonoBehaviour
     private float _elapsed;
     private bool _running;
     private int _nextToExtinguish;
+
+    // The dropper is the source of truth for how long it stays down; the serialized
+    // duration is only a fallback for a ring with no dropper (or one that never resets).
+    private float SweepDuration =>
+        dropTarget != null && dropTarget.ResetDelay > 0f
+            ? dropTarget.ResetDelay
+            : duration;
 
     private void Awake()
     {
@@ -69,6 +78,8 @@ public class DropTargetResetTimerLights : MonoBehaviour
         if (dropTarget != null)
         {
             dropTarget.OnFullyDown += HandleFullyDown;
+            dropTarget.OnResetCountdownRestarted += HandleFullyDown;
+            dropTarget.onStartUp += HandleReturnedUp;
             dropTarget.OnReturnedUp += HandleReturnedUp;
         }
 
@@ -90,6 +101,8 @@ public class DropTargetResetTimerLights : MonoBehaviour
         if (dropTarget != null)
         {
             dropTarget.OnFullyDown -= HandleFullyDown;
+            dropTarget.OnResetCountdownRestarted -= HandleFullyDown;
+            dropTarget.onStartUp -= HandleReturnedUp;
             dropTarget.OnReturnedUp -= HandleReturnedUp;
         }
 
@@ -133,7 +146,7 @@ public class DropTargetResetTimerLights : MonoBehaviour
 
     private void HandleFullyDown()
     {
-        if (lights.Count == 0 || duration <= 0f)
+        if (lights.Count == 0 || SweepDuration <= 0f)
         {
             return;
         }
@@ -168,7 +181,8 @@ public class DropTargetResetTimerLights : MonoBehaviour
         _elapsed += Time.deltaTime;
 
         int count = lights.Count;
-        float progress = Mathf.Clamp01(_elapsed / duration);
+        float sweepDuration = SweepDuration;
+        float progress = Mathf.Clamp01(_elapsed / sweepDuration);
         int shouldBeOff = Mathf.FloorToInt(progress * count);
 
         while (_nextToExtinguish < shouldBeOff && _nextToExtinguish < count)
@@ -181,7 +195,7 @@ public class DropTargetResetTimerLights : MonoBehaviour
             _nextToExtinguish++;
         }
 
-        if (_elapsed >= duration)
+        if (_elapsed >= sweepDuration)
         {
             SetAllLights(false);
             _running = false;

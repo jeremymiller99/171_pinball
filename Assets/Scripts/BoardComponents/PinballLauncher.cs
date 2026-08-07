@@ -38,6 +38,11 @@ public sealed class PinballLauncher : MonoBehaviour
 
     private Rigidbody _ballRb;
     private float _charge;
+
+    // Fraction of maxLaunchForce a release has to have banked to count as a launch. At the
+    // authored charge rate this is a few frames of hold -- far below anything a player taps out
+    // on purpose.
+    private const float minChargeFractionToFire = 0.05f;
     private Vector3 _visualStartLocalPos;
     private Vector3 _visualPullLocalDir = Vector3.back;
 
@@ -105,7 +110,13 @@ public sealed class PinballLauncher : MonoBehaviour
 
         if (launchAction.action.WasReleasedThisFrame())
         {
-            if (_ballRb != null)
+            // Below the floor there is nothing to fire: the ball would not clear the lane, but the
+            // launch would still spend it -- it starts the ball-save clock, strikes the Matchstick
+            // and charges a D-Battery ball. Mostly guards the release that lands a frame or two
+            // after a block lifts, on a key that was already held behind it.
+            bool worthFiring = _charge >= maxLaunchForce * minChargeFractionToFire;
+
+            if (_ballRb != null && worthFiring)
             {
                 Launch();
             }

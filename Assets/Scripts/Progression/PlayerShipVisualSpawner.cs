@@ -10,12 +10,14 @@ public class PlayerShipVisualSpawner : MonoBehaviour
     {
         if (GameSession.Instance == null || GameSession.Instance.ActiveShip == null)
         {
+            SkipFlight();
             return;
         }
 
         PlayerShipDefinition activeShip = GameSession.Instance.ActiveShip;
         if (activeShip.shipModelPrefab == null)
         {
+            SkipFlight();
             return;
         }
 
@@ -36,6 +38,19 @@ public class PlayerShipVisualSpawner : MonoBehaviour
         if (flight != null)
         {
             flight.Bind(spawned.transform, visual);
+        }
+    }
+
+    /// <summary>
+    /// No ship to fly. Tells the flight controller so RunFlowController's intro wait ends now
+    /// instead of sitting on its timeout with board input shut.
+    /// </summary>
+    private void SkipFlight()
+    {
+        PlayerShipFlightController flight = GetComponent<PlayerShipFlightController>();
+        if (flight != null)
+        {
+            flight.SkipEntryFlight();
         }
     }
 }

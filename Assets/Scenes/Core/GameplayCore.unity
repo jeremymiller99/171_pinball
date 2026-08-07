@@ -1682,6 +1682,7 @@ MonoBehaviour:
   boardLoader: {fileID: 1689049482}
   shopTransitionController: {fileID: 987650103}
   cameraIntroPan: {fileID: 987650003}
+  maxIntroHoldSeconds: 10
   gameplayCoreSceneName: GameplayCore
   mainMenuSceneName: MainMenu 1
   hasStartedRun: 0

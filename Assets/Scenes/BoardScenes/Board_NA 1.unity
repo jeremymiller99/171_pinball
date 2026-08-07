@@ -12948,6 +12948,10 @@ MonoBehaviour:
   - {fileID: 2883797502249945402, guid: 8ae04c7adb767f64b8c32b8ea8958d2f, type: 3}
   ballSaveScale: 25
   ballSaveLifetime: 3
+  lastBallPrefabs:
+  - {fileID: 2883797502249945402, guid: e99254c8d3429f54dac91213df578821, type: 3}
+  lastBallScale: 25
+  lastBallLifetime: 3
 --- !u!65 &538407019
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -17237,7 +17241,7 @@ MonoBehaviour:
   meterUnitsPerMps: 0.02
   meterMaxSpeedMps: 50
   meterMaxUnits: 29
-  meterFreezeWhileKinematic: 1
+  silenceRollWhileKinematic: 1
   meterSmoothing: 12
   meterColorEnabled: 1
   meterColorEmpty: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}

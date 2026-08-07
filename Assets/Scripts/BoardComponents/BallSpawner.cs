@@ -1,5 +1,6 @@
 // Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (ball save re-serve hook).
 // Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (public hand slot marker resync).
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-07 (last ball VFX pop).
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -348,6 +349,14 @@ public sealed class BallSpawner : MonoBehaviour
         _handBalls.RemoveAt(0);
         LayoutHandImmediate();
 
+        // Nothing left behind it in the hand, so this is the final ball heading to the
+        // launcher. Popped here rather than when the lerp lands so a cancelled move
+        // (another activation, a scene teardown) can't swallow the effect.
+        if (_handBalls.Count == 0)
+        {
+            SpawnLastBallVfx();
+        }
+
         _activeBalls.Add(next);
         ActivateBall?.Invoke(next);
 
@@ -359,6 +368,16 @@ public sealed class BallSpawner : MonoBehaviour
 
         _moveCoroutine = StartCoroutine(MoveBallToSpawnPointCoroutine(next));
         return next;
+    }
+
+    /// <summary>
+    /// Pops the last ball VFX at the center of the board's VFX volume — the same place the
+    /// ball saved VFX and the level-up banner appear. The volume and the VFX list live in the
+    /// board scene, so a board wired with neither simply gets no effect.
+    /// </summary>
+    private void SpawnLastBallVfx()
+    {
+        ServiceLocator.Get<LevelUpVFXTrigger>()?.SpawnLastBallVFX();
     }
 
     /// <summary>

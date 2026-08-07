@@ -4,6 +4,7 @@
 // Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (ball saved VFX spawn).
 // Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (ball saved VFX pops at the
 // spawn volume center, like the banner and Power Surge, instead of at the ball save lamp).
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-07 (last ball VFX spawn).
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -98,6 +99,24 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
         "Set to 0 to disable auto-destroy."
     )]
     [SerializeField] private float ballSaveLifetime = 3f;
+
+    [Header("Last Ball VFX")]
+    [Tooltip(
+        "Last ball VFX variations. Exactly one (chosen at random) is spawned " +
+        "by BallSpawner at the center of this spawn volume when the final ball " +
+        "in the hand is sent to the launcher. Mirrors the ball saved VFX; lives " +
+        "here so all board VFX is configured in one place."
+    )]
+    [SerializeField] private List<GameObject> lastBallPrefabs = new();
+
+    [Tooltip("Uniform scale applied to the spawned last ball VFX.")]
+    [SerializeField] private float lastBallScale = 1f;
+
+    [Tooltip(
+        "Seconds before the spawned last ball VFX is destroyed. " +
+        "Set to 0 to disable auto-destroy."
+    )]
+    [SerializeField] private float lastBallLifetime = 3f;
 
     private Collider _spawnVolume;
     private GameRulesManager _rules;
@@ -245,6 +264,64 @@ public sealed class LevelUpVFXTrigger : MonoBehaviour
         }
 
         return fx;
+    }
+
+    /// <summary>
+    /// Spawns exactly one last ball VFX prefab, chosen at random from the available
+    /// variations, at the center of the spawn volume — the same place the ball saved
+    /// VFX and the level-up banner pop. Mirrors <see cref="SpawnBallSaveVFX"/>; called
+    /// by <see cref="BallSpawner"/> when the hand empties into the launcher, so all
+    /// board VFX is owned by this one script. Returns the spawned instance, or null if
+    /// none was spawned.
+    /// </summary>
+    public GameObject SpawnLastBallVFX()
+    {
+        if (lastBallPrefabs == null || lastBallPrefabs.Count == 0)
+        {
+            return null;
+        }
+
+        GameObject prefab =
+            lastBallPrefabs[Random.Range(0, lastBallPrefabs.Count)];
+
+        if (prefab == null) return null;
+
+        GameObject fx = Instantiate(
+            prefab,
+            SpawnVolumeCenter(),
+            Quaternion.identity
+        );
+
+        fx.transform.localScale = Vector3.one * lastBallScale;
+
+        if (lastBallLifetime > 0f)
+        {
+            Destroy(fx, lastBallLifetime);
+        }
+
+        return fx;
+    }
+
+    // Inspector debug button (component gear menu): spawns one last ball VFX at the
+    // center of the spawn volume so you can confirm it appears without playing down
+    // to the final ball. Best used in Play mode.
+    [ContextMenu("Debug/Spawn Last Ball VFX")]
+    private void DebugSpawnLastBallVFX()
+    {
+        GameObject fx = SpawnLastBallVFX();
+
+        if (fx == null)
+        {
+            Debug.LogWarning(
+                "[LevelUpVFXTrigger] No last ball VFX spawned — Last Ball Prefabs " +
+                "is empty or its entry is missing on this instance.", this);
+            return;
+        }
+
+        Debug.Log(
+            $"[LevelUpVFXTrigger] Spawned last ball VFX '{fx.name}' at " +
+            $"{fx.transform.position} (scale {fx.transform.localScale.x:0.##}).",
+            fx);
     }
 
     // Inspector debug button (component gear menu): spawns one ball saved VFX

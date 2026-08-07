@@ -606,10 +606,27 @@ public class Abductor : MonoBehaviour
 
         for (int i = 0; i < hologramOutlines.Length; i++)
         {
-            if (hologramOutlines[i] != null && hologramOutlineWasEnabled[i])
+            Outline outline = hologramOutlines[i];
+            if (outline == null)
             {
-                hologramOutlines[i].enabled = true;
+                continue;
             }
+
+            // Anything can switch an outline back on while the hologram is applied — a
+            // shop selection, a prewarm, a deselect. QuickOutline only appends its
+            // mask/fill slots on the enable *transition*, and the restore above has just
+            // overwritten whatever slots it held, so `enabled = true` on an already-
+            // enabled outline is a no-op that leaves it with nothing to draw for the rest
+            // of the run. Force the off/on cycle instead: both callbacks fire
+            // synchronously, so there is no flicker frame, and the redundant OnDisable
+            // simply finds nothing of its own left to remove.
+            if (!hologramOutlineWasEnabled[i] && !outline.enabled)
+            {
+                continue;
+            }
+
+            outline.enabled = false;
+            outline.enabled = true;
         }
 
         hologramOutlines = null;

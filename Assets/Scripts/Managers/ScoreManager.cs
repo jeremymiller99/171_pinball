@@ -29,8 +29,9 @@ public class ScoreManager : MonoBehaviour
     private float _powerSurgeMult;
 
     [Header("Mult Decay")]
-    [Tooltip("Fraction of the earned board mult kept when a ball ends (drain or shop entry).\n" +
-             "0.25 = drop to 25% of what you had. Never falls below 1x.\n" +
+    [Tooltip("Fraction of the mult ABOVE the 1x base that is kept when a ball ends (drain or shop entry).\n" +
+             "0.25 = keep a quarter of everything you earned past 1x, e.g. 8x -> 1 + 7*0.25 = 2.75x.\n" +
+             "The 1x base is never decayed, so you only sit at a flat 1x if you never got above it.\n" +
              "Any active Power Surge bonus is cancelled outright and is not part of this carry-over.")]
     [Range(0f, 1f)]
     [SerializeField] private float multCarryOverOnDecay = 0.25f;
@@ -484,8 +485,9 @@ public class ScoreManager : MonoBehaviour
     /// <summary>
     /// End of a ball — drained, or banked on the way into the shop. Cancels any active
     /// Power Surge (that bonus is forfeited entirely, it is never carried over) and knocks the
-    /// earned board mult down to <see cref="multCarryOverOnDecay"/> of what it was,
-    /// instead of wiping it back to 1x. Never drops below 1x.
+    /// earned board mult down toward — but never all the way back to — 1x: the 1x base is set
+    /// aside and only the amount above it decays to <see cref="multCarryOverOnDecay"/> of what
+    /// it was, so 8x becomes 1 + 7 * 0.25 = 2.75x. Never drops below 1x.
     /// </summary>
     public void DecayMultiplier()
     {
@@ -494,7 +496,8 @@ public class ScoreManager : MonoBehaviour
         ServiceLocator.Get<PowerSurgeManager>()?.DeactivatePowerSurge();
         _powerSurgeMult = 0f;
 
-        float carried = Mathf.Max(1f, mult * multCarryOverOnDecay);
+        // Decay only the earned portion above the 1x base — the base itself is never eaten.
+        float carried = 1f + Mathf.Max(0f, mult - 1f) * multCarryOverOnDecay;
         if (_multCap > 0f && _multCap < float.MaxValue)
             carried = Mathf.Min(carried, _multCap);
 

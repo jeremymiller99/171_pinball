@@ -21,6 +21,8 @@ public class ScoreUIController : MonoBehaviour
 
     [Header("Money Canvas")]
     [SerializeField] private TMP_Text coinsText;
+    [Tooltip("Color for the coins readout. Neon green for readability.")]
+    [SerializeField] private Color coinsTextColor = FloatingTextSpawner.CoinNeonGreen;
 
     [Header("Mult Canvas")]
     [SerializeField] private TMP_Text multText;
@@ -281,7 +283,7 @@ public class ScoreUIController : MonoBehaviour
             && ServiceLocator.TryGet<CoinController>(
                 out var cc))
         {
-            coinsText.text = $"${cc.DisplayCoins}";
+            SetCoinsTextValue($"${cc.DisplayCoins}");
         }
     }
 
@@ -329,14 +331,12 @@ public class ScoreUIController : MonoBehaviour
         if (ServiceLocator.TryGet<CoinController>(
                 out var cc))
         {
-            if (coinsText != null)
-                coinsText.text = $"${cc.DisplayCoins}";
+            SetCoinsTextValue($"${cc.DisplayCoins}");
         }
         else if (ServiceLocator.TryGet<GameRulesManager>(
                 out var gm))
         {
-            if (coinsText != null)
-                coinsText.text = $"${gm.Coins}";
+            SetCoinsTextValue($"${gm.Coins}");
         }
     }
 
@@ -368,8 +368,7 @@ public class ScoreUIController : MonoBehaviour
 
     public void SetCoins(int coins)
     {
-        if (coinsText != null)
-            coinsText.text = $"${coins}";
+        SetCoinsTextValue($"${coins}");
         coinsUiDisplayed = coins;
     }
 
@@ -385,9 +384,7 @@ public class ScoreUIController : MonoBehaviour
         else
         {
             coinsUiDisplayed += applied;
-            if (coinsText != null)
-                coinsText.text =
-                    $"${coinsUiDisplayed}";
+            SetCoinsTextValue($"${coinsUiDisplayed}");
         }
     }
 
@@ -671,6 +668,9 @@ public class ScoreUIController : MonoBehaviour
 
     public void EnsureCoreScoreTextBindings()
     {
+        // Covers the serialized-reference path, which never goes through the auto-find binder.
+        ApplyCoinsTextColor();
+
         if (AllScoreTextBindingsLive())
             return;
 
@@ -878,8 +878,38 @@ public class ScoreUIController : MonoBehaviour
                     n, CoinsObjectName,
                     StringComparison
                         .OrdinalIgnoreCase))
+            {
                 coinsText = t;
+                ApplyCoinsTextColor();
+            }
         }
+    }
+
+    /// <summary>
+    /// Neon green for the coins readout, falling back to the shared constant when the serialized
+    /// field is missing (scene instances saved before it existed deserialize to transparent black).
+    /// </summary>
+    private Color CoinsTextColor =>
+        coinsTextColor.a <= 0f
+            ? FloatingTextSpawner.CoinNeonGreen
+            : coinsTextColor;
+
+    private void ApplyCoinsTextColor()
+    {
+        if (coinsText != null)
+            coinsText.color = CoinsTextColor;
+    }
+
+    /// <summary>
+    /// Single write path for the coins readout so the neon color is reapplied no matter which
+    /// bind path (serialized ref or runtime auto-find) produced <see cref="coinsText"/>.
+    /// </summary>
+    private void SetCoinsTextValue(string value)
+    {
+        if (coinsText == null) return;
+
+        coinsText.text = value;
+        coinsText.color = CoinsTextColor;
     }
 
     private static bool ShouldBind(

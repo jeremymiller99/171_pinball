@@ -9,6 +9,9 @@ using UnityEngine.SceneManagement;
 
 public class FloatingTextSpawner : MonoBehaviour
 {
+    /// <summary>Shared neon green (#39FF14) used for every money/coins readout.</summary>
+    public static readonly Color CoinNeonGreen = new Color(0.224f, 1f, 0.078f, 1f);
+
     [SerializeField] private FloatingText floatingTextPrefab;
     [SerializeField] private Canvas canvas;
     [SerializeField] private Camera targetCamera;
@@ -82,6 +85,8 @@ public class FloatingTextSpawner : MonoBehaviour
     [Header("Gold/Coins")]
     [Tooltip("TMP Font Asset for gold/coins text (yellow style).")]
     [SerializeField] private TMP_FontAsset goldFontAsset;
+    [Tooltip("Color for gold/coins popups. Neon green for readability against the board.")]
+    [SerializeField] private Color goldTextColor = CoinNeonGreen;
     [SerializeField] private float goldScaleMin = 0.8f;
     [SerializeField] private float goldScaleMax = 1.8f;
     [Tooltip("Gold value at which scale reaches max.")]
@@ -117,6 +122,12 @@ public class FloatingTextSpawner : MonoBehaviour
     [SerializeField] private float levelUpCoinsPopupScale = 0.95f;
     [SerializeField] private float levelUpCoinsPopupLifetime = 0.85f;
 
+
+    /// <summary>
+    /// Gold popup color, falling back to <see cref="CoinNeonGreen"/> when the serialized field is
+    /// missing or fully transparent (scene instances saved before the field existed deserialize to zero).
+    /// </summary>
+    private Color GoldTextColor => goldTextColor.a <= 0f ? CoinNeonGreen : goldTextColor;
 
     private RectTransform pointsTarget;
     private RectTransform multTarget;
@@ -372,7 +383,7 @@ public class FloatingTextSpawner : MonoBehaviour
     {
         float scale = ComputeValueScale(goldMagnitudes, goldValue, goldScaleMin, goldScaleMax, goldMaxValue);
         string display = BuildCompactFromTemplate(text, goldValue);
-        SpawnTextInternal(worldPosition, display, goldFontAsset, scale, FlyToTarget.Coins);
+        SpawnTextInternal(worldPosition, display, goldFontAsset, scale, FlyToTarget.Coins, null, default, GoldTextColor);
     }
 
     /// <summary>
@@ -384,7 +395,7 @@ public class FloatingTextSpawner : MonoBehaviour
     {
         float scale = ComputeValueScale(goldMagnitudes, goldValue, goldScaleMin, goldScaleMax, goldMaxValue);
         string display = BuildCompactFromTemplate(text, goldValue);
-        SpawnTextInternal(worldPosition, display, goldFontAsset, scale * scaleMultiplier, FlyToTarget.Coins, onArrive, default, colorOverride);
+        SpawnTextInternal(worldPosition, display, goldFontAsset, scale * scaleMultiplier, FlyToTarget.Coins, onArrive, default, colorOverride ?? GoldTextColor);
     }
 
     public void SpawnGoalTierMultPopup(int multiplierNumber)
@@ -473,7 +484,8 @@ public class FloatingTextSpawner : MonoBehaviour
             goalPraisePopStartScaleMultiplier,
             goalPraisePopPeakScaleMultiplier,
             goalPraisePopRisePortion,
-            goalPraisePopDuration);
+            goalPraisePopDuration,
+            GoldTextColor);
 
         if (ft == null)
         {

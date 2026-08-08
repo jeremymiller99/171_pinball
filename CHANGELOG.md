@@ -10,6 +10,31 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.16.5 — FTUE Phase 0: editor-only launcher for Board_FTUE
+_2026-08-07 · Contributor: JJ_
+
+Adds `Pinball/FTUE/Play FTUE Board`, an editor menu item that opens GameplayCore and enters play
+mode with a `GameSession` configured for the FTUE mission, board and ship. Without it Board_FTUE
+is unreachable — `RunFlowController` finds no board in the session and bounces to the main menu.
+First step of `FTUE_PLAN.md` Phase 0.
+
+- One new file, `Assets/Scripts/FTUE/FtueDebugBoot.cs`. **No existing file was modified**, so
+  Board_Alpha, Board_NA, Board_NA 1 and Board_Spinners are untouched by construction.
+- The whole file is `#if UNITY_EDITOR`-guarded and contributes nothing to a player build.
+- It lives under `Assets/Scripts` rather than `Assets/Editor` for two reasons:
+  `RuntimeInitializeOnLoadMethod` is not invoked for editor assemblies, and it is the only hook
+  that reliably runs before `RunFlowController.Start` reads the session — `playModeStateChanged`
+  races it. Keeping it in Assembly-CSharp also means the headless compile check covers it, which
+  it would not in an Editor folder.
+- The request is held in `SessionState`, not `EditorPrefs`, so it applies to the next play
+  session only and leaves nothing on disk. It is cleared before the work runs, so a thrown
+  exception cannot strand the flag on.
+- `GameSession.GenerateRounds` is deliberately not called: nothing in the shipped flow calls it
+  either, and it would mark every fifth round a Devil round for the tutorial.
+- Temporary scaffolding. Phase 5 replaces it with the real boot rule; delete the file then.
+
+---
+
 ## 0.16.4 — Tooltips use the custom dollar sign
 _2026-08-05 · Contributor: JJ_
 

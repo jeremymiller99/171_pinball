@@ -285,11 +285,17 @@ Assets/Resources/FTUE/
 ```
 
 ```
-Assets/Data/FTUE/
-  FTUE_Mission.asset        ChallengeModeDefinition (devilPool = null)
-  FTUE_Board.asset          BoardDefinition (clearCondition = None)
-  FTUE_Ship.asset           PlayerShipDefinition — 3-ball startingHand, startingCoins (§2.6a)
+Assets/Data/FTUE/                       [DONE — authored 2026-08-07]
+  Mission_FTUE.asset        ChallengeModeDefinition (devilPool = null, boards -> Board_FTUE)
+  Board_FTUE.asset          BoardDefinition (clearCondition = None, missions = [])
+  Ship_FTUE.asset           PlayerShipDefinition — startingMaxBalls 5, 3x Pinball startingHand,
+                            startingCoins 100 (§2.6a)
 ```
+
+_Asset names are `<Type>_FTUE`, not the `FTUE_<Type>` used in earlier drafts of this document._
+`startingMaxBalls 5` with a 3-entry `startingHand` is intentional and correct: `InitializeForNewRun`
+seeds the hand from `startingHand` (3 balls) while `maxBalls` sets the ceiling (5), which is exactly
+the headroom shop visit 2 needs to sell a fourth ball.
 
 ### 3.2 `FtueState` — the shared contract
 
@@ -410,16 +416,16 @@ shop visit is where the narrator explains them. Cheap to try both once the direc
 Ordered so that each phase is independently testable. Phases 1–2 are the critical path; 3–5 can be
 parallelised across two engineers.
 
-### Phase 0 — Unblock (1 hr, anyone)
-- Add `Board_FTUE` to Build Settings.
-- Create `FTUE_Board.asset` (`clearCondition = None`), `FTUE_Mission.asset`
-  (`devilPool = null`, `totalRounds` high, allow-lists empty for now), and `FTUE_Ship.asset`
-  (3-ball `startingHand`, `startingCoins` — §2.6a).
-- Temporary debug entry point that calls
-  `ConfigureChallenge(ftueMission, ftueBoard, ftueShip, seed)` and loads `GameplayCore`, so the
-  board is playable before the boot flow is touched.
-- **Exit criterion:** `Board_FTUE` loads, is playable as a normal board, and the player starts with
-  exactly 3 balls in hand.
+### Phase 0 — Unblock (1 hr, anyone) — **CODE COMPLETE, awaiting in-editor verification**
+- ~~Add `Board_FTUE` to Build Settings.~~ **DONE** — verified present in `EditorBuildSettings.asset`.
+- ~~Create the three data assets.~~ **DONE** — see §3.1. Cross-references verified:
+  `Mission_FTUE.boards` → `Board_FTUE`, `Board_FTUE.missions` empty (§7a A3 rule holds),
+  `startingHand` = 3× `Pinball`.
+- ~~Temporary debug entry point.~~ **DONE** — `Assets/Scripts/FTUE/FtueDebugBoot.cs`, editor-only,
+  menu item `Pinball/FTUE/Play FTUE Board`. Zero shared files modified. Compile gate: 0 errors /
+  31 warnings, no new warnings.
+- **Exit criterion (needs a human in the editor):** `Board_FTUE` loads, is playable as a normal
+  board, and the player starts with exactly 3 balls in hand.
 
 ### Phase 1 — Skeleton and safety (1 engineer, ~1 day)
 - `FtueState`, `FtueDirector` shell with an empty step list.

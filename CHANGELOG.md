@@ -10,6 +10,71 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.17.2 — FTUE Phase 2: camera focus on the launcher
+_2026-08-08 · Contributor: JJ_
+
+The camera dollies to the launcher after the opening beats and returns when the ball is launched.
+`FTUE_PLAN.md` ticket 7b. One new file plus the director; **no existing file modified**.
+
+- The rig lives in GameplayCore, so it cannot be a serialized reference from the board scene. It
+  is resolved as `Camera.main.transform.parent` — verified to be the actual hierarchy, and the
+  same resolution `CameraIntroPan` and `ShopTransitionController` already use, so all three agree
+  on what "the rig" is.
+- **Position only, in local space**, matching both existing systems, which animate `localPosition`
+  and never rotation. Reads as a dolly rather than a swing, and stays composable with them.
+- The focus point marks where the **camera** should end up, not the rig. The camera is a child of
+  the rig with its own offset, so moving the rig onto the point would leave the camera short by
+  that offset; shifting the rig by the camera's own delta sidesteps needing to know the offset.
+- **The play pose is captured, not authored** — taken once the opening pan has landed. An authored
+  return point would drift out of step with wherever that pan actually finishes and would need
+  re-authoring whenever the intro is retuned.
+- **Guards a real conflict with the shop.** `ShopTransitionController.CacheHomeIfNeeded` re-reads
+  the rig's current `localPosition` as its home whenever the shop is not already open, so a camera
+  parked at the launcher when the shop opened would teach it the wrong home and strand the view
+  there for the rest of the run. The director snaps back to the play pose on `ShopOpened`, which
+  `GameRulesManager.OpenShop` raises *before* it calls the transition controller — that ordering is
+  what makes the snap land in time.
+- `OnDisable` also snaps back, so a board unloaded mid-move cannot leave the camera parked.
+- The director unsubscribes from `PinballLauncher.BallLaunched` on disable; it is a static event,
+  so staying subscribed would keep a destroyed director firing for the rest of the session.
+
+---
+
+## 0.17.1 — FTUE Phase 2: dialogue pipeline and the opening two beats
+_2026-08-08 · Contributor: JJ_
+
+The director now puts the narrator on screen: welcome line, then the player names the AI.
+`FTUE_PLAN.md` ticket 7. One new file plus the director; **no existing file modified**.
+
+- **Sequencing in code, copy in data** — a deliberate departure from the plan's
+  `FtueStepDefinition` ScriptableObjects. The beats are not interchangeable (a dismissal, a launch,
+  a trigger volume, three power surges), so a generic step system would need a trigger enum, an
+  action enum and a switch in the director: every real beat would cost a recompile anyway while
+  reading worse. What changes often is wording, and `FtueDialogueLine` makes that inspector-
+  editable with a localization key and an English fallback.
+- `{0}` is always the AI's name, supplied for every line; beat-specific arguments start at `{1}`.
+  Everything routes through `LocalizedUI.Format`, so a translator breaking the placeholders
+  degrades to the English source rather than throwing mid-tutorial.
+- **The speaker reads `???` until the player names it.** `FtueNarrator.DisplayName` would return
+  the `Al` fallback from the very first line, which would spoil the naming beat by showing a name
+  before it is asked for. `HasPlayerChosenName` distinguishes the two.
+- The opening beats wait on `GameplayInputGate.IsBlocked` clearing. `RunFlowController` holds that
+  gate for exactly the camera pan and ship entry flight, so it doubles as a "cinematic still
+  playing" signal without a cross-scene reference. Bounded at 15s — a tutorial that never starts
+  is worse than one that starts early.
+- Input blocking is recomputed from all reasons at once rather than toggled per site:
+  `GameplayInputGate` keys on the owner, so a second `Block` from the director would be released
+  by the first `Unblock`.
+- Panels are parented to the director, so they belong to the board scene and die with it. Their
+  Screen Space - Overlay canvas ignores the parent transform, so nesting does not affect rendering.
+- Every beat degrades safely: an unauthored line, a missing prefab or a naming panel with no field
+  all advance the sequence rather than stranding the player on a panel that never appears.
+- **Camera work is deliberately not here.** The launcher zoom drives a rig that lives in
+  GameplayCore and is shared with `ShopTransitionController`, which makes it the riskiest piece;
+  splitting it out keeps it from blocking visible progress on the dialogue.
+
+---
+
 ## 0.17.0 — FTUE Phase 2: profile fields, save migration and the narrator's name
 _2026-08-08 · Contributor: JJ_
 

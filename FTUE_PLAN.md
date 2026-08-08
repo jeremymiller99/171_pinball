@@ -1,5 +1,74 @@
 # FTUE Board Plan — `Board_FTUE`
 
+---
+
+# ⇢ START HERE — status as of 2026-08-08
+
+**Tickets 1–12 are done, merged to `main` (`ftue 3.3`), tree clean. CHANGELOG at 0.17.7.
+Ticket 13 is the only one left. Its full specification is §13 at the bottom of this document.**
+
+All 14 beats exist and run end to end. What ticket 13 adds is the boot rule that makes the FTUE
+reachable by a real first-time player instead of only through the editor menu, plus localization
+and cleanup.
+
+## Ticket ledger
+
+| # | Ticket | Shared files touched | Status |
+|---|---|---|---|
+| 1 | Editor launcher (`Pinball/FTUE/Play FTUE Board`) | none | ✅ |
+| 2 | `FtueState` + director shell | none | ✅ |
+| 3 | Unlosable: failure guard + always-return the ball | `GameRulesManager`, `DrainHandler` | ✅ |
+| 3b | Ball save lamp stays lit in the tutorial | `DrainHandler` | ✅ |
+| 4 | Legacy tutorial panels stand down | `BasicTutorialController` | ✅ |
+| 5 | Dialogue view, typewriter, binding prompts | none | ✅ |
+| 6 | Profile fields, v7 save migration, `Al` fallback | `ProfileSaveData`, `ProfileService` | ✅ |
+| 7 | Dialogue pipeline, beats 1 / 1a | none | ✅ |
+| 7b | Camera focus on the launcher | none | ✅ |
+| 8 | Beats 2–4a, persistent prompts, launch lockout | none | ✅ |
+| 9 | Level goals, shop pool override, unlock bypass, reroll off | `GoalScaler`, `RunPoolFilter`, `ShopOfferGenerator`, `UnifiedShopController` | ✅ |
+| 10 | `OfferPurchased` event, pick-one visits | `UnifiedShopController` | ✅ |
+| 11 | Beats 5–9, mult-target reveal choreography | none | ✅ |
+| 12 | Beats 10–11, power surge count, return to ship, shop-prompt pause | none | ✅ |
+| **13** | **Boot rule, localization, cleanup** | `MenuUI` / `MainMenuController` | **TODO — see §13** |
+
+## Working method used throughout — keep doing this
+
+- **One branch per ticket**, named `ftue/<phase>-<slug>`. Work is not committed by the assistant;
+  jjmil commits and merges.
+- **Compile gate before declaring done.** Unity cannot run headless here. Regenerate a
+  `BuildCheck.csproj` from `Assembly-CSharp.csproj` with the `<Compile Include>` list rewritten from
+  a walk of `Assets/Scripts`, then `dotnet build BuildCheck.csproj -v q --nologo -t:Rebuild`, then
+  delete the scratch csproj. **Baseline is 31 unique warnings / 0 errors** — count normalized
+  `file(line,col): warning CSxxxx` matches, because MSBuild logs each warning twice at different
+  indentation and a raw line count reads ~42. See the `compile-check-without-unity` memory.
+- **Every shared-file edit is a guard on `FtueState`,** written so the pre-existing code path is
+  textually unchanged (§7a A8). A reviewer should be able to delete the guard and get the old file
+  back.
+- **CHANGELOG entry + version bump per change**, per `AGENTS.md`.
+
+## Deviations from this plan that were made and are now settled
+
+Do not re-litigate these; they are shipped and the reasoning is recorded in the sections named.
+
+1. **No `FtueStepDefinition` ScriptableObjects.** Sequencing is code, copy is data
+   (`FtueDialogueLine`). The beats are too heterogeneous for a generic step system — §3.3.
+2. **No `FtuePlacementSlot`.** Activation timing constrains placement instead — §8b, §7a A6.
+3. **`FtueState.Active` is ownership-derived**, not a bool with a reset call — §7a A2.
+4. **Dialogue prefabs are direct references on the director**, not loaded from `Resources` — §3.1.
+5. **No new token formatter.** `LocalizedUI.Format` already existed and is used — §3.1.
+6. **The director owns its own camera tween**; only the launcher and shop-button points are
+   authored, the play pose is captured — §8c.
+
+## Known loose ends (not blocking ticket 13)
+
+- **Gamepad prompts.** `FtueBindings` always names the keyboard binding. Doing it properly needs
+  last-used-device tracking, which is wider than the tutorial should reach.
+- **Narrator portrait art and an FMOD dialogue blip** — deferred by jjmil.
+- **`PauseMenuController` also writes `Time.timeScale`.** The director's pause does not defer to
+  it. If pressing Escape during a paused beat leaves the game at the wrong speed, that is the cause.
+
+---
+
 _Planning document. No code written yet. Target: a scripted first-time-user experience that runs
 entirely on `Board_FTUE`, driven by a narrator character, ending with a return to the ship
 (main menu)._
@@ -926,11 +995,86 @@ requirement via `FTUE_Ship.startingCoins`, so this should be a path nobody sees.
 
 ## 8e. Still open
 
+_All blocking questions are answered. Everything below is authored content or deferred polish;
+see the loose-ends list at the top of this document._
+
 - **Drop-target reveal timing** — at the level-up (visible board change) or at the shop. Needed by
   Phase 4.
 - **Narrator portrait art and an FMOD dialogue blip** — explicitly deferred by jjmil; Phase 5.
 
 That is the last of the blocking questions. Everything else is authored content and tuning.
+
+---
+
+## 13. TICKET 13 — boot rule, localization, cleanup (the last ticket)
+
+_Everything needed to execute this is here. Branch: `ftue/phase5-boot-and-localization`._
+
+### 13.1 The boot rule — the point of the whole ticket
+
+Today the FTUE is reachable only via the editor menu item. A real first-time player never sees it.
+
+**Rule:** on entering the main menu, if `!ProfileService.HasCompletedFtue()`, configure the FTUE
+session and load `GameplayCore` instead of showing the menu.
+
+- The data assets are `Assets/Data/FTUE/Board_FTUE.asset`, `Mission_FTUE.asset`, `Ship_FTUE.asset`.
+  They are **outside `Resources` on purpose** (§7a A3) — reach them by serialized reference from
+  whatever component owns the boot check, not by `LoadAll`.
+- Configure exactly as `FtueDebugBoot` does:
+  `GameSession.Instance.ConfigureChallenge(mission, board, ship, seed)` with a fixed seed. **Do not
+  call `GenerateRounds`** — nothing in the shipped flow does, and it would mark every fifth round a
+  Devil round.
+- Then `SceneFader.Instance.FadeAndLoadScene("GameplayCore")`.
+- **`MainMenu 1` is the live ship scene**; `MainMenu` is the legacy one (`MainMenuController.cs`
+  comments say so). Put the check in the `MainMenu 1` flow.
+- **Run the check on menu entry, not once at application start** (§8d). `R` wipes the profile while
+  the player is already sitting in the menu, and QA needs the tutorial to re-arm without restarting
+  play mode.
+
+### 13.2 QA shortcut
+
+Extend the existing `R` handler (`MainMenuController.ResetActiveProfile`) to wipe **and** route
+straight into the FTUE. One extra line, and it is the loop QA will run dozens of times.
+
+### 13.3 Localization
+
+Every narrator line is currently an inspector fallback string with **no localization key**. They
+render fine and will never translate. For each `FtueDialogueLine` on the director and on each
+`FtueShopVisit`, add a key to the **Gameplay** string table and fill `Localization Key`.
+
+Suggested key shape: `ftue.<beat>.<n>` — e.g. `ftue.intro`, `ftue.naming`, `ftue.nameAccepted`,
+`ftue.launchPrompt`, `ftue.flipperLesson`, `ftue.ballReturned`, `ftue.shopAvailable`,
+`ftue.shopVisit1.1`, `ftue.componentPlaced.1`, `ftue.powerSurge.1`, `ftue.completion.1`.
+
+Two translator notes that must travel with the entries:
+
+- **`Al` is intentional** and must not be "corrected" to `AI` (§8a). Put this on the naming beat's
+  key and on the fallback-name entry.
+- **The Red Two / Blue Two line is a film reference** about a two-colour choice; a local equivalent
+  beats a literal rendering (§8g).
+
+Placeholders: `{0}` is always the AI's name; beat-specific arguments start at `{1}`.
+
+### 13.4 Cleanup
+
+- **Delete `Assets/Scripts/FTUE/FtueDebugBoot.cs`** — its whole purpose was to stand in for 13.1.
+  Keeping both risks two boot paths disagreeing. (Or keep it deliberately as a dev shortcut and say
+  so in its header; do not leave the question open.)
+- Confirm no FTUE asset has drifted into `Resources`, and that `Ship_FTUE` is still absent from
+  `ProgressionConfig.starterShips` and `Mission_FTUE` from every `BoardDefinition.missions[]`.
+
+### 13.5 Definition of done for this ticket
+
+Beyond the standard compile gate:
+
+1. **Wipe a profile → launch → the FTUE starts with no menu.** Finish it → back at the ship.
+2. **Relaunch → the main menu appears normally.** The FTUE does not repeat.
+3. **An existing save file boots to the menu, not the tutorial.** This is the §7a A4 grandfather;
+   it is the single highest-risk behaviour in the whole feature.
+4. `R` wipes and drops straight into the FTUE.
+5. Full §7a verification protocol — one round on each of `Board_NA`, `Board_NA 1`, `Board_Alpha`,
+   `Board_Spinners`; star map and ship select show no FTUE entries; `git status` clean under
+   `Assets/Prefabs/` and `Assets/Resources/`.
 
 ---
 

@@ -26,6 +26,13 @@ public sealed class FtueShopVisit
     [Tooltip("Pinballs offered this visit. Empty means none.")]
     [SerializeField] private List<BallDefinition> balls = new List<BallDefinition>();
 
+    [Tooltip("Buying anything clears the rest of the shelf, so the visit is a choice rather than "
+        + "a shopping trip. Used for the Red Two / Blue Two beat, where the player is meant to "
+        + "take one — nothing otherwise stops someone with enough coins buying both.")]
+    [SerializeField] private bool pickOne;
+
+    public bool PickOne => pickOne;
+
     public IReadOnlyList<BoardComponentDefinition> Components =>
         components ?? (IReadOnlyList<BoardComponentDefinition>)Array.Empty<BoardComponentDefinition>();
 

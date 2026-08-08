@@ -10,6 +10,30 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.17.5 — FTUE Phase 3: "pick one" shop visits
+_2026-08-08 · Contributor: JJ_
+
+A tutorial shop visit can now be a choice rather than a shopping trip: buying one item clears the
+rest of the shelf. `FTUE_PLAN.md` ticket 10. This is what makes the Red Two / Blue Two beat a real
+decision — nothing otherwise stops a player with enough coins buying both.
+
+- `UnifiedShopController` gains `public event Action<ShopOffer> OfferPurchased`, raised from all
+  three purchase paths (component placement, buying a ball into a free slot, replacing a ball in a
+  slot). Each sits next to the existing `LogShopItemPurchased` / `ConsumeOffer` pair, so the three
+  routes stay in step. **Purely additive** — nothing changes when no one is listening, which is
+  every board except the FTUE.
+- The shop was the only system that knew a purchase had happened: it exposed `OfferSelected`,
+  `PlacementCancelled` and `ShopClosed`, but purchases only reached analytics.
+- `FtueShopVisit.pickOne` turns the behaviour on per visit, so it is authored rather than
+  hard-coded to one beat.
+- **No new API was needed to reach the shelf.** `UnifiedShopController` is already registered in
+  the `ServiceLocator` and `[RequireComponent]`s `ShopOfferShelfController`, so the director
+  resolves it deterministically off the shop's own object rather than searching the scene.
+- Offers are consumed back-to-front: `ConsumeOffer` removes the entry it is handed, so a forward
+  walk would skip every other one.
+
+---
+
 ## 0.17.4 — FTUE Phase 3: its own level goals, and a hand-picked shop shelf
 _2026-08-08 · Contributor: JJ_
 

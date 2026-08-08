@@ -29023,6 +29023,24 @@ MonoBehaviour:
   ballReturnedLine:
     localizationKey: 
     englishText: You may have lost the battle but not the war. Try again.
+  levelGoals:
+  - 100
+  - 250
+  - 600
+  - 1000
+  shopVisits:
+  - components:
+    - {fileID: 11400000, guid: adf1dac8a000a604cbd27f9ebf5c24f2, type: 2}
+    balls: []
+    pickOne: 0
+  - components: []
+    balls:
+    - {fileID: 11400000, guid: c1d8ad878e4616b4bbd42ef637c67545, type: 2}
+    - {fileID: 11400000, guid: 4b14eb5ea0e14ea469f9dc777aade6eb, type: 2}
+    pickOne: 1
+  - components: []
+    balls: []
+    pickOne: 0
   maxIntroWaitSeconds: 15
   logStateChanges: 1
 --- !u!4 &1932396897

@@ -130,6 +130,8 @@ public sealed class FtueDirector : MonoBehaviour
 
     private GameRulesManager cachedRules;
     private DrainHandler cachedDrain;
+    private UnifiedShopController cachedShop;
+    private bool currentVisitIsPickOne;
     private FtueDialogueView activePanel;
     private bool activePanelBlocksInput;
     private bool sequenceStarted;
@@ -171,6 +173,7 @@ public sealed class FtueDirector : MonoBehaviour
 
         UnsubscribeFromRules();
         UnsubscribeFromDrain();
+        UnsubscribeFromShop();
         DismissActivePanel();
         RefreshInputBlock();
 
@@ -189,6 +192,60 @@ public sealed class FtueDirector : MonoBehaviour
     {
         TrySubscribeToRules();
         TrySubscribeToDrain();
+        TrySubscribeToShop();
+    }
+
+    private void TrySubscribeToShop()
+    {
+        UnifiedShopController shop = ServiceLocator.Get<UnifiedShopController>();
+        if (shop == cachedShop) return;
+
+        UnsubscribeFromShop();
+
+        cachedShop = shop;
+        if (shop == null) return;
+
+        shop.OfferPurchased += OnOfferPurchased;
+    }
+
+    private void UnsubscribeFromShop()
+    {
+        if (cachedShop == null) return;
+
+        cachedShop.OfferPurchased -= OnOfferPurchased;
+        cachedShop = null;
+    }
+
+    /// <summary>
+    /// Enforces a pick-one visit. Nothing in the shop stops a player with enough coins buying both
+    /// of a pair, which would flatten the Red Two / Blue Two choice into a shopping trip, so
+    /// taking one clears what is left on the shelf.
+    /// </summary>
+    private void OnOfferPurchased(ShopOffer purchased)
+    {
+        if (!currentVisitIsPickOne) return;
+
+        currentVisitIsPickOne = false;
+        ClearRemainingOffers();
+    }
+
+    private void ClearRemainingOffers()
+    {
+        if (cachedShop == null) return;
+
+        // RequireComponent puts the shelf on the shop's own object, so this is deterministic
+        // rather than a scene search that could turn up the wrong one.
+        var shelf = cachedShop.GetComponent<ShopOfferShelfController>();
+        if (shelf == null) return;
+
+        // Backwards: ConsumeOffer removes the entry it is given, so a forward walk would skip.
+        for (int i = shelf.OfferEntries.Count - 1; i >= 0; i--)
+        {
+            ShopOffer3DEntry entry = shelf.OfferEntries[i];
+            if (entry != null) shelf.ConsumeOffer(entry.OfferIndex);
+        }
+
+        Log("Pick-one visit: cleared the rest of the shelf.");
     }
 
     private void TrySubscribeToDrain()
@@ -256,6 +313,7 @@ public sealed class FtueDirector : MonoBehaviour
         if (shopVisits == null || shopVisits.Count == 0)
         {
             FtueState.ClearShopOverride();
+            currentVisitIsPickOne = false;
             return;
         }
 
@@ -265,10 +323,11 @@ public sealed class FtueDirector : MonoBehaviour
         FtueShopVisit visit = shopVisits[index];
 
         FtueState.SetShopOverride(visit.Balls, visit.Components);
+        currentVisitIsPickOne = visit.PickOne;
         shopVisitIndex++;
 
         Log($"Shop visit {index + 1}: {visit.Components.Count} component(s), "
-            + $"{visit.Balls.Count} ball(s).");
+            + $"{visit.Balls.Count} ball(s), pickOne={visit.PickOne}.");
     }
 
     /// <summary>

@@ -59,6 +59,13 @@ public sealed class UnifiedShopController : MonoBehaviour
     public bool SelectingButtons;
 
     public event Action<ShopOffer> OfferSelected;
+
+    /// <summary>
+    /// Raised after an offer has been paid for and consumed, from all three purchase paths
+    /// (component placement, buying a ball into a free slot, replacing a ball in a slot). Purely
+    /// informational — nothing here changes if no one is listening.
+    /// </summary>
+    public event Action<ShopOffer> OfferPurchased;
     public event Action PlacementCancelled;
     public event Action ShopClosed;
 
@@ -200,6 +207,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         }
 
         PinballAnalytics.LogShopItemPurchased(_selectedOffer);
+        OfferPurchased?.Invoke(_selectedOffer);
 
         _shelf.ConsumeOffer(_selectedOfferIndex);
         SteamAchievements.UnlockFirstComponentPurchase();
@@ -668,6 +676,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         }
 
         PinballAnalytics.LogShopItemPurchased(offer, ballToGrant, offer.Price);
+        OfferPurchased?.Invoke(offer);
 
         _shelf.ConsumeOffer(offerIndex);
 
@@ -809,6 +818,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         SteamAchievements.UnlockFirstBallPurchase();
 
         PinballAnalytics.LogShopItemPurchased(offer);
+        OfferPurchased?.Invoke(offer);
 
         _shelf.ConsumeOffer(offerIndex);
 

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63909320c46a7384d8a9756959f0347c, type: 3}
+  m_Name: Ship_FTUE
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerShipDefinition
+  id: 
+  displayNameSource: FTUE Ship
+  descriptionSource: FTUE ship
+  shipModelPrefab: {fileID: 5566029595203772779, guid: 8dc4cc46a96de3a4797b1d267b83ef4d, type: 3}
+  icon: {fileID: 0}
+  elementType: 0
+  shopPriceMultiplier: 1
+  startingMaxBalls: 5
+  startingHand:
+  - {fileID: 11400000, guid: def7cfab5eaa89b4f94ba76799b74244, type: 2}
+  - {fileID: 11400000, guid: def7cfab5eaa89b4f94ba76799b74244, type: 2}
+  - {fileID: 11400000, guid: def7cfab5eaa89b4f94ba76799b74244, type: 2}
+  scoreMultiplier: 1
+  coinMultiplier: 1
+  multMultiplier: 1
+  startingCoins: 100
+  ballPoolAllowList: []
+  componentPoolAllowList: []

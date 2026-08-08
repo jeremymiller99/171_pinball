@@ -4,12 +4,35 @@
 
 # ⇢ START HERE — status as of 2026-08-08
 
-**Tickets 1–12 are done, merged to `main` (`ftue 3.3`), tree clean. CHANGELOG at 0.17.7.
-Ticket 13 is the only one left. Its full specification is §13 at the bottom of this document.**
+**All 13 tickets are written. CHANGELOG at 0.18.0. Tickets 1–12 are merged to `main`
+(`ftue 3.3`); ticket 13 is written but NOT yet play-tested — see the checklist below.**
 
-All 14 beats exist and run end to end. What ticket 13 adds is the boot rule that makes the FTUE
-reachable by a real first-time player instead of only through the editor menu, plus localization
-and cleanup.
+All 14 beats exist and run end to end, and the boot rule now sends a first-time player into the
+tutorial instead of the menu. Ticket 13's specification is §13 at the bottom of this document.
+
+**Ticket 13 is unverified in the editor.** The compile gate passed (0 errors / 31 warnings) and the
+localization tables were verified to round-trip the scene copy byte-for-byte, but §13.5 items 1, 2,
+4 and 5 are runtime checks nobody has run:
+
+1. Wipe a profile → launch → the FTUE starts with no menu. Finish it → back at the ship.
+2. Relaunch → the main menu appears normally; the FTUE does not repeat.
+4. `R` in the menu wipes and drops straight into the FTUE.
+5. The §7a verification protocol — one round on each of `Board_NA`, `Board_NA 1`, `Board_Alpha`,
+   `Board_Spinners`; star map and ship select show no FTUE entries.
+
+§13.5 item 3 (an existing save boots to the menu, not the tutorial) is covered by the v7 save
+migration shipped in ticket 6 — `ProfileService.UpgradeInPlaceIfNeeded` stamps `hasCompletedFtue`
+on every pre-v7 profile. Nothing in ticket 13 decides it.
+
+Two follow-ups deliberately left open by ticket 13:
+
+- **Translator notes are not in the table metadata.** Every existing entry has `m_Items: []`, and a
+  malformed `Comment` metadata block can fail table deserialization, so the two notes live in the
+  0.18.0 CHANGELOG entry instead: `Al` is intentional and must not become `AI`; the Red Two / Blue
+  Two line is a film reference. Move them into metadata from the Localization window if wanted.
+- **Only the dialogue lines are keyed.** `unnamedSpeaker`, `continuePrompt`, `namingPlaceholder`
+  and `namingConfirmPrompt` on the director are plain strings with no key field — §13.3 scoped
+  itself to `FtueDialogueLine`, and giving those a key means a code change too.
 
 ## Ticket ledger
 
@@ -29,7 +52,7 @@ and cleanup.
 | 10 | `OfferPurchased` event, pick-one visits | `UnifiedShopController` | ✅ |
 | 11 | Beats 5–9, mult-target reveal choreography | none | ✅ |
 | 12 | Beats 10–11, power surge count, return to ship, shop-prompt pause | none | ✅ |
-| **13** | **Boot rule, localization, cleanup** | `MenuUI` / `MainMenuController` | **TODO — see §13** |
+| 13 | Boot rule, localization, cleanup | `MainMenuController` | ✅ written, ⚠ not play-tested |
 
 ## Working method used throughout — keep doing this
 

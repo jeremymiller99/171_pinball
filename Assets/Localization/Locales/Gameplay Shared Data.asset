@@ -411,6 +411,58 @@ MonoBehaviour:
     m_Key: gameplay.levelNum
     m_Metadata:
       m_Items: []
+  - m_Id: 719679789195315
+    m_Key: ftue.intro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195316
+    m_Key: ftue.naming
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195317
+    m_Key: ftue.nameAccepted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195318
+    m_Key: ftue.launchPrompt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195319
+    m_Key: ftue.flipperLesson
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195320
+    m_Key: ftue.ballReturned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195321
+    m_Key: ftue.shopAvailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195322
+    m_Key: ftue.componentPlaced.1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195323
+    m_Key: ftue.componentPlaced.2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195324
+    m_Key: ftue.powerSurge.1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195325
+    m_Key: ftue.completion.1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195326
+    m_Key: ftue.shopVisit1.1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 719679789195327
+    m_Key: ftue.shopVisit2.1
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

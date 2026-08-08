@@ -26399,6 +26399,10 @@ MonoBehaviour:
   settingsPanel: {fileID: 2071446452}
   progressionPanel: {fileID: 1540765487}
   quitText: {fileID: 0}
+  ftueMission: {fileID: 11400000, guid: a23541900281d3c49a2f48101d01a76e, type: 2}
+  ftueBoard: {fileID: 11400000, guid: 2bdcb30bfefa65a49ac2a4060f7c8792, type: 2}
+  ftueShip: {fileID: 11400000, guid: 7b982cba8aa4cc74f878b3c13479e50d, type: 2}
+  ftueSeed: 1337
   currentOption: 0
 --- !u!4 &1889700249
 Transform:

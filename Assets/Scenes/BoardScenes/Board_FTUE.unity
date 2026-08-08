@@ -1913,6 +1913,131 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &88363473
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 88363478}
+  - component: {fileID: 88363477}
+  - component: {fileID: 88363476}
+  - component: {fileID: 88363475}
+  - component: {fileID: 88363474}
+  m_Layer: 0
+  m_Name: Playfield Fake Wall
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &88363474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 88363473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d42565a9454580468795755429bea77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FtueBallTrigger
+  solidAfterPass: 1
+--- !u!23 &88363475
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 88363473}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 0ea430f691cf9a6459708d187cee9915, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 1
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &88363476
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 88363473}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!33 &88363477
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 88363473}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &88363478
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 88363473}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.10561596, y: 0.027074762, z: -0.002876678, w: 0.99403423}
+  m_LocalPosition: {x: 7.49, y: 0.19, z: 14.21}
+  m_LocalScale: {x: 0.26688, y: 5.1089325, z: 6.0192223}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: -12.112, y: 3.191, z: -0.67}
 --- !u!1 &114427341
 GameObject:
   m_ObjectHideFlags: 0
@@ -7296,6 +7421,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d42565a9454580468795755429bea77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FtueBallTrigger
+  solidAfterPass: 0
 --- !u!1 &473460327
 GameObject:
   m_ObjectHideFlags: 0
@@ -19771,6 +19897,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d42565a9454580468795755429bea77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FtueBallTrigger
+  solidAfterPass: 0
 --- !u!1001 &1112578482
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -28262,11 +28389,11 @@ PrefabInstance:
     - target: {fileID: 6734452267899983038, guid: 3f89df3362741d64e809018a4b0f5e3e, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
-      objectReference: {fileID: 2100000, guid: 11b01005a98fb864182f5d40aca9fced, type: 2}
+      objectReference: {fileID: 2100000, guid: 0ea430f691cf9a6459708d187cee9915, type: 2}
     - target: {fileID: 6734452267899983038, guid: 3f89df3362741d64e809018a4b0f5e3e, type: 3}
       propertyPath: 'm_Materials.Array.data[2]'
       value: 
-      objectReference: {fileID: 2100000, guid: e133f4d6c5006714dac75fc818e1e21b, type: 2}
+      objectReference: {fileID: 2100000, guid: 3e8b6d1f9a4c47b28f05c2e7a1d63b94, type: 2}
     - target: {fileID: 7129939444409057962, guid: 3f89df3362741d64e809018a4b0f5e3e, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.028097417
@@ -29049,38 +29176,38 @@ MonoBehaviour:
   unnamedSpeaker: APGG v1.4.7
   continuePrompt: press any key
   introLine:
-    localizationKey: 
+    localizationKey: ftue.intro
     englishText: 'Welcome operator, I am APGG v1.4.7, the Automatic Power Generation
       Guide. In case you forgot, we''re here for one thing and one thing only: to
       generate power!'
   namingLine:
-    localizationKey: 
+    localizationKey: ftue.naming
     englishText: "System Protocol: \nWould you like to rename me?"
   namingPlaceholder: APGG v1.4.7
   namingConfirmPrompt: Enter to confirm
   nameAcceptedLine:
-    localizationKey: 
+    localizationKey: ftue.nameAccepted
     englishText: '{0}. Yes. That''ll do nicely'
   cameraFocus: {fileID: 1932396898}
   launcherFocusPoint: {fileID: 1501996923}
   launchPromptLine:
-    localizationKey: 
+    localizationKey: ftue.launchPrompt
     englishText: Hold {1} to initiate power generation.
   launchAction: {fileID: 183570926142848086, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   playfieldEntryTrigger: {fileID: 1094617268}
   launchInputLockoutSeconds: 0.4
   saveTheBallTrigger: {fileID: 472669088}
   flipperLessonLine:
-    localizationKey: 
+    localizationKey: ftue.flipperLesson
     englishText: I never said this was going to be easy. Use {1} and {2} to keep
       the machine going.
   leftFlipperAction: {fileID: 8477151212117506289, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   rightFlipperAction: {fileID: -6709775960681819615, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   ballReturnedLine:
-    localizationKey: 
+    localizationKey: ftue.ballReturned
     englishText: You may have lost the battle but not the war. Try again.
   shopAvailableLine:
-    localizationKey: 
+    localizationKey: ftue.shopAvailable
     englishText: You've generated enough power to activate the cargo beacon. Press
       {1} to activate.
   shopAvailableRepeatLine:
@@ -29099,10 +29226,10 @@ MonoBehaviour:
   - {fileID: 1029056935}
   - {fileID: 919132149023231254}
   componentPlacedLines:
-  - localizationKey: 
+  - localizationKey: ftue.componentPlaced.1
     englishText: Some components award "Multiplier", which increases the power generation
       of the whole machine!
-  - localizationKey: 
+  - localizationKey: ftue.componentPlaced.2
     englishText: I've added a few more to get you off the ground.
   dropTargetGroup:
   - {fileID: 1074465609}
@@ -29110,12 +29237,12 @@ MonoBehaviour:
   - {fileID: 147568549}
   dropTargetRevealOnLevelUp: 3
   powerSurgeIntroLines:
-  - localizationKey: 
+  - localizationKey: ftue.powerSurge.1
     englishText: Power surge give you money and a big score boost. There is more
       to the machine than points and mult brah.
   powerSurgesToComplete: 3
   completionLines:
-  - localizationKey: 
+  - localizationKey: ftue.completion.1
     englishText: Holy smokes ur goated. complete 3 power surge
   mainMenuSceneName: MainMenu 1
   levelGoals:
@@ -29129,7 +29256,7 @@ MonoBehaviour:
     balls: []
     pickOne: 0
     openingLines:
-    - localizationKey: 
+    - localizationKey: ftue.shopVisit1.1
       englishText: Click to inspect. Drag and drop. Confirm to buy
   - components: []
     balls:
@@ -29137,7 +29264,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 4b14eb5ea0e14ea469f9dc777aade6eb, type: 2}
     pickOne: 1
     openingLines:
-    - localizationKey: 
+    - localizationKey: ftue.shopVisit2.1
       englishText: Pinballs = health. Lose them all the board can no longer generate
         power.
   - components: []
@@ -37502,3 +37629,4 @@ SceneRoots:
   - {fileID: 1501996923}
   - {fileID: 83658016}
   - {fileID: 1094617267}
+  - {fileID: 88363478}

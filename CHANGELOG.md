@@ -10,6 +10,52 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.18.0 — FTUE Phase 5: the tutorial goes live
+_2026-08-08 · Contributor: JJ_
+
+The last FTUE ticket. Until now the tutorial was reachable only from an editor menu item, so no
+real player could ever see it. `FTUE_PLAN.md` ticket 13. **One existing file modified:
+`MainMenuController`.**
+
+- **The boot rule.** On entering `MainMenu 1`, a profile that has not completed the FTUE is
+  configured for the tutorial and sent straight to `GameplayCore` instead of being shown the menu.
+  Checked on menu *entry*, not once at application start — the dev reset wipes the profile while
+  the player is already sitting in the menu, and QA needs the tutorial to re-arm without leaving
+  play mode.
+- **Existing saves are untouched.** The grandfather is the v7 save migration shipped in 0.17.0,
+  which stamps `hasCompletedFtue` on every pre-v7 profile; nothing in this change decides it. Only
+  a genuinely new profile reaches the tutorial.
+- The three FTUE data assets are held as **direct serialized references** on the menu controller.
+  They live outside `Resources` on purpose, so this is the only path to them — and it is now the
+  only reference to them anywhere outside `Assets/Data/FTUE/`.
+- **`R` in the menu wipes and drops straight into the tutorial**, through the same rule rather than
+  a second route into it. A wiped profile is by definition one that has not completed the FTUE.
+- **Every narrator line now has a `Gameplay` string-table key** (`ftue.*`, 13 keys, English only).
+  Two notes that must travel with the copy if it is ever translated: `Al` — the narrator's fallback
+  name — is intentional and must not be "corrected" to `AI`; and the Red Two / Blue Two line is a
+  film reference about a two-colour choice, where a local equivalent beats a literal rendering.
+- `shopAvailableRepeatLine` is deliberately left **unkeyed**. It is authored empty, and
+  `FtueDialogueLine.IsEmpty` tests both fields — a key alone would flip it to non-empty and beat 5
+  would show a blank panel on repeat level-ups instead of reusing `shopAvailableLine`.
+- **`FtueDebugBoot` is deleted.** Its whole purpose was to stand in for the boot rule, and two boot
+  paths that could disagree is worse than losing the editor shortcut. `R` in the menu replaces it,
+  and exercises the real path rather than a parallel one.
+
+## 0.17.8 — FTUE: the playfield entry is a one-way gate
+_2026-08-08 · Contributor: JJ_
+
+The ball leaves the launch lane but cannot wander back up it. **No existing file modified.**
+
+- New **Solid After Pass** option on `FtueBallTrigger`: the volume starts as a trigger, goes solid
+  once the ball is clear of it, and reopens on the next launch.
+- It closes on **exit**, not on entry. Going solid the instant the ball touched the volume would
+  trap it inside the collider and fire it back out in whatever direction physics picked to
+  depenetrate.
+- Overlapping balls are counted, so a second ball standing in the doorway cannot be shut out; the
+  count resets on reopen, so a ball despawned inside the volume cannot leave the gate stuck open.
+- The gate is **independent of `Arm`/`Disarm`** — it works on a trigger the director never arms, so
+  wiring the object into the director's beat slot is optional.
+
 ## 0.17.7 — FTUE Phase 4: power surge, and the tutorial ends
 _2026-08-08 · Contributor: JJ_
 

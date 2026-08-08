@@ -1,4 +1,5 @@
 // Created with Claude Code (Opus 4.8) by JJ on 2026-06-03: text-based main menu navigation.
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-08: FTUE boot rule (ticket 13).
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -89,6 +90,22 @@ public sealed class MainMenuController : MonoBehaviour
              "the game. Auto-found by the GameObject name \"Quit\" if left blank.")]
     [SerializeField] private TMP_Text quitText;
 
+    [Header("First-time user experience")]
+    [Tooltip("Mission_FTUE. Held as a direct reference on purpose — the FTUE data assets live "
+             + "outside Resources so nothing can load them by accident into a normal run.")]
+    [SerializeField] private ChallengeModeDefinition ftueMission;
+
+    [Tooltip("Board_FTUE.")]
+    [SerializeField] private BoardDefinition ftueBoard;
+
+    [Tooltip("Ship_FTUE. Deliberately absent from ProgressionConfig.starterShips, so it is only "
+             + "ever reachable through this reference.")]
+    [SerializeField] private PlayerShipDefinition ftueShip;
+
+    [Tooltip("Fixed so the tutorial plays identically for every player. The FTUE must not vary "
+             + "by seed.")]
+    [SerializeField] private int ftueSeed = 1337;
+
     [Header("Runtime (debug)")]
     [SerializeField] private MenuOption currentOption = MenuOption.Play;
 
@@ -101,6 +118,9 @@ public sealed class MainMenuController : MonoBehaviour
     private Color[] _baseColors;
 
     private bool _initialized;
+
+    // Set the moment the fade to GameplayCore starts, so nothing can stack a second load on top.
+    private bool _ftueBootStarted;
 
     private void Awake()
     {
@@ -118,10 +138,81 @@ public sealed class MainMenuController : MonoBehaviour
 
     private void Start()
     {
+        // Before the ambience, so a player who is about to be sent to the tutorial does not get a
+        // second of menu hum started and then cut off by the fade.
+        if (TryBootIntoFtue())
+        {
+            return;
+        }
+
         // Start the looping screen-hum ambience for the menu. Done in Start (not
         // Awake/OnEnable) so the AudioManager has finished registering itself.
         ServiceLocator.Get<AudioManager>()?.StartHummingSound(hummingEmitter != null ? hummingEmitter.gameObject : null);
         ServiceLocator.Get<AudioManager>()?.StartWhirringSound(whirringEmitter != null ? whirringEmitter.gameObject : null);
+    }
+
+    /// <summary>
+    /// The boot rule: a profile that has never finished the tutorial goes straight into it instead
+    /// of seeing this menu.
+    ///
+    /// Checked on entry to the menu rather than once at application start. The dev reset below
+    /// wipes the profile while the player is already sitting here, and QA needs the tutorial to
+    /// re-arm without leaving play mode.
+    ///
+    /// Existing players are grandfathered past this by the save migration, not by anything here —
+    /// <c>ProfileService.UpgradeInPlaceIfNeeded</c> stamps <c>hasCompletedFtue</c> on every
+    /// pre-v7 profile. Only a genuinely new profile reaches the tutorial.
+    /// </summary>
+    /// <returns>True once the load is under way, so callers can stop what they were doing.</returns>
+    private bool TryBootIntoFtue()
+    {
+        if (_ftueBootStarted)
+        {
+            return true;
+        }
+
+        // Positive evidence, not the absence of a flag. HasCompletedFtue returns false when the
+        // service is not up, which on its own would send an existing player into the tutorial and
+        // write a blank profile over their save. ProfileService bootstraps at BeforeSceneLoad and
+        // reads every slot synchronously in Awake, so this holds by the time Start runs — the
+        // check is here so that if that ever stops being true the game shows the menu instead.
+        if (ProfileService.Instance == null)
+        {
+            Debug.LogWarning($"{nameof(MainMenuController)}: no {nameof(ProfileService)} yet; "
+                + "showing the menu rather than assuming the tutorial is owed.", this);
+            return false;
+        }
+
+        if (ProfileService.HasCompletedFtue())
+        {
+            return false;
+        }
+
+        if (ftueMission == null || ftueBoard == null || ftueShip == null)
+        {
+            Debug.LogError($"{nameof(MainMenuController)}: the FTUE mission, board or ship is not "
+                + "assigned, so a new player cannot reach the tutorial. Wire Mission_FTUE, "
+                + "Board_FTUE and Ship_FTUE from Assets/Data/FTUE on this component.", this);
+            return false;
+        }
+
+        GameSession session = GameSession.Instance;
+        if (session == null)
+        {
+            Debug.LogError($"{nameof(MainMenuController)}: no {nameof(GameSession)} to configure; "
+                + "showing the menu instead of the tutorial.", this);
+            return false;
+        }
+
+        // GenerateRounds is deliberately not called. Nothing in the shipped flow calls it either,
+        // and it would mark every fifth round a Devil round for a first-time player.
+        session.ConfigureChallenge(ftueMission, ftueBoard, ftueShip, ftueSeed);
+
+        _ftueBootStarted = true;
+        Debug.Log("[MainMenu] Profile has not completed the FTUE — booting into the tutorial.");
+
+        SceneFader.Instance.FadeAndLoadScene("GameplayCore");
+        return true;
     }
 
     private void OnDestroy()
@@ -659,6 +750,11 @@ public sealed class MainMenuController : MonoBehaviour
         ProfileSlotId slot = ProfileService.GetActiveSlot();
         ProfileService.ResetSlot(slot);
         Debug.Log($"[MainMenu] Reset profile slot {slot} — save wiped, starting fresh.");
+
+        // A wiped profile is by definition one that has not completed the tutorial, so this is the
+        // same rule as on menu entry rather than a second route into the FTUE. It is also the loop
+        // QA runs: press R, land in the tutorial.
+        TryBootIntoFtue();
     }
 
     // Load the legacy main-menu scene (the original "MainMenu" scene), fading

@@ -21,18 +21,19 @@ MonoBehaviour:
   elementType: 3
   shopPriceMultiplier: 1
   startingMaxBalls: 5
-  startingHand: []
+  startingHand:
+  - {fileID: 11400000, guid: 7878812ba73961d44b8a86c50a853796, type: 2}
   scoreMultiplier: 1
   coinMultiplier: 1
   multMultiplier: 1
   startingCoins: 0
   ballPoolAllowList:
   - {fileID: 11400000, guid: def7cfab5eaa89b4f94ba76799b74244, type: 2}
-  - {fileID: 11400000, guid: bd26085432cc41cbad14c5fc708fe1a4, type: 2}
-  - {fileID: 11400000, guid: 6991960fb850487b89ead027c40ba193, type: 2}
-  - {fileID: 11400000, guid: 22f67c0a7b284d77a6e2be2b20ab2f49, type: 2}
+  - {fileID: 11400000, guid: 7878812ba73961d44b8a86c50a853796, type: 2}
+  - {fileID: 11400000, guid: 70d0013d4fad5fc4b901f09475fc8aae, type: 2}
   componentPoolAllowList:
   - {fileID: 11400000, guid: 13204215165f7414882f9580f30c7dee, type: 2}
-  - {fileID: 11400000, guid: 1d49880a4de1469ea96a87b09d50f857, type: 2}
-  - {fileID: 11400000, guid: ffeb35ffc91f4bb98773c35d0ec56ce0, type: 2}
-  - {fileID: 11400000, guid: 507b10fc91d544e9bb4f20e10e89b3c0, type: 2}
+  - {fileID: 11400000, guid: 2dcb3b26630f7ba42af172ff1dd09298, type: 2}
+  - {fileID: 11400000, guid: 58766d3a9e47e2242a57799616ac6345, type: 2}
+  - {fileID: 11400000, guid: b490dc212cf9647439bdf2aab40c7caf, type: 2}
+  - {fileID: 11400000, guid: 8081d76b8503b614ba1c4784ce3daed2, type: 2}

@@ -81,10 +81,6 @@ component.DuplicatingBumper.name,Duplicating Bumper,Bumper Duplicador
 component.DuplicatingBumper.desc,"Every 10 times this bumper is hit, create a duplicate of the ball that hit it that can only hit a component 10 times before being destroyed.","Cada 10 veces que golpean este bumper, crea un duplicado de la bola que lo golpeó, que solo puede golpear un componente 10 veces antes de destruirse."
 component.DuplicatingTarget.name,Duplicating Target,Diana Duplicadora
 component.DuplicatingTarget.desc,"Every 10 times this target is hit, create a duplicate of the ball that hit it that can only hit a component 10 times before being destroyed.","Cada 10 veces que golpean esta diana, crea un duplicado de la bola que la golpeó, que solo puede golpear un componente 10 veces antes de destruirse."
-component.FireBumper.name,Fire Bumper,Bumper de Fuego
-component.FireBumper.desc,"If this bumper gets hit 3 times within 10 seconds, it gets set 'on fire', where all points are tripled. Keep hitting it in order to keep the fire going!","Si golpean este bumper 3 veces en 10 segundos, se 'incendia', triplicando todos los puntos. ¡Sigue golpeándolo para mantener el fuego!"
-component.FireTarget.name,Fire Target,Diana de Fuego
-component.FireTarget.desc,"If this target gets hit 3 times within 10 seconds, it gets set 'on fire', where all points are tripled. Keep hitting it in order to keep the fire going!","Si golpean esta diana 3 veces en 10 segundos, se 'incendia', triplicando todos los puntos. ¡Sigue golpeándola para mantener el fuego!"
 component.FrenzyModeDuplicator.name,Frenzy Mode Duplicator,Duplicador de Modo Frenesí
 component.FrenzyModeDuplicator.desc,"Upon ball entry, start frenzy mode and duplicate the ball that entered.","Al entrar la bola, inicia el modo frenesí y duplica la bola que entró."
 component.FrozenBumper.name,Frozen Bumper,Bumper Congelado

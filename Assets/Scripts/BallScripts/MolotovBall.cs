@@ -1,88 +1,40 @@
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-07-28.
+// Change: Fuel is gone, so contact now lights both sides on a roll. The queued
+// fuel-every-launch passive had no equivalent and is dropped.
+
 using UnityEngine;
 
 /// <summary>
-/// Catalyst: contact with a component or ball Fuels both sides (the other
-/// side via BallFireStatus.fuelOtherOnContact on the prefab), and each pour
-/// has a small chance to break the bottle and retire the ball. Passive:
-/// while this waits in the queue, every ball that launches is Fueled once.
+/// Catalyst: contact with a component rolls to set both the component and the
+/// bottle itself alight, and each pour has a small chance to break the bottle and
+/// retire the ball.
 /// </summary>
-[RequireComponent(typeof(BallFireStatus))]
 public sealed class MolotovBall : Ball
 {
     public const string DefinitionId = "UnfinishedMolotov";
 
-    [Tooltip("Chance the bottle breaks each time the active Fuels it.")]
-    [Range(0f, 1f)]
-    [SerializeField] private float breakChance = 0.05f;
-    [SerializeField] private int fuelPerContact = 1;
-    [SerializeField] private int queuedFuelPerLaunch = 1;
-    [SerializeField] private BallSpawner ballSpawner;
+    [Header("Molotov")]
+    [SerializeField, Range(0f, 1f)] private float chanceToLight = 0.6f;
+    [Tooltip("Chance the bottle breaks each time it pours.")]
+    [SerializeField, Range(0f, 1f)] private float breakChance = 0.05f;
 
-    private BallFireStatus _fireStatus;
     private bool _broken;
-
-    private void Awake()
-    {
-        _fireStatus = GetComponent<BallFireStatus>();
-
-        if (ballSpawner == null)
-        {
-            ballSpawner = ServiceLocator.Get<BallSpawner>();
-        }
-
-        if (ballSpawner != null)
-        {
-            ballSpawner.ActivateBall += OnBallActivated;
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if (ballSpawner != null)
-        {
-            ballSpawner.ActivateBall -= OnBallActivated;
-        }
-    }
 
     protected override void OnCollisionEnter(Collision collision)
     {
         base.OnCollisionEnter(collision);
 
-        // Resting contact with lane or wall geometry never pours the bottle.
-        bool hitComponent =
-            GetBoardComponentsForScoring(collision.collider).Length > 0;
-        bool hitBall =
-            collision.collider.GetComponentInParent<Ball>() != null;
-        if (!hitComponent && !hitBall)
+        BoardComponent[] components = GetBoardComponentsForScoring(collision.collider);
+        if (components.Length == 0 || Random.value > chanceToLight)
         {
             return;
         }
 
-        _fireStatus.Fuel(fuelPerContact);
+        FireStatusUtility.LightComponent(components[0]);
+        FireStatusUtility.LightBall(this);
+        FireDebug.Log($"{name} pours over {components[0].name}, both alight");
+
         TryBreak();
-    }
-
-    private void OnBallActivated(GameObject launched)
-    {
-        if (launched == gameObject || ballSpawner == null)
-        {
-            return;
-        }
-
-        // The passive only applies while this Molotov is still queued.
-        if (ballSpawner.GetSlotIndexForHandBall(gameObject) < 0)
-        {
-            return;
-        }
-
-        Ball launchedBall = launched != null ? launched.GetComponent<Ball>() : null;
-        if (launchedBall == null)
-        {
-            return;
-        }
-
-        FireDebug.Log($"{name} (queued) fuels {launched.name} x{queuedFuelPerLaunch} at launch");
-        FireStatusUtility.GetOrAddBallStatus(launchedBall)?.Fuel(queuedFuelPerLaunch);
     }
 
     private void TryBreak()

@@ -211,8 +211,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195264
-    m_Localized: "Paletas:  Flecha izquierda / Flecha derecha,  A / D,  o bot\xF3n
-      izquierdo / derecho del rat\xF3n.\n\nLanzador:  Flecha abajo / Bot\xF3n central del rat\xF3n\n\nHaz clic en EMPEZAR para comenzar."
+    m_Localized: "Paletas:  May\xFAs izquierda / May\xFAs derecha\n\nLanzador:  Espacio\n\nHaz
+      clic en EMPEZAR para comenzar."
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195265
@@ -220,10 +220,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195266
-    m_Localized: "Alcanzar el objetivo desbloquea la TIENDA para una visita.\n\nEl
-      bot\xF3n de la TIENDA bajo el tablero se ha iluminado. P\xFAlsalo ahora para
-      gastar monedas en nuevas bolas y mejoras del tablero antes de la siguiente
-      ronda."
+    m_Localized: "\xA1Buen trabajo! Haz clic en el bot\xF3n de la TIENDA o pulsa Intro
+      cuando est\xE9 iluminado. Tu bola actual se guardar\xE1."
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195267
@@ -235,8 +233,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195269
-    m_Localized: "Arrastra las ofertas del estante a tu mano o al tablero para comprarlas.\n\nArrastra
-      una bola de la mano a un punto de venta para venderla por monedas."
+    m_Localized: "Arrastra objetos desde el lado derecho al tablero para comprarlos.\n\nCambia
+      el orden de las bolas arrastr\xE1ndolas en el tablero."
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195270

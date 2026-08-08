@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinition
   id: Engine
   displayName: Engine
-  description: 'While Charged, convert all stacks of Flammable on this component to
-    its score.'
+  description: While Charged, convert all stacks of Flammable on this component to
+    its score.
   componentType: 0
   rarity: 0
   elementType: 2
   icon: {fileID: 0}
   prefab: {fileID: 4773778546837097395, guid: ef173e0c642a49978767b9837d5414b4, type: 3}
-  price: 10
+  price: 9

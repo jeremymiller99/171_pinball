@@ -1,3 +1,4 @@
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (mark drains ball-save eligible).
 using UnityEngine;
 
 public class ResetZone : MonoBehaviour
@@ -31,11 +32,15 @@ public class ResetZone : MonoBehaviour
             {
                 drainHandler.OnBallDrained(
                     other.gameObject,
-                    showHomeRunPopup: true);
+                    showHomeRunPopup: true,
+                    eligibleForBallSave: true);
             }
             else
             {
-                drainHandler.OnBallDrained(other.gameObject);
+                drainHandler.OnBallDrained(
+                    other.gameObject,
+                    showHomeRunPopup: false,
+                    eligibleForBallSave: true);
             }
         }
     }

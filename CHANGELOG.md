@@ -10,6 +10,473 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.16.4 — Tooltips use the custom dollar sign
+_2026-08-05 · Contributor: JJ_
+
+Tooltip text now renders `$` with the same custom glyph the coins readout on the board canvas
+uses, instead of the stock one.
+
+- The board canvas Coins label uses `Bacteria12_Pinballistic SDF`; every text in
+  `Tooltip Panel.prefab` and `Header Panel.prefab` was on plain `Bacteria 12 SDF`. Both prefabs
+  now point at the Pinballistic asset and its default material — the material has to move with
+  the font asset or TMP samples the new glyph rects out of the old atlas.
+- The two font assets are the same typeface: all 96 characters have identical em-normalized
+  width, height, bearing and advance except `$`, which is wider in Pinballistic (0.8125 em vs
+  0.75 em) at the same advance. Their materials match on the shader and all 51 float and colour
+  properties; only the atlas texture differs. So the swap changes the dollar sign and nothing
+  else.
+- Applied to every text in both prefabs rather than just the price fields, because item
+  descriptions carry dollar amounts too (`Earn +$1 for every 12 components hit.`), as does the
+  header's "Drag to Buy for: $5".
+- Nothing overrides these at the instance level — `TooltipManager` and `TooltipHeaderManager`
+  instantiate the prefabs at runtime from a prefab reference, and no code assigns `font` or
+  `fontSharedMaterial` on tooltip text.
+
+---
+
+## 0.16.3 — Shop items you can't afford are still inspectable
+_2026-08-05 · Contributor: JJ_
+
+Clicking a shop offer the player cannot afford now opens its inspect tooltip. Only the purchase
+is blocked; reading the item is not.
+
+- `RenderTextureRaycaster.HandleClick` bailed out of the whole method on a failed affordability
+  check. That `return` sat above the tooltip resolution block, so the click both played the
+  failed-purchase sound and — via the `ClearHover()` at the top of the method — actively hid any
+  tooltip already open. The affordability check now only guards the drag that starts a purchase;
+  execution falls through to the tooltip as it does for any other clickable object.
+- The early return was also skipping hand-ball drag setup, `ShopButton3D.OnClick()`, the outline
+  and pulse highlight, and the `onObjectClicked` event whenever the raycast happened to land on
+  an unaffordable offer. Those all run again now.
+- Hover and controller-navigation tooltips were never gated on price, so this only changes the
+  mouse-click inspect path. Purchase remains guarded at the transaction by
+  `UnifiedShopController.TryPayForOffer` / `CoinController.TrySpendCoins`.
+
+---
+
+## 0.16.2 — Ball saved VFX pops at the lamp
+_2026-08-05 · Contributor: JJ_
+
+Saving a ball now pops a particle effect at the board's ball save lamp, wired the same way as
+the Power Surge VFX.
+
+- The prefab list lives on `LevelUpVFXTrigger` as `ballSavePrefabs` / `ballSaveScale` /
+  `ballSaveLifetime`, next to `powerSurgePrefabs`, keeping to that script's stated rule that all
+  board VFX is configured in one place. New `SpawnBallSaveVFX(Vector3)` mirrors
+  `SpawnPowerSurgeVFX` exactly — random pick from the list, uniform scale, auto-destroy.
+- `BallSaveLight` now registers in the `ServiceLocator` and exposes `VfxPosition`, so
+  `DrainHandler` (a different scene) can ask the board where its lamp is. Optional `vfxPoint`
+  child transform nudges the pop off the cylinder; empty uses the lamp's own position.
+- The pop fires at the **commit point**, once the ball has actually been returned to the hand —
+  not where the save is first decided. `goingToShop` can flip during the score tally (the player
+  hitting the shop button mid-drain), and the routine bails out there without saving or
+  consuming; popping early would show a save that never landed. The tally is only ~0.5s
+  (`moveToRoundTotalDuration` 0.45 + `endHoldDuration` 0.05), so the delay is not perceptible,
+  and the effect lands as the ball arrives back at the launcher rather than on top of the score
+  fly-up.
+- Both halves are board-scene-owned, so a board with no lamp or no prefabs assigned just gets no
+  effect rather than an error.
+- Gear-menu debug entry `Debug/Spawn Ball Save VFX` on `LevelUpVFXTrigger` pops one at the lamp
+  without draining a ball, matching the existing Power Surge debug entry.
+
+---
+
+## 0.16.1 — Ball save board lamp
+_2026-08-05 · Contributor: JJ_
+
+New `BallSaveLight` component drives a board lamp on/off with the ball save window, using the
+same authored-material swap as the Abductor's progress lights (`sharedMaterial`, not
+`material`, so nothing is instanced or leaked) rather than `BoardLight`'s color tinting.
+
+- `DrainHandler.IsBallSaveArmed` is the source of truth: exactly one ball in play **and** that
+  ball still inside its window. Multiball reads as unarmed on purpose — a drain with other balls
+  still out never reaches the save logic, it just despawns, so lighting the lamp then would be
+  lying at the moment the player is most likely to lose a ball.
+- The lamp polls that property from `Update` and only writes materials on a state flip, matching
+  `Abductor.UpdateProgressLightFlash`. No event was added to `DrainHandler` — it has no `Update`
+  of its own and would need one purely to fire the window-expired edge.
+- `lightRenderers` left empty falls back to the first renderer on the object or its children, so
+  a bare cylinder works with only the two materials assigned.
+- Scene wiring is manual: attach `BallSaveLight` to the lamp object in `Board_NA.unity` and set
+  on/off to `Blue 1.mat` / `Bluesteel.mat` to match the abductor bank.
+
+---
+
+## 0.16.0 — Ball save: drain within 15s of launch and you keep the ball
+_2026-08-05 · Contributor: JJ_
+
+A ball lost **15 seconds or less after it was launched** is now handed straight back to the
+launcher, instead of being consumed and replaced by the next ball in the hand.
+
+- The window is timed from the plunger, not from the ball reaching the launcher: `DrainHandler`
+  subscribes to the static `PinballLauncher.BallLaunched` event and stamps `Time.time` per ball
+  instance. Scaled time, so a pause does not burn the window. A ball that never passed through a
+  launcher (multiball splits, board-spawned balls) has no timestamp and is never savable.
+- Only a genuine loss can trigger it. `OnBallDrained` gained a third `eligibleForBallSave`
+  parameter that defaults to false; `ResetZone` passes true on both its branches (normal drain
+  and the out-of-bounds "home run"). Balls that route through the drain flow because they
+  consumed themselves by design — Molotov breaking, Holoball expiring, `DuplicatingComponent` —
+  keep the default and are still spent.
+- The save changes exactly one thing: which ball arrives at the launcher. The drain still runs
+  its normal course — score tally, bank into round total, `DecayMultiplier`, level-up
+  reconciliation. What is skipped is `ConsumeActiveBallFromLoadout`, so the loadout (and with it
+  `BallsRemaining`) is untouched, and a fresh copy of the drained ball's own definition is
+  pushed to the front of the hand via the new `BallSpawner.InsertHandBallAtFront`. The existing
+  spawn at the end of the drain routine then serves that ball.
+- `InsertHandBallAtFront` is deliberately non-animated: `AddBallAnimated` starts a layout
+  coroutine that would fight `MoveBallToSpawnPointCoroutine` over the same transform.
+- A saved ball re-reads its amped-up flag from `GetAmpedUpForSlot`, which otherwise only gets
+  applied during `BuildHandFromPrefabs`, so an AmpUp'd ball does not silently lose it.
+- Window is inspector-tunable via `ballSaveSeconds` on the `DrainHandler` GameObject in
+  `GameplayCore.unity` (default 15). New serialized field absent from the scene YAML, so the
+  existing instance picks up the C# initializer — no scene edit needed.
+- Saves are **unlimited** and each re-serve earns a fresh 15s window on its next launch, so an
+  unlucky board can in principle save the same ball repeatedly. No per-round cap was added.
+- No UI or audio cue fires on a save yet — the only feedback is the same ball returning.
+
+---
+
+## 0.15.4 — Power Surge pays out $1–$3
+_2026-08-05 · Contributor: JJ_
+
+Triggering a Power Surge now awards a random **1 to 3 coins** (inclusive) on top of the
+multiplier, with the usual gold floating text flying to the coin HUD.
+
+- `PowerSurgeManager.AwardCoins` is called at the top of `ActivatePowerSurge`, so all
+  three trigger sites — `PowerSurgePortal`, `PowerSurgeModeDuplicator` and `Abductor` —
+  are covered by the one hook.
+- The call sits **before** the already-active early-return, so it pays **per portal
+  entry**, not per surge: re-entering while a surge is already running extends the timer
+  *and* pays again. SFX, VFX, the multiplier bump and the Steam achievement are untouched
+  — those still fire only on the state transition into Power Surge.
+- Range is inspector-tunable via `coinRewardMin` / `coinRewardMax` on the
+  `PowerSurgeManager` GameObject in `GameplayCore.unity` (defaults 1 and 3). Both are new
+  serialized fields absent from the scene YAML, so the existing instance picks up the C#
+  initializers — no scene edit needed to get 1–3.
+- Uses `AddCoinsScaledDeferredUi` + `SpawnGoldText`, matching `CoinAdder`, so round
+  modifiers that scale coin gain and Hustle's flat bonus both apply. When no
+  `FloatingTextSpawner` is registered the deferred HUD sync is applied directly, since
+  nothing would otherwise arrive to trigger it.
+
+## 0.15.3 — Frenzy renamed to Power Surge (code only)
+_2026-08-05 · Contributor: JJ_
+
+Frenzy mode is now **Power Surge** throughout the C# sources — classes, fields, methods,
+events, inspector `[Header]`/`[Tooltip]` text and comments. Behaviour is unchanged.
+
+- Four scripts renamed, each with its `.cs.meta` moved alongside so the GUID is
+  untouched and every scene/prefab keeps its script binding:
+  `FrenzyManager` → `PowerSurgeManager`, `FrenzyPortal` → `PowerSurgePortal`,
+  `FrenzyModeDuplicator` → `PowerSurgeModeDuplicator`,
+  `FrenzyBoardLightController` → `PowerSurgeBoardLightController`.
+- 20 files touched in total; `ActivateFrenzy` → `ActivatePowerSurge`,
+  `isFrenzyActive` → `isPowerSurgeActive`, `OnFrenzyActivated`/`OnFrenzyDeactivated` →
+  `OnPowerSurge…`, and so on.
+- Every renamed **serialized** field carries `[FormerlySerializedAs("oldName")]` (26 of
+  them) so existing scene values survive. Unity has to open **and resave** each affected
+  scene/prefab before those attributes can be removed — `GameplayCore`, `Board_NA`,
+  `Board_Alpha`, `Board_Spinners`, `MainMenu`, `MainMenu 1`, `Abductor.prefab`.
+
+Deliberately still "Frenzy": the Steam achievement API name `"ACH_FIRST_FRENZY"` and the
+FMOD event paths `spec_frenzy_gate` / `value_frenzy_start` (both external contracts); the
+`FrenzyModeDuplicator.asset` definition, whose file name *is* its localization key
+(`component.FrenzyModeDuplicator.name`) — so the shop still shows **Frenzy Mode
+Duplicator** to players; the `FrenzyManager` GameObject name in `GameplayCore.unity`; and
+`CFXR3 _FRENZY.prefab`. Entries below this one still say Frenzy, which is what it was
+called then.
+
+## 0.15.2 — Flint renamed to Firestarter
+_2026-07-28 · Contributor: JJ_
+
+The Entropy fire-starter ball, added as **Flint** in 0.14.0, is now **Firestarter**. Same
+item, same 25% per-hit light chance — name only.
+
+- `FlintBall.cs` → `FirestarterBall.cs`, class `FlintBall` → `FirestarterBall`,
+  `DefinitionId` `"Flint"` → `"Firestarter"`. The `.cs.meta` was renamed alongside the
+  script so the GUID (`2610511d…`) is unchanged and `Firestarter.prefab` keeps its
+  script binding.
+- `Ball-Descriptions.csv` row and `FIRE_CHARGE_REFACTOR_PLAN.md` updated; the 0.14.0
+  entry below still says Flint, which is what it was called then.
+
+Note the definition asset's `displayName` is still `Flint`, so the in-game name has not
+changed yet — that field is inspector-only. With the 0.15.1 id fallback the asset's
+`Id` now derives from its name and is already `Firestarter`.
+
+## 0.15.1 — Fix: new items never reached the shop shelf
+_2026-07-28 · Contributor: JJ_
+
+The shop stopped offering the ship's and mission's allowed pool. With Silverwolf and
+`Challenge_NA 1` active the shelf collapsed to **DefaultBumper and Pinball** — the only
+two entries in those allow-lists that predated phase 3.
+
+Cause: `BallDefinition.Id` and `BoardComponentDefinition.Id` returned the serialized
+`id` field raw, with no fallback, unlike `PlayerShipDefinition.Id` which has always
+fallen back to the asset name. Every phase 3 definition was authored with that field
+blank. Both `ProgressionService.IsBallUnlocked` / `IsComponentUnlocked` and
+`ProgressionConfig.IsStarterBall` / `IsStarterComponent` early-return `false` on an
+empty id, so each new item was dropped from the pool **regardless** of being added to
+`starterComponents` and to both allow-lists. The wiring was right; the identity was
+empty.
+
+- Both `Id` properties now fall back to the asset name, matching the ship precedent.
+- No save-data risk: an empty id never matched anything, so no profile can hold one.
+  Unlock *writes* go through the same property (`ProgressionTier.RewardBallId =>
+  rewardBall.Id`), so reads and writes pick up the fallback together.
+- Tradeoff inherited from `PlayerShipDefinition`: a name-derived id means renaming the
+  asset later orphans its unlock progress. Setting an explicit `id` in the inspector
+  makes the fallback inert and restores rename-safety.
+- Also fixes `FrenzyModeDuplicator`, which had the same blank field.
+
+## 0.15.0 — Status badges under every component and ball; Fire stacks additively
+_2026-07-28 · Contributor: JJ_
+
+A readout of live statuses under each object, and the stacking change that makes Fire
+worth reading. Scripts only — **nothing appears on screen until three assets are built
+in the editor**, see `STATUS_BADGES_SETUP.md`. Compile-checked, not playtested.
+
+- **New badge system.** `StatusBadgeDisplay` draws every `IStatusBadgeSource` on an
+  object as a row of icon-and-number pairs beneath it. Fire shows its remaining 4s
+  stacks, Charge shows a consumer's bank against its requirement (`4/10`), and Cannon
+  and Bomb show their fuses (`7/15`, `3/8`). Balls carry the same statuses and so get
+  the same badges.
+- **Adding a keyword to the readout is one interface.** Signal Beacon's Charge-10 bar
+  and phase 5's Bomb fuses will implement `IStatusBadgeSource` and appear; the display
+  needs no edits.
+- **Charge requirements are always visible, Fire is not.** A Capacitor advertises
+  `0/10` sitting idle so the player can read what it wants. Fire has no requirement and
+  everything on the board is flammable, so a permanent `0` under all ~20 components
+  would bury the board — it appears only while alight.
+- **The row is not parented to its object.** `BoardComponent.FixedUpdate` pulses
+  `localScale` while a component is selected and flippers rotate under input; a
+  parented row would inherit both. It lives at the scene root, is driven to position
+  each frame and billboards to the camera, which this game's camera drift
+  (`CameraAliveMotion`) and point-to-point pans require anyway.
+- **`StatusBadgeLibrary`** holds the icons and prefabs, loaded from `Resources` for the
+  same reason `FireVfxLibrary` is: `FireStatus` and `ChargeStatus` are attached at
+  runtime and can never have inspector-wired sprites.
+- **Fire now stacks additively with no ceiling.** Re-lighting adds a full 4s onto the
+  end of the remaining burn instead of resetting the timer to 4s. The ramp still holds
+  across a re-light. Flagged for playtest: §10 already noted fire is self-propagating
+  after phase 3, and uncapped additive stacking makes a permanently-ablaze board easier
+  to reach, not harder. Bounded numerically by the existing 10x `maxScoreMultiplier`.
+- **Fixed: a re-lit object could stop ticking entirely.** `Ignite()` zeroed
+  `_tickAccumulator` on every call, so anything re-lit faster than one tick interval
+  (2/s default) had the accumulator reset before it ever reached the interval and never
+  activated. It is now reset only on a fresh light. Latent since 0.13.0 and made
+  reachable by phase 3's spreaders.
+- **Fire VFX placement.** The VFX itself already worked — it is parented to the
+  object's origin, so components whose mesh sits on a child burn in the wrong spot.
+  `FireStatus` gains a `vfxAnchor` to fix that per component. Deliberately with **no**
+  automatic fallback: the VFX is parented to the anchor and `FireVfxLibrary` applies
+  its trim as a local scale, so auto-anchoring to a child with a non-unit scale would
+  silently resize the flames on every fire-capable component at once.
+- **Status displays are owned by the statuses, not the utilities.** `EnsureOn` runs
+  from `FireStatus.Awake` / `ChargeStatus.Awake` rather than from
+  `FireStatusUtility` / `ChargeStatusUtility`. `Ignite()` is public and reachable via
+  `BoardComponent.FireStatus` — Engine and Matchbox both light themselves that way,
+  and prefabs that pre-carry a status never touch the utility — so hanging the display
+  off the utility left those paths burning with no readout.
+- **Shop merchandise is re-checked every frame, not once.** `ShopOfferShelfController`
+  adds `ShopOffer3DEntry` *after* instantiating the offer prefab, and Unity runs
+  `Awake` on disabled components, so a one-time check at `Awake` let shelf Cannons
+  advertise a live fuse.
+
+## 0.14.1 — Fix duplicate `_fireStatus` serialization warning
+_2026-07-28 · Contributor: JJ_
+
+Unity: _"The same field name is serialized multiple times in the class or its parent class.
+This is not supported: Base(EngineComponent) _fireStatus"_.
+
+Introduced in 0.13.0, not 0.14.0: phase 1 added a `_fireStatus` field to `BoardComponent`
+while `EngineComponent` and `ShadowLampComponent` already declared their own, and phase 3's
+Matchbox and Fireworks copied the same pattern. Four subclasses shadowing a base field.
+
+- `BoardComponent` now exposes a `protected FireStatus` accessor that resolves lazily, plus a
+  `public bool IsOnFire`, and is the single owner of the backing field.
+- Engine, Shadow Lamp, Matchbox and Fireworks drop their own fields and read the base
+  accessor. Shadow Lamp and Fireworks also lose their duplicate lazy `IsOnFire()` helpers.
+- Swept every `BoardComponent` / `Bumper` subclass in the project for further field-name
+  collisions with the base — none remain across all 15.
+
+## 0.14.0 — Phase 3: the new Fire items
+_2026-07-28 · Contributor: JJ_
+
+Five new Fire items from the design doc, plus the one dependency they needed. Scripts only —
+every item still needs its prefab and definition wired in the editor (see
+`FIRE_CHARGE_REFACTOR_PLAN.md` §10). Compile-checked, not playtested.
+
+- **Flint** (ball): 25% on each component hit to light it. Unlimited, which is what the low
+  rate pays for — the counterweight to Fireball's five big lights.
+- **Matchbox** (sling): 40% per activation to light *itself*, making it the one component that
+  gets a fire going with no other source on the board.
+- **Fireworks** (bumper): purely a spreader. While it is burning, 50% per activation to light
+  2 random components anywhere.
+- **Short Circuit** (bumper): 30% per activation to light 1 random component. Unlike Fireworks
+  it does not need to be alight itself, so it is the reliable way to start a fire away from
+  wherever the ball is.
+- **Cannon** (sling): counts a 15-activation fuse, then fires a Cannonball and resets.
+- **Cannonball** (ball): the Cannon's payload and the first Kinetic item — everything it hits
+  scores on `KineticScoring`'s curve. Speed is sampled from the collision's relative velocity
+  at impact, not from the rigidbody afterwards, which the bounce response has already changed.
+  Listed under phase 5 in the plan but pulled forward, since a Cannon with nothing to fire is
+  not testable.
+
+Notes on two judgement calls the spec left open:
+
+- **"On activation" means ball hits and programmatic activations alike** — burn ticks, a
+  Capacitor discharge, a detonation — following the Shadow Lamp precedent. This is what makes
+  a burning Fireworks a continuous source rather than a one-off, and what makes lighting the
+  Cannon worthwhile.
+- **Matchbox does not roll while already alight, and Short Circuit excludes itself from its
+  own draw.** Both would otherwise re-light themselves on their own twice-a-second burn ticks
+  and never go out. Read literally, "light on Fire" has nothing to do to something already lit.
+
+- `StatusTargeting` now also excludes components carrying `ShopOffer3DEntry`. This was latent
+  before and became live with these items: `LightRandomComponents` has no distance filter, so
+  a burning Fireworks could otherwise have set the shop merchandise alight.
+- Term list rewritten: `Flammable`, `Fuel`, `Ignite` and `Shock` removed; `On Fire`, `Charge`
+  and `Detonate` rewritten to the new rules; `Kinetic` added; `Reinforce` added as a stub.
+  Ball list updated for Fireball, Charcoal and Molotov, with Flint and Cannonball added.
+
+## 0.13.0 — Fire and Charge rebuilt on flat, shared keyword systems
+_2026-07-28 · Contributor: JJ_
+
+Phases 1 and 2 of the keyword refactor (see `FIRE_CHARGE_REFACTOR_PLAN.md`). Core systems
+plus every existing item migrated onto them; the 14 new items are phases 3-5 and are not in
+this entry. **Compile-checked only — not yet playtested.** `Detonation`, `KineticScoring`,
+`BoardComponentRegistry.GetRandom` and `FireStatusUtility.LightRandomComponents` are written
+and compiling but have no callers until phase 3.
+
+- **Fire is one component again.** `FireStatus` / `BallFireStatus` / `ComponentFireStatus`
+  collapse into a single non-abstract `FireStatus`. Flammable ratings, Fuel, burn stacks and
+  the whole per-slot stack persistence are gone. Lighting an object now starts a flat
+  4-second burn that re-activates it at a serialized rate (default 2/s, design range 1-4)
+  and raises its scoring by a compounding 25% per activation, resetting when it goes out.
+- **Real ball hits read the burn ramp.** A component six ticks into a burn scores its hits at
+  the same step its own activations do, so burning components are worth aiming at. Only fire
+  ticks advance the ramp. Replaces the Engine's old trick of mutating `amountToScore` and
+  unwinding the delta on burnout.
+- **Re-lighting refreshes instead of no-opping.** With Fuel gone this is the only way to
+  extend a burn: the timer resets to 4s and the ramp keeps climbing, which is what will make
+  Fireworks and Short Circuit worth their odds once they land. Because that means a
+  self-lighting item (Molotov, or a ball parked on a Lighter) never burns out, the ramp is
+  clamped by a serialized `maxScoreMultiplier`, default 10x — a number chosen during
+  implementation, not from the design doc, and flagged for review.
+- **Automatic contact spread deleted.** Fire is granted only by things that say they grant
+  it, so the per-item odds coming in phase 3 actually mean something.
+- **Charge is one component too.** `BallChargeStatus` / `ComponentChargeStatus` merge into
+  `ChargeStatus`. A ball holding N Charge rolls 50% on each collision to activate the N
+  nearest components without spending it; hitting a component that requires Charge deposits
+  instead, and never procs. Only components with a requirement hold Charge. The 2s-grace /
+  -2 per second decay is removed — it made Signal Beacon's 10-Charge bar unreachable.
+- **New shared systems.** `Detonation` (radius blast that activates rather than only scores,
+  guarded by a per-cascade visited set plus a depth backstop), `KineticScoring`
+  (`clamp((speed / 8)^2, 0.25, 8)`), `BoardComponentRegistry` (self-registering index, so
+  "N nearest" and "a random component" are not per-query scene sweeps), `StatusTargeting`
+  (the single Flipper/Portal exclusion, now shared by all three keywords) and
+  `StatusTickGate` (hoisted out of `FireStatusUtility`, which `ChargeStatus` had been
+  importing).
+- `ScoreManager.WithScoreMultiplier(float, Action)` added alongside `WithWeakShake`, so an
+  effect can scale a whole activation without touching a component's base score.
+- **Migrated:** Engine (now just Charge 1 → light itself), Capacitor, Generator, Shadow Lamp,
+  Moore's Launcher, Transistor, D-Battery, Pandora's Box.
+- **Re-spec'd:** Fireball is inverted — it lights the components it strikes 5 times, rolls
+  10% to reignite when spent, and no longer burns itself or detonates on burnout. Lighter and
+  Matchstick Plunger light any ball now that there is nothing to qualify for. Charcoal lights
+  what it touches at 50%, Molotov at 60% plus its 5% break chance; both lose their
+  fuel-the-queue passives, which had no equivalent.
+- **Deleted:** `FireComponent` (an older, unrelated "on fire" system on a Bumper) and
+  `GasStationComponent` (built entirely on spraying Fuel board-wide).
+- **Three components cut entirely**, each with its prefab, `BoardComponentDefinition` and
+  every pool reference: **Fire Bumper** and **Fire Target** (the `FireComponent` pair; also
+  removed from `ProgressionConfig.starterComponents` and from `content_localization.csv`) and
+  **Gas Station** (removed from `ProgressionConfig.starterComponents`, Silverwolf's
+  `componentPoolAllowList`, and Challenge_NA 1's `componentPoolAllowList`). No dangling GUID
+  references remain; the affected pools still hold 9, 3 and 3 entries respectively. Four
+  orphan `component.FireBumper.*` / `component.FireTarget.*` keys are still in the Unity
+  string tables — unused and harmless, removable from the Tables window.
+- Prefabs carrying the old status types were repointed at the unified `FireStatus` in YAML,
+  so no prefab lost its component: Charcoal, Fireball, Unfinished Molotov, ShadowLampBumper,
+  CapacitorBumper, GeneratorBumper, EngineBumper, GasStationBumper.
+- `BombComponent` normalised from `new void Awake/OnCollisionEnter` to proper `override`.
+
+## 0.12.0 — Charge item set aligned to the reworked design vault
+_2026-07-27 · Contributor: Devin_
+- Moore's Launcher replaces the Plasma Launcher: same 5-Charge bank on the flipper, but
+  per the updated design it now creates a Transistor ball on the board instead of firing
+  a projectile. `PlasmaLauncherFlipper`/`PlasmaBall` are deleted; prefab and definition
+  (`MooresLauncher`) added under the new `ChargeComponents` folder.
+- New Tech balls with prefabs and definitions: Transistor (on component hit, 20% chance
+  to Shock itself) and D-Battery (gains 2 Charge on every plunger launch). New Rare
+  Standard ball Pandora's Ball (on component hit, 20% chance to either Shock itself or
+  light the struck component on Fire, fueling first so the Ignite takes).
+- New Tech components with prefabs and definitions: Generator (bumper standing in for
+  the sling, 30% chance per hit to Shock the ball) and Capacitor (banks 2 Charge, then
+  consumes it to activate the 4 nearest components through the weak-shake path,
+  portals excluded).
+- Electric Floorboard cut entirely: the vault kept Electric Grounding in NOT IN
+  PRODUCTION through the rework, so the component script, its three Board_NA
+  placements, and the `ScoreManager` permanent-points API added for it are all
+  removed. The Shock/Charge system itself is unaffected.
+- Moore's Launcher gains a creation cooldown (default 2s between Transistors) after a
+  playtest avalanche: created Transistors self-charge and re-feed the launcher, and an
+  uncapped loop live-locked the editor at low thresholds.
+- Playtest findings for design review: Moore's Launcher is extremely difficult to
+  trigger as specced — its bank decays like any Charged object (2s grace, then
+  -2/sec), and balls rarely return to one flipper that fast, so 5 Charge was never
+  reached across several live games (best: 4/5). Verified end-to-end only via a
+  lowered test threshold. Relatedly, consumers compete for the same couriers: a
+  Capacitor placed upstream drains every ball to 0 before it reaches the flipper,
+  which reads as counter-intuitive in play and can starve the launcher entirely.
+
+## 0.11.0 — Shock/Charge system plus Electric Floorboard, Plasma Launcher, Engine rework
+_2026-07-26 · Contributor: Devin_
+- New Shock/Charge status system mirroring the fire architecture: `ChargeStatus` base with
+  `BallChargeStatus`/`ComponentChargeStatus`, `ChargeStatusUtility` helpers, and `[Charge]`
+  console tracing via `ChargeDebug`. Shocking an object grants Charge; an object left
+  unshocked for 2 seconds bleeds 2 Charge per second (paused outside live play, same
+  gating as fire ticks). Balls are the carriers: shock sources charge the ball, and
+  consumer components drain the ball's whole Charge on contact.
+- Electric Floorboard (roll-over, Tech): slows the ball slightly and Shocks it each pass.
+  A ball that arrives already charged discharges into the board; at 1 Charge it triggers,
+  consuming its Charge and permanently raising point scoring by 5% for the rest of the
+  run (new `ScoreManager.AddPermanentPointsBonus`, survives round resets, cleared on a
+  new run).
+- Plasma Launcher (flipper upgrade, Tech): banks Charge from charged balls that strike
+  the flipper; at 5 it consumes all of it and fires a plasma ball up the board. The
+  projectile glides through geometry for 4 seconds activating each component it passes
+  (0.5s per-component cooldown, portals skipped, weak-shake scoring path). Falls back to
+  a code-built glowing sphere when no prefab is assigned.
+- Engine (bumper, Entropy/Tech) reworked to the current design doc: no more seeded
+  inspector charge or Flammable-to-score conversion. Charged balls discharge into it;
+  once Charged it consumes every stack and Ignites itself, gaining +25 base points per
+  activation while it burns and shedding all of the gained points at burn-out. Holds its
+  Charge (decay permitting) if it has no Flammable stacks yet, igniting when fueled.
+- Editor wiring still needed: board placements/prefabs for the two new components and
+  Flammable stacks on Engine's `ComponentFireStatus` — code-only PR, verified against the
+  compiler but not yet playtested.
+
+## 0.10.4 — Quit from the pause menu no longer throws during teardown
+_2026-07-26 · Contributor: JJ_
+- `BoardFireFXController.OnDisable` threw a NullReferenceException every time a board scene
+  was torn down. It resolved `FrenzyManager` a second time to unsubscribe, but nothing ever
+  registers `FrenzyManager` with the `ServiceLocator`, so the lookup fell through to a scene
+  search that returns null once the load has started. The existing guard checked
+  `scoringMode`, an unrelated field. It now holds the instance resolved in `OnEnable` and
+  unsubscribes from that. `OnEnable` no longer dereferences the lookup unguarded either.
+- Quitting to the main menu from the pause menu now stops burning-fire FMOD loops before
+  loading the scene. Those loops are attached to board GameObjects the load destroys, and
+  `AudioManager` survives the load and only reaped them on its next `Update`.
+- Quitting to the main menu from the pause menu now calls `GameSession.ResetSession()`,
+  matching the win screen's quit button. The finished run's board plan, seed, challenge and
+  ship no longer leak into the menu.
+- `SceneFader` clears its pending fade-in request when the caller holds the screen black.
+  The flag stayed set for the rest of the session, so the next scene load that bypassed the
+  fader opened on a black screen that faded in for no reason.
+- Note: a hard crash was reported on this button but has not been reproduced — the recorded
+  session survived the NRE and reached the menu. The FMOD cleanup above is preventative.
+  If it still crashes, reproduce with fires lit (multiplier at or above `multToIgnite`).
+
 ## 0.10.3 — Tooltip keyword panels resolve from the description text
 _2026-07-24 · Contributor: JJ_
 - Definition Panel 1/2 now populate from any keyword the item's description mentions,

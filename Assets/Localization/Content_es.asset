@@ -58,8 +58,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 36720074758
-    m_Localized: "Cada 4 golpes de componente, genera 3 minibolas coloridas que estallan
-      tras 3 golpes. Hasta 4 r\xE1fagas por bola."
+    m_Localized: "Cada 7 golpes de componente, genera 3 minibolas coloridas que estallan
+      tras 10 golpes."
     m_Metadata:
       m_Items: []
   - m_Id: 36720074759

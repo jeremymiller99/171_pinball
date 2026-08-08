@@ -1,5 +1,7 @@
 // Generated with Cursor (GPT-5.2) by OpenAI assistant for jjmil on 2026-02-24.
 // Modified with Claude Code (Opus 4.7) by JJ on 2026-04-20: added Settings Panel access.
+// Modified with Claude Code (Opus 5) by JJ on 2026-07-26: clean up run and audio state
+// before returning to the menu.
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -90,6 +92,9 @@ public sealed class PauseMenuController : MonoBehaviour
         {
             Close();
         }
+
+        // Belt and braces: a block left behind here would follow the player into the next scene.
+        GameplayInputGate.Unblock(this);
     }
 
     private void Update()
@@ -152,6 +157,8 @@ public sealed class PauseMenuController : MonoBehaviour
 
         isOpen = true;
         pauseMenuPanel.SetActive(true);
+        ModalUiLayer.Elevate(pauseMenuPanel, ModalUiLayer.PauseSortingOrder);
+        GameplayInputGate.Block(this);
         ServiceLocator.Get<AudioManager>()?.SetMusicMuffled(true);
 
         DisableWhileOpen();
@@ -171,6 +178,7 @@ public sealed class PauseMenuController : MonoBehaviour
     private void Close()
     {
         isOpen = false;
+        GameplayInputGate.Unblock(this);
 
         if (_settingsInstance != null)
         {
@@ -290,6 +298,17 @@ public sealed class PauseMenuController : MonoBehaviour
     {
         Close();
 
+        // Burning loops are attached to board GameObjects that the scene load is about to
+        // destroy. AudioManager survives the load and only reaps them on its next Update,
+        // which leaves FMOD holding freed emitters across the transition.
+        ServiceLocator.Get<AudioManager>()?.StopAllBurningSounds();
+
+        // The run ends here, same as quitting from the win screen.
+        if (GameSession.Instance != null)
+        {
+            GameSession.Instance.ResetSession();
+        }
+
         if (ProgressionService.Instance != null)
         {
             ProgressionService.Instance.CheckAndGrantUnlocks();
@@ -359,6 +378,9 @@ public sealed class PauseMenuController : MonoBehaviour
 
         _settingsInstance = Instantiate(settingsPanelPrefab, parent, false);
         _settingsInstance.SetActive(true);
+
+        // Parented beside the pause panel rather than under it, so it needs lifting of its own.
+        ModalUiLayer.Elevate(_settingsInstance, ModalUiLayer.PauseSortingOrder);
 
         if (pauseMenuPanel != null)
         {

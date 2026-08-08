@@ -266,6 +266,13 @@ public class GameRulesManager : MonoBehaviour
         TryProcessLevelUps();
     }
 
+    /// <summary>True when there are no balls waiting in the hand/queue.</summary>
+    private bool HandIsEmpty()
+    {
+        BallSpawner spawner = ServiceLocator.Get<BallSpawner>();
+        return spawner == null || spawner.HandCount <= 0;
+    }
+
     private void TryProcessLevelUps()
     {
         if (_levelUpProcessing) return;
@@ -280,12 +287,15 @@ public class GameRulesManager : MonoBehaviour
             {
                 float prevGoal = CurrentGoal;
                 var cc = ServiceLocator.Get<CoinController>();
-                int coinsAwarded = cc?.AddCoinsScaledDeferredUi(coinsPerLevelUp) ?? 0;
-                ActiveIncomeModule[] modules = FindObjectsByType<ActiveIncomeModule>(FindObjectsSortMode.None);
-                if (modules.Length > 0)
+
+                // Last Chance: leveling up with an empty hand doubles the level-up rewards.
+                int levelReward = coinsPerLevelUp;
+                if (LastChanceModule.ActiveCount > 0 && HandIsEmpty())
                 {
-                    coinsAwarded /= Mathf.FloorToInt(modules[0].passiveIncomeDivider * modules.Length);
-                } 
+                    levelReward *= 2;
+                }
+
+                int coinsAwarded = cc?.AddCoinsScaledDeferredUi(levelReward) ?? 0;
                 if (showLevelUpCoinsPopup && floatingTextSpawner != null)
                 {
                     int awarded = coinsAwarded;
@@ -522,7 +532,10 @@ public class GameRulesManager : MonoBehaviour
 
         SteamAchievements.UnlockFirstShopVisit();
 
-        scoreManager?.ResetMultiplier();
+        // Shop entry ends the current ball, so it decays the mult the same way a drain
+        // does (down to a fraction, not all the way to 1x) rather than wiping it.
+        // The drain routine's IsShopOpen guard keeps this from double-applying.
+        scoreManager?.DecayMultiplier();
         ServiceLocator.Get<AudioManager>()?.SetMusicState(3f);
 
         if (shopTransitionController != null)

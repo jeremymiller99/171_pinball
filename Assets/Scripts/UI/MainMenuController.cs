@@ -407,6 +407,16 @@ public sealed class MainMenuController : MonoBehaviour
 
     private void QuitGame()
     {
+        // Windows delivers the click that re-activates the window to the window
+        // itself, so tabbing back into the game with the cursor over "Quit"
+        // would otherwise exit immediately. Ignore quits that land in the grace
+        // period right after focus returned.
+        if (ApplicationFocusGuard.IsSettlingAfterFocus())
+        {
+            Debug.Log("[MainMenu] Quit ignored — click arrived as the window regained focus.");
+            return;
+        }
+
         Debug.Log("[MainMenu] Quit selected — exiting game.");
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
@@ -756,6 +766,10 @@ public sealed class MainMenuItemPointerProxy : MonoBehaviour,
     private MainMenuController _owner;
     private int _index;
 
+    // Set on a left press that we accepted; a click is only forwarded if it
+    // followed one, so a stray click event on its own can't activate the item.
+    private bool _pressAccepted;
+
     internal void Bind(MainMenuController owner, int index)
     {
         _owner = owner;
@@ -772,7 +786,14 @@ public sealed class MainMenuItemPointerProxy : MonoBehaviour,
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (_owner != null)
+        if (eventData.button != PointerEventData.InputButton.Left)
+        {
+            return;
+        }
+
+        _pressAccepted = !ApplicationFocusGuard.IsSettlingAfterFocus();
+
+        if (_pressAccepted && _owner != null)
         {
             _owner.OnItemPressed(_index);
         }
@@ -780,10 +801,23 @@ public sealed class MainMenuItemPointerProxy : MonoBehaviour,
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        bool accepted = _pressAccepted;
+        _pressAccepted = false;
+
+        if (!accepted || eventData.button != PointerEventData.InputButton.Left)
+        {
+            return;
+        }
+
         if (_owner != null)
         {
             _owner.OnItemClicked(_index);
         }
+    }
+
+    private void OnDisable()
+    {
+        _pressAccepted = false;
     }
 }
 
@@ -798,6 +832,11 @@ public sealed class MainMenuQuitPointerProxy : MonoBehaviour,
 {
     private MainMenuController _owner;
 
+    // See MainMenuItemPointerProxy: only a click that followed an accepted left
+    // press quits, and presses that land as the window regains focus (the click
+    // that tabbed back in) are dropped.
+    private bool _pressAccepted;
+
     internal void Bind(MainMenuController owner)
     {
         _owner = owner;
@@ -805,7 +844,14 @@ public sealed class MainMenuQuitPointerProxy : MonoBehaviour,
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (_owner != null)
+        if (eventData.button != PointerEventData.InputButton.Left)
+        {
+            return;
+        }
+
+        _pressAccepted = !ApplicationFocusGuard.IsSettlingAfterFocus();
+
+        if (_pressAccepted && _owner != null)
         {
             _owner.OnQuitPressed();
         }
@@ -813,9 +859,22 @@ public sealed class MainMenuQuitPointerProxy : MonoBehaviour,
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        bool accepted = _pressAccepted;
+        _pressAccepted = false;
+
+        if (!accepted || eventData.button != PointerEventData.InputButton.Left)
+        {
+            return;
+        }
+
         if (_owner != null)
         {
             _owner.OnQuitClicked();
         }
+    }
+
+    private void OnDisable()
+    {
+        _pressAccepted = false;
     }
 }

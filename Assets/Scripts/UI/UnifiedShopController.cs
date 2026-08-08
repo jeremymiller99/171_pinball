@@ -191,7 +191,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (!_placement.ReplaceComponent(_targetComponent, def))
         {
-            coinController?.AddCoinsUnscaled(price);
+            coinController?.AddCoinsUnscaled(price, false);
             SetPrompt(LocalizedUI.Format("gameplay.shop.couldNotPlace", "Could not place {0}. Coins refunded.", def.GetSafeDisplayName()));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
             ExitPlacementMode();
@@ -249,7 +249,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (CurrentState == ShopState.PlacingComponent && _selectedOffer != null)
         {
-            coinController?.AddCoinsUnscaled(_selectedOffer.Price);
+            coinController?.AddCoinsUnscaled(_selectedOffer.Price, false);
             Debug.Log($"[UnifiedShopController] Refunded in-flight placement for {_selectedOffer.DisplayName} on shop close.");
         }
 
@@ -481,7 +481,7 @@ public sealed class UnifiedShopController : MonoBehaviour
             return;
         }
 
-        if (refund > 0) coinController?.AddCoinsUnscaled(refund);
+        if (refund > 0) coinController?.AddCoinsUnscaled(refund, false);
 
         if (ballSpawner != null)
         {
@@ -588,6 +588,30 @@ public sealed class UnifiedShopController : MonoBehaviour
         PlacementCancelled?.Invoke();
     }
 
+    /// <summary>
+    /// Pays for an offer, honoring the Punch Card module (every Nth purchase free).
+    /// Returns true if the purchase is covered (free or paid), false if it can't be
+    /// afforded. The purchase counter only advances on a committed purchase.
+    /// </summary>
+    private bool TryPayForOffer(ShopOffer offer)
+    {
+        if (offer == null) return false;
+
+        if (PunchCardModule.PeekNextPurchaseFree())
+        {
+            PunchCardModule.RegisterPurchase();
+            return true;
+        }
+
+        if (coinController != null && coinController.TrySpendCoins(offer.Price))
+        {
+            PunchCardModule.RegisterPurchase();
+            return true;
+        }
+
+        return false;
+    }
+
     private void AutoBuyBallOffer(int offerIndex, ShopOffer offer, int insertSlot)
     {
         var loadoutCtrl = ServiceLocator.Get<BallLoadoutController>();
@@ -595,7 +619,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         insertSlot = Mathf.Clamp(insertSlot, 0, loadoutCtrl.BallLoadoutCount);
 
-        if (coinController == null || !coinController.TrySpendCoins(offer.Price))
+        if (!TryPayForOffer(offer))
         {
             SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughCoinsFor", "Not enough coins for {0}.", offer.DisplayName));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
@@ -613,7 +637,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
             if (ballToGrant == null)
             {
-                coinController?.AddCoinsUnscaled(offer.Price);
+                coinController?.AddCoinsUnscaled(offer.Price, false);
                 SetPrompt(LocalizedUI.Format("gameplay.shop.noRarityBalls", "No {0} balls available -- purchase refunded.", RarityWord(mystery.TargetRarity)));
                 ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
                 RefreshUI();
@@ -625,7 +649,7 @@ public sealed class UnifiedShopController : MonoBehaviour
 
         if (!loadoutCtrl.InsertBallIntoLoadout(insertSlot, ballToGrant))
         {
-            coinController?.AddCoinsUnscaled(offer.Price);
+            coinController?.AddCoinsUnscaled(offer.Price, false);
             SetPrompt(LocalizedUI.Get("gameplay.shop.loadoutFull", "Loadout full -- could not add ball."));
             RefreshUI();
             return;
@@ -695,7 +719,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         ShopOffer offer = _shelf.GetOffer(offerIndex);
         if (target == null || offer == null || !offer.IsValid) return;
 
-        if (coinController == null || !coinController.TrySpendCoins(offer.Price))
+        if (!TryPayForOffer(offer))
         {
             SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughCoinsFor", "Not enough coins for {0}.", offer.DisplayName));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
@@ -757,7 +781,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         var loadout = loadoutCtrl.GetBallLoadoutSnapshot();
         if (slotIndex < 0 || slotIndex >= loadout.Count) return;
 
-        if (coinController == null || !coinController.TrySpendCoins(offer.Price))
+        if (!TryPayForOffer(offer))
         {
             SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughCoinsFor", "Not enough coins for {0}.", offer.DisplayName));
             ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
@@ -1103,36 +1127,21 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     private void SetTargetComponent(BoardComponentType typeOfComponent)
     {
-        if (typeOfComponent == BoardComponentType.Bumper)
+        IReadOnlyList<BoardComponent> candidates = _placement.GetComponents(typeOfComponent);
+        if (candidates.Count == 0)
         {
-            int index = _targetComponentIndex % _placement.Bumpers.Count;
-            if (index < 0)
-            {
-                index = _placement.Bumpers.Count - 1;
-                _targetComponentIndex = index;
-            }
-            _targetComponent = _placement.Bumpers[index];
+            _targetComponent = null;
+            return;
         }
-        else if (typeOfComponent == BoardComponentType.Target)
+
+        int index = _targetComponentIndex % candidates.Count;
+        if (index < 0)
         {
-            int index = _targetComponentIndex % _placement.Targets.Count;
-            if (index < 0)
-            {
-                index = _placement.Targets.Count - 1;
-                _targetComponentIndex = index;
-            }
-            _targetComponent = _placement.Targets[index];
+            index = candidates.Count - 1;
+            _targetComponentIndex = index;
         }
-        else if (typeOfComponent == BoardComponentType.Flipper)
-        {
-            int index = _targetComponentIndex % _placement.Flippers.Count;
-            if (index < 0)
-            {
-                index = _placement.Flippers.Count - 1;
-                _targetComponentIndex = index;
-            }
-            _targetComponent = _placement.Flippers[index];
-        }
+
+        _targetComponent = candidates[index];
     }
 
     public void OnBack()

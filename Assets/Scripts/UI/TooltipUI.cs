@@ -182,6 +182,7 @@ public sealed class TooltipUI : MonoBehaviour
         _canvasGroup.blocksRaycasts = false;
         CacheCanvas();
         EnsureDefinitionLookups();
+        SkinAllPanels(staticDefaultMaterial, staticDefaultMaterial);
         gameObject.SetActive(false);
     }
 
@@ -200,10 +201,9 @@ public sealed class TooltipUI : MonoBehaviour
         string title,
         string description,
         List<string> tags,
-        ElementType elementType = ElementType.None,
-        ElementType secondaryElementType = ElementType.None)
+        string type)
     {
-        ApplyContent(title, description, elementType, secondaryElementType);
+        ApplyContent(title, description, type);
         SetPricePanels(PriceMode.None, 0);
         SetDefinitionPanels(tags, description);
 
@@ -220,11 +220,10 @@ public sealed class TooltipUI : MonoBehaviour
         string title,
         string description,
         List<string> tags,
-        ElementType elementType,
-        ElementType secondaryElementType,
+        string type,
         int price)
     {
-        Show(title, description, tags, elementType, secondaryElementType);
+        Show(title, description, tags, type);
         SetPricePanels(PriceMode.Buy, price);
     }
 
@@ -232,11 +231,10 @@ public sealed class TooltipUI : MonoBehaviour
         string title,
         string description,
         List<string> tags,
-        ElementType elementType,
-        ElementType secondaryElementType,
+        string type,
         int price)
     {
-        Show(title, description, tags, elementType, secondaryElementType);
+        Show(title, description, tags, type);
         SetPricePanels(PriceMode.Sell, price);
     }
 
@@ -244,10 +242,9 @@ public sealed class TooltipUI : MonoBehaviour
                                string description,
                                List<string> tags,
                                Vector2 position,
-                               ElementType elementType = ElementType.None,
-                               ElementType secondaryElementType = ElementType.None)
+                               string type)
     {
-        ApplyContent(title, description, elementType, secondaryElementType);
+        ApplyContent(title, description, type);
         SetPricePanels(PriceMode.None, 0);
         SetDefinitionPanels(tags, description);
 
@@ -299,11 +296,10 @@ public sealed class TooltipUI : MonoBehaviour
         string description,
         List<string> tags,
         Vector2 position,
-        ElementType elementType,
-        ElementType secondaryElementType,
+        string type,
         int price)
     {
-        ShowAtPosition(title, description, tags, position, elementType, secondaryElementType);
+        ShowAtPosition(title, description, tags, position, type);
         SetPricePanels(PriceMode.Buy, price);
     }
 
@@ -312,11 +308,10 @@ public sealed class TooltipUI : MonoBehaviour
         string description,
         List<string> tags,
         Vector2 position,
-        ElementType elementType,
-        ElementType secondaryElementType,
+        string type,
         int price)
     {
-        ShowAtPosition(title, description, tags, position, elementType, secondaryElementType);
+        ShowAtPosition(title, description, tags, position, type);
         SetPricePanels(PriceMode.Sell, price);
     }
 
@@ -808,8 +803,7 @@ public sealed class TooltipUI : MonoBehaviour
     private void ApplyContent(
         string title,
         string description,
-        ElementType elementType,
-        ElementType secondaryElementType)
+        string type)
     {
         // Reset to the visit material so a previous item's rarity color
         // never lingers; callers with a rarity re-skin right after.
@@ -824,17 +818,9 @@ public sealed class TooltipUI : MonoBehaviour
 
         if (typeText != null)
         {
-            string typeName = ElementTypeColors.GetDisplayName(elementType);
-            Color typeColor =
-                ElementTypeColors.GetColor(elementType);
-            typeText.text = $"<color=#{ColorUtility.ToHtmlStringRGB(typeColor)}><u>" + typeName + "</u></color>";
-            if (secondaryElementType != ElementType.None)
-            {
-                string secondaryTypeName = ElementTypeColors.GetDisplayName(secondaryElementType);
-                Color secondaryTypeColor =
-                    ElementTypeColors.GetColor(secondaryElementType);
-                typeText.text += $" <color=#{ColorUtility.ToHtmlStringRGB(secondaryTypeColor)}><u>" + secondaryTypeName + "</u></color>";
-            }
+            typeText.text = string.IsNullOrWhiteSpace(type)
+                ? "N/A"
+                : type;
         }
 
         descText.text =

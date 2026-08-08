@@ -8,10 +8,14 @@
 // Updated 2026-03-27: hand ball drag-to-swap (click+threshold → visual drag, drop on another ball).
 // Updated 2026-04-06 by Antigravity (claude-4.6-opus):
 // hover tooltips now display ElementType with colored label.
+// Updated 2026-08-05 by Claude Code (claude-opus-5) for jjmil:
+// unaffordable shop offers can be clicked to inspect; only the buy drag is blocked.
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Events;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -47,6 +51,13 @@ public class RenderTextureRaycaster : MonoBehaviour
 
     [SerializeField] private GameObject _lastHoveredObject;
     [SerializeField] private bool _tooltipShownByHover;
+
+    // Tracks the inspect tooltip so any button press can dismiss it (see
+    // DismissTooltipOnAnyInput). Controller-driven tooltips are exempt: there the
+    // tooltip is the selection readout and UnifiedShopController re-shows it every
+    // frame, so dismissing it would only flicker.
+    private bool _tooltipShownByController;
+    private int _tooltipShownAtFrame = -1;
     [SerializeField] private BallSpawner _cachedSpawner;
     [SerializeField] private BoardComponent _highlightedComponent;
     [SerializeField] private Outline _highlightedOutline;
@@ -73,6 +84,14 @@ public class RenderTextureRaycaster : MonoBehaviour
     [SerializeField] private Plane _handBallDragPlane;
     [SerializeField] private Vector3 _handBallDragWorldOffset;
 
+    [Header("Types of headers")]
+    [SerializeField] private static string shipText = "Ship";
+    [SerializeField] private static string hubText = "Shop Hub";
+    [SerializeField] private static string shopShipText = "Merchant";
+    [SerializeField] private static string ballText = "Ball";
+    [SerializeField] private static string moduleText = "Module";
+    [SerializeField] private static string droneText = "Drone";
+
     private void Awake()
     {
         if (targetCamera == null)
@@ -88,6 +107,19 @@ public class RenderTextureRaycaster : MonoBehaviour
             return;
         }
 
+        // A pause or round-failed panel covers the board, but this raycast does not know that:
+        // it would keep hovering tooltips and starting drags on components the player can only
+        // see behind the panel. Any drag in flight is put back the same way OnDisable does.
+        if (GameplayInputGate.IsBlocked)
+        {
+            ClearOfferDragState();
+            ClearHandBallDragState();
+            ClearHover();
+            return;
+        }
+
+        DismissTooltipOnAnyInput();
+
         Vector2 mouseScreenPos = GetMouseScreenPos();
         HandleDragProgress(mouseScreenPos);
         HandleHandBallDragProgress(mouseScreenPos);
@@ -102,6 +134,36 @@ public class RenderTextureRaycaster : MonoBehaviour
     {
         ClearOfferDragState();
         ClearHandBallDragState();
+        ClearHover();
+    }
+
+    /// <summary>
+    /// An open inspect tooltip closes on any input, not just a click somewhere else:
+    /// a flipper press, a menu key or a pad button all put it away. Runs first in
+    /// Update so a click that opens a different tooltip still shows it afterwards,
+    /// and the frame guard keeps the press that opened one from closing it again.
+    /// Only the inspect panel is dismissed — the header hover strip is left alone,
+    /// which is what <see cref="TooltipManager.IsVisible"/> discriminates here.
+    /// </summary>
+    private void DismissTooltipOnAnyInput()
+    {
+        if (!_tooltipShownByHover
+            || _tooltipShownByController
+            || !TooltipManager.IsVisible)
+        {
+            return;
+        }
+
+        if (Time.frameCount == _tooltipShownAtFrame)
+        {
+            return;
+        }
+
+        if (!InputPressUtility.WasAnyInputPressedThisFrame())
+        {
+            return;
+        }
+
         ClearHover();
     }
 
@@ -127,15 +189,19 @@ public class RenderTextureRaycaster : MonoBehaviour
             ShopOffer3DEntry offerEntry = offerHitGo.GetComponentInParent<ShopOffer3DEntry>();
             if (offerEntry != null)
             {
-                if (!CanAffordOffer(offerEntry.Offer))
+                // An offer the player cannot afford is still inspectable: the drag
+                // that would buy it never starts, but the click falls through to the
+                // tooltip resolution below so the item can be read before saving up.
+                if (CanAffordOffer(offerEntry.Offer))
+                {
+                    _offerDragEntry = offerEntry;
+                    _offerDragStartScreenPos = mouseScreenPos;
+                    offerEntry.SetDragVisual(true);
+                }
+                else
                 {
                     ServiceLocator.Get<AudioManager>()?.PlayFailedPurchase();
-                    return;
                 }
-
-                _offerDragEntry = offerEntry;
-                _offerDragStartScreenPos = mouseScreenPos;
-                offerEntry.SetDragVisual(true);
             }
         }
 
@@ -187,8 +253,7 @@ public class RenderTextureRaycaster : MonoBehaviour
                                 out string title,
                                 out string desc,
                                 out List<string> tags,
-                                out ElementType elementType,
-                                out ElementType secondaryElementType,
+                                out string type,
                                 out TooltipUI.PriceMode priceMode,
                                 out int price,
                                 out BallRarity? _))
@@ -353,10 +418,11 @@ public class RenderTextureRaycaster : MonoBehaviour
             return;
         }
 
-        if (TryResolveHeaderTooltipFromObject(hitObject,
+        if (TryResolveTooltipFromObject(hitObject,
                                 out string title,
-                                out ElementType elementType,
-                                out ElementType secondaryElementType,
+                                out string _,
+                                out List<string> tags,
+                                out string type,
                                 out TooltipUI.PriceMode priceMode,
                                 out int price,
                                 out BallRarity? _))
@@ -387,8 +453,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         string title,
         string desc,
         List<string> tags,
-        ElementType elementType,
-        ElementType secondaryElementType,
+        string type,
         TooltipUI.PriceMode priceMode,
         int price,
         BallRarity? rarity = null)
@@ -396,13 +461,13 @@ public class RenderTextureRaycaster : MonoBehaviour
         switch (priceMode)
         {
             case TooltipUI.PriceMode.Buy:
-                TooltipManager.ShowBuy(title, desc, tags, elementType, secondaryElementType, price);
+                TooltipManager.ShowBuy(title, desc, tags, type, price);
                 break;
             case TooltipUI.PriceMode.Sell:
-                TooltipManager.ShowSell(title, desc, tags, elementType, secondaryElementType, price);
+                TooltipManager.ShowSell(title, desc, tags, type, price);
                 break;
             default:
-                TooltipManager.Show(title, desc, tags, elementType, secondaryElementType);
+                TooltipManager.Show(title, desc, tags, type);
                 break;
         }
 
@@ -414,8 +479,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         string desc,
         List<string> tags,
         Vector2 position,
-        ElementType elementType,
-        ElementType secondaryElementType,
+        string type,
         TooltipUI.PriceMode priceMode,
         int price,
         BallRarity? rarity = null)
@@ -423,13 +487,13 @@ public class RenderTextureRaycaster : MonoBehaviour
         switch (priceMode)
         {
             case TooltipUI.PriceMode.Buy:
-                TooltipManager.ShowBuyAtPosition(title, desc, tags, position, elementType, secondaryElementType, price);
+                TooltipManager.ShowBuyAtPosition(title, desc, tags, position, type, price);
                 break;
             case TooltipUI.PriceMode.Sell:
-                TooltipManager.ShowSellAtPosition(title, desc, tags, position, elementType, secondaryElementType, price);
+                TooltipManager.ShowSellAtPosition(title, desc, tags, position, type, price);
                 break;
             default:
-                TooltipManager.ShowAtPosition(title, desc, tags, position, elementType, secondaryElementType);
+                TooltipManager.ShowAtPosition(title, desc, tags, position, type);
                 break;
         }
 
@@ -438,8 +502,7 @@ public class RenderTextureRaycaster : MonoBehaviour
 
     private static void ShowHeaderTooltip(
     string title,
-    ElementType elementType,
-    ElementType secondaryElementType,
+    string type,
     TooltipUI.PriceMode priceMode,
     int price,
     BallRarity? rarity = null)
@@ -447,13 +510,13 @@ public class RenderTextureRaycaster : MonoBehaviour
         switch (priceMode)
         {
             case TooltipUI.PriceMode.Buy:
-                TooltipHeaderManager.ShowBuy(title, elementType, secondaryElementType, price);
+                TooltipHeaderManager.ShowBuy(title, type, price);
                 break;
             case TooltipUI.PriceMode.Sell:
-                TooltipHeaderManager.ShowSell(title, elementType, secondaryElementType, price);
+                TooltipHeaderManager.ShowSell(title, type, price);
                 break;
             default:
-                TooltipHeaderManager.Show(title, elementType, secondaryElementType);
+                TooltipHeaderManager.Show(title, type);
                 break;
         }
 
@@ -469,8 +532,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         string title = null;
         string desc = null;
         List<string> tags = null;
-        ElementType elementType = ElementType.None;
-        ElementType secondaryElementType = ElementType.None;
+        string type = null;
         TooltipUI.PriceMode priceMode = TooltipUI.PriceMode.None;
         int price = 0;
         BallRarity? rarity = null;
@@ -479,8 +541,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             TryResolveTooltipFromObject(
                 selectedObject, out title, out desc, out tags,
-                out elementType, out secondaryElementType,
-                out priceMode, out price, out rarity);
+                out type, out priceMode, out price, out rarity);
         }
 
         if (selectedObject != _lastHoveredObject)
@@ -491,9 +552,11 @@ public class RenderTextureRaycaster : MonoBehaviour
             StartPulse(selectedObject);
             ShowTooltipAtPosition(
                 title, desc, tags, posOnScreen,
-                elementType, secondaryElementType,
+                type,
                 priceMode, price, rarity);
             _tooltipShownByHover = true;
+            _tooltipShownByController = true;
+            _tooltipShownAtFrame = Time.frameCount;
         }
     }
 
@@ -507,8 +570,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         string title = null;
         string desc = null;
         List<string> tags = null;
-        ElementType elementType = ElementType.None;
-        ElementType secondaryElementType = ElementType.None;
+        string type = null;
         TooltipUI.PriceMode priceMode = TooltipUI.PriceMode.None;
         int price = 0;
         BallRarity? rarity = null;
@@ -517,8 +579,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             TryResolveTooltipFromObject(
                 selectedObject, out title, out desc, out tags,
-                out elementType, out secondaryElementType,
-                out priceMode, out price, out rarity);
+                out type, out priceMode, out price, out rarity);
         }
 
         ApplyHighlight(selectedObject);
@@ -528,9 +589,11 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             ShowTooltipAtPosition(
                 title, desc, tags, posOnScreen,
-                elementType, secondaryElementType,
+                type,
                 priceMode, price, rarity);
             _tooltipShownByHover = true;
+            _tooltipShownByController = false;
+            _tooltipShownAtFrame = Time.frameCount;
         }
     }
 
@@ -543,18 +606,22 @@ public class RenderTextureRaycaster : MonoBehaviour
         }
 
         string title = null;
-        ElementType elementType = ElementType.None;
-        ElementType secondaryElementType = ElementType.None;
+        string type = null;
         TooltipUI.PriceMode priceMode = TooltipUI.PriceMode.None;
         int price = 0;
         BallRarity? rarity = null;
 
         if (selectedObject != null)
         {
-            TryResolveHeaderTooltipFromObject(
-                selectedObject, out title,
-                out elementType, out secondaryElementType,
-                out priceMode, out price, out rarity);
+            TryResolveTooltipFromObject(
+                                selectedObject,
+                                out title,
+                                out string _,
+                                out List<string> tags,
+                                out type,
+                                out priceMode,
+                                out price,
+                                out rarity);
         }
         else
         {
@@ -564,7 +631,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         ClearHighlight();
         ApplyHighlight(selectedObject);
         ShowHeaderTooltip(
-            title, elementType, secondaryElementType, priceMode, price,
+            title, type, priceMode, price,
             rarity);
         _tooltipShownByHover = true;
     }
@@ -589,8 +656,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         out string title,
         out string desc,
         out List<string> tags,
-        out ElementType elementType,
-        out ElementType secondaryElementType,
+        out string type,
         out TooltipUI.PriceMode priceMode,
         out int price,
         out BallRarity? rarity)
@@ -598,8 +664,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         title = null;
         desc = null;
         tags = null;
-        elementType = ElementType.None;
-        secondaryElementType = ElementType.None;
+        type = null;
         priceMode = TooltipUI.PriceMode.None;
         price = 0;
         rarity = null;
@@ -610,7 +675,7 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             title = shipVis.ShipDef.displayName;
             desc = shipVis.ShipDef.description;
-            elementType = shipVis.ShipDef.ElementType;
+            type = shipText;
             return true;
         }
 
@@ -627,6 +692,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             {
                 title = hub.DisplayName;
                 desc = hub.Description;
+                type = hubText;
                 return true;
             }
         }
@@ -641,8 +707,9 @@ public class RenderTextureRaycaster : MonoBehaviour
             {
                 title = "Visiting merchant";
             }
-            elementType = shopShip.CurrentCatalogElement;
-            desc = ShopMerchantTooltipHover.BuildDescription(shopShip, elementType);
+
+            type = shopShipText;
+            desc = ShopMerchantTooltipHover.BuildDescription(shopShip);
             return true;
         }
 
@@ -659,7 +726,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             ShopOffer offer = offerEntry.Offer;
             title = offer.DisplayName;
             desc = offer.Description;
-            elementType = offer.ElementType;
+            type = offer.GetTypeString();
             priceMode = TooltipUI.PriceMode.Buy;
             price = Mathf.Max(0, offer.Price);
             if (offer.BallDef != null)
@@ -684,8 +751,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             desc = BuildBallTooltipDescription(
                 ballLink.gameObject, ballDef);
             tags = ballDef.Tags;
-            elementType = ballDef.ElementType;
-            secondaryElementType = ballDef.SecondaryElementType;
+            type = ballText;
             rarity = ballDef.Rarity;
 
             if (IsHandBallInShop(ballLink.gameObject))
@@ -703,9 +769,9 @@ public class RenderTextureRaycaster : MonoBehaviour
             && compLink.TryGetDefinition(
                 out BoardComponentDefinition compDef))
         {
-            title = compDef.GetSafeDisplayName();
+            title = ResolveComponentTitle(compLink, compDef);
             desc = compDef.Description;
-            elementType = compDef.ElementType;
+            type = BoardComponentDefinition.GetTypeText(compDef.ComponentType);
             rarity = compDef.Rarity;
             return true;
         }
@@ -719,148 +785,44 @@ public class RenderTextureRaycaster : MonoBehaviour
         {
             title = moduleDef.GetSafeDisplayName();
             desc = moduleDef.Description;
-            elementType = moduleDef.ElementType;
-            secondaryElementType = moduleDef.SecondaryElementType;
+            type = moduleText;
             return true;
+        }
+
+        DroneDefinitionLink droneLink =
+            obj.GetComponentInParent<DroneDefinitionLink>();
+
+        if (droneLink != null && droneLink.TryGetDefinition(out DroneDefinition droneDef))
+        {
+            title = droneDef.GetSafeDisplayName();
+            desc = droneDef.Description;
+            type = droneText;
         }
 
         return false;
     }
 
-
-    public bool TryResolveHeaderTooltipFromObject(
-        GameObject obj,
-        out string title,
-        out ElementType elementType,
-        out ElementType secondaryElementType,
-        out TooltipUI.PriceMode priceMode,
-        out int price,
-        out BallRarity? rarity)
+    /// <summary>
+    /// Names a hovered component. Normally the linked definition's name (which can be
+    /// specific, e.g. "Engine Bumper"). But a scene instance can be re-typed away from
+    /// its prefab's definition — the back Kicker pads are Sling-prefab instances
+    /// re-typed to Kicker — and then the definition name lies. When the instance's
+    /// componentType no longer matches its definition, name it by its actual type via
+    /// the catalog instead.
+    /// </summary>
+    private static string ResolveComponentTitle(
+        BoardComponentDefinitionLink compLink, BoardComponentDefinition compDef)
     {
-        title = null;
-        elementType = ElementType.None;
-        secondaryElementType = ElementType.None;
-        priceMode = TooltipUI.PriceMode.None;
-        price = 0;
-        rarity = null;
+        BoardComponent bc = compLink != null
+            ? compLink.GetComponent<BoardComponent>()
+            : null;
 
-        if (obj == currentTooltipObject)
+        if (bc != null && bc.componentType != compDef.ComponentType)
         {
-            return false;
+            return ComponentTypeCatalog.DisplayName(bc.componentType);
         }
 
-        PlayerShipVisual shipVis =
-            obj.GetComponentInParent<PlayerShipVisual>();
-        if (shipVis != null && shipVis.ShipDef != null)
-        {
-            title = shipVis.ShipDef.displayName;
-            elementType = shipVis.ShipDef.ElementType;
-            return true;
-        }
-
-        ShopHub hub = obj.GetComponentInParent<ShopHub>();
-        if (!hub)
-        {
-            hub = obj.GetComponent<ShopHub>();
-        }
-        if (hub != null)
-        {
-            UnifiedShopController shopCtrl =
-                ServiceLocator.Get<UnifiedShopController>();
-            if (shopCtrl != null && shopCtrl.IsShopActive)
-            {
-                title = hub.DisplayName;
-                return true;
-            }
-        }
-
-        ShopShipController shopShip =
-            obj.GetComponentInParent<ShopShipController>();
-
-        if (shopShip != null)
-        {
-            title = shopShip.CurrentMerchantDisplayName;
-            if (string.IsNullOrWhiteSpace(title))
-            {
-                title = "Visiting merchant";
-            }
-            elementType = shopShip.CurrentCatalogElement;
-            return true;
-        }
-
-        ShopOffer3DEntry offerEntry =
-            obj.GetComponentInParent<ShopOffer3DEntry>();
-        if (!offerEntry)
-        {
-            offerEntry = obj.GetComponent<ShopOffer3DEntry>();
-        }
-
-        if (offerEntry != null
-            && offerEntry.Offer != null)
-        {
-            ShopOffer offer = offerEntry.Offer;
-            title = offer.DisplayName;
-            elementType = offer.ElementType;
-            priceMode = TooltipUI.PriceMode.Buy;
-            price = Mathf.Max(0, offer.Price);
-            if (offer.BallDef != null)
-            {
-                rarity = offer.BallDef.Rarity;
-            }
-            else if (offer.ComponentDef != null)
-            {
-                rarity = offer.ComponentDef.Rarity;
-            }
-            return true;
-        }
-
-        BallDefinitionLink ballLink =
-            obj.GetComponentInParent<BallDefinitionLink>();
-
-        if (ballLink != null
-            && ballLink.TryGetDefinition(
-                out BallDefinition ballDef))
-        {
-            title = ballDef.GetSafeDisplayName();
-            elementType = ballDef.ElementType;
-            secondaryElementType = ballDef.SecondaryElementType;
-            rarity = ballDef.Rarity;
-
-            if (ServiceLocator.Get<GameRulesManager>().IsShopOpen && ballLink.GetComponent<ShopOffer3DEntry>() == null)
-            {
-                priceMode = TooltipUI.PriceMode.Sell;
-                price = ComputeBallSellPrice(ballDef);
-            }
-            return true;
-        }
-
-        BoardComponentDefinitionLink compLink =
-            obj.GetComponentInParent<BoardComponentDefinitionLink>();
-
-        if (compLink != null
-            && compLink.TryGetDefinition(
-                out BoardComponentDefinition compDef))
-        {
-            title = compDef.GetSafeDisplayName();
-            elementType = compDef.ElementType;
-            rarity = compDef.Rarity;
-            return true;
-        }
-
-        ModuleDefinitionLink moduleLink =
-            obj.GetComponentInParent<ModuleDefinitionLink>();
-
-        if (moduleLink != null
-            && moduleLink.TryGetDefinition(
-                out ArtifactDefinition moduleDef))
-        {
-            title = moduleDef.GetSafeDisplayName();
-            elementType = moduleDef.ElementType;
-            secondaryElementType = moduleDef.SecondaryElementType;
-            return true;
-        }
-
-        return false;
+        return compDef.GetSafeDisplayName();
     }
 
     private static bool IsHandBallInShop(GameObject ballObject)
@@ -1513,6 +1475,7 @@ public class RenderTextureRaycaster : MonoBehaviour
             _tooltipShownByHover = false;
         }
 
+        _tooltipShownByController = false;
         _lastHoveredObject = null;
     }
 

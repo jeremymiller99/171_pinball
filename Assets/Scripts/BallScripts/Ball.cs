@@ -88,7 +88,10 @@ public class Ball : MonoBehaviour
             if (!ShouldScoreBoardComponent(component)) continue;
 
             scoredAny = true;
-            AddScore(component.amountToScore, component.typeOfScore, transform);
+            AddScore(
+                component.amountToScore * component.FireScoreMultiplier,
+                component.typeOfScore,
+                transform);
         }
 
         if (scoredAny)
@@ -152,6 +155,17 @@ public class Ball : MonoBehaviour
             return components;
         BoardComponent parentComponent = collider.GetComponentInParent<BoardComponent>();
         return parentComponent != null ? new[] { parentComponent } : System.Array.Empty<BoardComponent>();
+    }
+
+    /// <summary>
+    /// True when the most recent board hit was on a Portal. Splitter/projector balls
+    /// check this so they don't spawn their split on a portal — the new balls would be
+    /// dropped straight into a teleport.
+    /// </summary>
+    protected bool LastHitWasPortal()
+    {
+        return lastObjectHit != null
+            && lastObjectHit.GetComponentInParent<Portal>() != null;
     }
 
     

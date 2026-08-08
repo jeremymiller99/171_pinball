@@ -9,6 +9,9 @@ using UnityEngine.SceneManagement;
 
 public class FloatingTextSpawner : MonoBehaviour
 {
+    /// <summary>Shared neon green (#39FF14) used for every money/coins readout.</summary>
+    public static readonly Color CoinNeonGreen = new Color(0.224f, 1f, 0.078f, 1f);
+
     [SerializeField] private FloatingText floatingTextPrefab;
     [SerializeField] private Canvas canvas;
     [SerializeField] private Camera targetCamera;
@@ -47,6 +50,22 @@ public class FloatingTextSpawner : MonoBehaviour
     [SerializeField] private float juiceRotationDegreesMax = 10f;
     [SerializeField] private float juiceRotationDuration = 0.10f;
 
+    [Header("Relative Sizing (rolling average)")]
+    [Tooltip("Size popups by how a value compares to the recent average for its type instead of against a fixed max. Keeps text a consistent size as the run scales, while big jumps still get big text.")]
+    [SerializeField] private bool useRelativeScaling = true;
+    [Tooltip("How many recent popups of the same type feed the average.")]
+    [Min(1)]
+    [SerializeField] private int relativeSampleWindow = 25;
+    [Tooltip("Popups needed before relative sizing kicks in. Below this the fixed-max curve is used.")]
+    [Min(1)]
+    [SerializeField] private int relativeMinSamples = 5;
+    [Tooltip("How many halvings below the recent average maps to the minimum scale (2 = a quarter of average).")]
+    [Min(0.01f)]
+    [SerializeField] private float relativeOctavesBelow = 2f;
+    [Tooltip("How many doublings above the recent average maps to the maximum scale (3 = 8x average).")]
+    [Min(0.01f)]
+    [SerializeField] private float relativeOctavesAbove = 3f;
+
     [Header("Points")]
     [Tooltip("TMP Font Asset for points text (blue style).")]
     [SerializeField] private TMP_FontAsset pointsFontAsset;
@@ -66,6 +85,8 @@ public class FloatingTextSpawner : MonoBehaviour
     [Header("Gold/Coins")]
     [Tooltip("TMP Font Asset for gold/coins text (yellow style).")]
     [SerializeField] private TMP_FontAsset goldFontAsset;
+    [Tooltip("Color for gold/coins popups. Neon green for readability against the board.")]
+    [SerializeField] private Color goldTextColor = CoinNeonGreen;
     [SerializeField] private float goldScaleMin = 0.8f;
     [SerializeField] private float goldScaleMax = 1.8f;
     [Tooltip("Gold value at which scale reaches max.")]
@@ -101,6 +122,12 @@ public class FloatingTextSpawner : MonoBehaviour
     [SerializeField] private float levelUpCoinsPopupScale = 0.95f;
     [SerializeField] private float levelUpCoinsPopupLifetime = 0.85f;
 
+
+    /// <summary>
+    /// Gold popup color, falling back to <see cref="CoinNeonGreen"/> when the serialized field is
+    /// missing or fully transparent (scene instances saved before the field existed deserialize to zero).
+    /// </summary>
+    private Color GoldTextColor => goldTextColor.a <= 0f ? CoinNeonGreen : goldTextColor;
 
     private RectTransform pointsTarget;
     private RectTransform multTarget;
@@ -138,6 +165,58 @@ public class FloatingTextSpawner : MonoBehaviour
 
     private readonly Dictionary<Vector2Int, SpawnStackState> spawnStackByCell =
         new Dictionary<Vector2Int, SpawnStackState>();
+
+    /// <summary>
+    /// Rolling window of log2(magnitude) for recent popups of one type. Averaging in log space means the
+    /// centre is a geometric mean, so a single huge outlier barely moves it.
+    /// </summary>
+    private sealed class RollingLogMagnitude
+    {
+        private float[] samples;
+        private int nextIndex;
+        private int count;
+        private double sum;
+
+        public int Count => count;
+
+        public float MeanLog2 => count > 0 ? (float)(sum / count) : 0f;
+
+        public void EnsureCapacity(int capacity)
+        {
+            int size = Mathf.Max(1, capacity);
+            if (samples != null && samples.Length == size)
+                return;
+
+            samples = new float[size];
+            Clear();
+        }
+
+        public void Record(float log2Magnitude)
+        {
+            if (samples == null || samples.Length == 0)
+                EnsureCapacity(1);
+
+            if (count == samples.Length)
+                sum -= samples[nextIndex];
+            else
+                count++;
+
+            samples[nextIndex] = log2Magnitude;
+            sum += log2Magnitude;
+            nextIndex = (nextIndex + 1) % samples.Length;
+        }
+
+        public void Clear()
+        {
+            nextIndex = 0;
+            count = 0;
+            sum = 0d;
+        }
+    }
+
+    private readonly RollingLogMagnitude pointsMagnitudes = new RollingLogMagnitude();
+    private readonly RollingLogMagnitude multMagnitudes = new RollingLogMagnitude();
+    private readonly RollingLogMagnitude goldMagnitudes = new RollingLogMagnitude();
 
     private float nextSpawnStackCleanupTimeSeconds;
     private const float spawnStackCleanupIntervalSeconds = 1.0f;
@@ -205,6 +284,54 @@ public class FloatingTextSpawner : MonoBehaviour
     }
 
     /// <summary>
+    /// Picks a popup scale for <paramref name="value"/> by comparing it to the recent average for its type,
+    /// then folds the value into that average. Falls back to the fixed-max curve while the window is still
+    /// filling, for non-positive values, or when relative sizing is disabled.
+    /// </summary>
+    private float ComputeValueScale(
+        RollingLogMagnitude history,
+        float value,
+        float scaleMin,
+        float scaleMax,
+        float absoluteMaxValue)
+    {
+        float magnitude = Mathf.Abs(value);
+        float absoluteT = Mathf.Sqrt(Mathf.Clamp01(magnitude / Mathf.Max(0.0001f, absoluteMaxValue)));
+        float absoluteScale = Mathf.Lerp(scaleMin, scaleMax, absoluteT);
+
+        if (!useRelativeScaling)
+            return absoluteScale;
+
+        if (magnitude <= 0.0001f || float.IsNaN(magnitude) || float.IsInfinity(magnitude))
+            return absoluteScale;
+
+        history.EnsureCapacity(relativeSampleWindow);
+
+        float log2 = Mathf.Log(magnitude, 2f);
+        float scale = absoluteScale;
+
+        if (history.Count >= Mathf.Max(1, relativeMinSamples))
+        {
+            float octaves = log2 - history.MeanLog2;
+            float t = Mathf.InverseLerp(-Mathf.Max(0.01f, relativeOctavesBelow), Mathf.Max(0.01f, relativeOctavesAbove), octaves);
+            scale = Mathf.Lerp(scaleMin, scaleMax, t);
+        }
+
+        history.Record(log2);
+        return scale;
+    }
+
+    /// <summary>
+    /// Clears the rolling popup-size averages so a fresh run starts from the fixed-max curve again.
+    /// </summary>
+    public void ResetPopupScaleHistory()
+    {
+        pointsMagnitudes.Clear();
+        multMagnitudes.Clear();
+        goldMagnitudes.Clear();
+    }
+
+    /// <summary>
     /// Spawns floating text for points using the points font asset, size based on value.
     /// </summary>
     public void SpawnPointsText(Vector3 worldPosition, string text, float pointsValue)
@@ -223,12 +350,12 @@ public class FloatingTextSpawner : MonoBehaviour
     /// <summary>
     /// Spawns points text with optional canvas offset.
     /// </summary>
-    public void SpawnPointsText(Vector3 worldPosition, string text, float pointsValue, Action onArrive, Vector2 anchorOffset)
+    public void SpawnPointsText(Vector3 worldPosition, string text, float pointsValue, Action onArrive, Vector2 anchorOffset,
+        float scaleMultiplier = 1f, Color? colorOverride = null)
     {
         string display = BuildCompactFromTemplate(text, pointsValue);
-        float t = Mathf.Sqrt(Mathf.Clamp01(pointsValue / pointsMaxValue));
-        float scale = Mathf.Lerp(pointsScaleMin, pointsScaleMax, t);
-        SpawnTextInternal(worldPosition, display, pointsFontAsset, scale, FlyToTarget.Points, onArrive, anchorOffset);
+        float scale = ComputeValueScale(pointsMagnitudes, pointsValue, pointsScaleMin, pointsScaleMax, pointsMaxValue);
+        SpawnTextInternal(worldPosition, display, pointsFontAsset, scale * scaleMultiplier, FlyToTarget.Points, onArrive, anchorOffset, colorOverride);
     }
 
     /// <summary>
@@ -242,11 +369,11 @@ public class FloatingTextSpawner : MonoBehaviour
     /// <summary>
     /// Spawns mult text and invokes <paramref name="onArrive"/> when the text finishes flying (or immediately if it can't fly).
     /// </summary>
-    public void SpawnMultText(Vector3 worldPosition, string text, float multValue, Action onArrive)
+    public void SpawnMultText(Vector3 worldPosition, string text, float multValue, Action onArrive,
+        float scaleMultiplier = 1f, Color? colorOverride = null)
     {
-        float t = Mathf.Sqrt(Mathf.Clamp01(multValue / multMaxValue));
-        float scale = Mathf.Lerp(multScaleMin, multScaleMax, t);
-        SpawnTextInternal(worldPosition, MaybeCompact(text), multFontAsset, scale, FlyToTarget.Mult, onArrive);
+        float scale = ComputeValueScale(multMagnitudes, multValue, multScaleMin, multScaleMax, multMaxValue);
+        SpawnTextInternal(worldPosition, MaybeCompact(text), multFontAsset, scale * scaleMultiplier, FlyToTarget.Mult, onArrive, default, colorOverride);
     }
 
     /// <summary>
@@ -254,22 +381,21 @@ public class FloatingTextSpawner : MonoBehaviour
     /// </summary>
     public void SpawnGoldText(Vector3 worldPosition, string text, float goldValue)
     {
-        float t = Mathf.Sqrt(Mathf.Clamp01(goldValue / goldMaxValue));
-        float scale = Mathf.Lerp(goldScaleMin, goldScaleMax, t);
+        float scale = ComputeValueScale(goldMagnitudes, goldValue, goldScaleMin, goldScaleMax, goldMaxValue);
         string display = BuildCompactFromTemplate(text, goldValue);
-        SpawnTextInternal(worldPosition, display, goldFontAsset, scale, FlyToTarget.Coins);
+        SpawnTextInternal(worldPosition, display, goldFontAsset, scale, FlyToTarget.Coins, null, default, GoldTextColor);
     }
 
     /// <summary>
     /// Spawns gold/coins text and invokes <paramref name="onArrive"/> when the text finishes flying
     /// (or immediately if it can't fly).
     /// </summary>
-    public void SpawnGoldText(Vector3 worldPosition, string text, float goldValue, Action onArrive)
+    public void SpawnGoldText(Vector3 worldPosition, string text, float goldValue, Action onArrive,
+        float scaleMultiplier = 1f, Color? colorOverride = null)
     {
-        float t = Mathf.Sqrt(Mathf.Clamp01(goldValue / goldMaxValue));
-        float scale = Mathf.Lerp(goldScaleMin, goldScaleMax, t);
+        float scale = ComputeValueScale(goldMagnitudes, goldValue, goldScaleMin, goldScaleMax, goldMaxValue);
         string display = BuildCompactFromTemplate(text, goldValue);
-        SpawnTextInternal(worldPosition, display, goldFontAsset, scale, FlyToTarget.Coins, onArrive);
+        SpawnTextInternal(worldPosition, display, goldFontAsset, scale * scaleMultiplier, FlyToTarget.Coins, onArrive, default, colorOverride ?? GoldTextColor);
     }
 
     public void SpawnGoalTierMultPopup(int multiplierNumber)
@@ -358,7 +484,8 @@ public class FloatingTextSpawner : MonoBehaviour
             goalPraisePopStartScaleMultiplier,
             goalPraisePopPeakScaleMultiplier,
             goalPraisePopRisePortion,
-            goalPraisePopDuration);
+            goalPraisePopDuration,
+            GoldTextColor);
 
         if (ft == null)
         {

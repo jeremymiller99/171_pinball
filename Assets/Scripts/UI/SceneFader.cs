@@ -1,3 +1,5 @@
+// Modified with Claude Code (Opus 5) by JJ on 2026-07-26: clear the pending fade-in
+// request when the caller holds the screen black.
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -85,9 +87,12 @@ public sealed class SceneFader : MonoBehaviour
     {
         if (mode != LoadSceneMode.Single) return;
         if (!_pendingFadeIn) return;
-        if (_holdingBlack) return;
 
+        // Consume the request either way. When holding black the caller owns the fade-in,
+        // and leaving the flag set would make the next scene load that bypasses this
+        // fader (a raw SceneManager.LoadScene) open on a black screen.
         _pendingFadeIn = false;
+        if (_holdingBlack) return;
 
         if (_routine != null) StopCoroutine(_routine);
         _routine = StartCoroutine(FadeRoutine(1f, 0f, _pendingFadeInDuration, releaseBlockerAtEnd: true));

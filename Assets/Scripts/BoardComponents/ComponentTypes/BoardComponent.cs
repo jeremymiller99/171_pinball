@@ -70,6 +70,35 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
 
     public string ComponentGuid => componentGuid;
 
+    /// <summary>
+    /// Raised when a component is swapped out for a replacement (e.g. a shop
+    /// placement). Fired *before* the old component is destroyed, so subscribers
+    /// can still read the old one's references while re-pointing to the new one.
+    /// Managers that hold scene wiring to a component (Power Surge gate bumper slots,
+    /// the Abductor's abducted object) listen here to survive replacement.
+    /// </summary>
+    public static event Action<BoardComponent, BoardComponent> Replaced;
+
+    /// <summary>
+    /// Copies another component's stable identity onto this one, so a replacement
+    /// keeps the GUID (and thus any identity-keyed state) of the part it replaced.
+    /// </summary>
+    public void AdoptIdentity(string guid)
+    {
+        componentGuid = guid;
+    }
+
+    /// <summary>
+    /// Announces that <paramref name="oldComponent"/> is being replaced by
+    /// <paramref name="newComponent"/>. Call this after the replacement is
+    /// positioned but before the old one is destroyed.
+    /// </summary>
+    public static void NotifyReplaced(
+        BoardComponent oldComponent, BoardComponent newComponent)
+    {
+        Replaced?.Invoke(oldComponent, newComponent);
+    }
+
     public Color ConfirmOutlineColor => confirmOutlineColor;
 
     public Color DefaultOutlineColor => defaultOutlineColor;
@@ -93,6 +122,50 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
             }
         }
     }
+
+    protected virtual void OnEnable()
+    {
+        BoardComponentRegistry.Register(this);
+    }
+
+    protected virtual void OnDisable()
+    {
+        BoardComponentRegistry.Unregister(this);
+    }
+
+    private FireStatus _fireStatus;
+
+    /// <summary>
+    /// This component's Fire status, or null if it has never been lit. Whatever sets
+    /// a component alight attaches the status at runtime, so this resolves lazily
+    /// rather than assuming it exists at Awake.
+    ///
+    /// Subclasses must use this rather than caching their own field: Unity cannot
+    /// serialize the same field name twice in one hierarchy, and a shadowing
+    /// `_fireStatus` in a subclass trips that check.
+    /// </summary>
+    protected FireStatus FireStatus
+    {
+        get
+        {
+            if (_fireStatus == null)
+            {
+                _fireStatus = GetComponent<FireStatus>();
+            }
+
+            return _fireStatus;
+        }
+    }
+
+    /// <summary>
+    /// This component's current Fire burn ramp, or 1 when it is not alight. Read by
+    /// the ball-hit scoring path so a real hit on a burning component is worth the
+    /// same step its own burn activations are.
+    /// </summary>
+    public float FireScoreMultiplier =>
+        FireStatus != null ? FireStatus.ScoreMultiplier : 1f;
+
+    public bool IsOnFire => FireStatus != null && FireStatus.IsOnFire;
 
     public void FixedUpdate()
     {
@@ -321,7 +394,7 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
     virtual public void AddScore()
     {
         scoreManager.AddScore(
-            amountToScore, typeOfScore, transform);
+            amountToScore * FireScoreMultiplier, typeOfScore, transform);
     }
 
     /// <summary>
@@ -339,6 +412,24 @@ public class BoardComponent : MonoBehaviour, System.IComparable<BoardComponent>
         if (amountToScore != 0)
         {
             AddScore();
+        }
+    }
+
+    /// <summary>
+    /// Activation from a fire burn tick specifically. Scores like <see cref="ActivateAsIfHit"/>,
+    /// but runs the scoring inside ScoreManager's weak-shake scope so the score-driven camera
+    /// shake comes out reduced — continuous burning shouldn't shake as hard as real hits.
+    /// </summary>
+    virtual public void ActivateAsBurnTick()
+    {
+        ScoreManager sm = scoreManager != null ? scoreManager : ServiceLocator.Get<ScoreManager>();
+        if (sm != null)
+        {
+            sm.WithWeakShake(ActivateAsIfHit);
+        }
+        else
+        {
+            ActivateAsIfHit();
         }
     }
 

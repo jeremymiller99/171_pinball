@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1965a039b036c804e95a533e2df9861b, type: 3}
   m_Name: Rollover
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinition
-  id: Rollover
-  displayName: Rollover
+  id: Default Rollover
+  displayName: Default Rollover
   description: Scores 2 points when ball rolls over it.
   componentType: 5
+  rarity: 0
   elementType: 1
   icon: {fileID: 0}
   prefab: {fileID: 0}

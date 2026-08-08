@@ -1,96 +1,50 @@
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-07-28.
+// Change: the bespoke burning-hit score ramp is now the global Fire rule, so this
+// collapses to "bank Charge, then light itself".
+
 using UnityEngine;
 
 /// <summary>
-/// Striker bumper: while Charged, any Flammable stacks it collects are
-/// instantly converted into score instead of burning. There is no Shock
-/// system yet, so charge is seeded in the inspector and AddCharge is the
-/// hook for it later.
+/// Entropy/Tech bumper: charged balls that strike it deposit into it. Once it holds
+/// enough Charge it spends the lot and lights itself on Fire — from there the Fire
+/// keyword supplies the repeated activations and the scoring ramp.
 /// </summary>
 public class EngineComponent : Bumper
 {
     [Header("Engine")]
     [SerializeField] private int chargeNeeded = 1;
-    [Tooltip("Seed charge until Shock can grant it during play.")]
-    [SerializeField] private int charge = 1;
-    [SerializeField] private float scorePerFlammableStack = 5f;
 
-    private ComponentFireStatus _fireStatus;
-    private bool _converting;
+    private ChargeStatus _chargeStatus;
 
-    public bool IsCharged => charge >= chargeNeeded;
-
-    new protected void Awake()
+    protected override void Awake()
     {
         base.Awake();
 
-        _fireStatus = GetComponent<ComponentFireStatus>();
-        if (_fireStatus == null)
-        {
-            _fireStatus = FireStatusUtility.GetOrAddComponentStatus(this);
-        }
+        _chargeStatus = ChargeStatusUtility.GetOrAddConsumerStatus(this, chargeNeeded);
+        _chargeStatus.FullyCharged += IgniteSelf;
 
-        if (_fireStatus != null)
-        {
-            _fireStatus.StacksChanged += ConvertStacksToScore;
-        }
-    }
-
-    private void Start()
-    {
-        FireDebug.Log(IsCharged
-            ? $"{name} charged ({charge}/{chargeNeeded}), converting stacks to score"
-            : $"{name} uncharged ({charge}/{chargeNeeded}), stacks will accumulate");
-        ConvertStacksToScore();
+        // Attach the status up front so the Engine can always light itself, and so
+        // its burn knobs are visible on the prefab.
+        FireStatusUtility.GetOrAddComponentStatus(this);
     }
 
     private void OnDestroy()
     {
-        if (_fireStatus != null)
+        if (_chargeStatus != null)
         {
-            _fireStatus.StacksChanged -= ConvertStacksToScore;
+            _chargeStatus.FullyCharged -= IgniteSelf;
         }
     }
 
-    public void AddCharge(int amount)
+    private void IgniteSelf()
     {
-        charge += amount;
-        FireDebug.Log($"{name} gains {amount} Charge ({charge}/{chargeNeeded})");
-        ConvertStacksToScore();
-    }
-
-    private void ConvertStacksToScore()
-    {
-        if (_converting || _fireStatus == null)
+        if (FireStatus == null)
         {
             return;
         }
 
-        int stacks = _fireStatus.Stacks;
-        if (stacks <= 0)
-        {
-            return;
-        }
-
-        if (!IsCharged)
-        {
-            FireDebug.Log(
-                $"{name} uncharged ({charge}/{chargeNeeded}), holding {stacks} stacks");
-            return;
-        }
-
-        // SetStacks re-raises StacksChanged; the guard stops the loop.
-        _converting = true;
-        _fireStatus.SetStacks(0);
-        _converting = false;
-
-        FireDebug.Log(
-            $"{name} converts {stacks} stacks into {stacks * scorePerFlammableStack} score");
-
-        if (scoreManager == null)
-        {
-            scoreManager = ServiceLocator.Get<ScoreManager>();
-        }
-        scoreManager?.AddScore(
-            stacks * scorePerFlammableStack, typeOfScore, transform);
+        int consumed = _chargeStatus.TakeAllCharge();
+        ChargeDebug.Log($"{name} spends {consumed} Charge and lights itself");
+        FireStatus.Ignite();
     }
 }

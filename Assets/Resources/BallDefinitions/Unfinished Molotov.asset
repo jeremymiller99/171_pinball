@@ -25,4 +25,4 @@ MonoBehaviour:
   - Flammable
   icon: {fileID: 0}
   prefab: {fileID: 5723297401256486482, guid: a7991708d5984115b9ea0dc7d600038f, type: 3}
-  price: 10
+  price: 7

@@ -112,6 +112,8 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
         {
             Unpause();
         }
+
+        GameplayInputGate.Unblock(this);
     }
 
     private void Update()
@@ -247,6 +249,12 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
 
         gameObject.SetActive(true);
         transform.SetAsLastSibling();
+
+        // SetAsLastSibling only beats the popups already spawned. The level-up that shows this
+        // card also spawns the +$ coin popup, which would land after it and paint over the card.
+        ModalUiLayer.Elevate(gameObject, ModalUiLayer.CardPopupSortingOrder);
+        GameplayInputGate.Block(this);
+
         isVisible = true;
         _shownAtFrame = Time.frameCount;
         _canDismissAtUnscaledTime = Time.unscaledTime + Mathf.Max(0f, minSecondsBeforeDismiss);
@@ -266,6 +274,7 @@ public sealed class ModifierCardPanelController : MonoBehaviour, IPointerDownHan
         }
 
         isVisible = false;
+        GameplayInputGate.Unblock(this);
 
         canvasGroup.alpha = 0f;
         canvasGroup.interactable = false;

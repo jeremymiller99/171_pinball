@@ -107,6 +107,8 @@ public sealed class RoundFailedPanelController
         ChallengeModeDefinition challenge)
     {
         gameObject.SetActive(true);
+        ModalUiLayer.Elevate(gameObject, ModalUiLayer.RoundFailedSortingOrder);
+        GameplayInputGate.Block(this);
         WireButtons();
 
         if (titleText != null)
@@ -139,6 +141,16 @@ public sealed class RoundFailedPanelController
     public void Hide()
     {
         gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// Covers every way the panel goes away — Hide, Retry reloading the board, and the Quit
+    /// button loading the menu scene without hiding first. A block left standing there would
+    /// silently disable the flippers for the rest of the session.
+    /// </summary>
+    private void OnDisable()
+    {
+        GameplayInputGate.Unblock(this);
     }
 
     private void UpdateStars(

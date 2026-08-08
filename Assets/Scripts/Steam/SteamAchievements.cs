@@ -39,7 +39,7 @@ public static class SteamAchievements
         Unlock("ACH_WIN_" + boardSceneName.ToUpperInvariant());
     }
 
-    public static void UnlockFirstFrenzy()
+    public static void UnlockFirstPowerSurge()
     {
         Unlock("ACH_FIRST_FRENZY");
     }

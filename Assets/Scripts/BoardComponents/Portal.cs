@@ -7,8 +7,8 @@
 // then off).
 // Updated by Claude (Opus 4.8), for jjmil, on 2026-06-04 (configurable delay: ball is held hidden
 // inside the portal before exiting).
-// Updated by Claude (Opus 4.8), for jjmil, on 2026-06-04 (pause the frenzy timer for the duration
-// of the teleport delay so frenzy can't expire and remove the exit portal while a ball is held).
+// Updated by Claude (Opus 4.8), for jjmil, on 2026-06-04 (pause the Power Surge timer for the duration
+// of the teleport delay so Power Surge can't expire and remove the exit portal while a ball is held).
 using System.Collections;
 using UnityEngine;
 public class Portal : MonoBehaviour
@@ -49,14 +49,14 @@ public class Portal : MonoBehaviour
     [SerializeField] private float boardLightFlashFullCycleSeconds = 0.24f;
 
     // While the ball is held inside the portal during teleportDelay, we freeze
-    // the frenzy timer so frenzy can't expire and deactivate the exit portal
+    // the Power Surge timer so Power Surge can't expire and deactivate the exit portal
     // mid-delay (which would strand the held ball). Reference-counted in case
     // several balls are held at once.
-    private FrenzyManager _frenzyManager;
-    private int _frenzyPausesHeld = 0;
+    private PowerSurgeManager _powerSurgeManager;
+    private int _powerSurgePausesHeld = 0;
 
     // Number of balls currently held inside this portal's teleport delay.
-    // Owners that might remove this portal (e.g. the frenzy drop-target mode)
+    // Owners that might remove this portal (e.g. the Power Surge drop-target mode)
     // check this and defer teardown until the held ball has exited.
     private int _activeHoldCount = 0;
     public bool IsHoldingBall => _activeHoldCount > 0;
@@ -70,14 +70,14 @@ public class Portal : MonoBehaviour
     {
         // Disabling this object kills any running TeleportAfterDelay coroutine
         // before its finally block runs, so release any state we still hold.
-        ReleaseAllFrenzyPauses();
+        ReleaseAllPowerSurgePauses();
         _activeHoldCount = 0;
     }
 
     private void BeginHold()
     {
         _activeHoldCount++;
-        PauseFrenzyTimer();
+        PausePowerSurgeTimer();
     }
 
     private void EndHold()
@@ -86,37 +86,37 @@ public class Portal : MonoBehaviour
         {
             _activeHoldCount--;
         }
-        ResumeFrenzyTimer();
+        ResumePowerSurgeTimer();
     }
 
-    private void PauseFrenzyTimer()
+    private void PausePowerSurgeTimer()
     {
-        if (_frenzyManager == null)
+        if (_powerSurgeManager == null)
         {
-            _frenzyManager = ServiceLocator.Get<FrenzyManager>();
+            _powerSurgeManager = ServiceLocator.Get<PowerSurgeManager>();
         }
 
-        if (_frenzyManager != null)
+        if (_powerSurgeManager != null)
         {
-            _frenzyManager.PauseTimer();
-            _frenzyPausesHeld++;
-        }
-    }
-
-    private void ResumeFrenzyTimer()
-    {
-        if (_frenzyManager != null && _frenzyPausesHeld > 0)
-        {
-            _frenzyManager.ResumeTimer();
-            _frenzyPausesHeld--;
+            _powerSurgeManager.PauseTimer();
+            _powerSurgePausesHeld++;
         }
     }
 
-    private void ReleaseAllFrenzyPauses()
+    private void ResumePowerSurgeTimer()
     {
-        while (_frenzyPausesHeld > 0)
+        if (_powerSurgeManager != null && _powerSurgePausesHeld > 0)
         {
-            ResumeFrenzyTimer();
+            _powerSurgeManager.ResumeTimer();
+            _powerSurgePausesHeld--;
+        }
+    }
+
+    private void ReleaseAllPowerSurgePauses()
+    {
+        while (_powerSurgePausesHeld > 0)
+        {
+            ResumePowerSurgeTimer();
         }
     }
 
@@ -190,12 +190,19 @@ public class Portal : MonoBehaviour
             r.enabled = false;
         }
 
+        // Disable colliders while ball is "inside" the portal
+        Collider[] colliders = other.GetComponentsInChildren<Collider>();
+        foreach (Collider collider in colliders)
+        {
+            collider.enabled = false;
+        }
+
         bool wasKinematic = rb.isKinematic;
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         rb.isKinematic = true;
 
-        // Mark the hold (so owners defer removing this portal) and freeze frenzy
+        // Mark the hold (so owners defer removing this portal) and freeze Power Surge
         // for the whole hold so the exit portal can't disappear while this ball
         // is waiting inside. Released in finally on every path.
         BeginHold();
@@ -219,6 +226,11 @@ public class Portal : MonoBehaviour
                 {
                     r.enabled = true;
                 }
+            }
+
+            foreach (Collider collider in colliders)
+            {
+                collider.enabled = true;
             }
 
             rb.isKinematic = wasKinematic;

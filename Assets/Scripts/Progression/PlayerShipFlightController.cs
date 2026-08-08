@@ -85,6 +85,23 @@ public class PlayerShipFlightController : MonoBehaviour
     private Coroutine _flightRoutine;
 
     /// <summary>
+    /// False until the entry flight has landed (or the spawner has said there will not be one).
+    /// Starts false deliberately: RunFlowController may read this before
+    /// <see cref="PlayerShipVisualSpawner"/>'s Start has run, and "not yet bound" has to read
+    /// as "still coming", not as "done".
+    /// </summary>
+    public bool EntryFlightComplete { get; private set; }
+
+    /// <summary>
+    /// Called by <see cref="PlayerShipVisualSpawner"/> when no ship will be spawned, so anything
+    /// waiting on the entry flight stops waiting instead of timing out.
+    /// </summary>
+    public void SkipEntryFlight()
+    {
+        EntryFlightComplete = true;
+    }
+
+    /// <summary>
     /// Called by <see cref="PlayerShipVisualSpawner"/> once the ship instance exists.
     /// Suspends hover and starts the entry flight.
     /// </summary>
@@ -92,6 +109,7 @@ public class PlayerShipFlightController : MonoBehaviour
     {
         _ship = ship;
         _visual = visual;
+        EntryFlightComplete = false;
 
         if (_visual != null)
         {
@@ -202,6 +220,10 @@ public class PlayerShipFlightController : MonoBehaviour
     /// </summary>
     private void StartLeg(List<Transform> mids, Vector3 target, float duration, AnimationCurve ease)
     {
+        // A shop leg cancels the entry coroutine, which would otherwise never reach the line that
+        // marks the entry done. Whatever was waiting on the entry should stop waiting either way.
+        EntryFlightComplete = true;
+
         if (_visual != null)
         {
             _visual.SetHoverEnabled(false);
@@ -250,10 +272,12 @@ public class PlayerShipFlightController : MonoBehaviour
         if (points.Count < 2)
         {
             ParkHere();
+            EntryFlightComplete = true;
             yield break;
         }
 
         yield return FlyPolyline(points, entryDuration, entryEase);
+        EntryFlightComplete = true;
     }
 
     /// <summary>

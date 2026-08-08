@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDefinition
   id: Leprechaun
   displayName: Leprechaun
-  description: 'Active: On collision, has a 1 in 5 chance of giving $1.'
+  description: 'On collision: 20% chance of earning $1'
   rarity: 1
   elementType: 3
   secondaryElementType: 0
   tags: []
   icon: {fileID: 21300000, guid: 3c315c4339a295849a5c19d31e9fb519, type: 3}
   prefab: {fileID: 5723297401256486482, guid: 7ed9408449ec9ff4bb8710c09c4a0141, type: 3}
-  price: 15
+  price: 8

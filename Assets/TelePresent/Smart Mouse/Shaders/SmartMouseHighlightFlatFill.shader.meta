@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: b33f5f9a069634c17a89f320953ee870
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 387158
+  packageName: Smart Mouse 2 - Selection & Placement
+  packageVersion: 2.1
+  assetPath: Assets/TelePresent/Smart Mouse/Shaders/SmartMouseHighlightFlatFill.shader
+  uploadId: 966664

@@ -21,6 +21,14 @@ public sealed class RunFlowController : MonoBehaviour
     [Tooltip("Optional: plays a one-shot camera intro pan in sync with the start-of-gameplay fade-in.")]
     [SerializeField] private CameraIntroPan cameraIntroPan;
 
+    [Header("Intro")]
+    [Tooltip("Safety net for the intro input hold: releases board input this many unscaled seconds " +
+             "after the run starts even if the intro never reports finished. Keep it above the " +
+             "longest authored intro. 0 or less falls back to the default.")]
+    [SerializeField] private float maxIntroHoldSeconds = DefaultMaxIntroHoldSeconds;
+
+    private const float DefaultMaxIntroHoldSeconds = 10f;
+
     [Header("Scene names")]
     [SerializeField] private string gameplayCoreSceneName = "GameplayCore";
     [SerializeField] private string mainMenuSceneName = "MainMenu 1";
@@ -52,6 +60,9 @@ public sealed class RunFlowController : MonoBehaviour
     private void OnDisable()
     {
         ServiceLocator.Unregister<RunFlowController>();
+
+        // Never leave the board locked behind a torn-down controller.
+        GameplayInputGate.Unblock(this);
     }
 
     private void Start()
@@ -72,10 +83,16 @@ public sealed class RunFlowController : MonoBehaviour
     {
         hasStartedRun = true;
 
+        // Shut board input up front: the board load and the intro both span frames, and the
+        // plunger is live through all of them otherwise -- the ball can be launched out of the
+        // lane while the camera is still panning and the ship is still flying in.
+        GameplayInputGate.Block(this);
+
         var session = GameSession.Instance;
         if (session == null)
         {
             Debug.LogError($"{nameof(RunFlowController)}: No GameSession found.", this);
+            GameplayInputGate.Unblock(this);
             yield break;
         }
 
@@ -83,6 +100,7 @@ public sealed class RunFlowController : MonoBehaviour
         if (first == null)
         {
             Debug.LogWarning($"{nameof(RunFlowController)}: No board selected; returning to menu.", this);
+            GameplayInputGate.Unblock(this);
             SceneManager.LoadScene(mainMenuSceneName);
             yield break;
         }
@@ -114,6 +132,49 @@ public sealed class RunFlowController : MonoBehaviour
         }
 
         SceneFader.Instance.FadeIn();
+
+        yield return StartCoroutine(HoldInputUntilIntroFinishes());
+    }
+
+    /// <summary>
+    /// Keeps board input shut until the camera intro pan has landed and the player ship has flown
+    /// its entry path, so the player cannot plunge the ball out of the lane mid-cinematic.
+    /// Bounded by <see cref="maxIntroHoldSeconds"/>: a locked-out board is worse than an early one.
+    /// </summary>
+    private IEnumerator HoldInputUntilIntroFinishes()
+    {
+        // A scene saved before this field existed deserializes it as 0, which would make the hold
+        // expire on its first frame; fall back rather than silently doing nothing.
+        float timeout = maxIntroHoldSeconds > 0f ? maxIntroHoldSeconds : DefaultMaxIntroHoldSeconds;
+
+        // Resolved after the board scene is loaded -- the ship spawn point lives in the board.
+        // Its Start may not have run yet, which is fine: EntryFlightComplete reads false until it
+        // has either flown or been told there is no ship, so "not bound yet" keeps us waiting.
+        PlayerShipFlightController shipFlight = FindFirstObjectByType<PlayerShipFlightController>();
+
+        float elapsed = 0f;
+        while (elapsed < timeout)
+        {
+            bool panning = cameraIntroPan != null && cameraIntroPan.IsPlaying;
+            bool flying = shipFlight != null && !shipFlight.EntryFlightComplete;
+
+            if (!panning && !flying)
+            {
+                break;
+            }
+
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        if (elapsed >= timeout)
+        {
+            Debug.LogWarning(
+                $"{nameof(RunFlowController)}: intro hold hit its {timeout}s timeout; " +
+                "releasing board input anyway.", this);
+        }
+
+        GameplayInputGate.Unblock(this);
     }
 
     /// <summary>

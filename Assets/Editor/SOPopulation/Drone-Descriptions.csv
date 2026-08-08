@@ -1,0 +1,11 @@
+Name10;Desc;Outlink(s)
+Flamethrower;Fires a large cone of Fire for 3 seconds in a random direction. 20 second cooldown.;Fire
+Flamethrower+;Fires a large cone of Fire for 5 seconds in a random direction. 20 second cooldown.;Fire
+Freezy Weezy;Fires a disk that bounces between components 5 times, Freezing each of them. 5 second cooldown.;Freezing
+Freezy Weezy+;Fires a disk that bounces between components 10 times, Freezing each of them. This does not activate the components unless they are already Frozen, in which case they are activated and Frozen is reapplied. 5 second cooldown.;Freezing
+Grenadier;Throws two explosives near an active ball that Detonate with a medium area of effect. 7 second cooldown.;Detonate
+Grenadier+;Throws two explosives near an active ball with a large area of effect. 7 second cooldown.;
+Projector;Projects 4 Holoballs originating from an active ball that persist for 2.5 seconds. 8 second cooldown.;Holoballs
+Projector+;Projects 8 Holoballs originating from an active ball that persist for 2.5 seconds. 8 second cooldown.;Holoballs
+Zapper;Fires a burst of three consecutive beams that each activate a random component. 3 second cooldown.;
+Zapper+;Fires a burst of three consecutive beams (one after the other, not all at once) that each activate a random component. 1.5 second cooldown.;

@@ -1,12 +1,15 @@
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-07-28.
+// Change: Flammable gating removed — every launched ball now catches.
+
 using UnityEngine;
 
 /// <summary>
-/// Catalyst plunger upgrade: every ball is Ignited as it launches. Attach to
-/// the launcher (or anywhere on the board); only Flammable balls actually
-/// catch, per the usual Ignite rules.
+/// Catalyst plunger upgrade: attach to the launcher (or anywhere on the board) and
+/// every ball is lit on Fire as it launches.
 /// </summary>
 public sealed class MatchstickPlunger : MonoBehaviour
 {
+
     private void OnEnable()
     {
         PinballLauncher.BallLaunched += OnBallLaunched;
@@ -20,20 +23,12 @@ public sealed class MatchstickPlunger : MonoBehaviour
     private void OnBallLaunched(GameObject launched)
     {
         Ball ball = launched != null ? launched.GetComponent<Ball>() : null;
-        BallFireStatus status = FireStatusUtility.GetOrAddBallStatus(ball);
-        if (status == null)
+        if (ball == null)
         {
             return;
         }
 
-        if (status.IsFlammable && !status.IsOnFire)
-        {
-            FireDebug.Log($"Matchstick strikes {launched.name} at launch");
-            status.Ignite();
-        }
-        else if (!status.IsOnFire)
-        {
-            FireDebug.Log($"Matchstick: {launched.name} has no Flammable stacks, no light");
-        }
+        FireDebug.Log($"Matchstick strikes {launched.name} at launch");
+        FireStatusUtility.LightBall(ball);
     }
 }

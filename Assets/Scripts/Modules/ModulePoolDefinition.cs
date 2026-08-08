@@ -8,38 +8,54 @@ public class ModulePool : ScriptableObject
     
     public List<ArtifactDefinition> GetThreeRandomModules(System.Random rng = null)
     {
-        if (modules == null || modules.Count < 3)
+        if (modules == null)
         {
             return null;
         }
-        
+
         if (rng == null)
         {
             rng = new System.Random();
         }
 
-        // Filter out nulls
+        // Valid (non-null) modules, then the testing subset: if ANY module is flagged
+        // IsolateForTesting, the pick draws only from those.
         var validModules = new List<ArtifactDefinition>();
+        var isolated = new List<ArtifactDefinition>();
         foreach (var module in modules)
         {
-            if (module != null)
-            {
-                validModules.Add(module);
-            }
+            if (module == null) continue;
+            validModules.Add(module);
+            if (module.IsolateForTesting) isolated.Add(module);
         }
 
-        if (validModules.Count < 3)
+        var pool = isolated.Count > 0 ? isolated : validModules;
+        if (pool.Count == 0)
         {
             return null;
         }
 
-        List<ArtifactDefinition> selectedModules = new List<ArtifactDefinition>();
+        var selectedModules = new List<ArtifactDefinition>();
 
-        for (int i = 0; i < 3; i++)
+        if (pool.Count >= 3)
         {
-            int index = rng.Next(validModules.Count);
-            selectedModules.Add(validModules[index]);
-            validModules.RemoveAt(index);
+            // Distinct picks when the pool is big enough.
+            var remaining = new List<ArtifactDefinition>(pool);
+            for (int i = 0; i < 3; i++)
+            {
+                int index = rng.Next(remaining.Count);
+                selectedModules.Add(remaining[index]);
+                remaining.RemoveAt(index);
+            }
+        }
+        else
+        {
+            // A thinned pool (< 3) still fills all three cards, repeating as needed so
+            // an isolated module can be tested.
+            for (int i = 0; i < 3; i++)
+            {
+                selectedModules.Add(pool[rng.Next(pool.Count)]);
+            }
         }
 
         return selectedModules;

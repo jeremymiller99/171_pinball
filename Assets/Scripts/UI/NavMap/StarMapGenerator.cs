@@ -35,8 +35,10 @@ public enum StarMapDetailLevel
 public class StarMapGenerator : MonoBehaviour
 {
     [Header("Viewport / Content")]
-    [Tooltip("The visible window. Defaults to this object's RectTransform. Gets a RectMask2D so the map clips at its edge.")]
+    [Tooltip("The visible window. Defaults to this object's RectTransform. Gets a mask so the map clips at its edge.")]
     [SerializeField] RectTransform _viewport;
+    [Tooltip("Clip to a circle inscribed in the viewport instead of to its rect, matching the round plate the map is projected onto. Off falls back to a plain RectMask2D.")]
+    [SerializeField] bool _circularViewport = true;
     [Tooltip("Size of the whole star field. The region view zooms out to frame all of it.")]
     [SerializeField] Vector2 _contentSize = new Vector2(828f, 714f);
     [Tooltip("Inset from the content edges. Territories tile the area inside this inset.")]
@@ -888,8 +890,7 @@ public class StarMapGenerator : MonoBehaviour
     /// </summary>
     void EnsureRig()
     {
-        if (_viewport.GetComponent<RectMask2D>() == null)
-            _viewport.gameObject.AddComponent<RectMask2D>();
+        StarMapCircleMask circleMask = EnsureViewportMask();
 
         _backdrop = _viewport.GetComponentInChildren<StarMapBackdrop>(true);
         if (_backdrop == null)
@@ -928,10 +929,25 @@ public class StarMapGenerator : MonoBehaviour
         // Overlay: lives on the viewport and is drawn last, so it stays fixed
         // and on top while the map zooms underneath it.
         RectTransform backRect = EnsureChild(_viewport, "BackButton");
-        backRect.anchorMin = backRect.anchorMax = new Vector2(0f, 1f);
-        backRect.pivot = new Vector2(0f, 1f);
         backRect.sizeDelta = _backButtonSize;
-        backRect.anchoredPosition = new Vector2(_backButtonMargin.x, -_backButtonMargin.y);
+
+        if (_circularViewport)
+        {
+            // A rect corner is at r*sqrt(2) from the centre, so the top-left
+            // slot is entirely outside the circle. Keep the same up-and-left
+            // reading by sliding out along the diagonal instead.
+            backRect.anchorMin = backRect.anchorMax = new Vector2(0.5f, 0.5f);
+            backRect.pivot = new Vector2(0.5f, 0.5f);
+            backRect.anchoredPosition = UpperLeftSlotInCircle(
+                _backButtonSize, _backButtonMargin.x,
+                circleMask != null ? circleMask.RadiusScale : 1f);
+        }
+        else
+        {
+            backRect.anchorMin = backRect.anchorMax = new Vector2(0f, 1f);
+            backRect.pivot = new Vector2(0f, 1f);
+            backRect.anchoredPosition = new Vector2(_backButtonMargin.x, -_backButtonMargin.y);
+        }
         backRect.SetAsLastSibling();
 
         _backButton = backRect.GetComponent<StarMapBackButton>();
@@ -989,6 +1005,71 @@ public class StarMapGenerator : MonoBehaviour
 
         _missionPanel.Configure(host, StarMapMissionCatalog.LoadShips(_ships),
                                 hosted ? host.gameObject : null);
+    }
+
+    /// <summary>
+    /// Clips the map to the viewport. RectMask2D can only do rects, so a round
+    /// window needs a stencil Mask plus a graphic to write it. The two masking
+    /// styles are mutually exclusive, and the unused one has to actually go —
+    /// leaving it behind would clip the map twice.
+    /// </summary>
+    StarMapCircleMask EnsureViewportMask()
+    {
+        var rectMask = _viewport.GetComponent<RectMask2D>();
+
+        if (!_circularViewport)
+        {
+            DestroyComponent(_viewport.GetComponent<Mask>());
+            DestroyComponent(_viewport.GetComponent<StarMapCircleMask>());
+            if (rectMask == null) _viewport.gameObject.AddComponent<RectMask2D>();
+            return null;
+        }
+
+        DestroyComponent(rectMask);
+
+        // Graphic first: Mask needs one to stencil from.
+        var circle = _viewport.GetComponent<StarMapCircleMask>();
+        if (circle == null) circle = _viewport.gameObject.AddComponent<StarMapCircleMask>();
+        circle.raycastTarget = false;
+
+        var mask = _viewport.GetComponent<Mask>();
+        if (mask == null) mask = _viewport.gameObject.AddComponent<Mask>();
+        mask.showMaskGraphic = false;
+
+        return circle;
+    }
+
+    /// <summary>
+    /// Furthest a box of <paramref name="size"/> can slide up and to the left
+    /// inside the circular viewport with its corners still clear of the rim by
+    /// <paramref name="margin"/>. Solves |t*d + q| = R for t, where d is the
+    /// diagonal and q the box corner that leads along it.
+    /// </summary>
+    Vector2 UpperLeftSlotInCircle(Vector2 size, float margin, float radiusScale)
+    {
+        // rect can still read zero this early, before the canvas has laid out.
+        // The viewport is centre-anchored, so sizeDelta is the same number.
+        Vector2 view = _viewport.rect.size;
+        if (view.x <= 0f || view.y <= 0f) view = _viewport.sizeDelta;
+
+        float radius = Mathf.Min(view.x, view.y) * 0.5f * radiusScale - margin;
+
+        Vector2 half = size * 0.5f;
+        if (radius <= half.magnitude) return Vector2.zero;
+
+        var dir = new Vector2(-0.70710678f, 0.70710678f);
+        var lead = new Vector2(-half.x, half.y);
+
+        float b = Vector2.Dot(dir, lead);
+        float t = -b + Mathf.Sqrt(b * b + radius * radius - lead.sqrMagnitude);
+        return dir * Mathf.Max(0f, t);
+    }
+
+    static void DestroyComponent(Component component)
+    {
+        if (component == null) return;
+        if (Application.isPlaying) Destroy(component);
+        else DestroyImmediate(component);
     }
 
     static RectTransform EnsureChild(RectTransform parent, string name)

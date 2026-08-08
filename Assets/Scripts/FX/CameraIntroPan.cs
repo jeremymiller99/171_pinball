@@ -42,6 +42,13 @@ public sealed class CameraIntroPan : MonoBehaviour
     private Vector3 _homeLocalPos;
     private bool _hasHome;
     private Coroutine _routine;
+    private bool _isPlaying;
+
+    /// <summary>
+    /// True from the moment <see cref="Play"/> is called until the rig reaches the play pose.
+    /// RunFlowController holds board input shut while this is true.
+    /// </summary>
+    public bool IsPlaying => _isPlaying;
 
     private void Awake()
     {
@@ -65,6 +72,7 @@ public sealed class CameraIntroPan : MonoBehaviour
         if (cameraRig == null)
         {
             Debug.LogWarning("[CameraIntroPan] No camera rig; skipping intro pan.");
+            _isPlaying = false;
             return;
         }
 
@@ -79,6 +87,10 @@ public sealed class CameraIntroPan : MonoBehaviour
 
         if (_routine != null)
             StopCoroutine(_routine);
+
+        // Flag before starting: a zero-length pan finishes inside StartCoroutine, so clearing
+        // the flag has to be able to happen before the assignment below.
+        _isPlaying = true;
         _routine = StartCoroutine(PanRoutine(introLocal, _homeLocalPos));
     }
 
@@ -97,6 +109,7 @@ public sealed class CameraIntroPan : MonoBehaviour
 
         cameraRig.localPosition = to;
         _routine = null;
+        _isPlaying = false;
     }
 
     private void ResolveRig()

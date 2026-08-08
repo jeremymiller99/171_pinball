@@ -1,0 +1,19 @@
+{
+    "name": "TelePresent.SmartMouse.Editor",
+    "rootNamespace": "TelePresent.SmartMouse",
+    "references": [
+        "TelePresent.SmartMouse",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

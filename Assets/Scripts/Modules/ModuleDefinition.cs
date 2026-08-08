@@ -15,6 +15,14 @@ public sealed class ArtifactDefinition : ScriptableObject
     [Tooltip("Prefab that will be spawned/used for this artifact.")]
     [SerializeField] private GameObject prefab;
 
+    [Header("Testing")]
+    [Tooltip("When ANY module in the pool has this on, the pick is restricted to only " +
+        "the flagged modules — a quick way to thin the pool while testing. Turn all " +
+        "off to restore the full pool.")]
+    [SerializeField] private bool isolateForTesting;
+
+    public bool IsolateForTesting => isolateForTesting;
+
     public string DisplayName => LocalizedContent.Get("artifact", name, "name", displayName);
     public string Description => LocalizedContent.Get("artifact", name, "desc", description);
     public ElementType ElementType => elementType;

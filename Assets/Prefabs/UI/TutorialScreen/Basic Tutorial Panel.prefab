@@ -1106,9 +1106,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Left/Right Arrows to control the flippers.
+  m_text: 'Left/Right Shift to control the flippers.
 
-    Down Arrow to control
+    Enter to control
     the  launcher.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bd2ac5bb4861eb84e8f25a51fc8197e3, type: 2}

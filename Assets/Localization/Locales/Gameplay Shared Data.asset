@@ -348,7 +348,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195299
-    m_Key: gameplay.componentType.DropTarget
+    m_Key: gameplay.componentType.Dropper
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195300

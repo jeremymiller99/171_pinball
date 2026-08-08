@@ -28,13 +28,25 @@ public class ModuleManager : MonoBehaviour
         SetCardsActive(false);
     }
 
+    private void OnDisable()
+    {
+        // The cards close by being picked, so a scene load mid-choice is the one way out that
+        // never reaches AddModuleToPlay.
+        GameplayInputGate.Unblock(this);
+    }
+
     public void ActivateModuleCards()
     {
-        // Pause Gameplay 
+        // Pause Gameplay
         _timeScaleBeforePause = Time.timeScale;
         _fixedDeltaBeforePause = Time.fixedDeltaTime;
         Time.timeScale = 0f;
         SelectingModule = true;
+
+        // Pausing stops the board moving but not the cursor: without this the player can still
+        // hover tooltips and click components through the card overlay.
+        ModalUiLayer.Elevate(gameObject, ModalUiLayer.CardPopupSortingOrder);
+        GameplayInputGate.Block(this);
         // Disable floating text so it's not in the way of the module cards
         foreach (var text in FindObjectsByType<FloatingText>(FindObjectsSortMode.None))
         {
@@ -64,6 +76,7 @@ public class ModuleManager : MonoBehaviour
         // Resume gameplay
         Time.timeScale = _timeScaleBeforePause;
         Time.fixedDeltaTime = _fixedDeltaBeforePause;
+        GameplayInputGate.Unblock(this);
         StartCoroutine(WaitThenDeselectModules());
 
         // Enable floating text again

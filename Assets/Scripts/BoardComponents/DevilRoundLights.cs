@@ -10,13 +10,13 @@ using UnityEngine;
 /// so per-frame gameplay drivers (flipper overheat, launcher meter) can't break
 /// the pulse.</item>
 /// <item>After the card is dismissed the lights go back to their normal on/off
-/// gameplay behaviour, just rendered red — exactly like frenzy turns them blue.
+/// gameplay behaviour, just rendered red — exactly like Power Surge turns them blue.
 /// The red comes from each <see cref="BoardLight"/>'s alternative lit / emission
 /// color <see cref="DevilAlternativeIndex"/> (element 1; element 0 is the blue
-/// frenzy color).</item>
+/// Power Surge color).</item>
 /// </list>
-/// While <see cref="Locked"/> is true the <see cref="FrenzyBoardLightController"/>
-/// leaves the lights alone so the devil red always wins (even if frenzy is
+/// While <see cref="Locked"/> is true the <see cref="PowerSurgeBoardLightController"/>
+/// leaves the lights alone so the devil red always wins (even if Power Surge is
 /// triggered mid devil round).
 /// </summary>
 public static class DevilRoundLights
@@ -24,7 +24,7 @@ public static class DevilRoundLights
     private const string BoardLightTag = "Default Board Light";
 
     // Red is authored as alternative lit/emission color element 1 on each
-    // BoardLight (element 0 is the blue frenzy color).
+    // BoardLight (element 0 is the blue Power Surge color).
     private const int DevilAlternativeIndex = 1;
 
     private static BoardLight[] _lights;
@@ -65,8 +65,8 @@ public static class DevilRoundLights
     /// <summary>
     /// Stop the warning blink and hand the lights back to normal gameplay, but keep
     /// them red: the red alternative stays selected and the per-light lock is
-    /// released so drivers turn them on/off as usual — just red, like frenzy's blue.
-    /// Frenzy stays gated (<see cref="Locked"/>) so the red still wins.
+    /// released so drivers turn them on/off as usual — just red, like Power Surge's blue.
+    /// Power Surge stays gated (<see cref="Locked"/>) so the red still wins.
     /// </summary>
     public static void GoNormalRed()
     {
@@ -133,7 +133,7 @@ public static class DevilRoundLights
         _originalLit = new bool[tagged.Length];
         for (int i = 0; i < tagged.Length; i++)
         {
-            // Match FrenzyBoardLightController: the BoardLight sits on the tagged
+            // Match PowerSurgeBoardLightController: the BoardLight sits on the tagged
             // object; fall back to a child search so none are missed.
             BoardLight light = tagged[i].GetComponent<BoardLight>();
             if (light == null) light = tagged[i].GetComponentInChildren<BoardLight>(true);

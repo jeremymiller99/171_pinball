@@ -34,6 +34,7 @@ Transform:
   m_LocalScale: {x: 3, y: 1, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 8763487236421146704}
   - {fileID: 7875938274320124923}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -85,6 +86,7 @@ MonoBehaviour:
       Data3: 0
       Data4: 0
     Path: 
+  collisionVariant: 0
 --- !u!114 &2423504538548351846
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123,11 +125,7 @@ MonoBehaviour:
   dragTargetOutlineColor: {r: 0.3, g: 1, b: 0.3, a: 1}
   bumperCollider: {fileID: 0}
   bounceForce: 50
-  shakeDuration: 0.22
-  shakeMagnitude: 0.16
   chargeNeeded: 1
-  charge: 1
-  scorePerFlammableStack: 5
 --- !u!114 &3000000000000000001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137,16 +135,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 4773778546837097395}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e25a058ba674f63b0bc6d1ebe1a67b7, type: 3}
+  m_Script: {fileID: 11500000, guid: 92deadaa7c414c75b78e17530ff052dc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ComponentFireStatus
-  baseFlammableStacks: 0
-  canBeFueled: 1
+  m_EditorClassIdentifier: Assembly-CSharp::FireStatus
+  burnSeconds: 4
+  activationsPerSecond: 2
+  scoreRampPerActivation: 0.1
+  maxScoreMultiplier: 10
   fireVfxPrefab: {fileID: 0}
-  fueledVfxPrefab: {fileID: 0}
-  stacks: 0
+  vfxAnchor: {fileID: 0}
   isOnFire: 0
   burnSecondsRemaining: 0
+  scoreMultiplier: 1
 --- !u!114 &8180557298239084306
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160,6 +160,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoardComponentDefinitionLink
   definition: {fileID: 11400000, guid: 507b10fc91d544e9bb4f20e10e89b3c0, type: 2}
+--- !u!1 &5002299647862611946
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8763487236421146704}
+  - component: {fileID: 4570380356099307687}
+  m_Layer: 0
+  m_Name: HitParticleOrigin
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8763487236421146704
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5002299647862611946}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.208, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6714476454855297192}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4570380356099307687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5002299647862611946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfc737203e0649518c0755c89010b286, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  size: 1
+  emitAmount: 0
 --- !u!1001 &7693922074019785744
 PrefabInstance:
   m_ObjectHideFlags: 0

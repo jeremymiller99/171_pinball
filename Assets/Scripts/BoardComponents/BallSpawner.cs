@@ -1,3 +1,6 @@
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (ball save re-serve hook).
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (public hand slot marker resync).
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-07 (last ball VFX pop).
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -310,7 +313,6 @@ public sealed class BallSpawner : MonoBehaviour
 
         LayoutHandImmediate();
         SyncAmpedUpStateFromLoadout();
-        SyncFireStacksFromLoadout();
     }
 
     private void SyncAmpedUpStateFromLoadout()
@@ -324,26 +326,6 @@ public sealed class BallSpawner : MonoBehaviour
             Ball ball = _handBalls[i].GetComponent<Ball>();
             if (ball == null) continue;
             ball.SetAmpedUp(loadout.GetAmpedUpForSlot(i));
-        }
-    }
-
-    private void SyncFireStacksFromLoadout()
-    {
-        var loadout = ServiceLocator.Get<BallLoadoutController>();
-        if (loadout == null) return;
-
-        for (int i = 0; i < _handBalls.Count; i++)
-        {
-            if (_handBalls[i] == null) continue;
-            Ball ball = _handBalls[i].GetComponent<Ball>();
-            if (ball == null) continue;
-
-            int extraStacks = loadout.GetExtraFlammableStacksForSlot(i);
-            BallFireStatus status = ball.GetComponent<BallFireStatus>();
-            if (status == null && extraStacks <= 0) continue;
-
-            status = FireStatusUtility.GetOrAddBallStatus(ball);
-            status.SetStacks(status.BaseFlammableStacks + extraStacks);
         }
     }
 
@@ -367,6 +349,14 @@ public sealed class BallSpawner : MonoBehaviour
         _handBalls.RemoveAt(0);
         LayoutHandImmediate();
 
+        // Nothing left behind it in the hand, so this is the final ball heading to the
+        // launcher. Popped here rather than when the lerp lands so a cancelled move
+        // (another activation, a scene teardown) can't swallow the effect.
+        if (_handBalls.Count == 0)
+        {
+            SpawnLastBallVfx();
+        }
+
         _activeBalls.Add(next);
         ActivateBall?.Invoke(next);
 
@@ -378,6 +368,44 @@ public sealed class BallSpawner : MonoBehaviour
 
         _moveCoroutine = StartCoroutine(MoveBallToSpawnPointCoroutine(next));
         return next;
+    }
+
+    /// <summary>
+    /// Pops the last ball VFX at the center of the board's VFX volume — the same place the
+    /// ball saved VFX and the level-up banner appear. The volume and the VFX list live in the
+    /// board scene, so a board wired with neither simply gets no effect.
+    /// </summary>
+    private void SpawnLastBallVfx()
+    {
+        ServiceLocator.Get<LevelUpVFXTrigger>()?.SpawnLastBallVFX();
+    }
+
+    /// <summary>
+    /// Spawns a ball straight into the front of the hand, without any layout animation, so the
+    /// next <see cref="ActivateNextBall"/> serves it. Used by the ball save to hand the player
+    /// back the ball they just drained instead of the one queued behind it.
+    /// </summary>
+    public GameObject InsertHandBallAtFront(GameObject prefab)
+    {
+        if (prefab == null)
+        {
+            return null;
+        }
+
+        EnsureHandSlotsResolved();
+        CancelLayoutAnimation();
+        _isGapPreviewActive = false;
+        _previewGapIndex = -1;
+
+        GameObject ball = Instantiate(prefab, GetHandBallWorldPos(0), GetHandBallWorldRot());
+        ball.name = $"{prefab.name}_HandBall_1";
+        CacheAndConfigureAsHandBall(ball);
+
+        _handBalls.Insert(0, ball);
+        SyncAllHandSlotMarkers();
+        LayoutHandImmediate();
+
+        return ball;
     }
 
     /// <summary>
@@ -980,6 +1008,16 @@ public sealed class BallSpawner : MonoBehaviour
 
         SyncAllHandSlotMarkers();
         AnimateLayoutTransition();
+    }
+
+    /// <summary>
+    /// Re-stamps every hand ball's <see cref="BallHandSlotMarker"/> with its current index.
+    /// Call after the loadout has shifted underneath the hand (e.g. the active ball's slot was
+    /// consumed) so each ball's marker again names its real loadout slot.
+    /// </summary>
+    public void SyncHandSlotMarkers()
+    {
+        SyncAllHandSlotMarkers();
     }
 
     private void SyncAllHandSlotMarkers()

@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7fa6290c11147eb84a1ba4e2962f18a, type: 3}
+  m_Name: ComponentTypeCatalog
+  m_EditorClassIdentifier: 
+  descriptors:
+  - type: 0
+    displayName: Bumper
+    emitsBallParticles: 1
+    statusTargetable: 1
+    shopPlaceable: 1
+  - type: 1
+    displayName: Target
+    emitsBallParticles: 1
+    statusTargetable: 1
+    shopPlaceable: 1
+  - type: 2
+    displayName: Dropper
+    emitsBallParticles: 1
+    statusTargetable: 1
+    shopPlaceable: 0
+  - type: 3
+    displayName: Spinner
+    emitsBallParticles: 0
+    statusTargetable: 1
+    shopPlaceable: 0
+  - type: 4
+    displayName: Portal
+    emitsBallParticles: 0
+    statusTargetable: 0
+    shopPlaceable: 0
+  - type: 5
+    displayName: Rollover
+    emitsBallParticles: 0
+    statusTargetable: 1
+    shopPlaceable: 1
+  - type: 6
+    displayName: Launcher
+    emitsBallParticles: 0
+    statusTargetable: 1
+    shopPlaceable: 0
+  - type: 7
+    displayName: Flipper
+    emitsBallParticles: 0
+    statusTargetable: 0
+    shopPlaceable: 1
+  - type: 8
+    displayName: Kicker
+    emitsBallParticles: 1
+    statusTargetable: 1
+    shopPlaceable: 0
+  - type: 9
+    displayName: Other
+    emitsBallParticles: 1
+    statusTargetable: 1
+    shopPlaceable: 0
+  - type: 10
+    displayName: Sling
+    emitsBallParticles: 1
+    statusTargetable: 1
+    shopPlaceable: 1

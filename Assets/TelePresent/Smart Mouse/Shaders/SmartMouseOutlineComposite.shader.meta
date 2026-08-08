@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 8a479978d48dd4ab3a6a1ab4a1e12200
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 387158
+  packageName: Smart Mouse 2 - Selection & Placement
+  packageVersion: 2.1
+  assetPath: Assets/TelePresent/Smart Mouse/Shaders/SmartMouseOutlineComposite.shader
+  uploadId: 966664

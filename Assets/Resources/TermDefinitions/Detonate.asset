@@ -14,5 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TermDefinition
   id: 
   displayName: Detonate
-  description: When an object detonates, it is destroyed. All nearby objects act
-    as if collided with by the detonated object.
+  description: Creates an explosion that collides with all objects in the radius.

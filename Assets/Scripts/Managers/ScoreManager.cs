@@ -25,22 +25,30 @@ public class ScoreManager : MonoBehaviour
 
     // Mult cap (set per-ship; default = uncapped)
     private float _multCap = float.MaxValue;
-    // Frenzy bonus sits on top of the cap — not subject to it
-    private float _frenzyMult;
+    // Power Surge bonus sits on top of the cap — not subject to it
+    private float _powerSurgeMult;
+
+    [Header("Mult Decay")]
+    [Tooltip("Fraction of the mult ABOVE the 1x base that is kept when a ball ends (drain or shop entry).\n" +
+             "0.25 = keep a quarter of everything you earned past 1x, e.g. 8x -> 1 + 7*0.25 = 2.75x.\n" +
+             "The 1x base is never decayed, so you only sit at a flat 1x if you never got above it.\n" +
+             "Any active Power Surge bonus is cancelled outright and is not part of this carry-over.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float multCarryOverOnDecay = 0.25f;
 
     public float MultCap => _multCap;
-    public float FrenzyMult => _frenzyMult;
-    /// <summary>Effective multiplier used for scoring: capped earned mult + uncapped frenzy bonus.</summary>
-    public float EffectiveMult => mult + _frenzyMult;
-    public bool IsFrenzyActive => _frenzyMult > 0f;
+    public float PowerSurgeMult => _powerSurgeMult;
+    /// <summary>Effective multiplier used for scoring: capped earned mult + uncapped Power Surge bonus.</summary>
+    public float EffectiveMult => mult + _powerSurgeMult;
+    public bool IsPowerSurgeActive => _powerSurgeMult > 0f;
 
     private double displayPoints;
     private float displayMult = 1f;
 
     public double DisplayPoints => displayPoints;
     public float DisplayMult => displayMult;
-    /// <summary>Animated display mult including the frenzy bonus — what the HUD shows while frenzy is active.</summary>
-    public float DisplayEffectiveMult => displayMult + _frenzyMult;
+    /// <summary>Animated display mult including the Power Surge bonus — what the HUD shows while Power Surge is active.</summary>
+    public float DisplayEffectiveMult => displayMult + _powerSurgeMult;
     public double DisplayRoundTotal => roundTotal + displayPoints;
 
 
@@ -82,13 +90,13 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private float externalTimeScaleMultiplier = 1f;
 
     [Tooltip("Additional multiplier applied to POSITIVE point awards (after tier + round modifier scaling).\n" +
-             "Used by Frenzy mode to boost scoring globally.")]
+             "Used by Power Surge mode to boost scoring globally.")]
     [Min(0f)]
     [SerializeField] private float externalScoreAwardMultiplier = 1f;
 
     [Header("TimeScale Safety Caps")]
     [Tooltip("Unity (in-editor) requires Time.timeScale <= 100.\n" +
-             "This cap prevents runaway goal-tier scaling (especially during Frenzy).")]
+             "This cap prevents runaway goal-tier scaling (especially during Power Surge).")]
     [Min(0f)]
     [SerializeField] private float maxTimeScale = 100f;
 
@@ -131,6 +139,96 @@ public class ScoreManager : MonoBehaviour
     public event Action<float, float> MultAdded; // (appliedAmount, currentStoredMult)
     public event Action MultReset;
     public event Action<int, int> CoinsAdded; // (appliedAmount, currentCoins)
+
+    /// <summary>
+    /// True while a score is being applied that should produce a reduced ("weak") camera
+    /// shake — e.g. a fire burn tick. Shake listeners (ScoreJuiceFeedback) read this while
+    /// handling the score events, which fire synchronously inside the scored action.
+    /// </summary>
+    public bool WeakShakePending { get; private set; }
+
+    /// <summary>
+    /// Runs <paramref name="scoringAction"/> with weak-shake mode active, so any score it
+    /// produces asks shake listeners for a reduced shake. Nestable and exception-safe.
+    /// </summary>
+    public void WithWeakShake(Action scoringAction)
+    {
+        if (scoringAction == null) return;
+
+        bool previous = WeakShakePending;
+        WeakShakePending = true;
+        try { scoringAction(); }
+        finally { WeakShakePending = previous; }
+    }
+
+    /// <summary>
+    /// Transient scale applied to every score produced inside a
+    /// <see cref="WithScoreMultiplier"/> scope. Lets effects that scale a whole
+    /// activation — a fire burn ramp, a detonation's payout — avoid mutating the
+    /// component's own base score and having to unwind it afterwards.
+    /// </summary>
+    private float _transientScoreMultiplier = 1f;
+
+    /// <summary>
+    /// Runs <paramref name="scoringAction"/> with every score it produces scaled by
+    /// <paramref name="multiplier"/>. Nestable (scopes compound) and exception-safe.
+    /// </summary>
+    public void WithScoreMultiplier(float multiplier, Action scoringAction)
+    {
+        if (scoringAction == null) return;
+
+        float previous = _transientScoreMultiplier;
+        _transientScoreMultiplier = previous * multiplier;
+        try { scoringAction(); }
+        finally { _transientScoreMultiplier = previous; }
+    }
+
+    /// <summary>
+    /// Where a score came from, for presentation. An activation (a fire burn tick, a
+    /// charge/chain-lightning discharge) shows a smaller, tinted popup than a normal
+    /// ball hit so the two read differently.
+    /// </summary>
+    public enum ScoreActivationStyle { Normal, Fire, Charge }
+
+    [Header("Activation Score Presentation")]
+    [Tooltip("Popup scale for activation scores (fire / charge), relative to a normal hit.")]
+    [SerializeField, Range(0.1f, 1f)] private float activationScoreScale = 0.5f;
+    [Tooltip("Popup text colour for fire-activation scores.")]
+    [SerializeField] private Color fireActivationColor = new Color(1f, 0.5f, 0.12f);
+    [Tooltip("Popup text colour for charge / chain-lightning activation scores.")]
+    [SerializeField] private Color chargeActivationColor = new Color(0.32f, 0.66f, 1f);
+
+    private ScoreActivationStyle _activationStyle = ScoreActivationStyle.Normal;
+
+    /// <summary>
+    /// Runs <paramref name="scoringAction"/> so every score it produces is presented in
+    /// the given activation style (smaller, tinted). Nestable and exception-safe.
+    /// </summary>
+    public void WithActivationStyle(ScoreActivationStyle style, Action scoringAction)
+    {
+        if (scoringAction == null) return;
+
+        ScoreActivationStyle previous = _activationStyle;
+        _activationStyle = style;
+        try { scoringAction(); }
+        finally { _activationStyle = previous; }
+    }
+
+    private float ActivationTextScale =>
+        _activationStyle == ScoreActivationStyle.Normal ? 1f : activationScoreScale;
+
+    private Color? ActivationTextColor
+    {
+        get
+        {
+            switch (_activationStyle)
+            {
+                case ScoreActivationStyle.Fire: return fireActivationColor;
+                case ScoreActivationStyle.Charge: return chargeActivationColor;
+                default: return null;
+            }
+        }
+    }
 
     // Properties
 
@@ -204,7 +302,7 @@ public class ScoreManager : MonoBehaviour
         ScoreChanged?.Invoke();
     }
 
-    /// <summary>Sets the maximum mult the player can earn (from their ship). Does not affect frenzy bonus.</summary>
+    /// <summary>Sets the maximum mult the player can earn (from their ship). Does not affect Power Surge bonus.</summary>
     public void SetMultCap(float cap)
     {
         _multCap = Mathf.Max(1f, cap);
@@ -217,19 +315,19 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    /// <summary>Adds a frenzy multiplier bonus that bypasses the cap. Call from frenzy systems only.</summary>
-    public void AddFrenzyMult(float amount)
+    /// <summary>Adds a Power Surge multiplier bonus that bypasses the cap. Call from Power Surge systems only.</summary>
+    public void AddPowerSurgeMult(float amount)
     {
-        _frenzyMult += amount;
-        if (_frenzyMult < 0f) _frenzyMult = 0f;
+        _powerSurgeMult += amount;
+        if (_powerSurgeMult < 0f) _powerSurgeMult = 0f;
         SteamAchievements.CheckMultMilestone(EffectiveMult);
         ScoreChanged?.Invoke();
     }
 
-    /// <summary>Removes the frenzy multiplier bonus entirely.</summary>
-    public void RemoveFrenzyMult()
+    /// <summary>Removes the Power Surge multiplier bonus entirely.</summary>
+    public void RemovePowerSurgeMult()
     {
-        _frenzyMult = 0f;
+        _powerSurgeMult = 0f;
         ScoreChanged?.Invoke();
     }
 
@@ -291,7 +389,7 @@ public class ScoreManager : MonoBehaviour
     {
         RegisterComponentHit();
         float componentScoreMult = _hasCompletedLevelThisRound ? (1f + _componentHitScoreBonus) : 1f;
-        amount *= componentScoreMult;
+        amount *= componentScoreMult * _transientScoreMultiplier;
 
         switch(typeOfScore)
         {
@@ -323,7 +421,7 @@ public class ScoreManager : MonoBehaviour
             {
                 displayPoints += scaled;
                 ScoreChanged?.Invoke();
-            }, popupAnchorOffset);
+            }, popupAnchorOffset, ActivationTextScale, ActivationTextColor);
         }
         else
         {
@@ -347,11 +445,11 @@ public class ScoreManager : MonoBehaviour
 
         if (floatingTextSpawner != null)
         {
-            floatingTextSpawner.SpawnMultText(pos.position, "+x" + (Mathf.Round(applied * 100f) / 100f).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture), applied, () => 
+            floatingTextSpawner.SpawnMultText(pos.position, "+x" + (Mathf.Round(applied * 100f) / 100f).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture), applied, () =>
             {
                 displayMult += applied;
                 ScoreChanged?.Invoke();
-            });
+            }, ActivationTextScale, ActivationTextColor);
         }
         else
         {
@@ -372,7 +470,7 @@ public class ScoreManager : MonoBehaviour
 
         if (floatingTextSpawner != null && actual > 0)
             floatingTextSpawner.SpawnGoldText(pos.position, "+$" + actual, actual,
-                () => cc?.ApplyDeferredCoinsUi(actual));
+                () => cc?.ApplyDeferredCoinsUi(actual), ActivationTextScale, ActivationTextColor);
 
         int totalCoins = cc?.Coins ?? 0;
         CoinsAdded?.Invoke(actual, totalCoins);
@@ -384,11 +482,27 @@ public class ScoreManager : MonoBehaviour
         scoringLocked = locked;
     }
 
-    public void ResetMultiplier()
+    /// <summary>
+    /// End of a ball — drained, or banked on the way into the shop. Cancels any active
+    /// Power Surge (that bonus is forfeited entirely, it is never carried over) and knocks the
+    /// earned board mult down toward — but never all the way back to — 1x: the 1x base is set
+    /// aside and only the amount above it decays to <see cref="multCarryOverOnDecay"/> of what
+    /// it was, so 8x becomes 1 + 7 * 0.25 = 2.75x. Never drops below 1x.
+    /// </summary>
+    public void DecayMultiplier()
     {
-        mult = 1f;
-        displayMult = 1f;
-        _frenzyMult = 0f;
+        // Route through PowerSurgeManager so its visual subscribers unwind with it; the
+        // direct zeroing below covers a missing manager or a stale _powerSurgeMult.
+        ServiceLocator.Get<PowerSurgeManager>()?.DeactivatePowerSurge();
+        _powerSurgeMult = 0f;
+
+        // Decay only the earned portion above the 1x base — the base itself is never eaten.
+        float carried = 1f + Mathf.Max(0f, mult - 1f) * multCarryOverOnDecay;
+        if (_multCap > 0f && _multCap < float.MaxValue)
+            carried = Mathf.Min(carried, _multCap);
+
+        mult = carried;
+        displayMult = mult;
         MultReset?.Invoke();
         ScoreChanged?.Invoke();
     }
@@ -418,7 +532,7 @@ public class ScoreManager : MonoBehaviour
         points = 0d;
         BallBanked?.Invoke();
         mult = 1f;
-        _frenzyMult = 0f;
+        _powerSurgeMult = 0f;
         displayPoints = 0d;
         displayMult = 1f;
         _goalTier = 0;
@@ -454,6 +568,13 @@ public class ScoreManager : MonoBehaviour
     public void ResetForNewRun()
     {
         ResetForNewRound();
+
+        // Popup sizes are relative to the recent average, so a new run starts from a clean window.
+        // Deliberately not in ResetForNewRound: cross-round growth is exactly what should be absorbed.
+        if (floatingTextSpawner == null)
+            floatingTextSpawner = ServiceLocator.Get<FloatingTextSpawner>();
+
+        floatingTextSpawner?.ResetPopupScaleHistory();
     }
 
     public void SetGoal(float goal)

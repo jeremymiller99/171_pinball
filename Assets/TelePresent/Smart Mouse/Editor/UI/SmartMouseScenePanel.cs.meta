@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 8745ac2eb17694278a342535cd7deb1e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 387158
+  packageName: Smart Mouse 2 - Selection & Placement
+  packageVersion: 2.1
+  assetPath: Assets/TelePresent/Smart Mouse/Editor/UI/SmartMouseScenePanel.cs
+  uploadId: 966664

@@ -53,6 +53,12 @@ public class ShopButton3D : MonoBehaviour
 
     private void Update()
     {
+        // The shop hotkey still fires behind a pause / round-failed panel otherwise.
+        if (GameplayInputGate.IsBlocked)
+        {
+            return;
+        }
+
         if (shopAction.action.WasPressedThisFrame())
         {
             OnClick();

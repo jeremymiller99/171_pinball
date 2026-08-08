@@ -211,11 +211,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195264
-    m_Localized: 'Flippers:  Left Arrow / Right Arrow,  A / D,  or Left / Right Mouse
-      Button.
+    m_Localized: 'Flippers:  Left Shift / Right Shift
 
 
-      Launcher:  Down Arrow / Middle Mouse Button
+      Launcher:  Space
 
 
       Click START to begin.'
@@ -226,12 +225,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195266
-    m_Localized: 'Reaching the goal unlocks the SHOP for one visit.
-
-
-      The SHOP
-      button below the board has lit up. Press it now to spend coins on new balls
-      and board upgrades before the next round.'
+    m_Localized: 'Nice work! Click the SHOP button or press Enter whenever it is
+      lit up. Your current ball will be saved.'
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195267
@@ -243,11 +238,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195269
-    m_Localized: 'Drag offers from the shelf onto your hand or onto the board to
-      buy them.
+    m_Localized: 'Drag items from the right side to the board to purchase.
 
 
-      Drag a hand ball onto a shop hub to sell it back for coins.'
+      Change the order of balls by clicking and dragging them in the board.'
     m_Metadata:
       m_Items: []
   - m_Id: 719679789195270

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 85d706b489f9a4fde879a477bc977c73
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 387158
+  packageName: Smart Mouse 2 - Selection & Placement
+  packageVersion: 2.1
+  assetPath: Assets/TelePresent/Smart Mouse/Editor/TelePresent.SmartMouse.Editor.asmdef
+  uploadId: 966664

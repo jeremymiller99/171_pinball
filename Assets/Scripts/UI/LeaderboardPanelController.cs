@@ -761,6 +761,7 @@ public sealed class LeaderboardPanelController : MonoBehaviour
     private void OnDestroy()
     {
         RestorePauseAndInput();
+        GameplayInputGate.Unblock(this);
     }
 
     private void PauseAndLockInput()
@@ -800,6 +801,10 @@ public sealed class LeaderboardPanelController : MonoBehaviour
 
     private void DisableGameplayInput()
     {
+        // Covers what disabling these two behaviours does not: board hover tooltips, clicks on
+        // components, and the shop hotkey.
+        GameplayInputGate.Block(this);
+
         DisableIfEnabledByTypeName("PinballLauncher");
         DisableIfEnabledByTypeName("PinballFlipper");
     }
@@ -829,6 +834,8 @@ public sealed class LeaderboardPanelController : MonoBehaviour
 
     private void RestoreGameplayInput()
     {
+        GameplayInputGate.Unblock(this);
+
         foreach (KeyValuePair<Behaviour, bool> kv in _disabledInputBehaviours)
         {
             if (kv.Key != null)

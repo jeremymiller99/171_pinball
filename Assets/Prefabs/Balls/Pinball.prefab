@@ -75,7 +75,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 2bf6d822e28432c46b7da73bee4a5b32, type: 2}
+  - {fileID: 2100000, guid: aa115a99bafd46740a2a0d40c9484789, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -291,6 +291,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c3279caae1b40b4d8534d67b707bd90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  componentHits: 0
+  ballPointMultiplier: 1
+  ballMultMultiplier: 1
+  ballCoinMultiplier: 1
+  lastObjectHit: {fileID: 0}
+  isAmpedUp: 0
   hitCountFontAsset: {fileID: 0}
   hitCountPopupScale: 0.7
   hitCountPopupOffset: {x: 0, y: 40}
@@ -361,3 +367,4 @@ MonoBehaviour:
   speedMultiplier: 0.25
   particleObject: {fileID: 3410741549929769084, guid: a05ecc2c4a4c7384693365ade1d5c20a, type: 3}
   poolSize: 15
+  _rb: {fileID: 0}

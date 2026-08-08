@@ -1,5 +1,9 @@
+// Updated by Claude (Opus 5), for jjmil, on 2026-08-06 (the mult meter no longer empties while the
+// ball is kinematic — a leftover from when the meter was speed-driven — which drained the bar for
+// the whole of a portal's teleport delay).
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Put this on a HUD/UI object (not the ball). It finds the active ball and displays its speed on a TMP label.
@@ -32,7 +36,8 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     [SerializeField] private GameRulesManager gameRules;
     [SerializeField] private BallSpawner ballSpawner;
     [SerializeField] private ScoreManager scoreManager;
-    [SerializeField] private FrenzyManager frenzyManager;
+    [FormerlySerializedAs("frenzyManager")]
+    [SerializeField] private PowerSurgeManager powerSurgeManager;
 
     [Header("Behavior")]
     [Tooltip("If true, shows 0 until the active ball is non-kinematic.")]
@@ -60,8 +65,11 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     [Tooltip("Maximum length of the meter (local-units along the chosen axis).")]
     [Min(0f)]
     [SerializeField] private float meterMaxUnits = 1.0f;
-    [Tooltip("If true, kinematic balls won't move the meter (useful while the ball is 'held').")]
-    [SerializeField] private bool meterFreezeWhileKinematic = true;
+    [Tooltip("If true, a held (kinematic) ball drops the rolling loop's velocity parameter to 0 " +
+             "so the roll goes quiet while the ball isn't actually rolling. The meter itself is " +
+             "driven by the mult and is never emptied by this.")]
+    [FormerlySerializedAs("meterFreezeWhileKinematic")]
+    [SerializeField] private bool silenceRollWhileKinematic = true;
     [Tooltip("0 = no smoothing. Higher values smooth more (exponential).")]
     [Min(0f)]
     [SerializeField] private float meterSmoothing = 12f;
@@ -79,9 +87,10 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField] private float meterColorMidPoint = 0.5f;
 
-    [Header("Frenzy Color")]
-    [Tooltip("Color of the meter when frenzy (drop-target 2x) mode is active. Should match frenzy lights in the scene.")]
-    [SerializeField] private Color frenzyMeterColor = new Color(0f, 0.85f, 1f, 1f);
+    [Header("Power Surge Color")]
+    [Tooltip("Color of the meter when Power Surge (drop-target 2x) mode is active. Should match Power Surge lights in the scene.")]
+    [FormerlySerializedAs("frenzyMeterColor")]
+    [SerializeField] private Color powerSurgeMeterColor = new Color(0f, 0.85f, 1f, 1f);
 
     [Header("Color Application (debug / compatibility)")]
     [Tooltip("If enabled, also writes colors directly to Renderer.material. Use if your shader ignores MaterialPropertyBlock.")]
@@ -133,8 +142,8 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         if (!scoreManager)
             scoreManager = ServiceLocator.Get<ScoreManager>();
 
-        if (!frenzyManager)
-            frenzyManager = FindAnyObjectByType<FrenzyManager>();
+        if (!powerSurgeManager)
+            powerSurgeManager = FindAnyObjectByType<PowerSurgeManager>();
 
         if (!meterFill)
         {
@@ -220,7 +229,7 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
             // Still drive meter from mult even when ball is absent.
             float idleMult = scoreManager ? scoreManager.Mult : 1f;
             float idleCap = (scoreManager && scoreManager.MultCap < float.MaxValue) ? scoreManager.MultCap : 10f;
-            UpdateMeter(Mathf.Clamp01((idleMult - 1f) / Mathf.Max(0.0001f, idleCap - 1f)), kinematic: true);
+            UpdateMeter(Mathf.Clamp01((idleMult - 1f) / Mathf.Max(0.0001f, idleCap - 1f)), ballHeld: true);
             return;
         }
 
@@ -233,7 +242,7 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         float mult = scoreManager ? scoreManager.Mult : 1f;
         float multCap = (scoreManager && scoreManager.MultCap < float.MaxValue) ? scoreManager.MultCap : 10f;
         float multFill01 = Mathf.Clamp01((mult - 1f) / Mathf.Max(0.0001f, multCap - 1f));
-        UpdateMeter(multFill01, kinematic);
+        UpdateMeter(multFill01, ballHeld: kinematic);
 
         string fmt = "F" + Mathf.Clamp(decimals, 0, 6);
         string units = showUnits ? " m/s" : "";
@@ -252,7 +261,13 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
             $"v=({v.x.ToString(fmt)},{v.y.ToString(fmt)},{v.z.ToString(fmt)})";
     }
 
-    private void UpdateMeter(float fill01, bool kinematic)
+    /// <param name="fill01">Mult fill, 0..1. Always drives the bar.</param>
+    /// <param name="ballHeld">
+    /// True when there is no live ball, or the live one is kinematic — held inside a portal's
+    /// teleport delay, or waiting in the launcher. Only silences the rolling loop; the earned
+    /// mult is untouched while a ball is held, so the bar must not empty.
+    /// </param>
+    private void UpdateMeter(float fill01, bool ballHeld)
     {
         if (!meterFill)
             return;
@@ -262,9 +277,6 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
 
         if (!_meterInit)
             return;
-
-        if (meterFreezeWhileKinematic && kinematic)
-            fill01 = 0f;
 
         float targetUnits = Mathf.Max(0f, meterMaxUnits) * Mathf.Clamp01(fill01);
 
@@ -296,7 +308,9 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
         float smoothedFill01 = meterMaxUnits > 0.0001f ? Mathf.Clamp01(_meterUnitsSmoothed / meterMaxUnits) : 0f;
         UpdateMeterColor(smoothedFill01);
 
-        ServiceLocator.Get<AudioManager>()?.UpdateRollingSound(smoothedFill01);
+        // A held ball isn't rolling, so drop the loop's intensity even though the bar stays up.
+        float rollIntensity = (silenceRollWhileKinematic && ballHeld) ? 0f : smoothedFill01;
+        ServiceLocator.Get<AudioManager>()?.UpdateRollingSound(rollIntensity);
     }
 
     private void UpdateMeterColor(float fill01)
@@ -316,9 +330,9 @@ public sealed class ActiveBallSpeedHUD : MonoBehaviour
 
         _meterMPB ??= new MaterialPropertyBlock();
 
-        bool frenzyActive = scoreManager != null ? scoreManager.IsFrenzyActive :
-                            (frenzyManager != null && frenzyManager.isFrenzyActive);
-        Color c = frenzyActive ? frenzyMeterColor : EvaluateMeterColor(fill01);
+        bool powerSurgeActive = scoreManager != null ? scoreManager.IsPowerSurgeActive :
+                            (powerSurgeManager != null && powerSurgeManager.isPowerSurgeActive);
+        Color c = powerSurgeActive ? powerSurgeMeterColor : EvaluateMeterColor(fill01);
         c.a = _meterBaseAlpha;
 
         _meterRenderer.GetPropertyBlock(_meterMPB);

@@ -14,7 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TermDefinition
   id: 
   displayName: Charge
-  description: When an object is Shocked, it gains Charge. Certain objects will require
-    Charge to activate certain abilities. Sometimes, Charge is reset to 0 after the
-    object is triggered. If a Charged object is not Shocked for 2 seconds, it begins
-    losing 2 Charge per second.
+  description: On collision, has a 50% chance to activate the nearest component.

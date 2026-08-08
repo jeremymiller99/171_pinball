@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: dcaa289e0e12d48bca81320cf39a583e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 387158
+  packageName: Smart Mouse 2 - Selection & Placement
+  packageVersion: 2.1
+  assetPath: Assets/TelePresent/Smart Mouse/Editor/Actions/SmartMouseListManagerWindow.cs
+  uploadId: 966664

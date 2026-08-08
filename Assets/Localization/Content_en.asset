@@ -56,8 +56,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 36720074758
-    m_Localized: Every 4 component hits, spawns 3 colorful mini-balls that pop after
-      3 hits. Up to 4 bursts per ball.
+    m_Localized: Every 7 component hits, spawns 3 colorful mini-balls that pop after
+      10 hits.
     m_Metadata:
       m_Items: []
   - m_Id: 36720074759
@@ -340,7 +340,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 36724269067
-    m_Localized: Drop Target
+    m_Localized: Dropper
     m_Metadata:
       m_Items: []
   - m_Id: 36724269068

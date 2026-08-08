@@ -9,7 +9,7 @@ using UnityEngine;
 public sealed class ProfileService : MonoBehaviour
 {
     private const int slotCount = 3;
-    private const int currentVersion = 6;
+    private const int currentVersion = 7;
 
     private const string activeSlotKey = "ActiveProfileSlot_v1";
     private const string directoryName = "profiles";
@@ -238,6 +238,61 @@ public sealed class ProfileService : MonoBehaviour
         if (p == null) return;
 
         p.hasSeenLevelUpTutorial = true;
+
+        Instance.SaveSlot(Instance.activeSlot);
+        ProfileChanged?.Invoke(Instance.activeSlot);
+    }
+
+    /// <summary>
+    /// False only for a profile that has never finished the FTUE board. Drives whether the game
+    /// boots into the tutorial instead of the main menu.
+    /// </summary>
+    public static bool HasCompletedFtue()
+    {
+        if (Instance == null) return false;
+
+        ProfileSaveData p = Instance.GetOrCreateActiveProfile();
+        return p != null && p.hasCompletedFtue;
+    }
+
+    public static void RecordFtueCompleted()
+    {
+        if (Instance == null) return;
+
+        ProfileSaveData p = Instance.GetOrCreateActiveProfile();
+        if (p == null) return;
+
+        p.hasCompletedFtue = true;
+
+        Instance.SaveSlot(Instance.activeSlot);
+        ProfileChanged?.Invoke(Instance.activeSlot);
+    }
+
+    /// <summary>
+    /// Raw stored AI name, empty if the player has not named it. Read through
+    /// <c>FtueNarrator.DisplayName</c> rather than directly — that is what applies the fallback.
+    /// </summary>
+    public static string GetAiName()
+    {
+        if (Instance == null) return string.Empty;
+
+        ProfileSaveData p = Instance.GetOrCreateActiveProfile();
+        return p != null ? (p.aiName ?? string.Empty) : string.Empty;
+    }
+
+    /// <summary>
+    /// Stores the player's chosen AI name. Expects an already-sanitized string — callers go
+    /// through <c>FtueNarrator.SetName</c>, which owns trimming, the length cap and the rules
+    /// about what characters are allowed through.
+    /// </summary>
+    public static void SetAiName(string sanitizedName)
+    {
+        if (Instance == null) return;
+
+        ProfileSaveData p = Instance.GetOrCreateActiveProfile();
+        if (p == null) return;
+
+        p.aiName = sanitizedName ?? string.Empty;
 
         Instance.SaveSlot(Instance.activeSlot);
         ProfileChanged?.Invoke(Instance.activeSlot);
@@ -623,6 +678,10 @@ public sealed class ProfileService : MonoBehaviour
 
         if (data.version <= 0)
         {
+            // Stamping the current version here skips every migration block below, so anything
+            // those blocks would have granted has to be granted here too. A version-0 profile is
+            // by definition an existing one, so it is grandfathered past the FTUE like the rest.
+            data.hasCompletedFtue = true;
             data.version = currentVersion;
         }
 
@@ -663,6 +722,17 @@ public sealed class ProfileService : MonoBehaviour
             {
                 data.unlockedShipIds = new List<string>();
             }
+        }
+
+        if (data.version < 7)
+        {
+            // Grandfather on version alone, not on "has this player actually played". A predicate
+            // like totalBoardWins > 0 reads as more careful but misses the player who made a
+            // profile, launched once and quit -- they would be pushed into the tutorial. Version
+            // has zero false positives, which is the right trade when the cost of being wrong is
+            // forcing an existing player through the FTUE. New profiles never reach this block:
+            // CreateNewProfile stamps currentVersion, so they keep hasCompletedFtue false.
+            data.hasCompletedFtue = true;
         }
 
         data.version = currentVersion;

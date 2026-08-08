@@ -10,6 +10,40 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.17.0 — FTUE Phase 2: profile fields, save migration and the narrator's name
+_2026-08-08 · Contributor: JJ_
+
+Persists whether a profile has finished the FTUE, and what the player named the AI.
+`FTUE_PLAN.md` ticket 6. Save format goes to **version 7**.
+
+- `ProfileSaveData` gains `hasCompletedFtue` and `aiName`. Both ride one version bump; a new
+  string field needs no migration logic, since JsonUtility leaves absent fields at their
+  initializer.
+- **Existing players are grandfathered.** Without this, `hasCompletedFtue` would default false on
+  every save on disk and the Phase 5 boot rule would force every existing player through the
+  tutorial. The `version < 7` block sets it true unconditionally — on **version alone**, not on a
+  "has this player actually played" predicate, which reads as more careful but misses the player
+  who made a profile, launched once and quit. Version has zero false positives, the right trade
+  when being wrong means dragging an existing player through the FTUE.
+- Also closes the `version <= 0` hole the plan flagged: that branch stamps the current version and
+  skips every migration below it, so it now grants the grandfather itself. A version-0 profile is
+  by definition an existing one.
+- New profiles are unaffected — `CreateNewProfile` stamps `currentVersion`, so they never enter the
+  migration and keep `hasCompletedFtue` false. `R` in the main menu still re-arms the FTUE, since
+  `ResetSlot` goes through `CreateNewProfile`.
+- `FtueNarrator` owns the naming rules: trim, a 16-character cap, and the fallback name **`Al`** —
+  which is intentional and must not be "corrected" to "AI". `ProfileService` storage stays dumb;
+  the FTUE layer decides what a valid name is.
+- **Sanitizing strips `<` and `>`.** TMP parses rich text by default and this string is written
+  straight into a label, so a name of `<size=500%>` would blow the panel apart and `<sprite=0>`
+  would draw something the player never typed. Control characters go too.
+- The stored name is player-authored text and is deliberately kept out of analytics, Steam and
+  every log line.
+- `FtueDialogueView` now reads the character cap from `FtueNarrator` instead of declaring its own,
+  so the field limit and the stored limit cannot drift apart.
+
+---
+
 ## 0.16.9 — FTUE Phase 2: narrator dialogue view and input-prompt strings
 _2026-08-07 · Contributor: JJ_
 

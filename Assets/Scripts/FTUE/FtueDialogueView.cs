@@ -28,13 +28,6 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class FtueDialogueView : MonoBehaviour
 {
-    /// <summary>
-    /// Longest name the player may give the AI. It is rendered in every subsequent line, so a
-    /// long one wrecks the panel layout. The input field enforces it as the player types; the
-    /// profile layer re-checks it, since this is a UX affordance rather than the invariant.
-    /// </summary>
-    public const int nameCharacterLimit = 16;
-
     private enum Phase
     {
         Idle = 0,
@@ -122,7 +115,8 @@ public sealed class FtueDialogueView : MonoBehaviour
         // Hidden until the line has finished typing, so the player is not invited to type into a
         // field while the panel is still talking.
         nameInput.gameObject.SetActive(false);
-        nameInput.characterLimit = nameCharacterLimit;
+        // FtueNarrator owns the rule; the field just stops the player typing past it.
+        nameInput.characterLimit = FtueNarrator.nameCharacterLimit;
         nameInput.text = string.Empty;
 
         if (nameInput.placeholder is TextMeshProUGUI placeholderLabel)

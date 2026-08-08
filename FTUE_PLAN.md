@@ -291,17 +291,27 @@ Helpfully, `CameraLerpBetweenPoints` uses unscaled time, so camera moves still a
 
 ```
 Assets/Scripts/FTUE/
-  FtueState.cs              static; Active flag + shop pool override + completion helper
-  FtueDirector.cs           MonoBehaviour, lives in Board_FTUE; runs the step list
-  FtueStepDefinition.cs     ScriptableObject: one authored beat (copy, trigger, action)
-  FtueDialogueView.cs       prefab-root view; Bind(speaker, body, prompt, onAdvance)
-  FtuePlacementSlot.cs      marker: "only this component may receive the FTUE placement"
+  FtueState.cs              static; Active flag + shop pool override        [DONE ticket 2]
+  FtueDirector.cs           MonoBehaviour, lives in Board_FTUE              [shell, ticket 2]
+  FtueBindings.cs           input-binding display strings for prompts       [DONE ticket 5]
+  FtueDialogueView.cs       prefab-root view; Bind / BindTextEntry          [DONE ticket 5]
+  FtueStepDefinition.cs     ScriptableObject: one authored beat             [ticket 7]
+  FtuePlacementSlot.cs      WITHDRAWN — see §8b / §7a A6
 ```
 
-```
-Assets/Resources/FTUE/
-  FtueDialoguePanel.prefab  narrator portrait + name + body + continue prompt
-```
+**Ordered-token formatting already exists — do not build a second one.**
+`LocalizedUI.Format(key, fallbackTemplate, params object[] args)` is already in the project and does
+exactly what §8a asks for: pulls the localized template, fills `{0}`/`{1}` via `String.Format`, and
+falls back twice (localized → source template → raw) if a translator breaks the placeholders. The
+FTUE builds every line through it. `FtueBindings.Display(reference)` supplies the binding argument.
+
+**Dialogue prefabs live in the board scene's references, not in `Resources`.**
+Earlier drafts specified `Assets/Resources/FTUE/FtueDialoguePanel.prefab`, copying
+`BasicTutorialController` — but that controller only needs `Resources` because it is a
+`DontDestroyOnLoad` singleton with no scene to hold references. `FtueDirector` *is* in the scene, so
+it holds direct serialized prefab references instead. That removes a runtime load, a path constant
+and a whole missing-at-runtime failure mode, and keeps the prefabs out of every build that does not
+need them. Author them anywhere sensible (`Assets/Prefabs/FTUE/` suggested).
 
 ```
 Assets/Data/FTUE/                       [DONE — authored 2026-08-07]

@@ -10,6 +10,48 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.16.9 — FTUE Phase 2: narrator dialogue view and input-prompt strings
+_2026-08-07 · Contributor: JJ_
+
+The presentation half of the FTUE narrator. `FTUE_PLAN.md` ticket 5. Two new files, **no existing
+file modified**.
+
+- `FtueDialogueView` sits on the root of a dialogue prefab and fills speaker / body / prompt
+  slots, following the `TutorialPanelView` pattern. One component drives both prefabs: an ordinary
+  line, and the naming panel, which also shows a `TMP_InputField`.
+- **No continue button.** A line types itself out; the first input fills the box, the second
+  dismisses it. A button slot remains for panels that want one, but nothing requires it.
+- The typewriter runs on **unscaled** time — the director pauses the game for most beats, and a
+  scaled typewriter would sit frozen mid-sentence. It reveals via TMP's `maxVisibleCharacters`
+  rather than rebuilding the string, so rich-text tags are not counted and layout does not thrash.
+- **Escape is excluded** from "any input": it belongs to the pause menu, and swallowing it would
+  leave the player unable to pause while a line is on screen.
+- **The naming panel does not advance on any input** — the player is about to type, and the first
+  keystroke would dismiss it. It types out, then reveals and focuses the field, and waits for
+  Enter. The field stays hidden while the line is still typing so it never invites input the panel
+  is not ready for.
+- Input is ignored on the frame a phase begins, so the press that opened a panel, or the press
+  that skipped its typewriter, cannot also be read as the press that dismisses it. Callbacks clear
+  the moment they fire, so a click and a key press in the same frame cannot double-advance.
+- `FtueBindings.Display(reference)` resolves an action's keyboard binding name, so copy can say
+  "Hold {1}" and track the bindings instead of drifting from them — the original brief said "hold
+  Enter", which had not been true since Launch moved to Space. Guards a null reference and an
+  out-of-range index, both of which otherwise throw, and returns "?" rather than an empty prompt.
+- It deliberately always reports the **keyboard** binding rather than switching when a gamepad is
+  connected: connected is not in use, and a player with a controller plugged in but hands on the
+  keyboard would get the wrong prompt. Doing it properly needs last-used-device tracking, which is
+  wider than the tutorial should reach.
+- **No new formatting system.** `LocalizedUI.Format` already provides ordered-token substitution
+  with a double fallback for broken translator placeholders, which is exactly what the plan called
+  for as new work. The FTUE uses it.
+- **No `Resources` dependency.** The plan had the prefab loaded from `Resources/FTUE/`, copying
+  `BasicTutorialController` — but that controller only needs Resources because it is a
+  `DontDestroyOnLoad` singleton with no scene to hold references. The director is in the board
+  scene, so it takes direct prefab references instead, removing a runtime load and a
+  missing-at-runtime failure mode.
+
+---
+
 ## 0.16.8 — FTUE Phase 1: the legacy tutorial panels stand down on the FTUE board
 _2026-08-07 · Contributor: JJ_
 

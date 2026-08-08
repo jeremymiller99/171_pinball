@@ -860,12 +860,17 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5209088111457011690, guid: 32b45f485ff0f6147945f26f1033a686, type: 3}
   m_PrefabInstance: {fileID: 21606380}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 21606383}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4bfcd65970b84e36939a9859ea91a36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dropper
+--- !u!1 &21606383 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3392549938974561248, guid: 32b45f485ff0f6147945f26f1033a686, type: 3}
+  m_PrefabInstance: {fileID: 21606380}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &30575251
 GameObject:
   m_ObjectHideFlags: 0
@@ -1877,6 +1882,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 82440843}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &83658015
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 83658016}
+  m_Layer: 0
+  m_Name: Shop Focus Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &83658016
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 83658015}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.5336145, y: 0, z: 0, w: 0.84572786}
+  m_LocalPosition: {x: 8.36, y: 10.8, z: -28.09}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &114427341
 GameObject:
   m_ObjectHideFlags: 0
@@ -2442,12 +2478,17 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5209088111457011690, guid: 32b45f485ff0f6147945f26f1033a686, type: 3}
   m_PrefabInstance: {fileID: 147568546}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 147568549}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4bfcd65970b84e36939a9859ea91a36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dropper
+--- !u!1 &147568549 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3392549938974561248, guid: 32b45f485ff0f6147945f26f1033a686, type: 3}
+  m_PrefabInstance: {fileID: 147568546}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &162880562
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3916,7 +3957,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3392549938974561248, guid: 32b45f485ff0f6147945f26f1033a686, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4169343221086110958, guid: 32b45f485ff0f6147945f26f1033a686, type: 3}
       propertyPath: m_Size.x
@@ -19441,12 +19482,17 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5209088111457011690, guid: 32b45f485ff0f6147945f26f1033a686, type: 3}
   m_PrefabInstance: {fileID: 1074465606}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1074465609}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4bfcd65970b84e36939a9859ea91a36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dropper
+--- !u!1 &1074465609 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3392549938974561248, guid: 32b45f485ff0f6147945f26f1033a686, type: 3}
+  m_PrefabInstance: {fileID: 1074465606}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1084460418
 GameObject:
   m_ObjectHideFlags: 0
@@ -23381,7 +23427,7 @@ Transform:
   m_GameObject: {fileID: 1501996922}
   serializedVersion: 2
   m_LocalRotation: {x: 0.5336145, y: 0, z: 0, w: 0.84572786}
-  m_LocalPosition: {x: 14.4, y: 20.61, z: -26.34}
+  m_LocalPosition: {x: 14.4, y: 19.79, z: -28.06}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -29041,6 +29087,8 @@ MonoBehaviour:
     localizationKey: 
     englishText: 
   shopAction: {fileID: 1064514270297456241, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  shopButtonFocusPoint: {fileID: 83658016}
+  pauseWhileShopPrompted: 1
   placeableMultTarget: {fileID: 1898677230}
   extraMultTargets:
   - {fileID: 1979287572}
@@ -29056,6 +29104,20 @@ MonoBehaviour:
       of the whole machine!
   - localizationKey: 
     englishText: I've added a few more to get you off the ground.
+  dropTargetGroup:
+  - {fileID: 1074465609}
+  - {fileID: 21606383}
+  - {fileID: 147568549}
+  dropTargetRevealOnLevelUp: 3
+  powerSurgeIntroLines:
+  - localizationKey: 
+    englishText: Power surge give you money and a big score boost. There is more
+      to the machine than points and mult brah.
+  powerSurgesToComplete: 3
+  completionLines:
+  - localizationKey: 
+    englishText: Holy smokes ur goated. complete 3 power surge
+  mainMenuSceneName: MainMenu 1
   levelGoals:
   - 100
   - 250
@@ -36551,6 +36613,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Abductor
       objectReference: {fileID: 0}
+    - target: {fileID: 3489560990946580805, guid: a0552d35fcb08c348815a72581abc0bf, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7718294612392993566, guid: a0552d35fcb08c348815a72581abc0bf, type: 3}
       propertyPath: m_LocalPosition.x
       value: 7
@@ -37434,4 +37500,5 @@ SceneRoots:
   - {fileID: 1548764692}
   - {fileID: 1932396897}
   - {fileID: 1501996923}
+  - {fileID: 83658016}
   - {fileID: 1094617267}

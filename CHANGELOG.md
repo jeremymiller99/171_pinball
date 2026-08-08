@@ -10,6 +10,42 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.17.7 — FTUE Phase 4: power surge, and the tutorial ends
+_2026-08-08 · Contributor: JJ_
+
+Beats 10 and 11. The drop targets appear, the surge is explained, and three surges send the player
+back to the ship. `FTUE_PLAN.md` ticket 12. **No existing file modified.**
+
+- Drop targets are revealed **at the level-up**, not at the shop, so the board visibly changes
+  while the player is looking at it. This settles the open question in the plan in favour of what
+  the original brief described; the level-up it fires on is a serialized number if it wants moving.
+- That beat **pauses**, for the same reason the flipper lesson does: a level-up happens with the
+  ball still in play, and it would drain while the lines were being read. The shop prompt follows
+  once the lines are done, so the two do not fight over the panel.
+- Surges are counted **only after the beat that explains them**. One triggered before the player
+  has been told what a surge is should not quietly count toward finishing.
+- **`FtueState` is deliberately not reset at completion.** Unloading the board destroys the
+  director and `OnDisable` clears it — whereas clearing it before the fade would drop the
+  round-failure guard while the ball is still live, letting the run end during the sign-off.
+- Completion marks `hasSeenFirstPlayTutorial`, `hasSeenLevelUpTutorial` and `hasSeenShopTutorial`
+  alongside `hasCompletedFtue`. Closes the item left open in 0.16.8: without it a player who
+  finished the FTUE would still meet the legacy CONTROLS popup on their first normal run.
+- Board input is held shut for the fade, so the last seconds cannot be played on.
+- No group is needed for the bumpers the tutorial locks out — they are simply left inactive in the
+  scene, which also keeps them out of shop placement discovery.
+- **The shop prompt freezes the board**, so the player can read it and find the button instead of
+  losing the ball mid-sentence. Frozen rather than input-gated on purpose: gating would take the
+  shop key away along with everything else, whereas `ShopButton3D` polls in `Update`, which still
+  runs at `timeScale` 0 — so the button stays live while the ball does not.
+  - Released in `OnShopOpened`, **before** anything else in that handler. The shop transition
+    animates from there and would sit frozen otherwise; `GameRulesManager.OpenShop` raising the
+    event before it calls the transition controller is the window this depends on.
+- The camera dollies to a `shopButtonFocusPoint` while the prompt is up, mirroring the launcher
+  focus. The existing snap-to-play-pose on shop open already covers the return, and is still what
+  keeps `ShopTransitionController` from caching the wrong home.
+
+---
+
 ## 0.17.6 — FTUE Phase 3: the shop beats and the mult-target reveal
 _2026-08-08 · Contributor: JJ_
 

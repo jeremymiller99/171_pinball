@@ -105,6 +105,14 @@ public sealed class FtueDirector : MonoBehaviour
     [Tooltip("The shop hotkey action, so the prompt names whatever it is bound to.")]
     [SerializeField] private InputActionReference shopAction;
 
+    [Tooltip("Empty in this scene marking where the camera should sit while the shop button is "
+        + "being pointed out. Position it where you want the CAMERA, same as the launcher point.")]
+    [SerializeField] private Transform shopButtonFocusPoint;
+
+    [Tooltip("Freezes the board while the shop prompt is up, so the player can read it and find "
+        + "the button instead of losing the ball mid-sentence. Released the moment the shop opens.")]
+    [SerializeField] private bool pauseWhileShopPrompted = true;
+
     [Header("Beats 5a / 7 — mult targets")]
     [Tooltip("The ONE target the player places into on the first shop visit. Hidden until that "
         + "shop opens, which is what makes it the only place the purchase can land — placement "
@@ -123,6 +131,31 @@ public sealed class FtueDirector : MonoBehaviour
         + "spare targets.")]
     [SerializeField] private List<FtueDialogueLine> componentPlacedLines =
         new List<FtueDialogueLine>();
+
+    [Header("Beat 10 — power surge")]
+    [Tooltip("The drop-target bank. Hidden at board start, revealed at the level-up below so the "
+        + "player sees the board change while they are looking at it.")]
+    [SerializeField] private GameObject[] dropTargetGroup;
+
+    [Tooltip("Which level-up reveals the drop targets. 3 = the third time the shop lights up.")]
+    [Min(1)] [SerializeField] private int dropTargetRevealOnLevelUp = 3;
+
+    [Tooltip("Played when the drop targets appear. The game is paused for these — the ball is "
+        + "still in play at a level-up and would drain while they are being read.")]
+    [SerializeField] private List<FtueDialogueLine> powerSurgeIntroLines =
+        new List<FtueDialogueLine>();
+
+    [Header("Beat 11 — completion")]
+    [Tooltip("Power surges the player must trigger to finish the tutorial. Only counted once the "
+        + "surge beat has introduced them.")]
+    [Min(1)] [SerializeField] private int powerSurgesToComplete = 3;
+
+    [Tooltip("Sign-off, played before returning to the ship.")]
+    [SerializeField] private List<FtueDialogueLine> completionLines = new List<FtueDialogueLine>();
+
+    [Tooltip("Scene loaded when the tutorial finishes. 'MainMenu 1' is the live ship; 'MainMenu' "
+        + "is the legacy menu.")]
+    [SerializeField] private string mainMenuSceneName = "MainMenu 1";
 
     [Header("Level goals")]
     [Tooltip("Score needed for each level-up, replacing the normal curve for this board only. "
@@ -171,6 +204,11 @@ public sealed class FtueDirector : MonoBehaviour
     private bool multTargetRevealed;
     private Beat beat = Beat.NotStarted;
 
+    private PowerSurgeManager cachedSurges;
+    private bool powerSurgeBeatReached;
+    private int powerSurgeCount;
+    private bool completing;
+
     private float timeScaleBeforePause = 1f;
     private bool pausedByDirector;
 
@@ -207,6 +245,7 @@ public sealed class FtueDirector : MonoBehaviour
         UnsubscribeFromRules();
         UnsubscribeFromDrain();
         UnsubscribeFromShop();
+        UnsubscribeFromSurges();
         DismissActivePanel();
         RefreshInputBlock();
 
@@ -226,6 +265,44 @@ public sealed class FtueDirector : MonoBehaviour
         TrySubscribeToRules();
         TrySubscribeToDrain();
         TrySubscribeToShop();
+        TrySubscribeToSurges();
+    }
+
+    private void TrySubscribeToSurges()
+    {
+        PowerSurgeManager surges = ServiceLocator.Get<PowerSurgeManager>();
+        if (surges == cachedSurges) return;
+
+        UnsubscribeFromSurges();
+
+        cachedSurges = surges;
+        if (surges == null) return;
+
+        surges.OnPowerSurgeActivated += OnPowerSurgeActivated;
+    }
+
+    private void UnsubscribeFromSurges()
+    {
+        if (cachedSurges == null) return;
+
+        cachedSurges.OnPowerSurgeActivated -= OnPowerSurgeActivated;
+        cachedSurges = null;
+    }
+
+    /// <summary>
+    /// Beat 11. Counted only after the surge beat has explained what a surge is — a surge the
+    /// player triggered before being told about them should not quietly count toward finishing.
+    /// </summary>
+    private void OnPowerSurgeActivated()
+    {
+        if (!powerSurgeBeatReached || completing) return;
+
+        powerSurgeCount++;
+        Log($"Power surge {powerSurgeCount}/{powerSurgesToComplete}.");
+
+        if (powerSurgeCount < powerSurgesToComplete) return;
+
+        CompleteTutorial();
     }
 
     private void TrySubscribeToShop()
@@ -371,14 +448,86 @@ public sealed class FtueDirector : MonoBehaviour
             Log("Revealed the placeable mult target.");
         }
 
+        // Beat 10 rides this same level-up, and has to be read before the shop prompt replaces it.
+        if (!powerSurgeBeatReached && shopAvailableCount >= dropTargetRevealOnLevelUp)
+        {
+            BeginPowerSurgeBeat();
+            return;
+        }
+
+        ShowShopAvailablePrompt();
+    }
+
+    private void ShowShopAvailablePrompt()
+    {
         bool firstTime = shopAvailableCount <= 1;
         FtueDialogueLine line = firstTime || shopAvailableRepeatLine.IsEmpty
             ? shopAvailableLine
             : shopAvailableRepeatLine;
 
+        if (cameraFocus != null) cameraFocus.FocusOn(shopButtonFocusPoint);
+
         // Persistent, not modal: the line is telling the player to press the shop key, and a modal
         // panel stands board input down — including ShopButton3D, which reads the same gate.
         ShowPersistentLine(line, FtueBindings.Display(shopAction));
+
+        // Frozen, not gated, for the same reason: gating would take the shop key away with it.
+        // ShopButton3D polls in Update, which still runs at timeScale 0, so the button stays live
+        // while the ball does not. Released in OnShopOpened.
+        if (pauseWhileShopPrompted) SetPaused(true);
+    }
+
+    /// <summary>
+    /// Beat 10. The board grows its drop targets while the player is looking at it, then the
+    /// surge is explained. Paused for the same reason as the flipper lesson: the ball is still in
+    /// play at a level-up and would drain while the lines are being read.
+    /// </summary>
+    private void BeginPowerSurgeBeat()
+    {
+        powerSurgeBeatReached = true;
+        SetGroupActive(dropTargetGroup, true);
+        Log("Drop targets revealed.");
+
+        SetPaused(true);
+        ShowLineSequence(powerSurgeIntroLines, () =>
+        {
+            SetPaused(false);
+            ShowShopAvailablePrompt();
+        });
+    }
+
+    /// <summary>
+    /// Beat 11. Sign off, then hand the player back to the ship.
+    /// </summary>
+    private void CompleteTutorial()
+    {
+        if (completing) return;
+
+        completing = true;
+        Log("Tutorial complete.");
+
+        ShowLineSequence(completionLines, ReturnToShip);
+    }
+
+    private void ReturnToShip()
+    {
+        DismissActivePanel();
+
+        // Held shut for the fade so the last seconds of the tutorial cannot be played on.
+        GameplayInputGate.Block(this);
+
+        ProfileService.RecordFtueCompleted();
+
+        // The FTUE taught all three of these better than the legacy panels would, so mark them
+        // seen — otherwise the player meets the old CONTROLS popup on their first normal run.
+        ProfileService.RecordFirstPlayTutorialSeen();
+        ProfileService.RecordLevelUpTutorialSeen();
+        ProfileService.RecordShopTutorialSeen();
+
+        // FtueState is deliberately NOT reset here. Unloading the board destroys this director,
+        // and OnDisable clears it — whereas clearing it now would drop the round-failure guard for
+        // the length of the fade, during which the ball is still live and could end the run.
+        SceneFader.Instance.FadeAndLoadScene(mainMenuSceneName);
     }
 
     /// <summary>
@@ -429,6 +578,11 @@ public sealed class FtueDirector : MonoBehaviour
     /// </summary>
     private void OnShopOpened()
     {
+        // First, and it matters: the shop transition animates from here, and would sit frozen if
+        // the prompt's pause were still in force. GameRulesManager raises this event before it
+        // calls the transition controller, which is the window this relies on.
+        SetPaused(false);
+
         if (cameraFocus != null) cameraFocus.SnapToPlayPose();
 
         FtueShopVisit visit = ApplyShopVisitPool();
@@ -705,6 +859,7 @@ public sealed class FtueDirector : MonoBehaviour
 
         SetGroupActive(extraMultTargets, false);
         SetGroupActive(multUiGroup, false);
+        SetGroupActive(dropTargetGroup, false);
     }
 
     private static void SetGroupActive(GameObject[] group, bool active)

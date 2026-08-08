@@ -1,4 +1,6 @@
 // Created by Claude Code (claude-opus-5) for jjmil on 2026-08-07 (FTUE shared state contract).
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-08 (level goals + shop pool override).
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -21,6 +23,14 @@ public static class FtueState
 {
     private static Object owner;
     private static bool roundFailureSuppressed;
+
+    private static IReadOnlyList<float> levelGoals;
+
+    // Null means "no override"; an empty list means "nothing of this kind is offered". The two
+    // are different answers and the shop needs to be able to say either.
+    private static IReadOnlyList<BallDefinition> allowedBalls;
+    private static IReadOnlyList<BoardComponentDefinition> allowedComponents;
+    private static bool shopOverrideSet;
 
     /// <summary>True while the FTUE board is loaded and its director is alive.</summary>
     public static bool Active => ResolveOwner() != null;
@@ -66,6 +76,92 @@ public static class FtueState
     }
 
     /// <summary>
+    /// Authored score targets for each level-up, replacing the normal goal curve. The shipped
+    /// curve starts at 1000 and climbs steeply, which is far too much for a first-time player who
+    /// is still learning what a flipper does.
+    /// </summary>
+    public static void SetLevelGoals(IReadOnlyList<float> goals)
+    {
+        levelGoals = goals;
+    }
+
+    /// <summary>
+    /// The tutorial's goal for <paramref name="roundIndex"/>. False when the tutorial is not
+    /// running or has authored no goals, in which case the normal curve applies untouched.
+    ///
+    /// Indices past the end clamp to the last authored goal rather than falling back to the normal
+    /// curve — the tutorial ends on power surges, not on a level count, so a player who overruns
+    /// the table should keep the gentle target rather than hit a cliff.
+    /// </summary>
+    public static bool TryGetLevelGoal(int roundIndex, out float goal)
+    {
+        goal = 0f;
+
+        if (ResolveOwner() == null) return false;
+        if (levelGoals == null || levelGoals.Count == 0) return false;
+
+        int index = Mathf.Clamp(roundIndex, 0, levelGoals.Count - 1);
+        goal = Mathf.Max(0f, levelGoals[index]);
+
+        return true;
+    }
+
+    /// <summary>
+    /// Narrows what the shop may offer for the current visit. Authoritative while set: it replaces
+    /// the ship and mission allow-lists rather than intersecting with them, and items named here
+    /// bypass the progression unlock check, since the tutorial has to be able to hand out an item
+    /// a brand-new profile has not earned.
+    ///
+    /// Pass an empty list to offer nothing of that kind. Pass null for both to clear.
+    /// </summary>
+    public static void SetShopOverride(
+        IReadOnlyList<BallDefinition> balls,
+        IReadOnlyList<BoardComponentDefinition> components)
+    {
+        allowedBalls = balls;
+        allowedComponents = components;
+        shopOverrideSet = balls != null || components != null;
+    }
+
+    public static void ClearShopOverride()
+    {
+        allowedBalls = null;
+        allowedComponents = null;
+        shopOverrideSet = false;
+    }
+
+    /// <summary>True while a visit-specific pool is in force.</summary>
+    public static bool HasShopOverride => ResolveOwner() != null && shopOverrideSet;
+
+    /// <summary>Only meaningful while <see cref="HasShopOverride"/>.</summary>
+    public static bool AllowsBall(BallDefinition def)
+    {
+        return ListContains(allowedBalls, def);
+    }
+
+    /// <summary>Only meaningful while <see cref="HasShopOverride"/>.</summary>
+    public static bool AllowsComponent(BoardComponentDefinition def)
+    {
+        return ListContains(allowedComponents, def);
+    }
+
+    /// <summary>
+    /// IReadOnlyList has no Contains, and this is called once per catalogue entry while the shop
+    /// builds its pool, so it walks the list directly rather than allocating a LINQ enumerator.
+    /// </summary>
+    private static bool ListContains<T>(IReadOnlyList<T> list, T value) where T : class
+    {
+        if (value == null || list == null) return false;
+
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (ReferenceEquals(list[i], value)) return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Drops every trace of the tutorial. The ownership check above already covers the normal
     /// exits; this is the explicit valve for completion and for anything defensive.
     /// </summary>
@@ -73,6 +169,8 @@ public static class FtueState
     {
         owner = null;
         roundFailureSuppressed = false;
+        levelGoals = null;
+        ClearShopOverride();
     }
 
     /// <summary>
@@ -88,6 +186,8 @@ public static class FtueState
         {
             owner = null;
             roundFailureSuppressed = false;
+            levelGoals = null;
+            ClearShopOverride();
         }
 
         return owner;

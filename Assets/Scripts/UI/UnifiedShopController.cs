@@ -211,6 +211,11 @@ public sealed class UnifiedShopController : MonoBehaviour
 
     public void RerollOffers()
     {
+        // The tutorial hand-picks each shelf and its copy talks about what is on it, so a reroll
+        // would leave the narrator describing items that are no longer there. Guarding the sink
+        // covers both reroll buttons; hiding them is handled where each is wired.
+        if (FtueState.Active) return;
+
         if (coinController == null || coinController.Coins < rerollCost)
         {
             SetPrompt(LocalizedUI.Format("gameplay.shop.notEnoughReroll", "Not enough coins to reroll (${0}).", rerollCost));
@@ -852,6 +857,10 @@ public sealed class UnifiedShopController : MonoBehaviour
         if (rerollButton == null) return;
         rerollButton.onClick.RemoveListener(RerollOffers);
         rerollButton.onClick.AddListener(RerollOffers);
+
+        // Re-evaluated on every shop open, so a normal run later in the same session gets its
+        // reroll back rather than inheriting the tutorial's hidden button.
+        rerollButton.gameObject.SetActive(!FtueState.Active);
     }
 
     private void WireExternalRerollPanel()
@@ -863,6 +872,7 @@ public sealed class UnifiedShopController : MonoBehaviour
         {
             _rerollPanel.RerollButton.onClick.RemoveListener(RerollOffers);
             _rerollPanel.RerollButton.onClick.AddListener(RerollOffers);
+            _rerollPanel.RerollButton.gameObject.SetActive(!FtueState.Active);
         }
 
         if (_rerollPanel.DoneButton != null)

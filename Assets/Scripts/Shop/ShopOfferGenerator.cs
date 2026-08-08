@@ -158,7 +158,14 @@ public sealed class ShopOfferGenerator
                 continue;
             }
 
-            if (hasProgression
+            // An item the tutorial explicitly names skips the unlock gate. It has to: the FTUE
+            // runs on a brand-new profile, and RunPoolFilter sits downstream of this check, so an
+            // allow-list alone can only narrow the unlocked pool and could never add back an item
+            // the player has not earned yet.
+            bool grantedByFtue = FtueState.HasShopOverride && FtueState.AllowsBall(def);
+
+            if (!grantedByFtue
+                && hasProgression
                 && !ProgressionService.Instance.IsBallUnlocked(def.Id))
             {
                 continue;
@@ -181,7 +188,12 @@ public sealed class ShopOfferGenerator
                 continue;
             }
 
-            if (hasProgression
+            // Same bypass as the balls above — this is the one that matters in practice, since
+            // the mult target the tutorial hands out is not in ProgressionConfig.starterComponents.
+            bool grantedByFtue = FtueState.HasShopOverride && FtueState.AllowsComponent(def);
+
+            if (!grantedByFtue
+                && hasProgression
                 && !ProgressionService.Instance.IsComponentUnlocked(def.Id))
             {
                 continue;

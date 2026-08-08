@@ -10,6 +10,47 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.17.4 — FTUE Phase 3: its own level goals, and a hand-picked shop shelf
+_2026-08-08 · Contributor: JJ_
+
+The tutorial now sets its own score targets and controls exactly what each shop visit offers.
+`FTUE_PLAN.md` ticket 9. Four shared files touched, every edit a guard on `FtueState`.
+
+**Level goals.** The shipped curve starts at 1000 and climbs steeply — far too much for a player
+who is still learning what a flipper does. `GoalScaler.GetGoal` now returns the tutorial's authored
+goal when one exists (default 100 / 250 / 600 / 1000, editable on the director).
+
+- Returned *before* the modifier maths, so the numbers a designer types are exactly the numbers the
+  player has to reach with nothing scaling them behind their back.
+- Indices past the end clamp to the last authored goal rather than falling back to the normal
+  curve. The tutorial ends on power surges, not a level count, so a player who overruns the table
+  should keep the gentle target instead of hitting a cliff.
+
+**Shop pool.** `FtueShopVisit` authors one shelf per visit; the director applies it on `ShopOpened`.
+
+- The override is **authoritative**, replacing the ship/mission allow-lists rather than
+  intersecting with them, and an empty list is a real answer meaning "nothing of this kind" — the
+  last visit offers nothing new on purpose. Null still means no override at all.
+- **The unlock bypass had to go upstream.** `ShopOfferGenerator.BuildUnlockedPool` checks
+  progression *before* it consults `RunPoolFilter`, so an allow-list alone can only narrow the
+  unlocked pool and could never add back an item a new profile has not earned. This matters in
+  practice: the mult target is not in `ProgressionConfig.starterComponents`, so without the bypass
+  the first tutorial shop would be empty. `ProgressionConfig` itself is untouched, so live balance
+  is unchanged.
+- Applying on `ShopOpened` lands in time because `GameRulesManager.OpenShop` raises it before the
+  shop canvas activates, and the shelf is only built in `UnifiedShopController.OnEnable`.
+- Cleared on `ShopClosed` — left in place it would also narrow mystery-ball resolution during play,
+  which runs through the same filter.
+- The last authored visit is reused for any visit beyond the list, so a tutorial that runs long
+  keeps the intended shelf rather than reverting to the full pool.
+
+**Reroll** is suppressed during the tutorial: the copy describes what is on the shelf, and a reroll
+would leave the narrator talking about items that are gone. Guarding `RerollOffers` covers both
+reroll buttons; each is also hidden where it is wired, re-evaluated per shop open so a normal run
+later in the same session gets its reroll back.
+
+---
+
 ## 0.17.3 — FTUE Phase 2: launch prompt, the flipper lesson, and the ball coming back
 _2026-08-08 · Contributor: JJ_
 

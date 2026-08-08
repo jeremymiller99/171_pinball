@@ -2,6 +2,7 @@
 // Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-08 (dialogue pipeline, beats 1/1a).
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -93,6 +94,19 @@ public sealed class FtueDirector : MonoBehaviour
         + "to happen. Leave empty to say nothing and just re-show the launch prompt.")]
     [SerializeField] private FtueDialogueLine ballReturnedLine;
 
+    [Header("Level goals")]
+    [Tooltip("Score needed for each level-up, replacing the normal curve for this board only. "
+        + "The shipped curve starts at 1000, which is far too steep for a first-time player. "
+        + "Indices past the end clamp to the last value.")]
+    [SerializeField]
+    private List<float> levelGoals = new List<float> { 100f, 250f, 600f, 1000f };
+
+    [Header("Shop visits")]
+    [Tooltip("What the shelf may offer on each visit, in order. The last entry is reused for any "
+        + "visit beyond the list, so an empty last entry means 'nothing new from here on'. "
+        + "Items listed here bypass the progression unlock check.")]
+    [SerializeField] private List<FtueShopVisit> shopVisits = new List<FtueShopVisit>();
+
     [Header("Safety")]
     [Tooltip("Seconds to wait for the opening camera pan and ship flight before starting the "
         + "tutorial anyway. A tutorial that never starts is worse than one that starts early.")]
@@ -120,6 +134,7 @@ public sealed class FtueDirector : MonoBehaviour
     private bool activePanelBlocksInput;
     private bool sequenceStarted;
     private bool flipperLessonGiven;
+    private int shopVisitIndex;
     private Beat beat = Beat.NotStarted;
 
     private float timeScaleBeforePause = 1f;
@@ -133,6 +148,7 @@ public sealed class FtueDirector : MonoBehaviour
     private void OnEnable()
     {
         FtueState.Activate(this);
+        FtueState.SetLevelGoals(levelGoals);
         PinballLauncher.BallLaunched += OnBallLaunched;
 
         if (saveTheBallTrigger != null) saveTheBallTrigger.BallEntered += OnSaveTheBallTrigger;
@@ -208,6 +224,7 @@ public sealed class FtueDirector : MonoBehaviour
 
         rules.RoundStarted += OnRoundStarted;
         rules.ShopOpened += OnShopOpened;
+        rules.ShopClosed += OnShopClosed;
     }
 
     private void UnsubscribeFromRules()
@@ -216,7 +233,42 @@ public sealed class FtueDirector : MonoBehaviour
 
         cachedRules.RoundStarted -= OnRoundStarted;
         cachedRules.ShopOpened -= OnShopOpened;
+        cachedRules.ShopClosed -= OnShopClosed;
         cachedRules = null;
+    }
+
+    /// <summary>
+    /// Drops the visit's pool restriction. Left in place it would also narrow mystery-ball
+    /// resolution during play, which runs through the same filter.
+    /// </summary>
+    private void OnShopClosed()
+    {
+        FtueState.ClearShopOverride();
+    }
+
+    /// <summary>
+    /// Applies the authored shelf for this visit. Runs before the shop canvas activates —
+    /// GameRulesManager.OpenShop raises ShopOpened first, and the shelf is only built in
+    /// UnifiedShopController.OnEnable — so the override is in force by the time offers generate.
+    /// </summary>
+    private void ApplyShopVisitPool()
+    {
+        if (shopVisits == null || shopVisits.Count == 0)
+        {
+            FtueState.ClearShopOverride();
+            return;
+        }
+
+        // The last entry covers every visit past the authored ones, so a tutorial that runs long
+        // keeps offering whatever was intended for the end rather than reverting to the full pool.
+        int index = Mathf.Clamp(shopVisitIndex, 0, shopVisits.Count - 1);
+        FtueShopVisit visit = shopVisits[index];
+
+        FtueState.SetShopOverride(visit.Balls, visit.Components);
+        shopVisitIndex++;
+
+        Log($"Shop visit {index + 1}: {visit.Components.Count} component(s), "
+            + $"{visit.Balls.Count} ball(s).");
     }
 
     /// <summary>
@@ -230,6 +282,8 @@ public sealed class FtueDirector : MonoBehaviour
     private void OnShopOpened()
     {
         if (cameraFocus != null) cameraFocus.SnapToPlayPose();
+
+        ApplyShopVisitPool();
     }
 
     /// <summary>

@@ -22,6 +22,13 @@ public static class RunPoolFilter
             return false;
         }
 
+        // The tutorial hand-picks each shop visit, so its list replaces the ship/mission
+        // intersection below rather than narrowing it further. Inert on every other board.
+        if (FtueState.HasShopOverride)
+        {
+            return FtueState.AllowsBall(def);
+        }
+
         GameSession session = GameSession.Instance;
         if (session == null)
         {
@@ -52,6 +59,11 @@ public static class RunPoolFilter
         if (def == null)
         {
             return false;
+        }
+
+        if (FtueState.HasShopOverride)
+        {
+            return FtueState.AllowsComponent(def);
         }
 
         GameSession session = GameSession.Instance;

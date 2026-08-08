@@ -10,6 +10,30 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.16.8 — FTUE Phase 1: the legacy tutorial panels stand down on the FTUE board
+_2026-08-07 · Contributor: JJ_
+
+`BasicTutorialController`'s CONTROLS, LEVEL UP and SHOP panels no longer appear on the FTUE board.
+`FTUE_PLAN.md` ticket 4.
+
+- The clash is not hypothetical: that controller gates only on `ProfileService.HasSeen*Tutorial()`,
+  so a **fresh profile** — precisely the FTUE case — is exactly when both it and the FTUE narrator
+  want to run, and its panels would render on top of the dialogue.
+- Guards the three `Show*Panel` sinks rather than their callers, matching the approach in 0.16.7.
+  Beyond covering any future caller, this keeps `PauseAndLockInput` from running at all: it zeroes
+  `timeScale` and disables `PinballLauncher`/`PinballFlipper` **by type-name string search**, which
+  would fight the FTUE's `GameplayInputGate`-based gating.
+- One shared `SuppressedByFtue` property carries the reasoning so it is documented once rather
+  than three times. 19 lines added, none removed.
+- No ordering risk: `RunFlowController` finishes loading the board scene — and with it the
+  director's `OnEnable` — before `StartRun` fires `RoundStarted`, so `FtueState.Active` is already
+  true the first time this controller could act.
+- **Still outstanding (ticket 12/13):** marking `hasSeenFirstPlayTutorial`,
+  `hasSeenLevelUpTutorial` and `hasSeenShopTutorial` as seen when the FTUE completes, so these
+  panels do not appear on the player's first normal run either.
+
+---
+
 ## 0.16.7 — FTUE Phase 1: the tutorial cannot be lost
 _2026-08-07 · Contributor: JJ_
 

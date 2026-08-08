@@ -1,4 +1,5 @@
 // Generated with Claude Code (Opus 4.7) for jjmil on 2026-05-14.
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-07 (stand down for the FTUE board).
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -211,8 +212,22 @@ public sealed class BasicTutorialController : MonoBehaviour
         ShowShopPanel();
     }
 
+    /// <summary>
+    /// True while the FTUE board is running the show. Its narrator covers the controls, the
+    /// level-up and the shop itself, and these panels would land on top of that dialogue — a
+    /// fresh profile is precisely when both of them want to run.
+    ///
+    /// Guarding the three Show* sinks rather than their callers also keeps this controller's
+    /// <see cref="PauseAndLockInput"/> out of the way: it zeroes timeScale and disables
+    /// PinballLauncher/PinballFlipper by type-name search, which would fight the FTUE's own
+    /// input gating.
+    /// </summary>
+    private static bool SuppressedByFtue => FtueState.Active;
+
     private void ShowFirstPlayPanel()
     {
+        if (SuppressedByFtue) return;
+
         PauseAndLockInput();
 
         Canvas canvas = EnsureOverlayCanvas();
@@ -237,6 +252,8 @@ public sealed class BasicTutorialController : MonoBehaviour
 
     private void ShowLevelUpPanel()
     {
+        if (SuppressedByFtue) return;
+
         PauseAndLockInput();
 
         Canvas canvas = EnsureOverlayCanvas();
@@ -260,6 +277,8 @@ public sealed class BasicTutorialController : MonoBehaviour
 
     private void ShowShopPanel()
     {
+        if (SuppressedByFtue) return;
+
         Canvas canvas = EnsureOverlayCanvas();
         _shopPanel = InstantiatePanelPrefab(canvas, shopPanelResource,
                 shopPanelName, shopTitle, shopBody, shopButton, OnShopPanelClosed)

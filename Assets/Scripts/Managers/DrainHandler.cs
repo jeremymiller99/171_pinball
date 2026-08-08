@@ -1,3 +1,4 @@
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-07 (FTUE always returns the ball).
 // Updated with Antigravity by jjmil on 2026-04-07 (removed bankMultiplier).
 // Updated with Claude Code (claude-opus-4-7) by jjmil on 2026-04-20 (removed AmpUpBall drain hook).
 // Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-05 (ball save window).
@@ -66,6 +67,11 @@ public class DrainHandler : MonoBehaviour
     /// in play and it is still inside its save window. Multiball is excluded because a drain with
     /// other balls still out never reaches the save at all — it just despawns.
     /// Drives the board's ball save light.
+    ///
+    /// In the tutorial the save never expires, so the lamp stays lit for the whole ball and the
+    /// player gets to associate the light with the ball coming back. The multiball exclusion still
+    /// applies there: a drain alongside other balls bypasses the save on every board, so the lamp
+    /// would be lying if it stayed on.
     /// </summary>
     public bool IsBallSaveArmed
     {
@@ -82,7 +88,9 @@ public class DrainHandler : MonoBehaviour
                 return false;
             }
 
-            return IsWithinBallSaveWindow(activeBalls[0]);
+            // Mirrors the ballSaved expression in OnBallDrainedRoutine: the lamp and the drain
+            // must agree, or the light promises a save the drain will not honour.
+            return FtueState.SuppressRoundFailure || IsWithinBallSaveWindow(activeBalls[0]);
         }
     }
 
@@ -186,7 +194,14 @@ public class DrainHandler : MonoBehaviour
         }
 
         // Read before the despawn below: it drops this ball's launch timestamp.
-        bool ballSaved = eligibleForBallSave && IsWithinBallSaveWindow(ball);
+        //
+        // The tutorial is unlosable, so a genuine drain there hands the ball back rather
+        // than only inside the 8s save window -- a player sitting on a dialogue box would
+        // otherwise fall out of it and lose the ball the tutorial just promised them.
+        // eligibleForBallSave still gates it either way, so balls that consume themselves by
+        // design (Molotov breaking, Holoball expiring) are not resurrected.
+        bool ballSaved = eligibleForBallSave
+            && (FtueState.SuppressRoundFailure || IsWithinBallSaveWindow(ball));
 
         double bankedPoints = 0d;
         if (scoreManager != null)

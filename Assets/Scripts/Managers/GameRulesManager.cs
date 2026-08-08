@@ -1,3 +1,4 @@
+// Updated by Claude Code (claude-opus-5) for jjmil on 2026-08-07 (FTUE cannot lose the run).
 // Updated by Claude Code (Opus 4.7) for jjmil on 2026-05-13 (run-fail highscore + level reached analytics).
 // Updated by Claude Code (Opus 4.7) for jjmil on 2026-05-13 (shop session analytics + active-play level durations).
 // Updated by Claude Code (Opus 4.7) for jjmil on 2026-05-13 (level completion analytics).
@@ -546,6 +547,23 @@ public class GameRulesManager : MonoBehaviour
 
     public void ShowRoundFailed()
     {
+        // The tutorial cannot be lost. Guarding here rather than at each caller covers all four
+        // routes into failure -- the drain, the empty first spawn in StartRound, the public
+        // TriggerRoundFailed, and PiggyBankBall -- and, just as importantly, keeps the leaderboard
+        // uploads and run analytics further down from firing for a tutorial run.
+        //
+        // DrainHandler hands the ball back on every FTUE drain, so arriving here means the loadout
+        // ran dry regardless. ActivateNextBall spawns a ball at the board's spawn point when the
+        // hand is empty, which recovers the player instead of stranding them with no ball; the
+        // warning is how we find out the save upstream did not hold.
+        if (FtueState.SuppressRoundFailure)
+        {
+            Debug.LogWarning($"{nameof(GameRulesManager)}: FTUE suppressed a round failure; "
+                + "re-serving a ball at the launcher.", this);
+            ballSpawner?.ActivateNextBall();
+            return;
+        }
+
         // Swing the music into its loss variant. Retrying clears this back to 0 in
         // StartRound; quitting to the menu stops the music entirely.
         ServiceLocator.Get<AudioManager>()?.SetMusicLoss(1f);

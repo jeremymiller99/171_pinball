@@ -10,6 +10,36 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.16.7 — FTUE Phase 1: the tutorial cannot be lost
+_2026-08-07 · Contributor: JJ_
+
+The FTUE board now hands the ball back on every drain and never shows the round-failed panel.
+`FTUE_PLAN.md` ticket 3. First ticket to touch shared code; both edits are guards on
+`FtueState.SuppressRoundFailure`, which is false on every other board.
+
+- `GameRulesManager.ShowRoundFailed` early-outs under the FTUE. Guarding the single sink rather
+  than each caller covers **all four** routes into failure — the drain, the empty first spawn in
+  `StartRound`, the public `TriggerRoundFailed`, and `PiggyBankBall`. The plan had listed three;
+  a full grep found the fourth, which is the argument for guarding the sink.
+- The early-out also suppresses the Steam and local leaderboard uploads, `LogRunHighScore` and
+  `LogRunLevelReached` that `ShowRoundFailed` performs — none of which should fire for a tutorial.
+- `DrainHandler` lets the existing ball-save path always fire in the tutorial instead of only
+  inside the 8s window, which a player reading a dialogue box would otherwise fall out of. One
+  clause; `TryReturnSavedBallToHand` already leaves the loadout untouched and re-serves the same
+  ball at the launcher, VFX included. `eligibleForBallSave` still gates it, so balls that consume
+  themselves by design (Molotov, Holoball) are not resurrected.
+- If the save ever fails to hold, the guard re-serves via `ActivateNextBall` — which spawns at the
+  board spawn point when the hand is empty — and logs a warning, rather than stranding the player
+  with no ball. No double-spawn: both callers only reach `ShowRoundFailed` on the branch where
+  they did not spawn.
+- `DrainHandler.IsBallSaveArmed` gets the same guard, so the board's ball save lamp stays lit for
+  the whole ball in the tutorial and the player learns to read it. `BallSaveLight` is unchanged —
+  it already drives off this one property. The multiball exclusion deliberately still applies:
+  a drain alongside other balls bypasses the save on every board including the FTUE, so a lamp
+  that stayed lit there would be promising a save the drain will not honour.
+
+---
+
 ## 0.16.6 — FTUE Phase 1: shared state flag and director shell
 _2026-08-07 · Contributor: JJ_
 

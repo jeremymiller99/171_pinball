@@ -143,12 +143,16 @@ The nine starter components are `DuplicatingTarget`, `DuplicatingBumper`, `Firew
 Recommendation: **(b)**, unless you already wanted the mult target to be a starter for balance
 reasons. It is a slightly larger diff but it cannot leak into live progression.
 
-### 2.4 "Impossible to lose" is three call sites, not one
+### 2.4 "Impossible to lose" is four call sites, not one
+
+_Corrected during ticket 3 — the first draft listed three; a full grep found a fourth._
 
 Round failure can be reached from:
 1. `DrainHandler.OnBallDrainedRoutine` — the `rules.BallsRemaining > 0` else-branch.
 2. `GameRulesManager.StartRound()` — when the first ball spawn returns null.
 3. `GameRulesManager.TriggerRoundFailed()` — public, callable by anything.
+4. **`PiggyBankBall.cs:93`** — `rules?.ShowRoundFailed()`. Not in the tutorial loadout today, but it
+   is exactly the kind of caller that makes per-caller guards the wrong shape.
 
 **Cheapest correct seam: an early-out at the top of `ShowRoundFailed()` itself.** One guard, all
 three paths. It also suppresses the Steam/local leaderboard uploads, `LogRunHighScore` and
@@ -162,14 +166,29 @@ we reuse `DrainHandler.TryReturnSavedBallToHand`, but:
 - **skip `ConsumeActiveBallFromLoadout`** — this is what keeps the loadout non-empty so the re-serve
   actually succeeds. Worth a comment in the diff; it is not obvious.
 
-**Try the cheap version first (Phase 1 note).** If we skip `ConsumeActiveBallFromLoadout`,
-`BallsRemaining` never drops, so `OnBallDrainedRoutine` already takes its `rules.BallsRemaining > 0`
-branch and calls `SpawnBall()` → `ActivateNextBall()`, which spawns at `BoardRoot.SpawnPoint` — the
-launch lane. **Skipping consumption may deliver the re-serve on its own**, making the save-window
-bypass dead code and shrinking the `DrainHandler` diff to a single guard. Test that path before
-writing the explicit return; only add `TryReturnSavedBallToHand` handling if it turns out the
-re-served ball is the *next* ball in the hand rather than the same one (which matters if the
-tutorial hand is not homogeneous).
+**SHIPPED IN TICKET 3 — one clause, not a new code path.** Rather than adding an explicit re-serve,
+the existing ball-save path is simply allowed to always fire in the tutorial:
+
+```csharp
+bool ballSaved = eligibleForBallSave
+    && (FtueState.SuppressRoundFailure || IsWithinBallSaveWindow(ball));
+```
+
+`TryReturnSavedBallToHand` then does the rest exactly as it already does for a real ball save: it
+leaves the loadout untouched (so `BallsRemaining` never drops) and puts a fresh copy of the *same*
+ball at the front of the hand, which the existing `SpawnBall()` below serves at the launcher. The
+ball-saved VFX comes along with it, which is desirable here — the player should notice the ball
+came back.
+
+Keeping `eligibleForBallSave` in the expression is load-bearing: balls that consume themselves by
+design (Molotov breaking, Holoball expiring) must not be resurrected, and that flag is what already
+distinguishes them from a genuine drain.
+
+**Recovery, in case the save ever fails to hold.** `BallSpawner.ActivateNextBall()` spawns a ball at
+`BoardRoot.SpawnPoint` when the hand is empty rather than returning null, so the guard in
+`ShowRoundFailed` re-serves and logs a warning instead of stranding the player with no ball. There
+is no double-spawn risk: both callers only reach `ShowRoundFailed` on the branch where they did
+*not* spawn.
 
 Net effect: in FTUE, every drain silently re-serves at the launcher. Design intent is that the
 player *notices* the ball came back, so the narrator should acknowledge it (see step list §4).

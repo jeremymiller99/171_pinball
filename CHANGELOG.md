@@ -10,6 +10,30 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.16.6 — FTUE Phase 1: shared state flag and director shell
+_2026-08-07 · Contributor: JJ_
+
+Adds the tutorial's shared state contract and the component that owns it. No behaviour changes on
+its own — this is the seam every later FTUE ticket guards against. `FTUE_PLAN.md` ticket 2.
+
+- Two new files, `Assets/Scripts/FTUE/FtueState.cs` and `FtueDirector.cs`. **No existing file was
+  modified**, so the other boards are unaffected by construction.
+- `FtueState.Active` is derived from **ownership of a live `FtueDirector`**, mirroring
+  `GameplayInputGate`, rather than being a plain static bool. The director exists only in
+  Board_FTUE; unloading that board destroys it, and Unity reports a destroyed object as null, so
+  the flag lowers itself.
+- This replaces the plan's original "call `FtueState.Reset()` at the start of every run"
+  requirement, and is stronger: the dangerous case was FTUE → main menu → a normal run inside one
+  session, where a static bool survives. Ownership cannot be *forgotten* on a path nobody wrote
+  cleanup for — a Quit button, an exception mid-beat, a play-mode stop — and it needs no edit to
+  `GameRulesManager`. `Reset()` remains as an explicit valve for the completion beat.
+- `Deactivate` ignores a caller that is not the current owner, so a late teardown from a previous
+  director cannot switch off a live tutorial.
+- Shop pool overrides are deliberately **not** included yet; they land with the code that reads
+  them (ticket 9) rather than sitting unused.
+
+---
+
 ## 0.16.5 — FTUE Phase 0: editor-only launcher for Board_FTUE
 _2026-08-07 · Contributor: JJ_
 

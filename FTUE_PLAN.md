@@ -299,16 +299,23 @@ the headroom shop visit 2 needs to sell a fourth ball.
 
 ### 3.2 `FtueState` — the shared contract
 
-Static, tiny, and the **only** thing shared systems reference. Roughly:
+Static, tiny, and the **only** thing shared systems reference. Keeping it static rather than a
+service means the guards in shared files are one-liners with no null dance and no lookup cost in
+the hot path.
 
-- `Active` — true from FTUE run start to completion.
-- `SuppressRoundFailure` — read by `GameRulesManager.ShowRoundFailed`.
+**Shipped in ticket 2:**
+- `Active` — ownership-derived, see §7a A2. True while a live `FtueDirector` holds it.
+- `SuppressRoundFailure` — read by `GameRulesManager.ShowRoundFailed` (ticket 3). Starts on with
+  `Activate`, since the tutorial is unlosable from its first ball.
+- `Activate(Object)` / `Deactivate(Object)` — ownership lifecycle. `Deactivate` ignores a caller
+  that is not the current owner, so a late teardown cannot switch off a live tutorial.
+- `SetRoundFailureSuppressed(bool)` — lets the completion beat hand failure back to the game.
+- `Reset()` — explicit valve for completion.
+
+**Deferred to ticket 9,** where they are first consumed and therefore first testable:
 - `AllowedComponentsThisVisit` / `AllowedBallsThisVisit` — nullable overrides read by
-  `RunPoolFilter`. Null = no override.
-- `Reset()` — clears everything. Called on completion **and** defensively on quit-to-menu.
-
-Keeping it static rather than a service means the guards in shared files are one-liners with no
-null dance and no lookup cost in the hot path.
+  `RunPoolFilter`. Null = no override. Deliberately *not* added early: unused serialized/static
+  API is dead weight, and the project's compile gate flags unread fields.
 
 ### 3.3 `FtueDirector` — the state machine
 
@@ -537,9 +544,20 @@ The requirement holds either way, because domain reload was never the risky case
 **FTUE → main menu → start a normal run, all within one session** — statics survive that regardless
 of any editor setting.
 
-**Requirement: `FtueState.Reset()` is called at the *start* of every run, not only at FTUE exit.**
-Make the normal path prove itself clean rather than trusting the tutorial to have tidied up. A
-quit-to-menu mid-FTUE must also reset. With that in place, the domain-reload question is moot.
+**RESOLVED IN TICKET 2 — better than the original requirement.** The first draft asked for
+`FtueState.Reset()` at the start of every run, which puts the burden on discipline (and would have
+meant a shared-code edit to `GameRulesManager.StartRun`). The shipped design instead derives
+`Active` from **ownership of a live `FtueDirector`**, mirroring `GameplayInputGate`:
+
+- The director exists only in `Board_FTUE`. `BoardLoader` unloads that scene on the way anywhere
+  else, which destroys it.
+- Unity reports a destroyed object as null, so `FtueState.Active` falls to false **by itself** —
+  including when the tutorial exits through a path nobody wrote cleanup for: a Quit button, an
+  exception mid-beat, a scene load, a play-mode stop.
+
+This is strictly stronger than a reset call, because there is no code path that can *forget* to run
+it, and it needs **no edit to any shared file**. `Reset()` still exists as an explicit valve for the
+completion beat. The domain-reload question is moot either way.
 
 ### A3 — Asset placement can silently add the FTUE to live menus: **REAL LEAK — do not put FTUE assets in `Resources`**
 `StarMapMissionCatalog` self-populates from Resources:

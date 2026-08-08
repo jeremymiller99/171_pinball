@@ -33,7 +33,10 @@ public sealed class FtueDialogueView : MonoBehaviour
         Idle = 0,
         Typing = 1,
         AwaitingAdvance = 2,
-        AwaitingTextEntry = 3
+        AwaitingTextEntry = 3,
+
+        /// <summary>Shown until the director takes it down. Never advances on input.</summary>
+        Persistent = 4
     }
 
     [Header("Text slots — filled at runtime with localized, pre-formatted strings")]
@@ -60,12 +63,19 @@ public sealed class FtueDialogueView : MonoBehaviour
     [Tooltip("Leave EMPTY on the ordinary dialogue prefab. Only the naming panel needs this.")]
     [SerializeField] private TMP_InputField nameInput;
 
+    [Header("Optional")]
+    [Tooltip("The full-screen transparent Image that stops clicks reaching the board. Wire it so "
+        + "persistent prompts can switch it off — those stay on screen while the player is "
+        + "expected to be playing, and must not swallow their input.")]
+    [SerializeField] private GameObject inputBlocker;
+
     // Cleared as soon as they fire, so a click and a key press in the same frame cannot
     // double-advance a beat.
     private Action pendingAdvance;
     private Action<string> pendingSubmit;
 
     private Phase phase = Phase.Idle;
+    private bool persistent;
     private int totalCharacters;
     private float revealedCharacters;
 
@@ -81,11 +91,33 @@ public sealed class FtueDialogueView : MonoBehaviour
     {
         pendingAdvance = onAdvance;
         pendingSubmit = null;
+        persistent = false;
 
         if (nameInput != null) nameInput.gameObject.SetActive(false);
+        SetBlockerActive(true);
 
         ApplyHeader(speaker, continuePrompt);
         WireContinueButton(RequestAdvance);
+        BeginTypewriter(body);
+    }
+
+    /// <summary>
+    /// Shows a line that stays up until the director removes it — the launch prompt, which has to
+    /// remain readable while the player finds the key and pulls the plunger.
+    ///
+    /// It does not advance on input and it switches the click blocker off, because the player is
+    /// expected to be playing underneath it. The typewriter still runs.
+    /// </summary>
+    public void BindPersistent(string speaker, string body)
+    {
+        pendingAdvance = null;
+        pendingSubmit = null;
+        persistent = true;
+
+        if (nameInput != null) nameInput.gameObject.SetActive(false);
+        SetBlockerActive(false);
+
+        ApplyHeader(speaker, null);
         BeginTypewriter(body);
     }
 
@@ -99,7 +131,9 @@ public sealed class FtueDialogueView : MonoBehaviour
     {
         pendingAdvance = null;
         pendingSubmit = onSubmit;
+        persistent = false;
 
+        SetBlockerActive(true);
         ApplyHeader(speaker, confirmLabel);
         WireContinueButton(Submit);
 
@@ -170,6 +204,10 @@ public sealed class FtueDialogueView : MonoBehaviour
     private void Update()
     {
         if (phase == Phase.Typing) TickTypewriter();
+
+        // A persistent prompt never advances on input: the keys the player is pressing under it
+        // are the ones it is telling them to press.
+        if (persistent) return;
 
         // The naming panel owns the keyboard once its field is focused, so any-input advancing is
         // deliberately not offered in that phase.
@@ -242,6 +280,13 @@ public sealed class FtueDialogueView : MonoBehaviour
 
     private void EnterAwaitingPhase()
     {
+        if (persistent)
+        {
+            SetPhase(Phase.Persistent);
+            ShowContinuePrompt(false);
+            return;
+        }
+
         bool wantsTextEntry = pendingSubmit != null && nameInput != null;
         SetPhase(wantsTextEntry ? Phase.AwaitingTextEntry : Phase.AwaitingAdvance);
         ShowContinuePrompt(true);
@@ -274,6 +319,11 @@ public sealed class FtueDialogueView : MonoBehaviour
     private void ShowContinuePrompt(bool visible)
     {
         if (continuePromptLabel != null) continuePromptLabel.gameObject.SetActive(visible);
+    }
+
+    private void SetBlockerActive(bool active)
+    {
+        if (inputBlocker != null) inputBlocker.SetActive(active);
     }
 
     private void WireContinueButton(Action onClick)

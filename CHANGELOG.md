@@ -10,6 +10,52 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.17.3 — FTUE Phase 2: launch prompt, the flipper lesson, and the ball coming back
+_2026-08-08 · Contributor: JJ_
+
+Beats 2 through 4a. The player is now taught to launch, to save the ball, and that a lost ball is
+handed straight back. `FTUE_PLAN.md` ticket 8. One new file plus the director and the dialogue
+view; **no existing file modified**.
+
+- **Persistent prompts.** The launch prompt has to stay readable while the player finds the key
+  and pulls the plunger, so `FtueDialogueView.BindPersistent` types out and then simply stays.
+  It never advances on input — the keys being pressed under it are the ones it is asking for — and
+  it switches the click blocker off, since the player is meant to be playing underneath it.
+  Reuses the existing prefab rather than needing a third one.
+- The director tracks whether the active panel is modal, because a persistent prompt must **not**
+  stand board input down. `GameplayInputGate` keys on the owner, so this is one recomputed state
+  rather than paired Block/Unblock calls.
+- `FtueBallTrigger` is armed per launch and disarms itself on entry, so the flipper lesson happens
+  once, on the way down, rather than on every later bounce through the same plane. It is only
+  armed while the lesson is still owed, and survives a drain — a ball down an outlane never
+  reaches the volume, and the beat must not be lost with it.
+- The flipper lesson **pauses** the game. It is a lesson about a ball that is currently falling,
+  and it stops being one if the ball drains while it is being read. `OnDisable` restores
+  `timeScale` ahead of everything else: a board unloaded mid-beat would otherwise freeze the rest
+  of the session. Restoring a stored 0 is also guarded against.
+- The ball-returned line deliberately does **not** pause. `DrainHandler` is mid-coroutine at that
+  point and part of it runs on scaled time, so freezing underneath it risks stalling the very
+  hand-back the line is announcing.
+- Prompts name their keys through `FtueBindings`, so the copy says whatever Launch and the
+  flippers are actually bound to.
+- **The launch prompt survives the launch.** Launch shares its key with "any input dismisses a
+  line", so the tap that closed the previous line could roll straight into a plunger pull and the
+  prompt would be gone before it had been read. Two fixes, because the symptom and the cause are
+  different problems:
+  - It now closes when the ball reaches the **playfield** — a second `FtueBallTrigger` placed past
+    the portal exit — rather than the instant it is launched, so it stays readable through the
+    lane. With no trigger wired it falls back to closing on launch rather than staying up forever.
+  - Board input is held for a moment (`launchInputLockoutSeconds`, default 0.4s unscaled) as the
+    prompt appears, so the residual keypress cannot charge the plunger. Deliberately scoped to
+    this beat: a blanket lockout after every line would kill the flippers right after the flipper
+    lesson, with the ball already falling.
+  - `IPortalTeleportListener` was the obvious hook and turned out to be the wrong one — it is
+    implemented on the ball and resolved via `GetComponent`, so there is nothing global to
+    subscribe to. A trigger volume also keeps "the playfield" a position that can be moved rather
+    than something welded to one portal.
+
+---
+
 ## 0.17.2 — FTUE Phase 2: camera focus on the launcher
 _2026-08-08 · Contributor: JJ_
 

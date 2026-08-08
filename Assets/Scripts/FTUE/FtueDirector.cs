@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// Runs the tutorial. One of these lives in the Board_FTUE scene and nowhere else — its presence
@@ -60,6 +61,38 @@ public sealed class FtueDirector : MonoBehaviour
         + "shown the launcher. Position it where you want the CAMERA, not the rig.")]
     [SerializeField] private Transform launcherFocusPoint;
 
+    [Tooltip("Stays on screen until the ball reaches the playfield. {1} is the launch key.")]
+    [SerializeField] private FtueDialogueLine launchPromptLine;
+
+    [Tooltip("The Launch action, read at runtime so the prompt names whatever it is bound to.")]
+    [SerializeField] private InputActionReference launchAction;
+
+    [Tooltip("Trigger volume just past the portal exit, where the ball arrives in the playfield. "
+        + "The launch prompt stays up until the ball gets there, so an accidental tap cannot "
+        + "close it before it has been read. Left empty, the prompt closes on launch instead.")]
+    [SerializeField] private FtueBallTrigger playfieldEntryTrigger;
+
+    [Tooltip("Board input is held for this long when the launch prompt appears, so the keypress "
+        + "that dismissed the previous line cannot roll straight into a launch. Unscaled "
+        + "seconds; 0 disables it.")]
+    [SerializeField] private float launchInputLockoutSeconds = 0.4f;
+
+    [Header("Beat 4 — save the ball")]
+    [Tooltip("Trigger volume below the bumpers and above the flippers. Needs FtueBallTrigger.")]
+    [SerializeField] private FtueBallTrigger saveTheBallTrigger;
+
+    [Tooltip("Pauses the game when the ball falls past the trigger. {1} and {2} are the left and "
+        + "right flipper keys.")]
+    [SerializeField] private FtueDialogueLine flipperLessonLine;
+
+    [SerializeField] private InputActionReference leftFlipperAction;
+    [SerializeField] private InputActionReference rightFlipperAction;
+
+    [Header("Beat 4a — the ball comes back")]
+    [Tooltip("Played when a drained ball is handed back, so the player understands it was meant "
+        + "to happen. Leave empty to say nothing and just re-show the launch prompt.")]
+    [SerializeField] private FtueDialogueLine ballReturnedLine;
+
     [Header("Safety")]
     [Tooltip("Seconds to wait for the opening camera pan and ship flight before starting the "
         + "tutorial anyway. A tutorial that never starts is worse than one that starts early.")]
@@ -69,9 +102,31 @@ public sealed class FtueDirector : MonoBehaviour
     [Tooltip("Logs beat transitions. Useful while wiring the board; harmless to leave on.")]
     [SerializeField] private bool logStateChanges = true;
 
+    private enum Beat
+    {
+        NotStarted = 0,
+        Opening = 1,
+        AwaitingLaunch = 2,
+        BallInPlay = 3,
+        FlipperLesson = 4,
+
+        /// <summary>Phase 2 taught. Free play until the shop beats take over.</summary>
+        Free = 5
+    }
+
     private GameRulesManager cachedRules;
+    private DrainHandler cachedDrain;
     private FtueDialogueView activePanel;
+    private bool activePanelBlocksInput;
     private bool sequenceStarted;
+    private bool flipperLessonGiven;
+    private Beat beat = Beat.NotStarted;
+
+    private float timeScaleBeforePause = 1f;
+    private bool pausedByDirector;
+
+    private bool launchLockoutActive;
+    private Coroutine launchLockoutRoutine;
 
     // OnEnable/OnDisable rather than Awake/OnDestroy: toggling the component off is a reasonable
     // way to disable the tutorial while working in the scene, and it should lower the flag too.
@@ -79,6 +134,10 @@ public sealed class FtueDirector : MonoBehaviour
     {
         FtueState.Activate(this);
         PinballLauncher.BallLaunched += OnBallLaunched;
+
+        if (saveTheBallTrigger != null) saveTheBallTrigger.BallEntered += OnSaveTheBallTrigger;
+        if (playfieldEntryTrigger != null) playfieldEntryTrigger.BallEntered += OnPlayfieldEntered;
+
         Log($"Tutorial active on '{gameObject.scene.name}'.");
     }
 
@@ -88,9 +147,20 @@ public sealed class FtueDirector : MonoBehaviour
         // on every launch for the rest of the session.
         PinballLauncher.BallLaunched -= OnBallLaunched;
 
+        if (saveTheBallTrigger != null) saveTheBallTrigger.BallEntered -= OnSaveTheBallTrigger;
+        if (playfieldEntryTrigger != null) playfieldEntryTrigger.BallEntered -= OnPlayfieldEntered;
+
+        launchLockoutActive = false;
+        launchLockoutRoutine = null;
+
         UnsubscribeFromRules();
+        UnsubscribeFromDrain();
         DismissActivePanel();
         RefreshInputBlock();
+
+        // Ahead of everything else that could go wrong: a board unloaded while a beat had the game
+        // paused would leave timeScale at 0 and freeze the rest of the session.
+        SetPaused(false);
 
         FtueState.Deactivate(this);
         Log("Tutorial released.");
@@ -102,6 +172,28 @@ public sealed class FtueDirector : MonoBehaviour
     private void Update()
     {
         TrySubscribeToRules();
+        TrySubscribeToDrain();
+    }
+
+    private void TrySubscribeToDrain()
+    {
+        DrainHandler drain = ServiceLocator.Get<DrainHandler>();
+        if (drain == cachedDrain) return;
+
+        UnsubscribeFromDrain();
+
+        cachedDrain = drain;
+        if (drain == null) return;
+
+        drain.DrainBankCompleted += OnDrainBankCompleted;
+    }
+
+    private void UnsubscribeFromDrain()
+    {
+        if (cachedDrain == null) return;
+
+        cachedDrain.DrainBankCompleted -= OnDrainBankCompleted;
+        cachedDrain = null;
     }
 
     private void TrySubscribeToRules()
@@ -141,12 +233,77 @@ public sealed class FtueDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// The ball is away, so the launcher no longer needs the camera. Also covers the player who
-    /// launches before the prompt has finished being read.
+    /// Beat 3. The ball is away: drop the prompt and hand the camera back. Also covers the player
+    /// who launches before the prompt has finished typing.
     /// </summary>
     private void OnBallLaunched(GameObject launched)
     {
         if (cameraFocus != null) cameraFocus.ReturnToPlayPose();
+
+        if (beat != Beat.AwaitingLaunch) return;
+
+        beat = Beat.BallInPlay;
+
+        // The prompt deliberately survives the launch — OnPlayfieldEntered takes it down once the
+        // ball is actually in play. Without a trigger wired there is nothing else to close it, so
+        // fall back to closing here rather than leaving it up forever.
+        if (playfieldEntryTrigger == null)
+        {
+            DismissActivePanel();
+            RefreshInputBlock();
+        }
+
+        // Armed per launch, and only while the lesson is still owed. A ball that drains straight
+        // down an outlane never reaches the volume, so the beat has to survive the retry.
+        if (!flipperLessonGiven && saveTheBallTrigger != null) saveTheBallTrigger.Arm();
+
+        Log("Ball launched.");
+    }
+
+    /// <summary>
+    /// Beat 4. The ball is on its way down to the flippers. Freeze it there and teach the save.
+    /// </summary>
+    private void OnSaveTheBallTrigger()
+    {
+        if (flipperLessonGiven) return;
+        if (beat != Beat.BallInPlay) return;
+
+        flipperLessonGiven = true;
+        beat = Beat.FlipperLesson;
+
+        // Paused rather than merely gated: the lesson is about a ball that is currently falling,
+        // and it stops being a lesson if the ball drains while it is being read.
+        SetPaused(true);
+
+        ShowLine(flipperLessonLine, OnFlipperLessonDismissed,
+            FtueBindings.Display(leftFlipperAction),
+            FtueBindings.Display(rightFlipperAction));
+
+        Log("Flipper lesson.");
+    }
+
+    private void OnFlipperLessonDismissed()
+    {
+        SetPaused(false);
+        beat = Beat.Free;
+        Log("Flipper lesson complete; free play.");
+    }
+
+    /// <summary>
+    /// Beat 4a. The ball drained and the tutorial handed it straight back. Say so — otherwise the
+    /// most likely reading is that something went wrong — then put the launch prompt back up.
+    /// </summary>
+    private void OnDrainBankCompleted()
+    {
+        if (beat == Beat.NotStarted || beat == Beat.Opening) return;
+
+        // The lesson is still owed if they drained before ever reaching the trigger; re-arming
+        // happens on the next launch, so make sure the stale arming does not linger.
+        if (!flipperLessonGiven && saveTheBallTrigger != null) saveTheBallTrigger.Disarm();
+
+        // No pause here. The drain routine is mid-coroutine and part of it runs on scaled time, so
+        // freezing the game underneath it risks stalling the hand-back this line is announcing.
+        ShowLine(ballReturnedLine, BeginLaunchBeat);
     }
 
     private void OnRoundStarted()
@@ -216,12 +373,68 @@ public sealed class FtueDirector : MonoBehaviour
     {
         DismissActivePanel();
         RefreshInputBlock();
+        BeginLaunchBeat();
+    }
 
-        // Beat 2's camera half. The prompt that goes with it, and the rest of the beats, arrive in
-        // the next ticket; the camera comes back on its own when the ball is launched.
+    /// <summary>
+    /// Beat 2. Camera to the launcher, prompt up, and board input deliberately left open — the
+    /// whole point is that the player can pull the plunger while reading it.
+    /// </summary>
+    private void BeginLaunchBeat()
+    {
+        beat = Beat.AwaitingLaunch;
+
         if (cameraFocus != null) cameraFocus.FocusOn(launcherFocusPoint);
 
-        Log("Opening beats complete; focusing the launcher.");
+        ShowPersistentLine(launchPromptLine, FtueBindings.Display(launchAction));
+
+        // The prompt comes down when the ball reaches the playfield rather than the moment it is
+        // launched, so it stays readable through the lane and the portal.
+        if (playfieldEntryTrigger != null) playfieldEntryTrigger.Arm();
+
+        StartLaunchLockout();
+        Log("Awaiting launch.");
+    }
+
+    /// <summary>
+    /// Holds board input for a moment as the prompt appears. Launch shares its key with "any input
+    /// dismisses a line", so without this the same tap that closed the previous line rolls
+    /// straight into a plunger pull and the prompt is gone before it can be read.
+    ///
+    /// Scoped to this beat on purpose. A blanket lockout after every line would kill the flippers
+    /// for a moment right after the flipper lesson, with the ball already falling.
+    /// </summary>
+    private void StartLaunchLockout()
+    {
+        if (launchInputLockoutSeconds <= 0f) return;
+
+        if (launchLockoutRoutine != null) StopCoroutine(launchLockoutRoutine);
+        launchLockoutRoutine = StartCoroutine(LaunchLockoutRoutine());
+    }
+
+    private IEnumerator LaunchLockoutRoutine()
+    {
+        launchLockoutActive = true;
+        RefreshInputBlock();
+
+        // Unscaled: this window has to elapse even if a beat left the game paused.
+        yield return new WaitForSecondsRealtime(launchInputLockoutSeconds);
+
+        launchLockoutActive = false;
+        launchLockoutRoutine = null;
+        RefreshInputBlock();
+    }
+
+    /// <summary>
+    /// The ball is out of the lane and into play, so the launch prompt has done its job.
+    /// </summary>
+    private void OnPlayfieldEntered()
+    {
+        if (beat != Beat.BallInPlay && beat != Beat.AwaitingLaunch) return;
+
+        DismissActivePanel();
+        RefreshInputBlock();
+        Log("Ball reached the playfield.");
     }
 
     /// <summary>
@@ -274,6 +487,47 @@ public sealed class FtueDirector : MonoBehaviour
             });
     }
 
+    /// <summary>
+    /// Shows a line that stays up until a later beat replaces it, and leaves board input alone so
+    /// the player can act on what it is telling them.
+    /// </summary>
+    private void ShowPersistentLine(FtueDialogueLine line, params object[] extraArgs)
+    {
+        if (line == null || line.IsEmpty) return;
+
+        FtueDialogueView panel = SpawnPanel(dialoguePanelPrefab);
+        if (panel == null) return;
+
+        activePanelBlocksInput = false;
+        RefreshInputBlock();
+
+        string speaker = ResolveSpeakerName();
+        panel.BindPersistent(speaker, line.Resolve(BuildArgs(speaker, extraArgs)));
+    }
+
+    /// <summary>
+    /// Freezes the board for a beat that has to be read before the ball moves again. Paired with
+    /// the restore in OnDisable, because a board unloaded while paused would otherwise leave
+    /// timeScale at 0 and freeze the rest of the session.
+    /// </summary>
+    private void SetPaused(bool paused)
+    {
+        if (paused == pausedByDirector) return;
+
+        if (paused)
+        {
+            timeScaleBeforePause = Time.timeScale;
+            Time.timeScale = 0f;
+            pausedByDirector = true;
+            return;
+        }
+
+        // A stored 0 would mean something else had already paused when the beat began; restoring
+        // it verbatim would leave the game frozen with nothing left to un-freeze it.
+        Time.timeScale = timeScaleBeforePause > 0f ? timeScaleBeforePause : 1f;
+        pausedByDirector = false;
+    }
+
     private FtueDialogueView SpawnPanel(FtueDialogueView prefab)
     {
         if (prefab == null)
@@ -289,6 +543,9 @@ public sealed class FtueDirector : MonoBehaviour
         // board unloads. The prefab root carries its own Screen Space - Overlay canvas, which
         // ignores the parent transform, so nesting it here does not affect how it renders.
         activePanel = Instantiate(prefab, transform);
+
+        // Modal by default; ShowPersistentLine clears this straight after.
+        activePanelBlocksInput = true;
         RefreshInputBlock();
 
         return activePanel;
@@ -296,6 +553,8 @@ public sealed class FtueDirector : MonoBehaviour
 
     private void DismissActivePanel()
     {
+        activePanelBlocksInput = false;
+
         if (activePanel == null) return;
 
         Destroy(activePanel.gameObject);
@@ -309,7 +568,11 @@ public sealed class FtueDirector : MonoBehaviour
     /// </summary>
     private void RefreshInputBlock()
     {
-        bool shouldBlock = activePanel != null;
+        // A persistent prompt is on screen precisely while the player is meant to be playing, so
+        // it must not stand board input down the way a modal line does. The launch lockout is the
+        // one exception: a brief hold while the prompt appears.
+        bool shouldBlock = launchLockoutActive
+            || (activePanel != null && activePanelBlocksInput);
 
         if (shouldBlock) GameplayInputGate.Block(this);
         else GameplayInputGate.Unblock(this);

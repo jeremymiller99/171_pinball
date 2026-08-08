@@ -23381,7 +23381,7 @@ Transform:
   m_GameObject: {fileID: 1501996922}
   serializedVersion: 2
   m_LocalRotation: {x: 0.5336145, y: 0, z: 0, w: 0.84572786}
-  m_LocalPosition: {x: 14.4, y: 21.2, z: -25.1}
+  m_LocalPosition: {x: 14.4, y: 20.61, z: -26.34}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -24077,6 +24077,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3f89df3362741d64e809018a4b0f5e3e, type: 3}
+--- !u!1 &1548764693 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8767137395333737936, guid: 3f89df3362741d64e809018a4b0f5e3e, type: 3}
+  m_PrefabInstance: {fileID: 1548764692}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1565367342
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -28301,6 +28306,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3f89df3362741d64e809018a4b0f5e3e, type: 3}
+--- !u!1 &1898677230 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8767137395333737936, guid: 3f89df3362741d64e809018a4b0f5e3e, type: 3}
+  m_PrefabInstance: {fileID: 1898677229}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1905057370
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -29023,6 +29033,29 @@ MonoBehaviour:
   ballReturnedLine:
     localizationKey: 
     englishText: You may have lost the battle but not the war. Try again.
+  shopAvailableLine:
+    localizationKey: 
+    englishText: You've generated enough power to activate the cargo beacon. Press
+      {1} to activate.
+  shopAvailableRepeatLine:
+    localizationKey: 
+    englishText: 
+  shopAction: {fileID: 1064514270297456241, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  placeableMultTarget: {fileID: 1898677230}
+  extraMultTargets:
+  - {fileID: 1979287572}
+  - {fileID: 1548764693}
+  multUiGroup:
+  - {fileID: 4988519397409545554}
+  - {fileID: 206167411}
+  - {fileID: 1029056935}
+  - {fileID: 919132149023231254}
+  componentPlacedLines:
+  - localizationKey: 
+    englishText: Some components award "Multiplier", which increases the power generation
+      of the whole machine!
+  - localizationKey: 
+    englishText: I've added a few more to get you off the ground.
   levelGoals:
   - 100
   - 250
@@ -29033,14 +29066,22 @@ MonoBehaviour:
     - {fileID: 11400000, guid: adf1dac8a000a604cbd27f9ebf5c24f2, type: 2}
     balls: []
     pickOne: 0
+    openingLines:
+    - localizationKey: 
+      englishText: Click to inspect. Drag and drop. Confirm to buy
   - components: []
     balls:
     - {fileID: 11400000, guid: c1d8ad878e4616b4bbd42ef637c67545, type: 2}
     - {fileID: 11400000, guid: 4b14eb5ea0e14ea469f9dc777aade6eb, type: 2}
     pickOne: 1
+    openingLines:
+    - localizationKey: 
+      englishText: Pinballs = health. Lose them all the board can no longer generate
+        power.
   - components: []
     balls: []
     pickOne: 0
+    openingLines: []
   maxIntroWaitSeconds: 15
   logStateChanges: 1
 --- !u!4 &1932396897
@@ -29906,6 +29947,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3f89df3362741d64e809018a4b0f5e3e, type: 3}
+--- !u!1 &1979287572 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8767137395333737936, guid: 3f89df3362741d64e809018a4b0f5e3e, type: 3}
+  m_PrefabInstance: {fileID: 1979287571}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1991100336
 PrefabInstance:
   m_ObjectHideFlags: 0

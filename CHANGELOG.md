@@ -10,6 +10,35 @@ Entries below 0.4.6 were reconstructed retroactively from git history (commits `
 
 ---
 
+## 0.17.6 — FTUE Phase 3: the shop beats and the mult-target reveal
+_2026-08-08 · Contributor: JJ_
+
+Beats 5 through 9. The tutorial now prompts the shop, walks the player through their first
+purchase, and hands them the multiplier. `FTUE_PLAN.md` ticket 11. **No existing file modified** —
+everything lands in the director and the visit type.
+
+- **Placement is constrained by timing, not by a rule.** The one target the player places into is
+  hidden at board start and revealed when the shop first becomes available. Placement discovery
+  runs in `UnifiedShopController.OnEnable` and ignores inactive objects, so at that moment it is
+  the only component of its type on the board — and therefore the only place the purchase can
+  land. This is what let the planned `FtuePlacementSlot` marker and its edit to
+  `ShopComponentPlacementController.IsValidPlacementTarget` be dropped entirely.
+- Revealed on `ShopAvailabilityChanged` rather than `ShopOpened`. Both are early enough, but the
+  former fires at the level-up, long before the player presses the key, which leaves real margin
+  instead of relying on one event ordering.
+- The spare targets stay hidden until the purchase completes — the "I've added a few more" beat —
+  so they cannot be dropped onto during the lesson. The mult bar and mult screen are revealed at
+  the same moment, once the readout means something.
+- **The shop-available prompt is persistent, not modal.** A modal panel stands board input down,
+  and `ShopButton3D` reads the same gate — so a modal line telling the player to press the shop
+  key would have blocked the very button it names.
+- Opening board state is applied in code rather than by saving the scene with everything switched
+  off, so the objects stay visible and editable while authoring.
+- Visit copy lives on `FtueShopVisit` next to that visit's shelf, so the lines and the items they
+  describe cannot drift apart. Lines play in sequence, each dismissed at the player's own pace.
+
+---
+
 ## 0.17.5 — FTUE Phase 3: "pick one" shop visits
 _2026-08-08 · Contributor: JJ_
 

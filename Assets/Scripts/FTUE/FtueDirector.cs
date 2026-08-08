@@ -94,6 +94,36 @@ public sealed class FtueDirector : MonoBehaviour
         + "to happen. Leave empty to say nothing and just re-show the launch prompt.")]
     [SerializeField] private FtueDialogueLine ballReturnedLine;
 
+    [Header("Beat 5 — the shop opens up")]
+    [Tooltip("Persistent prompt shown the first time the shop becomes available. {1} is the shop "
+        + "key. Persistent on purpose: a modal panel would block the very button it names.")]
+    [SerializeField] private FtueDialogueLine shopAvailableLine;
+
+    [Tooltip("Shown on later level-ups instead of the first-time line. Leave empty to reuse it.")]
+    [SerializeField] private FtueDialogueLine shopAvailableRepeatLine;
+
+    [Tooltip("The shop hotkey action, so the prompt names whatever it is bound to.")]
+    [SerializeField] private InputActionReference shopAction;
+
+    [Header("Beats 5a / 7 — mult targets")]
+    [Tooltip("The ONE target the player places into on the first shop visit. Hidden until that "
+        + "shop opens, which is what makes it the only place the purchase can land — placement "
+        + "discovery ignores inactive objects.")]
+    [SerializeField] private GameObject placeableMultTarget;
+
+    [Tooltip("The rest of the targets. Revealed after the purchase — the 'I've added a few more' "
+        + "beat — so they cannot be dropped onto during the lesson.")]
+    [SerializeField] private GameObject[] extraMultTargets;
+
+    [Tooltip("Mult bar / mult screen objects. Hidden at board start to cut clutter, revealed "
+        + "once the player owns a multiplier and the readout means something.")]
+    [SerializeField] private GameObject[] multUiGroup;
+
+    [Tooltip("Played after the mult target is placed. Explain the multiplier, then hand over the "
+        + "spare targets.")]
+    [SerializeField] private List<FtueDialogueLine> componentPlacedLines =
+        new List<FtueDialogueLine>();
+
     [Header("Level goals")]
     [Tooltip("Score needed for each level-up, replacing the normal curve for this board only. "
         + "The shipped curve starts at 1000, which is far too steep for a first-time player. "
@@ -137,6 +167,8 @@ public sealed class FtueDirector : MonoBehaviour
     private bool sequenceStarted;
     private bool flipperLessonGiven;
     private int shopVisitIndex;
+    private int shopAvailableCount;
+    private bool multTargetRevealed;
     private Beat beat = Beat.NotStarted;
 
     private float timeScaleBeforePause = 1f;
@@ -151,6 +183,7 @@ public sealed class FtueDirector : MonoBehaviour
     {
         FtueState.Activate(this);
         FtueState.SetLevelGoals(levelGoals);
+        ApplyOpeningBoardState();
         PinballLauncher.BallLaunched += OnBallLaunched;
 
         if (saveTheBallTrigger != null) saveTheBallTrigger.BallEntered += OnSaveTheBallTrigger;
@@ -223,10 +256,30 @@ public sealed class FtueDirector : MonoBehaviour
     /// </summary>
     private void OnOfferPurchased(ShopOffer purchased)
     {
-        if (!currentVisitIsPickOne) return;
+        if (currentVisitIsPickOne)
+        {
+            currentVisitIsPickOne = false;
+            ClearRemainingOffers();
+        }
 
-        currentVisitIsPickOne = false;
-        ClearRemainingOffers();
+        if (purchased != null && purchased.Type == ShopOffer.OfferType.BoardComponent)
+        {
+            OnMultTargetPlaced();
+        }
+    }
+
+    /// <summary>
+    /// Beat 7. The player owns a multiplier now, so the readout starts meaning something and the
+    /// spare targets can come out — held back until this moment so they could not be dropped onto
+    /// during the lesson.
+    /// </summary>
+    private void OnMultTargetPlaced()
+    {
+        SetGroupActive(multUiGroup, true);
+        SetGroupActive(extraMultTargets, true);
+
+        Log("Mult target placed: mult UI and spare targets revealed.");
+        ShowLineSequence(componentPlacedLines, null);
     }
 
     private void ClearRemainingOffers()
@@ -282,6 +335,7 @@ public sealed class FtueDirector : MonoBehaviour
         rules.RoundStarted += OnRoundStarted;
         rules.ShopOpened += OnShopOpened;
         rules.ShopClosed += OnShopClosed;
+        rules.ShopAvailabilityChanged += OnShopAvailabilityChanged;
     }
 
     private void UnsubscribeFromRules()
@@ -291,7 +345,40 @@ public sealed class FtueDirector : MonoBehaviour
         cachedRules.RoundStarted -= OnRoundStarted;
         cachedRules.ShopOpened -= OnShopOpened;
         cachedRules.ShopClosed -= OnShopClosed;
+        cachedRules.ShopAvailabilityChanged -= OnShopAvailabilityChanged;
         cachedRules = null;
+    }
+
+    /// <summary>
+    /// Beats 5 and 5a. The shop has lit up: prompt the player, and quietly put out the one target
+    /// they will be placing into.
+    /// </summary>
+    private void OnShopAvailabilityChanged(bool available)
+    {
+        if (!available) return;
+
+        shopAvailableCount++;
+
+        // 5a, and the timing is the whole trick. Placement discovery runs in
+        // UnifiedShopController.OnEnable and ignores inactive objects, so revealing the target now
+        // — long before the player presses the shop key — makes it the only component of its type
+        // on the board and therefore the only place the purchase can be dropped. No marker
+        // component, no change to the placement rules.
+        if (!multTargetRevealed && placeableMultTarget != null)
+        {
+            multTargetRevealed = true;
+            placeableMultTarget.SetActive(true);
+            Log("Revealed the placeable mult target.");
+        }
+
+        bool firstTime = shopAvailableCount <= 1;
+        FtueDialogueLine line = firstTime || shopAvailableRepeatLine.IsEmpty
+            ? shopAvailableLine
+            : shopAvailableRepeatLine;
+
+        // Persistent, not modal: the line is telling the player to press the shop key, and a modal
+        // panel stands board input down — including ShopButton3D, which reads the same gate.
+        ShowPersistentLine(line, FtueBindings.Display(shopAction));
     }
 
     /// <summary>
@@ -308,13 +395,13 @@ public sealed class FtueDirector : MonoBehaviour
     /// GameRulesManager.OpenShop raises ShopOpened first, and the shelf is only built in
     /// UnifiedShopController.OnEnable — so the override is in force by the time offers generate.
     /// </summary>
-    private void ApplyShopVisitPool()
+    private FtueShopVisit ApplyShopVisitPool()
     {
         if (shopVisits == null || shopVisits.Count == 0)
         {
             FtueState.ClearShopOverride();
             currentVisitIsPickOne = false;
-            return;
+            return null;
         }
 
         // The last entry covers every visit past the authored ones, so a tutorial that runs long
@@ -328,6 +415,8 @@ public sealed class FtueDirector : MonoBehaviour
 
         Log($"Shop visit {index + 1}: {visit.Components.Count} component(s), "
             + $"{visit.Balls.Count} ball(s), pickOne={visit.PickOne}.");
+
+        return visit;
     }
 
     /// <summary>
@@ -342,7 +431,13 @@ public sealed class FtueDirector : MonoBehaviour
     {
         if (cameraFocus != null) cameraFocus.SnapToPlayPose();
 
-        ApplyShopVisitPool();
+        FtueShopVisit visit = ApplyShopVisitPool();
+
+        // The "press the shop key" prompt has been obeyed; take it down before the visit talks.
+        DismissActivePanel();
+        RefreshInputBlock();
+
+        if (visit != null) ShowLineSequence(visit.OpeningLines, null);
     }
 
     /// <summary>
@@ -598,6 +693,50 @@ public sealed class FtueDirector : MonoBehaviour
                 RefreshInputBlock();
                 onSubmit?.Invoke(entered);
             });
+    }
+
+    /// <summary>
+    /// Puts the board into its first-run state. Done in code rather than by saving the scene with
+    /// everything switched off, so the objects stay visible and editable while authoring.
+    /// </summary>
+    private void ApplyOpeningBoardState()
+    {
+        if (placeableMultTarget != null) placeableMultTarget.SetActive(false);
+
+        SetGroupActive(extraMultTargets, false);
+        SetGroupActive(multUiGroup, false);
+    }
+
+    private static void SetGroupActive(GameObject[] group, bool active)
+    {
+        if (group == null) return;
+
+        for (int i = 0; i < group.Length; i++)
+        {
+            if (group[i] != null) group[i].SetActive(active);
+        }
+    }
+
+    /// <summary>
+    /// Plays several lines back to back, then runs <paramref name="onDone"/>. Each is dismissed
+    /// normally, so the player reads at their own pace.
+    /// </summary>
+    private void ShowLineSequence(IReadOnlyList<FtueDialogueLine> lines, Action onDone,
+        params object[] extraArgs)
+    {
+        ShowLineFrom(lines, 0, onDone, extraArgs);
+    }
+
+    private void ShowLineFrom(IReadOnlyList<FtueDialogueLine> lines, int index, Action onDone,
+        object[] extraArgs)
+    {
+        if (lines == null || index >= lines.Count)
+        {
+            onDone?.Invoke();
+            return;
+        }
+
+        ShowLine(lines[index], () => ShowLineFrom(lines, index + 1, onDone, extraArgs), extraArgs);
     }
 
     /// <summary>

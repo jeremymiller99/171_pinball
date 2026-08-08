@@ -31,7 +31,14 @@ public sealed class FtueShopVisit
         + "take one — nothing otherwise stops someone with enough coins buying both.")]
     [SerializeField] private bool pickOne;
 
+    [Tooltip("Played in order when the shop opens for this visit. Kept alongside the shelf so a "
+        + "visit's copy and the items it talks about cannot drift apart.")]
+    [SerializeField] private List<FtueDialogueLine> openingLines = new List<FtueDialogueLine>();
+
     public bool PickOne => pickOne;
+
+    public IReadOnlyList<FtueDialogueLine> OpeningLines =>
+        openingLines ?? (IReadOnlyList<FtueDialogueLine>)Array.Empty<FtueDialogueLine>();
 
     public IReadOnlyList<BoardComponentDefinition> Components =>
         components ?? (IReadOnlyList<BoardComponentDefinition>)Array.Empty<BoardComponentDefinition>();
